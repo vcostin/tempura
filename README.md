@@ -81,4 +81,4 @@ Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobi
 
 ## License
 
-Private / unpublished unless you add a license later.
+[MIT](LICENSE) © 2026 Vadim Costin
