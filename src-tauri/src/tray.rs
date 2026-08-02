@@ -1,9 +1,5 @@
 use crate::engine::EngineHandle;
 use crate::models::{Phase, TimerSnapshot};
-use dark_light::Mode;
-use std::sync::atomic::{AtomicU8, Ordering};
-use std::thread;
-use std::time::Duration;
 use tauri::{
     image::Image,
     include_image,
@@ -12,34 +8,11 @@ use tauri::{
     AppHandle, Emitter, Manager,
 };
 
-/// Dark shrimp silhouette — for light system chrome.
-const TRAY_ICON_FOR_LIGHT: Image<'_> = include_image!("icons/tray-32-dark.png");
-/// Light shrimp silhouette — for dark system chrome.
-const TRAY_ICON_FOR_DARK: Image<'_> = include_image!("icons/tray-32-light.png");
+/// Orange shrimp mark — same geometry as the app icon (works on light and dark chrome).
+const TRAY_ICON: Image<'_> = include_image!("icons/tray-32.png");
 
-/// Window / app icon (minimalist shrimp, embedded at compile time).
+/// Window / app icon (sage squircle + shrimp mark).
 pub const APP_ICON: Image<'_> = include_image!("icons/icon.png");
-
-const MODE_LIGHT: u8 = 0;
-const MODE_DARK: u8 = 1;
-
-fn mode_tag(mode: Mode) -> u8 {
-    match mode {
-        Mode::Dark => MODE_DARK,
-        Mode::Light | Mode::Unspecified => MODE_LIGHT,
-    }
-}
-
-fn tray_image_for(mode: Mode) -> Image<'static> {
-    match mode {
-        Mode::Dark => TRAY_ICON_FOR_DARK.clone(),
-        Mode::Light | Mode::Unspecified => TRAY_ICON_FOR_LIGHT.clone(),
-    }
-}
-
-fn detect_mode() -> Mode {
-    dark_light::detect().unwrap_or(Mode::Unspecified)
-}
 
 pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
     let show = MenuItem::with_id(app, "show", "Show window", true, None::<&str>)?;
@@ -58,12 +31,8 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         &[&show, &hide, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit],
     )?;
 
-    let mode = detect_mode();
-    let icon = tray_image_for(mode);
-
-    #[allow(unused_mut)]
-    let mut builder = TrayIconBuilder::with_id("main")
-        .icon(icon)
+    let _tray = TrayIconBuilder::with_id("main")
+        .icon(TRAY_ICON)
         .menu(&menu)
         .tooltip("Tempura · Ready")
         .show_menu_on_left_click(true)
@@ -82,42 +51,10 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
                     let _ = win.set_focus();
                 }
             }
-        });
-
-    // macOS: treat silhouette as a template so the OS tints it for the menu bar.
-    #[cfg(target_os = "macos")]
-    {
-        builder = builder.icon_as_template(true);
-    }
-
-    let _tray = builder.build(app)?;
-
-    start_theme_watcher(app.clone());
-    Ok(())
-}
-
-fn start_theme_watcher(app: AppHandle) {
-    static LAST: AtomicU8 = AtomicU8::new(255);
-    LAST.store(mode_tag(detect_mode()), Ordering::Relaxed);
-
-    thread::Builder::new()
-        .name("tempura-theme".into())
-        .spawn(move || loop {
-            thread::sleep(Duration::from_secs(2));
-            let mode = detect_mode();
-            let tag = mode_tag(mode);
-            if LAST.swap(tag, Ordering::Relaxed) == tag {
-                continue;
-            }
-            if let Some(tray) = app.tray_by_id("main") {
-                let icon = tray_image_for(mode);
-                #[cfg(target_os = "macos")]
-                let _ = tray.set_icon_with_as_template(Some(icon), true);
-                #[cfg(not(target_os = "macos"))]
-                let _ = tray.set_icon(Some(icon));
-            }
         })
-        .expect("spawn theme watcher");
+        .build(app)?;
+
+    Ok(())
 }
 
 fn handle_menu(app: &AppHandle, id: &str) {

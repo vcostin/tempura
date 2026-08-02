@@ -1,0 +1,1 @@
+Shrimp mark geometry adapted from Twemoji (https://github.com/jdecked/twemoji), CC-BY 4.0 — golden batter + outlined tip; segment shading omitted. Same mark used for app icon and tray.

@@ -83,3 +83,5 @@ Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobi
 ## License
 
 [MIT](LICENSE) © 2026 Vadim Costin
+
+App icon shrimp mark adapted from [Twemoji](https://github.com/jdecked/twemoji) (CC-BY 4.0); see `assets/ICON-ATTRIBUTION.txt`.
