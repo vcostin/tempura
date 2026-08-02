@@ -1,0 +1,16 @@
+{
+  "nodeModulesDir": "auto",
+  "tasks": {
+    "dev": "deno run -A --node-modules-dir npm:vite",
+    "build": "deno run -A ./node_modules/typescript/bin/tsc --noEmit && deno run -A --node-modules-dir npm:vite build",
+    "preview": "deno run -A --node-modules-dir npm:vite preview",
+    "tauri": "deno run -A --node-modules-dir npm:@tauri-apps/cli",
+    "tauri:dev": "deno run -A --node-modules-dir npm:@tauri-apps/cli dev",
+    "tauri:build": "deno run -A --node-modules-dir npm:@tauri-apps/cli build"
+  },
+  "compilerOptions": {
+    "lib": ["DOM", "DOM.Iterable", "ES2022"],
+    "jsx": "react-jsx",
+    "strict": true
+  }
+}
