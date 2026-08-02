@@ -10,7 +10,7 @@ import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/typ
 import { THEMES } from "../lib/types";
 
 const defaultSettings: AppSettings = {
-  theme: "mist",
+  theme: "batter",
   notificationsEnabled: true,
   soundEnabled: true,
   halfwayTick: false,

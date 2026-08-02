@@ -1,4 +1,23 @@
 :root,
+[data-theme="batter"] {
+  /* Icon palette: sage squircle, charcoal mark, golden batter, pink tip */
+  --bg0: #d8e2da;
+  --bg1: #e8efea;
+  --bg2: #c5d1c8;
+  --ink: #1e2a32;
+  --ink-muted: #5a6b66;
+  --accent: #c47a2c;
+  --accent-soft: rgba(196, 122, 44, 0.16);
+  --ring: #d4924a;
+  --surface: rgba(255, 255, 255, 0.55);
+  --surface-solid: #f4f8f5;
+  --danger: #b85a6a;
+  --glow: radial-gradient(ellipse at 28% 18%, rgba(196, 122, 44, 0.22), transparent 55%),
+    radial-gradient(ellipse at 82% 78%, rgba(184, 90, 106, 0.14), transparent 50%),
+    linear-gradient(165deg, #d8e2da 0%, #c5d1c8 100%);
+  --texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
 [data-theme="mist"] {
   --bg0: #e8eef2;
   --bg1: #f4f7f9;
@@ -14,7 +33,6 @@
   --glow: radial-gradient(ellipse at 30% 20%, rgba(120, 170, 190, 0.35), transparent 55%),
     radial-gradient(ellipse at 80% 80%, rgba(180, 200, 210, 0.4), transparent 50%),
     linear-gradient(165deg, #e8eef2 0%, #d5e0e8 100%);
-  --texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 }
 
 [data-theme="grove"] {
@@ -720,18 +738,26 @@ button {
 
 .theme-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(5.25rem, 1fr));
+  gap: 0.55rem;
 }
 
 .theme-swatch {
-  min-height: 52px;
+  min-height: 56px;
   border-radius: 12px;
   padding: 0.55rem 0.4rem;
   text-align: center;
-  border: 2px solid transparent;
-  font-weight: 500;
+  border: 2px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  font-weight: 600;
   font-size: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.theme-swatch[data-theme-preview="batter"] {
+  /* Gold-first so it stays visible on sage Batter UI */
+  background: linear-gradient(145deg, #c47a2c 0%, #d8e2da 55%, #b85a6a 100%);
+  color: #1e2a32;
 }
 
 .theme-swatch[data-theme-preview="mist"] {
@@ -756,6 +782,7 @@ button {
 
 .theme-swatch[aria-pressed="true"] {
   border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
 .privacy-note {

@@ -74,7 +74,7 @@ pub struct AppSettings {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
-            theme: "mist".into(),
+            theme: "batter".into(),
             notifications_enabled: true,
             sound_enabled: true,
             halfway_tick: false,

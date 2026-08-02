@@ -76,6 +76,7 @@ export interface PhaseEvent {
 }
 
 export const THEMES = [
+  { id: "batter", label: "Batter" },
   { id: "mist", label: "Mist" },
   { id: "grove", label: "Grove" },
   { id: "dusk", label: "Dusk" },

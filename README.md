@@ -46,7 +46,7 @@ Day-to-day docs assume Deno.
 - **System tray**: always present; close window hides to tray; live tooltip; Quit from tray or Settings
 - **Notifications**: focus / break / long-break complete; optional halfway tick; sound toggle
 - **Settings**: launch at login, start minimized, theme, notify/sound, defaults, flow ratio, privacy blurb
-- **Themes**: Mist, Grove, Dusk, Sandstone
+- **Themes**: Batter (default, icon palette), Mist, Grove, Dusk, Sandstone
 - **Stats**: focus minutes today, cycles, sessions, streak (local only)
 
 ### Keyboard (desktop)
