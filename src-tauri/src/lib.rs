@@ -69,6 +69,9 @@ pub fn run() {
 
             #[cfg(desktop)]
             {
+                if let Some(win) = app.get_webview_window("main") {
+                    let _ = win.set_icon(tray::APP_ICON);
+                }
                 tray::setup_tray(app.handle())?;
             }
 

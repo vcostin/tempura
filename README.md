@@ -1,5 +1,9 @@
 # Tempura
 
+<p align="center">
+  <img src="src-tauri/icons/128x128.png" alt="Tempura — minimalist shrimp icon" width="128" height="128" />
+</p>
+
 Premium focus-rhythm timer for desktop — structured intervals, flexible flow techniques, local-first, tray-native.
 
 Timing matters. Tempura stays calm, polished, and entirely on your machine: **no accounts, no cloud, no sync.**
@@ -74,6 +78,7 @@ Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobi
 
 - **Windows notifications** look correct for installed/packaged builds; unpackaged `tauri dev` may show a PowerShell icon.
 - Tray, autostart, and hide-to-tray are desktop-only. The UI is responsive for a later mobile port; v1 ships desktop only.
+- Linux AppImage builds set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf` installed.
 
 ## License
 
