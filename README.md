@@ -4,10 +4,6 @@ Premium focus-rhythm timer for desktop — structured intervals, flexible flow t
 
 Timing matters. Tempura stays calm, polished, and entirely on your machine: **no accounts, no cloud, no sync.**
 
-App name / window title / bundle display name: **Tempura**  
-Identifier: `app.tempura.focus`  
-npm package (private, scoped): `@tempura/focus-app`
-
 ## Requirements
 
 - [Deno](https://deno.land/) 2.x (primary toolchain)
