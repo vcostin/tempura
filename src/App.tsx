@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { DebugView } from "./components/DebugView";
 import { SettingsView } from "./components/SettingsView";
 import { StatsView } from "./components/StatsView";
 import { TechniquesGuide } from "./components/TechniquesGuide";
@@ -7,10 +8,11 @@ import { TimerView } from "./components/TimerView";
 import { useSession } from "./hooks/useSession";
 import { useSettings } from "./hooks/useSettings";
 import { api } from "./lib/api";
+import { isDebugAccessEnabled } from "./lib/debugAccess";
 import { isDesktopShell, isTauri } from "./lib/platform";
 import "./styles/global.css";
 
-type View = "timer" | "settings" | "stats" | "guide";
+type View = "timer" | "settings" | "stats" | "guide" | "debug";
 
 export default function App() {
   const session = useSession();
@@ -18,6 +20,13 @@ export default function App() {
   const [view, setView] = useState<View>("timer");
   const [windowHidden, setWindowHidden] = useState(false);
   const [workingOn, setWorkingOn] = useState("");
+  const [debugEnabled, setDebugEnabled] = useState(() =>
+    isDebugAccessEnabled(settingsApi.info?.debug),
+  );
+
+  useEffect(() => {
+    setDebugEnabled(isDebugAccessEnabled(settingsApi.info?.debug));
+  }, [settingsApi.info?.debug]);
 
   useEffect(() => {
     setWorkingOn(settingsApi.settings.workingOn);
@@ -46,6 +55,14 @@ export default function App() {
     window.addEventListener("tempura:open-settings", onOpen);
     return () => window.removeEventListener("tempura:open-settings", onOpen);
   }, []);
+
+  useEffect(() => {
+    const onDebugAccess = () => {
+      setDebugEnabled(isDebugAccessEnabled(settingsApi.info?.debug));
+    };
+    window.addEventListener("tempura:debug-access", onDebugAccess);
+    return () => window.removeEventListener("tempura:debug-access", onDebugAccess);
+  }, [settingsApi.info?.debug]);
 
   useEffect(() => {
     if (!isTauri()) return;
@@ -116,6 +133,7 @@ export default function App() {
           onOpenSettings={() => setView("settings")}
           onOpenStats={() => setView("stats")}
           onOpenGuide={() => setView("guide")}
+          onOpenDebug={debugEnabled ? () => setView("debug") : undefined}
         />
       )}
 
@@ -135,6 +153,10 @@ export default function App() {
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
           onOpenGuide={() => setView("guide")}
+          onDebugUnlocked={() => {
+            setDebugEnabled(true);
+            setView("debug");
+          }}
           onQuit={
             settingsApi.desktop
               ? () => {
@@ -153,6 +175,16 @@ export default function App() {
         <TechniquesGuide
           onClose={() => setView("timer")}
           onOpenSettings={() => setView("settings")}
+        />
+      )}
+
+      {view === "debug" && debugEnabled && (
+        <DebugView
+          info={settingsApi.info}
+          onClose={() => setView("timer")}
+          onAccessChanged={() =>
+            setDebugEnabled(isDebugAccessEnabled(settingsApi.info?.debug))
+          }
         />
       )}
     </div>

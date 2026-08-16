@@ -162,19 +162,16 @@ pub fn get_app_info() -> AppInfo {
         version: env!("CARGO_PKG_VERSION").into(),
         privacy: "Your data stays on this machine. No accounts, no cloud, no sync.".into(),
         debug: cfg!(debug_assertions),
+        notification_backend: crate::notify::backend_label().into(),
     }
 }
 
 /// Fires a sample OS notification through the same path as phase alerts.
-/// Available in all builds so the invoke stays registered; no-ops outside debug.
 #[tauri::command]
 pub fn debug_test_notification(
     app: AppHandle,
     engine: State<'_, EngineHandle>,
 ) -> Result<(), String> {
-    if !cfg!(debug_assertions) {
-        return Err("Test notifications are only available in debug builds.".into());
-    }
     let settings = engine.settings();
     crate::notify::show_result(
         &app,

@@ -275,8 +275,10 @@ pub struct AppInfo {
     pub name: String,
     pub version: String,
     pub privacy: String,
-    /// True for `tauri dev` / debug builds — gates developer-only UI.
+    /// True for `tauri:dev` / debug builds — gates developer-only UI.
     pub debug: bool,
+    /// Which desktop notification backend is active (Debug page).
+    pub notification_backend: String,
 }
 
 #[cfg(test)]

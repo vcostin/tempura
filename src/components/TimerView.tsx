@@ -24,6 +24,7 @@ interface Props {
   onOpenSettings: () => void;
   onOpenStats: () => void;
   onOpenGuide: () => void;
+  onOpenDebug?: () => void;
 }
 
 export function TimerView(props: Props) {
@@ -71,6 +72,17 @@ export function TimerView(props: Props) {
             >
               <GearIcon />
             </button>
+            {props.onOpenDebug && (
+              <button
+                type="button"
+                className="icon-btn"
+                aria-label="Debug"
+                onClick={props.onOpenDebug}
+                title="Debug"
+              >
+                <BugIcon />
+              </button>
+            )}
           </>
         }
       />
@@ -218,6 +230,19 @@ function StatsIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
       <path d="M4 19V9M10 19V5M16 19v-7M22 19H2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function BugIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+      <path
+        d="M8 9.5C8 7 9.8 5 12 5s4 2 4 4.5v5c0 2.5-1.8 4.5-4 4.5s-4-2-4-4.5v-5Z"
+        strokeLinecap="round"
+      />
+      <path d="M12 5V3M8.5 8H5M18.5 8H15M8.5 12H4M20 12h-4.5M9 16.5 6.5 19M15 16.5 17.5 19" strokeLinecap="round" />
+      <path d="M10 10.5h4M10 13.5h4" strokeLinecap="round" />
     </svg>
   );
 }

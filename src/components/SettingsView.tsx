@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { api, formatTechniqueRhythm } from "../lib/api";
-import { ensureNotificationPermission } from "../lib/platform";
+import { formatTechniqueRhythm } from "../lib/api";
+import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { guideForTechnique } from "../lib/techniqueGuide";
 import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
@@ -23,6 +23,8 @@ interface Props {
   onTechniquesChanged: () => Promise<void>;
   onOpenGuide?: () => void;
   onQuit?: () => void;
+  /** After unlocking debug access in a release build. */
+  onDebugUnlocked?: () => void;
 }
 
 export function SettingsView(props: Props) {
@@ -37,26 +39,7 @@ export function SettingsView(props: Props) {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [testNotifyBusy, setTestNotifyBusy] = useState(false);
-  const [testNotifyMsg, setTestNotifyMsg] = useState<string | null>(null);
-
-  async function sendTestNotification() {
-    setTestNotifyBusy(true);
-    setTestNotifyMsg(null);
-    try {
-      const granted = await ensureNotificationPermission();
-      if (!granted) {
-        setTestNotifyMsg("Notification permission denied.");
-        return;
-      }
-      await api.debugTestNotification();
-      setTestNotifyMsg("Sent — check the system tray / notification center.");
-    } catch (err) {
-      setTestNotifyMsg(String(err));
-    } finally {
-      setTestNotifyBusy(false);
-    }
-  }
+  const [versionClicks, setVersionClicks] = useState(0);
 
   async function saveCustom(e: FormEvent) {
     e.preventDefault();
@@ -216,30 +199,6 @@ export function SettingsView(props: Props) {
             onClick={() => void props.onPatch({ halfwayTick: !settings.halfwayTick })}
           />
         </div>
-        {props.info?.debug && (
-          <>
-            <p className="hint">
-              Dev only: on recent macOS, notifications use AppleScript so banners
-              appear (Script Editor icon). Custom Tempura icons need an installed
-              .app. Linux uses the Tempura icon; Windows unpackaged builds may
-              show a PowerShell icon.
-            </p>
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={{ marginTop: "0.75rem" }}
-              disabled={testNotifyBusy}
-              onClick={() => void sendTestNotification()}
-            >
-              {testNotifyBusy ? "Sending…" : "Send test notification"}
-            </button>
-            {testNotifyMsg && (
-              <p className="hint" style={{ marginTop: "0.5rem" }}>
-                {testNotifyMsg}
-              </p>
-            )}
-          </>
-        )}
       </section>
 
       {props.desktop && (
@@ -398,7 +357,29 @@ export function SettingsView(props: Props) {
         <div className="privacy-note">
           <p style={{ margin: "0 0 0.5rem" }}>
             <strong>{props.info?.name ?? "Tempura"}</strong>
-            {props.info ? ` · v${props.info.version}` : ""}
+            {props.info ? (
+              <>
+                {" · "}
+                <button
+                  type="button"
+                  className="linkish"
+                  style={{ padding: 0, font: "inherit", color: "inherit" }}
+                  title="Version"
+                  onClick={() => {
+                    if (isDebugAccessEnabled(props.info?.debug)) return;
+                    const next = versionClicks + 1;
+                    setVersionClicks(next);
+                    if (next >= 5) {
+                      enableDebugAccess();
+                      setVersionClicks(0);
+                      props.onDebugUnlocked?.();
+                    }
+                  }}
+                >
+                  v{props.info.version}
+                </button>
+              </>
+            ) : null}
           </p>
           <p style={{ margin: 0 }}>
             {props.info?.privacy ??

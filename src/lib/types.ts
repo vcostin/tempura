@@ -66,8 +66,10 @@ export interface AppInfo {
   name: string;
   version: string;
   privacy: string;
-  /** True in `tauri dev` / debug builds — gates developer-only UI. */
+  /** True in `tauri:dev` / debug builds — gates developer-only UI. */
   debug: boolean;
+  /** Active desktop notification backend (Debug page). */
+  notificationBackend: string;
 }
 
 export interface PhaseEvent {

@@ -72,6 +72,7 @@ pub fn run() {
                     let _ = win.set_icon(tray::APP_ICON);
                 }
                 tray::setup_tray(app.handle())?;
+                notify::init(app.handle());
             }
 
             let start_minimized = settings.start_minimized

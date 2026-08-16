@@ -1,21 +1,27 @@
-//! Desktop notifications.
+//! Desktop notifications — delivery only; no custom banner icons.
 //!
-//! macOS: `osascript` `display notification`. The Tauri/notify-rust stack still
-//! uses deprecated `NSUserNotificationCenter`, which returns success but shows
-//! nothing on modern macOS. AppleScript still delivers; the banner is attributed
-//! to Script Editor until Tempura runs as an installed `.app` with a modern
-//! `UNUserNotificationCenter` path.
-//! Linux/Windows: `notify_rust` with Tempura's icon/image when available.
+//! ## macOS limitation
+//! Banner icon and click target are owned by macOS app identity
+//! (`UNUserNotificationCenter` + signed `.app`). Without an Apple Developer ID
+//! / trusted Launch Services registration that is **impossible** to fake: you
+//! cannot pass a PNG and get a Tempura shrimp on the left. AppleScript always
+//! attributes to Script Editor. We do not chase custom icons.
+//!
+//! We try `UNUserNotificationCenter` when authorization works; otherwise
+//! AppleScript so banners still appear (Script Editor attribution accepted).
+//!
+//! ## Linux / Windows
+//! Plain `notify_rust` text notifications (OS default attribution).
 
-use std::path::PathBuf;
-use std::process::Command;
-use std::sync::Mutex;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::OnceLock;
 
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 
-const ICON_PNG: &[u8] = include_bytes!("../icons/128x128.png");
+static APP: OnceLock<AppHandle> = OnceLock::new();
 
-static ICON_PATH: Mutex<Option<PathBuf>> = Mutex::new(None);
+#[cfg(target_os = "macos")]
+static UN_READY: AtomicBool = AtomicBool::new(false);
 
 fn dev_log(msg: impl AsRef<str>) {
     if cfg!(debug_assertions) || tauri::is_dev() {
@@ -23,39 +29,40 @@ fn dev_log(msg: impl AsRef<str>) {
     }
 }
 
-fn ensure_icon_file(app: &AppHandle) -> Option<PathBuf> {
-    if let Ok(guard) = ICON_PATH.lock() {
-        if let Some(path) = guard.as_ref() {
-            if path.exists() {
-                return Some(path.clone());
-            }
-        }
-    }
+/// Call once from app setup: request UN authorization when possible.
+pub fn init(app: &AppHandle) {
+    let _ = APP.set(app.clone());
 
-    let dir = match app.path().app_cache_dir() {
-        Ok(dir) => dir,
+    #[cfg(target_os = "macos")]
+    {
+        init_macos_un();
+    }
+}
+
+#[cfg(target_os = "macos")]
+fn init_macos_un() {
+    match mac_usernotifications::check_bundle() {
+        Ok(()) => dev_log("macos · bundle identifier present"),
         Err(err) => {
-            dev_log(format!("icon cache dir unavailable: {err}"));
-            return None;
+            dev_log(format!(
+                "macos · no bundle id ({err}) — UN unavailable, AppleScript fallback"
+            ));
+            return;
         }
-    };
-    let path = dir.join("notification-icon.png");
-    if !path.exists() {
-        if let Err(err) = std::fs::create_dir_all(&dir) {
-            dev_log(format!("failed to create icon cache dir: {err}"));
-            return None;
-        }
-        if let Err(err) = std::fs::write(&path, ICON_PNG) {
-            dev_log(format!("failed to write notification icon: {err}"));
-            return None;
-        }
-        dev_log(format!("wrote notification icon → {}", path.display()));
     }
 
-    if let Ok(mut guard) = ICON_PATH.lock() {
-        *guard = Some(path.clone());
+    match mac_usernotifications::blocking::request_auth() {
+        Ok(true) => {
+            UN_READY.store(true, Ordering::SeqCst);
+            dev_log("macos · UNUserNotificationCenter authorized");
+        }
+        Ok(false) => {
+            dev_log("macos · UN authorization denied by user");
+        }
+        Err(err) => {
+            dev_log(format!("macos · UN request_auth failed: {err}"));
+        }
     }
-    Some(path)
 }
 
 fn escape_applescript(s: &str) -> String {
@@ -92,24 +99,59 @@ fn show_inner(
     body: &str,
     silent: bool,
 ) -> Result<(), String> {
-    let icon = ensure_icon_file(app);
     dev_log(format!(
-        "sending · title={title:?} body={body:?} silent={silent} icon={}",
-        icon.as_ref()
-            .map(|p| p.display().to_string())
-            .unwrap_or_else(|| "none".into())
+        "sending · title={title:?} body={body:?} silent={silent}"
     ));
 
     #[cfg(target_os = "macos")]
     {
-        let _ = icon;
+        let _ = app;
+        if UN_READY.load(Ordering::SeqCst) {
+            return show_macos_un(title, body, silent);
+        }
+        dev_log("macos · UN not ready — AppleScript fallback (Script Editor attribution)");
         show_macos_osascript(title, body, silent)
     }
 
     #[cfg(not(target_os = "macos"))]
     {
-        show_notify_rust(app, title, body, icon.as_deref())
+        show_notify_rust(app, title, body)
     }
+}
+
+#[cfg(target_os = "macos")]
+fn show_macos_un(title: &str, body: &str, silent: bool) -> Result<(), String> {
+    use mac_usernotifications::Notification;
+
+    let mut n = Notification::new().title(title).message(body);
+    if !silent {
+        n = n.default_sound();
+    }
+
+    let handle = n
+        .send_blocking()
+        .map_err(|err| format!("UNUserNotificationCenter: {err}"))?;
+
+    dev_log(format!(
+        "macos · delivered via UNUserNotificationCenter id={}",
+        handle.notification_id()
+    ));
+
+    std::thread::Builder::new()
+        .name("tempura-notify-click".into())
+        .spawn(move || match mac_usernotifications::block_on_current(handle.response()) {
+            Ok(Ok(resp)) if resp.is_default_action() => {
+                if let Some(app) = APP.get() {
+                    crate::tray::restore_main(app);
+                }
+            }
+            Ok(Ok(_)) => {}
+            Ok(Err(err)) => dev_log(format!("macos · notification response err: {err}")),
+            Err(err) => dev_log(format!("macos · wait response: {err}")),
+        })
+        .ok();
+
+    Ok(())
 }
 
 #[cfg(target_os = "macos")]
@@ -126,7 +168,7 @@ fn show_macos_osascript(title: &str, body: &str, silent: bool) -> Result<(), Str
 
     dev_log(format!("macos · osascript: {script}"));
 
-    let output = Command::new("osascript")
+    let output = std::process::Command::new("osascript")
         .args(["-e", &script])
         .output()
         .map_err(|err| format!("osascript spawn: {err}"))?;
@@ -141,9 +183,6 @@ fn show_macos_osascript(title: &str, body: &str, silent: bool) -> Result<(), Str
     }
 
     if output.status.success() {
-        dev_log(
-            "macos · delivered (look under Script Editor in Notification Center; custom icons need an installed .app)",
-        );
         Ok(())
     } else {
         Err(format!(
@@ -155,29 +194,9 @@ fn show_macos_osascript(title: &str, body: &str, silent: bool) -> Result<(), Str
 }
 
 #[cfg(not(target_os = "macos"))]
-fn show_notify_rust(
-    app: &AppHandle,
-    title: &str,
-    body: &str,
-    icon: Option<&std::path::Path>,
-) -> Result<(), String> {
+fn show_notify_rust(app: &AppHandle, title: &str, body: &str) -> Result<(), String> {
     let mut notification = notify_rust::Notification::new();
-    notification.summary(title).body(body);
-
-    if let Some(path) = icon {
-        let path_str = path.to_string_lossy().into_owned();
-        #[cfg(all(unix, not(target_os = "macos")))]
-        {
-            notification.icon(&path_str);
-            notification.appname("Tempura");
-            dev_log(format!("linux icon={path_str}"));
-        }
-        #[cfg(windows)]
-        {
-            notification.image_path(&path_str);
-            dev_log(format!("windows image_path={path_str}"));
-        }
-    }
+    notification.summary(title).body(body).appname("Tempura");
 
     #[cfg(windows)]
     {
@@ -189,12 +208,14 @@ fn show_notify_rust(
                     || curr_dir.ends_with(format!("{SEP}target{SEP}release").as_str());
                 if !is_dev_target {
                     notification.app_id(&app.config().identifier);
-                    dev_log(format!("windows app_id={}", app.config().identifier));
-                } else {
-                    dev_log("windows unpackaged · PowerShell app id");
                 }
             }
         }
+    }
+
+    #[cfg(not(windows))]
+    {
+        let _ = app;
     }
 
     match notification.show() {
@@ -203,5 +224,21 @@ fn show_notify_rust(
             Ok(())
         }
         Err(err) => Err(format!("show(): {err}")),
+    }
+}
+
+/// Backend label for the Debug page.
+pub fn backend_label() -> &'static str {
+    #[cfg(target_os = "macos")]
+    {
+        if UN_READY.load(Ordering::SeqCst) {
+            "UNUserNotificationCenter"
+        } else {
+            "AppleScript (Script Editor)"
+        }
+    }
+    #[cfg(not(target_os = "macos"))]
+    {
+        "notify-rust"
     }
 }
