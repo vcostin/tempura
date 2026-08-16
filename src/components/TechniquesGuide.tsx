@@ -1,4 +1,4 @@
-import { TECHNIQUE_GUIDE } from "../lib/techniqueGuide";
+import { CUSTOM_GUIDE, TECHNIQUE_GUIDE } from "../lib/techniqueGuide";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 
@@ -33,14 +33,11 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
 
         <article className="guide-card">
           <header>
-            <h3>Custom</h3>
-            <p className="guide-best">Power users</p>
+            <h3>{CUSTOM_GUIDE.name}</h3>
+            <p className="guide-best">{CUSTOM_GUIDE.bestFor}</p>
           </header>
-          <p className="guide-ratio">User-defined ratios + long-break cadence</p>
-          <p className="guide-blurb">
-            Bake your own intervals in Settings — name, focus, short break, long break,
-            and how often the long rest lands.
-          </p>
+          <p className="guide-ratio">{CUSTOM_GUIDE.workBreak}</p>
+          <p className="guide-blurb">{CUSTOM_GUIDE.blurb}</p>
           {onOpenSettings && (
             <button type="button" className="btn btn-ghost" onClick={onOpenSettings}>
               Open Settings

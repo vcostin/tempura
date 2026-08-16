@@ -39,6 +39,7 @@
           <span>Tempura</span>
         </a>
         <div class="nav-links">
+          <a href="#techniques">Techniques</a>
           <a href="#download">Download</a>
           <a href="https://github.com/vcostin/tempura">GitHub</a>
         </div>
@@ -123,18 +124,23 @@
         </div>
       </section>
 
-      <section class="rhythms" aria-label="Focus techniques">
-        <p class="rhythms-label">Techniques in the pan</p>
-        <ul class="chips">
-          <li>Classic</li>
-          <li class="is-hot">Sprint</li>
-          <li>Deep</li>
-          <li>52/17</li>
-          <li>Ultradian</li>
-          <li>Flowtime</li>
-          <li>Hybrid</li>
-          <li>Your own</li>
-        </ul>
+      <section class="rhythms" id="techniques" aria-labelledby="rhythms-heading">
+        <p class="rhythms-label" id="rhythms-heading">Techniques in the pan</p>
+        <div class="chips" role="tablist" aria-label="Focus techniques" id="technique-tabs"></div>
+        <article class="technique-card" id="technique-panel" role="tabpanel" tabindex="0">
+          <header>
+            <h2 id="technique-name">Sprint</h2>
+            <p class="technique-best" id="technique-best">Warm-up, easing into a hard start</p>
+          </header>
+          <p class="technique-ratio" id="technique-ratio">15m focus / 3m break</p>
+          <p class="technique-blurb" id="technique-blurb">
+            Tiny intervals to get moving. Use it to break inertia, dabble into a hard task,
+            or rebuild attention after a distraction.
+          </p>
+        </article>
+        <p class="technique-note">
+          Work rhythms for the desk — not a diagnosis, and not medical advice.
+        </p>
       </section>
 
       <section class="points">
@@ -209,5 +215,6 @@
     </footer>
 
     <script src="./download.js" type="module"></script>
+    <script src="./techniques.js" type="module"></script>
   </body>
 </html>
