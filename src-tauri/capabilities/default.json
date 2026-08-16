@@ -12,7 +12,6 @@
     "core:window:allow-is-visible",
     "core:tray:default",
     "core:event:default",
-    "opener:default",
     "notification:default",
     "autostart:allow-enable",
     "autostart:allow-disable",
