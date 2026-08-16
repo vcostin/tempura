@@ -81,7 +81,7 @@ Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobi
 
 - **Windows notifications** look correct for installed/packaged builds; unpackaged `tauri dev` may show a PowerShell icon.
 - Tray, autostart, and hide-to-tray are desktop-only. The UI is responsive for a later mobile port; v1 ships desktop only.
-- Linux AppImage builds set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf` installed.
+- Linux AppImage builds set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1` in the Deno tasks and the Release workflow. If you use the npm fallback on Linux, prefix the command the same way. You may also need `fuse2`, `squashfs-tools`, and `patchelf` installed.
 
 ## Releasing
 

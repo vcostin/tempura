@@ -8,9 +8,9 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "tauri": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 tauri",
+    "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 tauri build"
+    "tauri:build": "tauri build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",

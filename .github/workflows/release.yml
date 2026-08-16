@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -79,6 +80,8 @@ jobs:
           NO_STRIP: "true"
           APPIMAGE_EXTRACT_AND_RUN: "1"
         with:
+          # Bypass package.json scripts so Windows cmd does not see Unix env prefixes.
+          tauriScript: npx tauri
           tagName: v__VERSION__
           releaseName: Tempura v__VERSION__
           releaseBody: |
