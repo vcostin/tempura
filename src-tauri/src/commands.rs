@@ -1,7 +1,7 @@
 use crate::db::Database;
 use crate::engine::EngineHandle;
 use crate::models::{
-    AppInfo, AppSettings, DayStats, Technique, TechniqueInput, TimerSnapshot,
+    validate_id, AppInfo, AppSettings, DayStats, Technique, TechniqueInput, TimerSnapshot,
 };
 use parking_lot::Mutex;
 use tauri::{AppHandle, Emitter, State};
@@ -21,6 +21,9 @@ pub fn timer_start(
     engine: State<'_, EngineHandle>,
     technique_id: Option<String>,
 ) -> Result<TimerSnapshot, String> {
+    if let Some(id) = technique_id.as_deref() {
+        validate_id(id)?;
+    }
     engine.start(&app, technique_id)
 }
 
@@ -78,6 +81,7 @@ pub fn list_techniques(state: State<'_, AppState>) -> Result<Vec<Technique>, Str
 
 #[tauri::command]
 pub fn get_technique(state: State<'_, AppState>, id: String) -> Result<Option<Technique>, String> {
+    validate_id(&id)?;
     state
         .db
         .lock()
@@ -90,6 +94,7 @@ pub fn create_technique(
     state: State<'_, AppState>,
     input: TechniqueInput,
 ) -> Result<Technique, String> {
+    let input = input.validated()?;
     state
         .db
         .lock()
@@ -103,6 +108,8 @@ pub fn update_technique(
     id: String,
     input: TechniqueInput,
 ) -> Result<Technique, String> {
+    validate_id(&id)?;
+    let input = input.validated()?;
     state
         .db
         .lock()
@@ -112,6 +119,7 @@ pub fn update_technique(
 
 #[tauri::command]
 pub fn delete_technique(state: State<'_, AppState>, id: String) -> Result<(), String> {
+    validate_id(&id)?;
     state
         .db
         .lock()
@@ -131,6 +139,7 @@ pub fn update_settings(
     engine: State<'_, EngineHandle>,
     settings: AppSettings,
 ) -> Result<AppSettings, String> {
+    let settings = settings.validated()?;
     state
         .db
         .lock()
