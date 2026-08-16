@@ -1,24 +1,21 @@
 //! Desktop notifications — delivery only; no custom banner icons.
 //!
 //! ## macOS limitation
-//! Banner icon and click target are owned by macOS app identity
+//! Banner icon / click target are owned by macOS app identity
 //! (`UNUserNotificationCenter` + signed `.app`). Without an Apple Developer ID
-//! / trusted Launch Services registration that is **impossible** to fake: you
-//! cannot pass a PNG and get a Tempura shrimp on the left. AppleScript always
-//! attributes to Script Editor. We do not chase custom icons.
+//! that is **impossible** to fake. AppleScript always attributes to Script
+//! Editor (and a click may open Script Editor — we cannot suppress that).
+//! We do not open Tempura on notification click.
 //!
 //! We try `UNUserNotificationCenter` when authorization works; otherwise
-//! AppleScript so banners still appear (Script Editor attribution accepted).
+//! AppleScript so banners still appear.
 //!
 //! ## Linux / Windows
 //! Plain `notify_rust` text notifications (OS default attribution).
 
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::OnceLock;
 
 use tauri::AppHandle;
-
-static APP: OnceLock<AppHandle> = OnceLock::new();
 
 #[cfg(target_os = "macos")]
 static UN_READY: AtomicBool = AtomicBool::new(false);
@@ -30,9 +27,7 @@ fn dev_log(msg: impl AsRef<str>) {
 }
 
 /// Call once from app setup: request UN authorization when possible.
-pub fn init(app: &AppHandle) {
-    let _ = APP.set(app.clone());
-
+pub fn init(_app: &AppHandle) {
     #[cfg(target_os = "macos")]
     {
         init_macos_un();
@@ -132,24 +127,8 @@ fn show_macos_un(title: &str, body: &str, silent: bool) -> Result<(), String> {
         .send_blocking()
         .map_err(|err| format!("UNUserNotificationCenter: {err}"))?;
 
-    dev_log(format!(
-        "macos · delivered via UNUserNotificationCenter id={}",
-        handle.notification_id()
-    ));
-
-    std::thread::Builder::new()
-        .name("tempura-notify-click".into())
-        .spawn(move || match mac_usernotifications::block_on_current(handle.response()) {
-            Ok(Ok(resp)) if resp.is_default_action() => {
-                if let Some(app) = APP.get() {
-                    crate::tray::restore_main(app);
-                }
-            }
-            Ok(Ok(_)) => {}
-            Ok(Err(err)) => dev_log(format!("macos · notification response err: {err}")),
-            Err(err) => dev_log(format!("macos · wait response: {err}")),
-        })
-        .ok();
+    // Fire-and-forget: no click handler (we don't restore Tempura on tap).
+    let _ = handle;
 
     Ok(())
 }
