@@ -3759,6 +3759,7 @@ name = "tempura"
 version = "0.1.2"
 dependencies = [
  "chrono",
+ "notify-rust",
  "parking_lot",
  "rusqlite",
  "serde",

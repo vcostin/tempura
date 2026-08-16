@@ -275,6 +275,8 @@ pub struct AppInfo {
     pub name: String,
     pub version: String,
     pub privacy: String,
+    /// True for `tauri dev` / debug builds — gates developer-only UI.
+    pub debug: bool,
 }
 
 #[cfg(test)]

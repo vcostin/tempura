@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
-import { formatTechniqueRhythm } from "../lib/api";
+import { api, formatTechniqueRhythm } from "../lib/api";
+import { ensureNotificationPermission } from "../lib/platform";
 import { guideForTechnique } from "../lib/techniqueGuide";
 import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
@@ -36,6 +37,26 @@ export function SettingsView(props: Props) {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [testNotifyBusy, setTestNotifyBusy] = useState(false);
+  const [testNotifyMsg, setTestNotifyMsg] = useState<string | null>(null);
+
+  async function sendTestNotification() {
+    setTestNotifyBusy(true);
+    setTestNotifyMsg(null);
+    try {
+      const granted = await ensureNotificationPermission();
+      if (!granted) {
+        setTestNotifyMsg("Notification permission denied.");
+        return;
+      }
+      await api.debugTestNotification();
+      setTestNotifyMsg("Sent — check the system tray / notification center.");
+    } catch (err) {
+      setTestNotifyMsg(String(err));
+    } finally {
+      setTestNotifyBusy(false);
+    }
+  }
 
   async function saveCustom(e: FormEvent) {
     e.preventDefault();
@@ -195,10 +216,30 @@ export function SettingsView(props: Props) {
             onClick={() => void props.onPatch({ halfwayTick: !settings.halfwayTick })}
           />
         </div>
-        <p className="hint">
-          On Windows, notifications look correct in installed builds; unpackaged
-          development may show a PowerShell icon.
-        </p>
+        {props.info?.debug && (
+          <>
+            <p className="hint">
+              Dev only: on recent macOS, notifications use AppleScript so banners
+              appear (Script Editor icon). Custom Tempura icons need an installed
+              .app. Linux uses the Tempura icon; Windows unpackaged builds may
+              show a PowerShell icon.
+            </p>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ marginTop: "0.75rem" }}
+              disabled={testNotifyBusy}
+              onClick={() => void sendTestNotification()}
+            >
+              {testNotifyBusy ? "Sending…" : "Send test notification"}
+            </button>
+            {testNotifyMsg && (
+              <p className="hint" style={{ marginTop: "0.5rem" }}>
+                {testNotifyMsg}
+              </p>
+            )}
+          </>
+        )}
       </section>
 
       {props.desktop && (

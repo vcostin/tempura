@@ -66,6 +66,8 @@ export interface AppInfo {
   name: string;
   version: string;
   privacy: string;
+  /** True in `tauri dev` / debug builds — gates developer-only UI. */
+  debug: boolean;
 }
 
 export interface PhaseEvent {

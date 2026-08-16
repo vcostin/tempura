@@ -32,6 +32,7 @@ export const api = {
 
   getStats: () => invoke<DayStats>("get_stats"),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
+  debugTestNotification: () => invoke<void>("debug_test_notification"),
   requestQuit: () => invoke<void>("request_quit"),
   hideToTray: () => invoke<void>("hide_to_tray"),
 };

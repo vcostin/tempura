@@ -2,6 +2,7 @@ mod commands;
 mod db;
 mod engine;
 mod models;
+mod notify;
 mod tray;
 
 pub use commands::AppState;
@@ -48,6 +49,7 @@ pub fn run() {
             commands::update_settings,
             commands::get_stats,
             commands::get_app_info,
+            commands::debug_test_notification,
             commands::request_quit,
             commands::hide_to_tray,
         ])

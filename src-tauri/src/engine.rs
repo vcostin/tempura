@@ -6,7 +6,6 @@ use std::sync::Arc;
 use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 use tauri::{AppHandle, Emitter, Manager};
-use tauri_plugin_notification::NotificationExt;
 
 #[derive(Clone)]
 pub struct EngineHandle {
@@ -75,6 +74,10 @@ impl EngineHandle {
 
     pub fn snapshot(&self) -> TimerSnapshot {
         self.inner.lock().snapshot.clone()
+    }
+
+    pub fn settings(&self) -> AppSettings {
+        self.inner.lock().settings.clone()
     }
 
     pub fn load_settings(&self, settings: AppSettings) {
@@ -578,12 +581,9 @@ impl EngineHandle {
         if !settings.notifications_enabled {
             return;
         }
+        let silent = !settings.sound_enabled;
         for (title, body) in items {
-            let mut builder = app.notification().builder().title(title).body(body);
-            if !settings.sound_enabled {
-                builder = builder.silent();
-            }
-            let _ = builder.show();
+            crate::notify::show(app, title, body, silent);
         }
     }
 
