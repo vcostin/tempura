@@ -1,3 +1,19 @@
+@font-face {
+  font-family: "Outfit";
+  src: url("./fonts/outfit-latin-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Fraunces";
+  src: url("./fonts/fraunces-latin-wght.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg0: #d8e2da;
   --bg1: #e8efea;

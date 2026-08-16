@@ -1,0 +1,6 @@
+Fraunces and Outfit (SIL Open Font License 1.1), latin variable woff2 subsets
+self-hosted from Google Fonts / fonts.gstatic.com so the app and site load no
+third-party font origins at runtime.
+
+https://fonts.google.com/specimen/Fraunces
+https://fonts.google.com/specimen/Outfit
