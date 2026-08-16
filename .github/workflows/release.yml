@@ -28,16 +28,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: denoland/setup-deno@v2
         with:
-          node-version: lts/*
+          deno-version: v2.x
 
       - name: Verify tag matches app version
+        if: startsWith(github.ref, 'refs/tags/v')
         shell: bash
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME#v}"
-          CONF=$(node -e "import { readFileSync } from 'node:fs'; console.log(JSON.parse(readFileSync('src-tauri/tauri.conf.json','utf8')).version)")
+          CONF=$(deno eval "console.log(JSON.parse(Deno.readTextFileSync('src-tauri/tauri.conf.json')).version)")
           echo "tag=$TAG tauri.conf.json=$CONF"
           if [ "$TAG" != "$CONF" ]; then
             echo "::error::Tag v$TAG does not match tauri.conf.json version $CONF. Run: deno task version $TAG"
@@ -58,10 +59,6 @@ jobs:
             squashfs-tools \
             file
 
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -72,7 +69,7 @@ jobs:
           workspaces: "./src-tauri -> target"
 
       - name: Install frontend dependencies
-        run: npm install
+        run: deno install --frozen --allow-scripts
 
       - uses: tauri-apps/tauri-action@v1
         env:
@@ -80,8 +77,8 @@ jobs:
           NO_STRIP: "true"
           APPIMAGE_EXTRACT_AND_RUN: "1"
         with:
-          # Bypass package.json scripts so Windows cmd does not see Unix env prefixes.
-          tauriScript: npx tauri
+          # Deno's task runner accepts VAR=value on every OS; npm scripts on Windows do not.
+          tauriScript: deno task tauri
           tagName: v__VERSION__
           releaseName: Tempura v__VERSION__
           releaseBody: |
