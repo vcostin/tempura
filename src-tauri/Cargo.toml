@@ -1,6 +1,6 @@
 [package]
 name = "tempura"
-version = "0.1.0"
+version = "0.1.1"
 description = "Tempura — premium focus-rhythm timer"
 authors = ["Tempura"]
 edition = "2021"
