@@ -1,3 +1,8 @@
+#[cfg(target_os = "linux")]
+use std::sync::atomic::{AtomicBool, Ordering};
+#[cfg(target_os = "linux")]
+use std::time::Duration;
+
 use crate::engine::EngineHandle;
 use crate::models::{Phase, TimerSnapshot};
 use tauri::{
@@ -5,14 +10,91 @@ use tauri::{
     include_image,
     menu::{Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
-    AppHandle, Emitter, Manager,
+    AppHandle, Emitter, Manager, WebviewWindow, Window,
 };
+
+/// GTK/Wayland (KDE especially) leaves CSD buttons dead after hide→show until
+/// a compositor configure. Set when we restore so the next focus can heal it.
+#[cfg(target_os = "linux")]
+static LINUX_CSD_NEEDS_HEAL: AtomicBool = AtomicBool::new(false);
 
 /// Orange shrimp mark — same geometry as the app icon (works on light and dark chrome).
 const TRAY_ICON: Image<'_> = include_image!("icons/tray-32.png");
 
 /// Window / app icon (sage squircle + shrimp mark).
 pub const APP_ICON: Image<'_> = include_image!("icons/icon.png");
+
+pub fn restore_main(app: &AppHandle) {
+    if let Some(win) = app.get_webview_window("main") {
+        restore_window(&win);
+    }
+}
+
+pub fn hide_main(app: &AppHandle) {
+    if let Some(win) = app.get_webview_window("main") {
+        hide_window(&win);
+    }
+}
+
+pub fn restore_window(win: &WebviewWindow) {
+    let _ = win.unminimize();
+    let _ = win.show();
+    let _ = win.set_focus();
+    #[cfg(target_os = "linux")]
+    {
+        // Wayland often reports hidden windows as still visible, so always
+        // poke CSD after a restore rather than trusting is_visible().
+        LINUX_CSD_NEEDS_HEAL.store(true, Ordering::Relaxed);
+        schedule_linux_csd_heal(win);
+    }
+}
+
+pub fn hide_window(win: &WebviewWindow) {
+    let _ = win.hide();
+    mark_linux_csd_stale();
+}
+
+pub fn hide_native_window(window: &Window) {
+    let _ = window.hide();
+    mark_linux_csd_stale();
+}
+
+pub fn mark_linux_csd_stale() {
+    #[cfg(target_os = "linux")]
+    LINUX_CSD_NEEDS_HEAL.store(true, Ordering::Relaxed);
+}
+
+/// GTK/KDE Wayland: CSD min/max/close ignore clicks after hide→show until a
+/// configure event. Toggling resizable forces one without a maximize flash.
+/// https://github.com/tauri-apps/tauri/issues/11856
+#[cfg(target_os = "linux")]
+pub fn heal_linux_csd_if_needed(window: &Window) {
+    if LINUX_CSD_NEEDS_HEAL.swap(false, Ordering::Relaxed) {
+        linux_csd_heal(window);
+    }
+}
+
+#[cfg(target_os = "linux")]
+fn linux_csd_heal(window: &Window) {
+    let resizable = window.is_resizable().unwrap_or(true);
+    let _ = window.set_resizable(false);
+    let _ = window.set_resizable(resizable);
+}
+
+#[cfg(target_os = "linux")]
+fn schedule_linux_csd_heal(win: &WebviewWindow) {
+    let win = win.clone();
+    std::thread::spawn(move || {
+        std::thread::sleep(Duration::from_millis(150));
+        if matches!(win.is_visible(), Ok(false)) {
+            return;
+        }
+        let resizable = win.is_resizable().unwrap_or(true);
+        let _ = win.set_resizable(false);
+        let _ = win.set_resizable(resizable);
+        LINUX_CSD_NEEDS_HEAL.store(false, Ordering::Relaxed);
+    });
+}
 
 pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
     let show = MenuItem::with_id(app, "show", "Show window", true, None::<&str>)?;
@@ -45,11 +127,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
                 ..
             } = event
             {
-                let app = tray.app_handle();
-                if let Some(win) = app.get_webview_window("main") {
-                    let _ = win.show();
-                    let _ = win.set_focus();
-                }
+                restore_main(tray.app_handle());
             }
         })
         .build(app)?;
@@ -59,17 +137,8 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
 
 fn handle_menu(app: &AppHandle, id: &str) {
     match id {
-        "show" => {
-            if let Some(win) = app.get_webview_window("main") {
-                let _ = win.show();
-                let _ = win.set_focus();
-            }
-        }
-        "hide" => {
-            if let Some(win) = app.get_webview_window("main") {
-                let _ = win.hide();
-            }
-        }
+        "show" => restore_main(app),
+        "hide" => hide_main(app),
         "toggle" => {
             let engine = app.state::<EngineHandle>();
             let snap = engine.snapshot();
@@ -86,10 +155,7 @@ fn handle_menu(app: &AppHandle, id: &str) {
             let _ = engine.skip(app);
         }
         "settings" => {
-            if let Some(win) = app.get_webview_window("main") {
-                let _ = win.show();
-                let _ = win.set_focus();
-            }
+            restore_main(app);
             let _ = app.emit("open-settings", ());
         }
         "quit" => {

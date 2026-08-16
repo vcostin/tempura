@@ -18,10 +18,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            if let Some(win) = app.get_webview_window("main") {
-                let _ = win.show();
-                let _ = win.set_focus();
-            }
+            tray::restore_main(app);
         }));
 
     #[cfg(desktop)]
@@ -79,7 +76,7 @@ pub fn run() {
                 || std::env::args().any(|a| a == "--minimized");
             if start_minimized {
                 if let Some(win) = app.get_webview_window("main") {
-                    let _ = win.hide();
+                    tray::hide_window(&win);
                 }
             }
 
@@ -87,12 +84,26 @@ pub fn run() {
             Ok(())
         })
         .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                let engine = window.app_handle().state::<EngineHandle>();
-                if !engine.allow_quit() {
-                    api.prevent_close();
-                    let _ = window.hide();
+            match event {
+                WindowEvent::CloseRequested { api, .. } => {
+                    let engine = window.app_handle().state::<EngineHandle>();
+                    if !engine.allow_quit() {
+                        api.prevent_close();
+                        tray::hide_native_window(window);
+                    }
                 }
+                WindowEvent::Focused(true) => {
+                    #[cfg(target_os = "linux")]
+                    tray::heal_linux_csd_if_needed(window);
+                }
+                WindowEvent::Focused(false) => {
+                    // JS hide() does not go through tray helpers; catch it here.
+                    #[cfg(target_os = "linux")]
+                    if !window.is_visible().unwrap_or(true) {
+                        tray::mark_linux_csd_stale();
+                    }
+                }
+                _ => {}
             }
         })
         .build(tauri::generate_context!())
