@@ -95,7 +95,7 @@ git tag v0.2.0
 git push origin main --tags
 ```
 
-GitHub Actions builds with Deno: Linux (AppImage + deb), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release.
+GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release.
 
 The first public tag is `v0.1.0`. Builds are unsigned, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 

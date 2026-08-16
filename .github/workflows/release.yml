@@ -57,7 +57,8 @@ jobs:
             xdg-utils \
             libfuse2 \
             squashfs-tools \
-            file
+            file \
+            rpm
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
