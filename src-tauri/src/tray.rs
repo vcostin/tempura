@@ -26,6 +26,15 @@ const TRAY_ICON: Image<'_> = include_image!("icons/tray-32.png");
 /// Window / app icon (sage squircle + shrimp mark).
 pub const APP_ICON: Image<'_> = include_image!("icons/icon.png");
 
+/// Long-lived tray menu items. Mutate in place — never call `TrayIcon::set_menu`
+/// on the timer path; on macOS that dismisses an open status-item menu.
+struct TrayMenuItems {
+    visibility: MenuItem<tauri::Wry>,
+    status: MenuItem<tauri::Wry>,
+    toggle: MenuItem<tauri::Wry>,
+    skip: MenuItem<tauri::Wry>,
+}
+
 pub fn restore_main(app: &AppHandle) {
     if let Some(win) = app.get_webview_window("main") {
         restore_window(&win);
@@ -66,19 +75,12 @@ pub fn hide_native_window(window: &Window) {
 
 fn set_window_shown(app: &AppHandle, shown: bool) {
     WINDOW_SHOWN.store(shown, Ordering::Relaxed);
-    refresh_tray_menu(app);
-}
-
-fn refresh_tray_menu(app: &AppHandle) {
-    let snap = app.state::<EngineHandle>().snapshot();
-    let _ = rebuild_menu(app, &snap);
-}
-
-fn visibility_item(app: &AppHandle) -> tauri::Result<MenuItem<tauri::Wry>> {
-    if WINDOW_SHOWN.load(Ordering::Relaxed) {
-        MenuItem::with_id(app, "visibility", "Hide window", true, None::<&str>)
-    } else {
-        MenuItem::with_id(app, "visibility", "Show window", true, None::<&str>)
+    if let Some(items) = app.try_state::<TrayMenuItems>() {
+        let _ = items.visibility.set_text(if shown {
+            "Hide window"
+        } else {
+            "Show window"
+        });
     }
 }
 
@@ -120,11 +122,11 @@ fn schedule_linux_csd_heal(win: &WebviewWindow) {
 }
 
 pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
-    let visibility = visibility_item(app)?;
+    let visibility = MenuItem::with_id(app, "visibility", "Hide window", true, None::<&str>)?;
     let sep1 = PredefinedMenuItem::separator(app)?;
     let toggle = MenuItem::with_id(app, "toggle", "Start", true, None::<&str>)?;
-    let skip = MenuItem::with_id(app, "skip", "Skip phase", true, None::<&str>)?;
-    let status = MenuItem::with_id(app, "status", "Ready", false, None::<&str>)?;
+    let skip = MenuItem::with_id(app, "skip", "Skip phase", false, None::<&str>)?;
+    let status = MenuItem::with_id(app, "status", "Status · Ready", false, None::<&str>)?;
     let sep2 = PredefinedMenuItem::separator(app)?;
     let settings = MenuItem::with_id(app, "settings", "Open Settings", true, None::<&str>)?;
     let sep3 = PredefinedMenuItem::separator(app)?;
@@ -134,6 +136,13 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         app,
         &[&visibility, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit],
     )?;
+
+    app.manage(TrayMenuItems {
+        visibility,
+        status,
+        toggle,
+        skip,
+    });
 
     let _tray = TrayIconBuilder::with_id("main")
         .icon(TRAY_ICON)
@@ -201,15 +210,9 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
         let _ = tray.set_tooltip(Some(&tooltip));
     }
 
-    // Rebuild menu labels via recreating items is heavy; update what we can.
-    // Tauri 2 MenuItem doesn't expose easy get-by-id mutation from outside,
-    // so rebuild a lightweight menu.
-    let _ = rebuild_menu(app, snap);
-}
-
-fn rebuild_menu(app: &AppHandle, snap: &TimerSnapshot) -> tauri::Result<()> {
-    let visibility = visibility_item(app)?;
-    let sep1 = PredefinedMenuItem::separator(app)?;
+    let Some(items) = app.try_state::<TrayMenuItems>() else {
+        return;
+    };
 
     let toggle_label = if !snap.running {
         "Start"
@@ -218,44 +221,24 @@ fn rebuild_menu(app: &AppHandle, snap: &TimerSnapshot) -> tauri::Result<()> {
     } else {
         "Pause"
     };
-    let toggle = MenuItem::with_id(app, "toggle", toggle_label, true, None::<&str>)?;
-    let skip = MenuItem::with_id(
-        app,
-        "skip",
-        "Skip phase",
-        snap.running && snap.phase != Phase::Idle,
-        None::<&str>,
-    )?;
+    let _ = items.toggle.set_text(toggle_label);
+    let _ = items
+        .skip
+        .set_enabled(snap.running && snap.phase != Phase::Idle);
+    let _ = items.status.set_text(status_text(snap));
+}
 
-    let status_text = {
-        let phase = snap.phase.label();
-        if !snap.running {
-            "Status · Ready".to_string()
-        } else if snap.is_flow && snap.phase == Phase::Focus {
-            let m = snap.elapsed_secs / 60;
-            let s = snap.elapsed_secs % 60;
-            format!("Status · {phase} · {m:02}:{s:02}")
-        } else {
-            let m = snap.remaining_secs / 60;
-            let s = snap.remaining_secs % 60;
-            format!("Status · {phase} · {m:02}:{s:02}")
-        }
-    };
-    let status = MenuItem::with_id(app, "status", status_text, false, None::<&str>)?;
-    let sep2 = PredefinedMenuItem::separator(app)?;
-    let settings = MenuItem::with_id(app, "settings", "Open Settings", true, None::<&str>)?;
-    let sep3 = PredefinedMenuItem::separator(app)?;
-    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-
-    let menu = Menu::with_items(
-        app,
-        &[
-            &visibility, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit,
-        ],
-    )?;
-
-    if let Some(tray) = app.tray_by_id("main") {
-        tray.set_menu(Some(menu))?;
+fn status_text(snap: &TimerSnapshot) -> String {
+    let phase = snap.phase.label();
+    if !snap.running {
+        "Status · Ready".to_string()
+    } else if snap.is_flow && snap.phase == Phase::Focus {
+        let m = snap.elapsed_secs / 60;
+        let s = snap.elapsed_secs % 60;
+        format!("Status · {phase} · {m:02}:{s:02}")
+    } else {
+        let m = snap.remaining_secs / 60;
+        let s = snap.remaining_secs % 60;
+        format!("Status · {phase} · {m:02}:{s:02}")
     }
-    Ok(())
 }
