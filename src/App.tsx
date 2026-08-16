@@ -26,7 +26,7 @@ export default function App() {
   const hideToTray = useCallback(async () => {
     if (!isTauri() || !isDesktopShell()) return;
     try {
-      await getCurrentWindow().hide();
+      await api.hideToTray();
     } catch {
       /* ignore */
     }

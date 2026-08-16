@@ -50,6 +50,7 @@ pub fn run() {
             commands::get_stats,
             commands::get_app_info,
             commands::request_quit,
+            commands::hide_to_tray,
         ])
         .setup(move |app| {
             let app_data = app

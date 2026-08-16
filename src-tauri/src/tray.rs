@@ -1,4 +1,3 @@
-#[cfg(target_os = "linux")]
 use std::sync::atomic::{AtomicBool, Ordering};
 #[cfg(target_os = "linux")]
 use std::time::Duration;
@@ -17,6 +16,9 @@ use tauri::{
 /// a compositor configure. Set when we restore so the next focus can heal it.
 #[cfg(target_os = "linux")]
 static LINUX_CSD_NEEDS_HEAL: AtomicBool = AtomicBool::new(false);
+
+/// Own visibility flag — Wayland's `is_visible()` is not trustworthy.
+static WINDOW_SHOWN: AtomicBool = AtomicBool::new(true);
 
 /// Orange shrimp mark — same geometry as the app icon (works on light and dark chrome).
 const TRAY_ICON: Image<'_> = include_image!("icons/tray-32.png");
@@ -47,16 +49,37 @@ pub fn restore_window(win: &WebviewWindow) {
         LINUX_CSD_NEEDS_HEAL.store(true, Ordering::Relaxed);
         schedule_linux_csd_heal(win);
     }
+    set_window_shown(&win.app_handle(), true);
 }
 
 pub fn hide_window(win: &WebviewWindow) {
     let _ = win.hide();
     mark_linux_csd_stale();
+    set_window_shown(&win.app_handle(), false);
 }
 
 pub fn hide_native_window(window: &Window) {
     let _ = window.hide();
     mark_linux_csd_stale();
+    set_window_shown(&window.app_handle(), false);
+}
+
+fn set_window_shown(app: &AppHandle, shown: bool) {
+    WINDOW_SHOWN.store(shown, Ordering::Relaxed);
+    refresh_tray_menu(app);
+}
+
+fn refresh_tray_menu(app: &AppHandle) {
+    let snap = app.state::<EngineHandle>().snapshot();
+    let _ = rebuild_menu(app, &snap);
+}
+
+fn visibility_item(app: &AppHandle) -> tauri::Result<MenuItem<tauri::Wry>> {
+    if WINDOW_SHOWN.load(Ordering::Relaxed) {
+        MenuItem::with_id(app, "visibility", "Hide window", true, None::<&str>)
+    } else {
+        MenuItem::with_id(app, "visibility", "Show window", true, None::<&str>)
+    }
 }
 
 pub fn mark_linux_csd_stale() {
@@ -97,8 +120,7 @@ fn schedule_linux_csd_heal(win: &WebviewWindow) {
 }
 
 pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
-    let show = MenuItem::with_id(app, "show", "Show window", true, None::<&str>)?;
-    let hide = MenuItem::with_id(app, "hide", "Hide window", true, None::<&str>)?;
+    let visibility = visibility_item(app)?;
     let sep1 = PredefinedMenuItem::separator(app)?;
     let toggle = MenuItem::with_id(app, "toggle", "Start", true, None::<&str>)?;
     let skip = MenuItem::with_id(app, "skip", "Skip phase", true, None::<&str>)?;
@@ -110,7 +132,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
 
     let menu = Menu::with_items(
         app,
-        &[&show, &hide, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit],
+        &[&visibility, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit],
     )?;
 
     let _tray = TrayIconBuilder::with_id("main")
@@ -137,8 +159,13 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
 
 fn handle_menu(app: &AppHandle, id: &str) {
     match id {
-        "show" => restore_main(app),
-        "hide" => hide_main(app),
+        "visibility" => {
+            if WINDOW_SHOWN.load(Ordering::Relaxed) {
+                hide_main(app);
+            } else {
+                restore_main(app);
+            }
+        }
         "toggle" => {
             let engine = app.state::<EngineHandle>();
             let snap = engine.snapshot();
@@ -181,8 +208,7 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
 }
 
 fn rebuild_menu(app: &AppHandle, snap: &TimerSnapshot) -> tauri::Result<()> {
-    let show = MenuItem::with_id(app, "show", "Show window", true, None::<&str>)?;
-    let hide = MenuItem::with_id(app, "hide", "Hide window", true, None::<&str>)?;
+    let visibility = visibility_item(app)?;
     let sep1 = PredefinedMenuItem::separator(app)?;
 
     let toggle_label = if !snap.running {
@@ -224,7 +250,7 @@ fn rebuild_menu(app: &AppHandle, snap: &TimerSnapshot) -> tauri::Result<()> {
     let menu = Menu::with_items(
         app,
         &[
-            &show, &hide, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit,
+            &visibility, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit,
         ],
     )?;
 

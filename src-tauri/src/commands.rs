@@ -156,6 +156,11 @@ pub fn get_app_info() -> AppInfo {
 }
 
 #[tauri::command]
+pub fn hide_to_tray(app: AppHandle) {
+    crate::tray::hide_main(&app);
+}
+
+#[tauri::command]
 pub fn request_quit(app: AppHandle, engine: State<'_, EngineHandle>) {
     engine.set_allow_quit(true);
     let _ = engine.stop(&app);
