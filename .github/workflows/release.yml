@@ -108,10 +108,27 @@ jobs:
         run: |
           set -euo pipefail
           TAG="${GITHUB_REF_NAME}"
-          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" \
-            --jq '.assets[] | select(.name != "SHA256SUMS") | select(.digest != null) | [(.digest | ltrimstr("sha256:")), .name] | @tsv' \
-            | awk -F '\t' '{ printf "%s  %s\n", $1, $2 }' \
-            | sort -k2 > SHA256SUMS
-          test -s SHA256SUMS
-          cat SHA256SUMS
-          gh release upload "$TAG" SHA256SUMS --clobber
+          python3 - <<'PY'
+          import json, os, subprocess, sys
+
+          tag = os.environ["GITHUB_REF_NAME"]
+          repo = os.environ["GITHUB_REPOSITORY"]
+          raw = subprocess.check_output(
+              ["gh", "api", f"repos/{repo}/releases/tags/{tag}"],
+              text=True,
+          )
+          release = json.loads(raw)
+          lines = []
+          for asset in release.get("assets") or []:
+              name = asset.get("name") or ""
+              digest = asset.get("digest") or ""
+              if name == "SHA256SUMS" or not digest.startswith("sha256:"):
+                  continue
+              lines.append(f"{digest[len('sha256:'):]}  {name}")
+          if not lines:
+              sys.exit("no sha256 digests on release assets")
+          text = "\n".join(sorted(lines, key=lambda line: line.split()[-1])) + "\n"
+          open("SHA256SUMS", "w", encoding="utf-8").write(text)
+          sys.stdout.write(text)
+          PY
+          gh release upload "$TAG" SHA256SUMS --repo "$GITHUB_REPOSITORY" --clobber
