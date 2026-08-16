@@ -26,9 +26,9 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: denoland/setup-deno@v2
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
         with:
           deno-version: v2.x
 
@@ -61,18 +61,19 @@ jobs:
             rpm
 
       - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@6c977a6ca4077a0ceb28ffbe03f59d46e9ac8772 # v1
         with:
+          toolchain: stable
           targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
-      - uses: swatinem/rust-cache@v2
+      - uses: swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
           workspaces: "./src-tauri -> target"
 
       - name: Install frontend dependencies
         run: deno install --frozen --allow-scripts
 
-      - uses: tauri-apps/tauri-action@v1
+      - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NO_STRIP: "true"
@@ -86,9 +87,31 @@ jobs:
             Desktop installers for Linux, Windows, and macOS.
 
             Prefer the [download page](https://vcostin.github.io/tempura/) — it picks the build for your OS.
+
+            SHA-256 sums are in `SHA256SUMS` on this release (uploaded after all platform jobs finish).
           generateReleaseNotes: true
           releaseDraft: false
           prerelease: false
           uploadUpdaterJson: false
           retryAttempts: 3
           args: ${{ matrix.args }}
+
+  checksums:
+    name: Upload SHA256SUMS
+    needs: publish-tauri
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Write SHA256SUMS from GitHub asset digests
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" \
+            --jq '.assets[] | select(.name != "SHA256SUMS") | select(.digest != null) | [(.digest | ltrimstr("sha256:")), .name] | @tsv' \
+            | awk -F '\t' '{ printf "%s  %s\n", $1, $2 }' \
+            | sort -k2 > SHA256SUMS
+          test -s SHA256SUMS
+          cat SHA256SUMS
+          gh release upload "$TAG" SHA256SUMS --clobber

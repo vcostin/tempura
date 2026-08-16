@@ -72,12 +72,21 @@ function formatBytes(n) {
   return mb >= 10 ? `${Math.round(mb)} MB` : `${mb.toFixed(1)} MB`;
 }
 
+/** @param {{ digest?: string }} asset */
+function sha256(asset) {
+  const digest = String(asset.digest ?? "");
+  return digest.startsWith("sha256:") ? digest.slice(7) : "";
+}
+
 const primary = document.getElementById("primary-download");
 const primaryLabel = document.getElementById("primary-label");
 const primaryMeta = document.getElementById("primary-meta");
 const statusEl = document.getElementById("cta-status");
 const others = document.getElementById("other-downloads");
 const versionLabel = document.getElementById("version-label");
+const shaLine = document.getElementById("sha-line");
+const shaValue = document.getElementById("sha-value");
+const sumsLink = document.getElementById("sums-link");
 
 function setFallback(message) {
   primary.href = RELEASES;
@@ -107,13 +116,28 @@ try {
     const os = detectOs();
     const chosen = os === "mobile" || os === "unknown" ? null : pickPrimary(assets, os);
 
+    const sums = (release.assets ?? []).find((asset) => asset.name === "SHA256SUMS");
+    if (sums) {
+      const a = document.createElement("a");
+      a.href = sums.browser_download_url;
+      a.textContent = "SHA256SUMS";
+      sumsLink.replaceChildren("Full checksum file: ", a);
+      sumsLink.hidden = false;
+    }
+
     if (chosen) {
       const arch = archLabel(chosen.info.os, chosen.info.arch);
+      const hash = sha256(chosen);
       primary.href = chosen.browser_download_url;
       primaryLabel.textContent = `Download for ${osLabel(os)}`;
       primaryMeta.textContent = [chosen.info.kind, arch, formatBytes(chosen.size)]
         .filter(Boolean)
         .join(" · ");
+      if (hash) {
+        primary.title = `SHA-256 ${hash}`;
+        shaValue.textContent = hash;
+        shaLine.hidden = false;
+      }
       statusEl.textContent = `Latest is v${tag}. Other platforms below.`;
     } else if (assets.length) {
       primary.href = release.html_url ?? RELEASES;
@@ -134,7 +158,9 @@ try {
         const a = document.createElement("a");
         a.href = asset.browser_download_url;
         const arch = archLabel(asset.info.os, asset.info.arch);
+        const hash = sha256(asset);
         a.textContent = [osLabel(asset.info.os), asset.info.kind, arch].filter(Boolean).join(" · ");
+        if (hash) a.title = `SHA-256 ${hash}`;
         li.append(a);
         return li;
       }),

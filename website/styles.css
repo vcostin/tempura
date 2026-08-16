@@ -263,6 +263,25 @@ a:hover {
   color: var(--ink-muted);
 }
 
+.sha-line,
+.sums-link {
+  margin: 0.35rem 0 0;
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+  word-break: break-all;
+}
+
+.sha-line code {
+  font-family: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.sums-link[hidden],
+.sha-line[hidden] {
+  display: none;
+}
+
 .other-downloads {
   list-style: none;
   margin: 0.4rem 0 0;
