@@ -6,7 +6,8 @@
     "preview": "deno run -A --node-modules-dir npm:vite preview",
     "tauri": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A --node-modules-dir npm:@tauri-apps/cli",
     "tauri:dev": "deno run -A --node-modules-dir npm:@tauri-apps/cli dev",
-    "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A --node-modules-dir npm:@tauri-apps/cli build"
+    "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A --node-modules-dir npm:@tauri-apps/cli build",
+    "version": "deno run -A ./scripts/bump-version.ts"
   },
   "compilerOptions": {
     "lib": ["DOM", "DOM.Iterable", "ES2022"],

@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tempura — Timing that crisps.</title>
+    <meta
+      name="description"
+      content="Premium focus-rhythm timer for desktop. Structured intervals, flexible flow, local-first. No accounts, no cloud, no sync."
+    />
+    <meta name="theme-color" content="#d8e2da" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
+    <link rel="apple-touch-icon" href="./favicon.png" />
+    <meta property="og:title" content="Tempura — Timing that crisps." />
+    <meta
+      property="og:description"
+      content="Premium focus-rhythm timer for desktop. Local-first, tray-native, no accounts."
+    />
+    <meta property="og:image" content="https://vcostin.github.io/tempura/shots/timer.png" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Outfit:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <a class="skip" href="#download">Skip to download</a>
+
+    <header class="nav-wrap">
+      <nav class="nav" aria-label="Site">
+        <a class="nav-brand" href="#top">
+          <img src="./icon.svg" width="28" height="28" alt="" />
+          <span>Tempura</span>
+        </a>
+        <div class="nav-links">
+          <a href="#download">Download</a>
+          <a href="https://github.com/vcostin/tempura">GitHub</a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Desktop · local-first · v<span id="version-label">0.1.0</span></p>
+          <h1 class="brand">Tem<span>pura</span></h1>
+          <p class="lede">Timing that crisps.</p>
+          <p class="deck">
+            A calm focus-rhythm timer for structured intervals and flexible flow.
+            The session lives on your machine — tray-native, no accounts, no cloud.
+          </p>
+
+          <div class="cta-block" id="download">
+            <a class="cta" id="primary-download" href="https://github.com/vcostin/tempura/releases/latest">
+              <span class="cta-label" id="primary-label">Get the latest build</span>
+              <span class="cta-meta" id="primary-meta">GitHub Releases</span>
+              <span class="cta-icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path
+                    d="M8 2.5v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"
+                    stroke="currentColor"
+                    stroke-width="1.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </span>
+            </a>
+            <p class="cta-status" id="cta-status">Looking up the latest tagged build…</p>
+          </div>
+
+          <ul class="other-downloads" id="other-downloads" hidden></ul>
+        </div>
+
+        <div class="gallery" aria-hidden="true">
+          <figure class="shot shot--settings">
+            <div class="tilt">
+              <div class="bezel">
+                <div class="window">
+                  <div class="titlebar">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <img src="./shots/settings.png" alt="" width="416" height="814" />
+                </div>
+              </div>
+            </div>
+          </figure>
+          <figure class="shot shot--stats">
+            <div class="tilt">
+              <div class="bezel">
+                <div class="window">
+                  <div class="titlebar">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <img src="./shots/stats.png" alt="" width="416" height="812" />
+                </div>
+              </div>
+            </div>
+          </figure>
+          <figure class="shot shot--timer">
+            <div class="tilt">
+              <div class="bezel">
+                <div class="window">
+                  <div class="titlebar">
+                    <span></span><span></span><span></span>
+                  </div>
+                  <img
+                    src="./shots/timer.png"
+                    alt="Tempura timer on Sprint: 14:53 remaining, working on Learning Tauri"
+                    width="417"
+                    height="813"
+                  />
+                </div>
+              </div>
+            </div>
+          </figure>
+        </div>
+      </section>
+
+      <section class="rhythms" aria-label="Focus techniques">
+        <p class="rhythms-label">Techniques in the pan</p>
+        <ul class="chips">
+          <li>Classic</li>
+          <li class="is-hot">Sprint</li>
+          <li>Deep</li>
+          <li>52/17</li>
+          <li>Ultradian</li>
+          <li>Flowtime</li>
+          <li>Hybrid</li>
+          <li>Your own</li>
+        </ul>
+      </section>
+
+      <section class="points">
+        <article class="point">
+          <h2>Rust holds the clock</h2>
+          <p>
+            The countdown belongs to the native side, so a hidden window or a
+            machine that slept does not cheat the session. Start, pause, skip,
+            reset, stop — the tray tooltip stays live.
+          </p>
+        </article>
+        <article class="point">
+          <h2>Close it. It stays.</h2>
+          <p>
+            Tempura lives in the system tray. Closing the window hides it; quitting
+            is a deliberate choice from the tray or Settings. Launch at login if
+            you want it waiting with the kettle.
+          </p>
+        </article>
+        <article class="point">
+          <h2>Nothing leaves the board</h2>
+          <p>
+            Presets, settings, and history sit in local SQLite under the app data
+            directory. No accounts, no cloud, no sync — MIT licensed, yours to
+            inspect.
+          </p>
+        </article>
+      </section>
+
+      <section class="install" aria-labelledby="install-heading">
+        <h2 id="install-heading">After it lands</h2>
+        <dl>
+          <div>
+            <dt>Linux</dt>
+            <dd>
+              AppImage: <code>chmod +x</code> the file, then run it. Debian:
+              install the <code>.deb</code>. You may need FUSE for AppImage.
+            </dd>
+          </div>
+          <div>
+            <dt>Windows</dt>
+            <dd>
+              SmartScreen may warn on the first run — the build is unsigned.
+              More info → Run anyway, or use the MSI.
+            </dd>
+          </div>
+          <div>
+            <dt>macOS</dt>
+            <dd>
+              Gatekeeper may block an unsigned app. Right-click the app → Open.
+              Apple Silicon and Intel each have their own disk image.
+            </dd>
+          </div>
+        </dl>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <p>
+        <img src="./shrimp.svg" width="28" height="28" alt="" />
+        MIT © 2026 Vadim Costin ·
+        <a href="https://github.com/vcostin/tempura">Source</a>
+        ·
+        <a href="https://github.com/vcostin/tempura/releases">All releases</a>
+      </p>
+      <p class="fine">
+        Shrimp mark adapted from
+        <a href="https://github.com/jdecked/twemoji">Twemoji</a>
+        (CC-BY 4.0).
+      </p>
+    </footer>
+
+    <script src="./download.js" type="module"></script>
+  </body>
+</html>

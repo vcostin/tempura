@@ -8,6 +8,8 @@ Premium focus-rhythm timer for desktop — structured intervals, flexible flow t
 
 Timing matters. Tempura stays calm, polished, and entirely on your machine: **no accounts, no cloud, no sync.**
 
+**[Download the latest desktop build](https://vcostin.github.io/tempura/)** for Linux, Windows, or macOS.
+
 ## Requirements
 
 - [Deno](https://deno.land/) 2.x (primary toolchain)
@@ -26,6 +28,7 @@ deno task tauri:dev
 | `deno task build` | Typecheck + Vite production build |
 | `deno task tauri:dev` | Full Tauri + Vite |
 | `deno task tauri:build` | Packaged desktop app |
+| `deno task version 0.2.0` | Bump version in package.json, Cargo.toml, tauri.conf.json |
 
 ### Optional Node fallback
 
@@ -79,6 +82,22 @@ Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobi
 - **Windows notifications** look correct for installed/packaged builds; unpackaged `tauri dev` may show a PowerShell icon.
 - Tray, autostart, and hide-to-tray are desktop-only. The UI is responsive for a later mobile port; v1 ships desktop only.
 - Linux AppImage builds set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf` installed.
+
+## Releasing
+
+Version lives in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml`. Keep them in lockstep, then push a `v*` tag:
+
+```bash
+deno task version 0.2.0
+git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock src-tauri/tauri.conf.json
+git commit -m "Release v0.2.0"
+git tag v0.2.0
+git push origin main --tags
+```
+
+GitHub Actions builds Linux (AppImage + deb), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release.
+
+The first public tag is `v0.1.0`. Builds are unsigned, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 
 ## License
 
