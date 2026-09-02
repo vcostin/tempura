@@ -1,7 +1,7 @@
 {
   "name": "@tempura/focus-app",
   "private": true,
-  "version": "0.1.2",
+  "version": "0.2.0",
   "type": "module",
   "description": "Tempura — premium cross-platform focus timer (local-first)",
   "scripts": {
