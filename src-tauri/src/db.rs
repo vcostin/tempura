@@ -203,6 +203,7 @@ impl Database {
             ),
             ("flow_ratio", defaults.flow_ratio.to_string()),
             ("working_on", defaults.working_on),
+            ("locale", defaults.locale),
         ];
         for (key, value) in pairs {
             self.conn.execute(
@@ -273,6 +274,7 @@ impl Database {
             working_on: self
                 .get_setting("working_on")?
                 .unwrap_or(defaults.working_on),
+            locale: self.get_setting("locale")?.unwrap_or(defaults.locale),
         })
     }
 
@@ -292,6 +294,7 @@ impl Database {
         )?;
         self.set_setting("flow_ratio", &settings.flow_ratio.to_string())?;
         self.set_setting("working_on", &settings.working_on)?;
+        self.set_setting("locale", &settings.locale)?;
         Ok(())
     }
 

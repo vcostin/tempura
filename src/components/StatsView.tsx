@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { formatMinutes } from "../lib/api";
 import type { DayStats } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
@@ -9,35 +10,36 @@ interface Props {
 }
 
 export function StatsView({ stats, onClose }: Props) {
+  const { t } = useTranslation();
   return (
-    <ScrollPanel label="Stats">
+    <ScrollPanel label={t("stats.panel")}>
       <BrandHeader
-        line="Today · you can do this."
+        line={t("stats.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label="Close" onClick={onClose}>
+          <button type="button" className="icon-btn" aria-label={t("stats.close")} onClick={onClose}>
             ✕
           </button>
         }
       />
       {!stats ? (
-        <p className="hint">No stats yet — start a focus rhythm.</p>
+        <p className="hint">{t("stats.empty")}</p>
       ) : (
-        <div className="stats-strip stats-strip--page" aria-label="Today’s stats">
+        <div className="stats-strip stats-strip--page" aria-label={t("stats.aria")}>
           <div>
             <strong>{formatMinutes(stats.focusSecsToday)}</strong>
-            focus time
+            {t("stats.focusTime")}
           </div>
           <div>
             <strong>{stats.completedCyclesToday}</strong>
-            cycles finished
+            {t("stats.cyclesFinished")}
           </div>
           <div>
             <strong>{stats.sessionsToday}</strong>
-            sessions
+            {t("stats.sessions")}
           </div>
           <div>
             <strong>{stats.streakDays}</strong>
-            day streak
+            {t("stats.dayStreak")}
           </div>
         </div>
       )}

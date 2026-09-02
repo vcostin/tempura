@@ -1,6 +1,7 @@
 mod commands;
 mod db;
 mod engine;
+mod i18n;
 mod models;
 mod notify;
 mod tray;
@@ -46,6 +47,7 @@ pub fn run() {
             commands::update_technique,
             commands::delete_technique,
             commands::get_settings,
+            commands::get_system_locale,
             commands::update_settings,
             commands::get_stats,
             commands::get_app_info,

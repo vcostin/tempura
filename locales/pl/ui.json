@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "Czas, który chrupie.", "warming": "Olej się nagrzewa…" },
+  "phase": { "idle": "Gotowe", "focus": "Skupienie", "short_break": "Krótka przerwa", "long_break": "Długa przerwa", "paused": "Pauza" },
+  "timer": {
+    "guideAria": "Przewodnik technik", "guideTitle": "Do czego każda technika się nadaje", "statsAria": "Dzisiejsze statystyki", "statsTitle": "Statystyki",
+    "settingsAria": "Ustawienia", "settingsTitle": "Ustawienia", "bestFor": "Najlepsze do: {{value}}", "learnMore": "Więcej",
+    "cycle": " · cykl {{count}}", "flowing": " · w przepływie", "hybridBell": "Gong skupienia — zrób przerwę albo płyń dalej.",
+    "keepFlowing": "Płyń dalej", "takeBreak": "Zrób przerwę", "workingOn": "Pracuję nad…", "workingOnAria": "Nad czym pracujesz",
+    "start": "Start", "resume": "Wznów", "pause": "Pauza", "skip": "Pomiń", "reset": "Reset", "stop": "Stop",
+    "todayGlance": "Dziś w skrócie", "focusedToday": "skupienia dziś",
+    "cycles_one": "cykl", "cycles_few": "cykle", "cycles_many": "cykli", "cycles_other": "cykli", "dayStreak": "dni z rzędu"
+  },
+  "picker": { "aria": "Technika skupienia" },
+  "scroll": { "more": "Przewiń po więcej" },
+  "settings": {
+    "panel": "Ustawienia", "line": "Ustawienia · możesz zmienić więcej.", "close": "Zamknij ustawienia", "language": "Język",
+    "theme": "Motyw", "sessionDefaults": "Domyślne sesji", "defaultTechnique": "Domyślna technika",
+    "longBreakEvery": "Długa przerwa co N cykli", "flowRatio": "Proporcja przerwy Flowtime",
+    "flowHint": "Przerwa ≈ praca × {{ratio}} (około 1:{{inverse}})", "notifications": "Powiadomienia",
+    "phaseNotifications": "Powiadomienia faz", "gentleSound": "Łagodny dźwięk", "halfwayTick": "Tykanie w połowie",
+    "windowsHint": "W Windows powiadomienia wyglądają poprawnie w zainstalowanych buildach; nieopakowany rozwój może pokazać ikonę PowerShell.",
+    "desktop": "Pulpit", "launchAtLogin": "Uruchamiaj po zalogowaniu", "startMinimized": "Start zminimalizowany do zasobnika",
+    "quit": "Zakończ Tempura", "customTechniques": "Własne techniki", "builtIn": "Wbudowana", "customKind": "Własna",
+    "edit": "Edytuj", "delete": "Usuń", "editTechnique": "Edytuj technikę", "newTechnique": "Nowa technika",
+    "namePlaceholder": "Nazwa", "defaultCustomName": "Własna", "mode": "Tryb", "modeClassic": "Klasyczne interwały",
+    "modeFlowtime": "Flowtime", "modeHybrid": "Hybryda", "focusMinutes": "Skupienie (minuty)", "shortBreak": "Krótka przerwa",
+    "longBreak": "Długa przerwa", "cyclesBeforeLong": "Cykle przed długą", "saveChanges": "Zapisz zmiany",
+    "addTechnique": "Dodaj technikę", "cancel": "Anuluj", "about": "O programie", "version": " · v{{version}}",
+    "privacy": "Twoje dane zostają na tej maszynie. Bez kont, bez chmury, bez synchronizacji.",
+    "aboutBody": "Lokalny SQLite w folderze danych aplikacji jest źródłem prawdy. Zamknięcie okna chowa do zasobnika — wyjdź stąd lub z menu zasobnika.",
+    "techniquesGuide": "Przewodnik technik"
+  },
+  "stats": {
+    "panel": "Statystyki", "line": "Dziś · dasz radę.", "close": "Zamknij", "empty": "Jeszcze brak statystyk — zacznij rytm skupienia.",
+    "aria": "Dzisiejsze statystyki", "focusTime": "czas skupienia", "cyclesFinished": "ukończone cykle", "sessions": "sesje", "dayStreak": "dni z rzędu"
+  },
+  "guide": {
+    "panel": "Przewodnik technik", "line": "Techniki · wybierz rytm, który pasuje.", "close": "Zamknij", "openSettings": "Otwórz ustawienia",
+    "customFlowtimeWorkBreak": "Odliczanie w górę · proporcjonalna przerwa", "customFlowtimeBestFor": "Twórczość w flow",
+    "customFlowtimeBlurb": "Twój rytm Flowtime — pracuj, aż skupienie zgaśnie, potem odpocznij proporcjonalnie.",
+    "customHybridWorkBreak": "Stały start → opcjonalny przepływ po gongu", "customHybridBestFor": "Zaawansowani",
+    "customHybridBlurb": "Twój rytm hybrydowy — uporządkowany start z miejscem, by iść dalej.",
+    "customIntervalWorkBreak": "Własne skupienie, przerwa i rytm długiej przerwy", "customIntervalBestFor": "Zaawansowani",
+    "customIntervalBlurb": "Twój zestaw interwałów — ustaw proporcje i rytm długiej przerwy pod dzień.",
+    "tooltipBestFor": "Najlepsze do: {{value}}"
+  },
+  "themes": { "batter": "Panierka", "mist": "Mgła", "grove": "Gaj", "dusk": "Zmierzch", "sandstone": "Piaskowiec" },
+  "format": {
+    "minutes": "{{count}}m", "hours": "{{count}}h", "hoursMinutes": "{{hours}}h {{minutes}}m",
+    "flowtimeRhythm": "Odliczanie w górę · przerwa ≈ praca × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (potem opcjonalny przepływ) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}m skupienia", "breakMins": "{{count}}m przerwy", "longMins": "{{count}}m długa", "longEvery": " · długa co {{count}}"
+  },
+  "tray": {
+    "hideWindow": "Ukryj okno", "showWindow": "Pokaż okno", "start": "Start", "resume": "Wznów", "pause": "Pauza",
+    "skipPhase": "Pomiń fazę", "statusReady": "Status · Gotowe", "statusRunning": "Status · {{phase}} · {{time}}",
+    "openSettings": "Otwórz ustawienia", "quit": "Zakończ", "tooltipReady": "Tempura · Gotowe",
+    "tooltipPaused": "Tempura · {{phase}} · Pauza", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "Skupienie skończone", "hybridBody": "Zrób przerwę albo płyń dalej poza gong.", "breakComplete": "Przerwa skończona",
+    "longBreakComplete": "Długa przerwa skończona", "appName": "Tempura", "timeToFocus": "Czas się skupić.",
+    "enjoyShortBreak": "Ciesz się krótką przerwą.", "earnedLongBreak": "Zasłużyłeś na dłuższą przerwę.",
+    "sessionFinished": "Sesja skończona.", "halfwayTitle": "W połowie", "halfwayBody": "Jesteś w środku."
+  },
+  "site": {
+    "title": "Tempura — Czas, który chrupie.",
+    "description": "Premium timer rytmu skupienia na pulpit. Strukturalne interwały, elastyczny przepływ, local-first. Bez kont, bez chmury, bez synchronizacji.",
+    "ogDescription": "Premium timer skupienia na pulpit. Local-first, natywny zasobnik, bez kont.",
+    "skip": "Przejdź do pobierania", "navAria": "Witryna", "navTechniques": "Techniki", "navDownload": "Pobierz", "language": "Język",
+    "eyebrow": "Pulpit · local-first · v{{version}}", "lede": "Czas, który chrupie.",
+    "deck": "Spokojny timer rytmu skupienia na strukturalne interwały i elastyczny przepływ. Sesja żyje na twojej maszynie — natywny zasobnik, bez kont, bez chmury.",
+    "ctaLatest": "Pobierz najnowszy build", "ctaGithub": "GitHub Releases", "ctaLookingUp": "Szukam najnowszego otagowanego buildu…",
+    "seeReleases": "Zobacz GitHub Releases", "allPlatforms": "Wszystkie platformy",
+    "firstBuildCooking": "Pierwszy otagowany build jeszcze się smaży. Strona weźmie go z GitHub Releases.",
+    "couldNotRead": "Nie udało się teraz odczytać GitHuba. Wydania są na GitHubie.",
+    "downloadFor": "Pobierz na {{os}}", "latestOther": "Najnowszy to v{{tag}}. Inne platformy poniżej.",
+    "choosePlatform": "Wybierz platformę", "desktopOnly": "Tempura to aplikacja desktopowa. Weź build na komputer, przy którym pracujesz.",
+    "latestPick": "Najnowszy to v{{tag}}. Wybierz plik poniżej.", "taggedWaiting": "v{{tag}} jest otagowany, ale instalatory jeszcze się wgrywają.",
+    "couldNotReach": "Nie można dotrzeć do GitHuba. Użyj strony wydań.", "checksumFile": "Pełny plik sum kontrolnych: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "Timer Tempura na Sprincie: zostało 14:54, praca nad Learning Tauri",
+    "rhythmsHeading": "Techniki na patelni", "techniquesAria": "Techniki skupienia",
+    "techniqueNote": "Rytmy pracy przy biurku — to nie diagnoza i nie porada medyczna.",
+    "pointClockTitle": "Rust trzyma zegar",
+    "pointClockBody": "Odliczanie należy do strony natywnej, więc ukryte okno albo uśpiona maszyna nie oszukają sesji. Start, pauza, pomiń, reset, stop — dymka zasobnika zostaje żywa.",
+    "pointTrayTitle": "Zamknij. Zostaje.",
+    "pointTrayBody": "Tempura żyje w zasobniku systemowym. Zamknięcie okna ją chowa; wyjście to świadomy wybór z zasobnika lub Ustawień. Uruchamiaj po zalogowaniu, jeśli ma czekać z czajnikiem.",
+    "pointLocalTitle": "Nic nie schodzi z deski",
+    "pointLocalBody": "Presety, ustawienia i historia siedzą w lokalnym SQLite w katalogu danych aplikacji. Bez kont, bez chmury, bez synchronizacji — licencja MIT, twoje do wglądu.",
+    "installHeading": "Gdy wyląduje", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "pulpit", "osUnknown": "twój system",
+    "installLinux": "AppImage: <code>chmod +x</code> na plik, potem uruchom. Debian: zainstaluj <code>.deb</code>. Fedora i openSUSE: <code>.rpm</code>. Do AppImage może być potrzebny FUSE.",
+    "installWindows": "SmartScreen może ostrzec przy pierwszym uruchomieniu — build jest niepodpisany. Więcej informacji → Uruchom mimo to, albo użyj MSI.",
+    "installMacos": "Gatekeeper może zablokować niepodpisaną aplikację. Prawy przycisk na apce → Otwórz. Apple Silicon i Intel mają własne obrazy dysku.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "Kod", "footerReleases": "Wszystkie wydania",
+    "footerTwemoji": "Znak krewetki zaadaptowany z", "footerLicense": "(CC-BY 4.0)."
+  }
+}

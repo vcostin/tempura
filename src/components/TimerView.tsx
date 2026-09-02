@@ -1,5 +1,6 @@
+import { useTranslation } from "react-i18next";
 import { formatClock, formatTechniqueRhythm, phaseLabel } from "../lib/api";
-import { guideForTechnique } from "../lib/techniqueGuide";
+import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
@@ -28,47 +29,57 @@ interface Props {
 }
 
 export function TimerView(props: Props) {
+  const { t } = useTranslation();
   const { snapshot: s } = props;
   const displaySecs =
     s.isFlow && s.phase === "focus" ? s.elapsedSecs : s.running ? s.remainingSecs : 0;
   const showClock = s.running || s.phase !== "idle";
   const selected =
-    props.techniques.find((t) => t.id === props.selectedId) ??
-    props.techniques.find((t) => t.id === s.techniqueId) ??
+    props.techniques.find((tech) => tech.id === props.selectedId) ??
+    props.techniques.find((tech) => tech.id === s.techniqueId) ??
     null;
   const rhythm = selected ? formatTechniqueRhythm(selected) : null;
   const guide = selected ? guideForTechnique(selected) : null;
+  const shownName = selected
+    ? techniqueDisplayName(selected)
+    : s.techniqueId
+      ? techniqueDisplayName({
+          id: s.techniqueId,
+          kind: "system",
+          name: s.techniqueName ?? "",
+        })
+      : s.techniqueName;
 
   return (
     <>
       <BrandHeader
-        line="Timing that crisps."
+        line={t("brand.tagline")}
         actions={
           <>
             <button
               type="button"
               className="icon-btn"
-              aria-label="Techniques guide"
+              aria-label={t("timer.guideAria")}
               onClick={props.onOpenGuide}
-              title="What each technique is good for"
+              title={t("timer.guideTitle")}
             >
               <GuideIcon />
             </button>
             <button
               type="button"
               className="icon-btn"
-              aria-label="Today’s stats"
+              aria-label={t("timer.statsAria")}
               onClick={props.onOpenStats}
-              title="Stats"
+              title={t("timer.statsTitle")}
             >
               <StatsIcon />
             </button>
             <button
               type="button"
               className="icon-btn"
-              aria-label="Settings"
+              aria-label={t("timer.settingsAria")}
               onClick={props.onOpenSettings}
-              title="Settings"
+              title={t("timer.settingsTitle")}
             >
               <GearIcon />
             </button>
@@ -100,13 +111,13 @@ export function TimerView(props: Props) {
           </p>
           {guide && (
             <p className="rhythm-best" title={guide.blurb}>
-              Best for: {guide.bestFor}
+              {t("timer.bestFor", { value: guide.bestFor })}
               <button
                 type="button"
                 className="linkish"
                 onClick={props.onOpenGuide}
               >
-                Learn more
+                {t("timer.learnMore")}
               </button>
             </p>
           )}
@@ -118,16 +129,16 @@ export function TimerView(props: Props) {
           <ProgressRing snapshot={s} />
           <div className="ring-center">
             <p className="phase-label is-enter" key={s.phase}>
-              {s.paused && s.running ? "Paused" : phaseLabel(s.phase)}
+              {s.paused && s.running ? t("phase.paused") : phaseLabel(s.phase, t)}
             </p>
             <p className="clock" aria-live="polite">
               {showClock ? formatClock(displaySecs) : "––:––"}
             </p>
-            {(s.techniqueName || selected) && (
+            {(shownName || selected) && (
               <p className="technique-name">
-                {s.techniqueName ?? selected?.name}
-                {s.cycle > 0 ? ` · cycle ${s.cycle}` : ""}
-                {s.hybridSwitched ? " · flowing" : ""}
+                {shownName}
+                {s.cycle > 0 ? t("timer.cycle", { count: s.cycle }) : ""}
+                {s.hybridSwitched ? t("timer.flowing") : ""}
               </p>
             )}
           </div>
@@ -135,13 +146,13 @@ export function TimerView(props: Props) {
 
         {props.hybridBell && (
           <div className="hybrid-banner" role="status">
-            <span>Focus bell — take a break, or keep flowing.</span>
+            <span>{t("timer.hybridBell")}</span>
             <div className="row">
               <button type="button" className="btn btn-primary" onClick={props.onContinueFlow}>
-                Keep flowing
+                {t("timer.keepFlowing")}
               </button>
               <button type="button" className="btn btn-ghost" onClick={props.onResume}>
-                Take a break
+                {t("timer.takeBreak")}
               </button>
             </div>
           </div>
@@ -150,10 +161,10 @@ export function TimerView(props: Props) {
         <div className="working-on">
           <input
             type="text"
-            placeholder="Working on…"
+            placeholder={t("timer.workingOn")}
             value={props.workingOn}
             onChange={(e) => props.onWorkingOn(e.target.value)}
-            aria-label="What you’re working on"
+            aria-label={t("timer.workingOnAria")}
           />
         </div>
       </div>
@@ -161,45 +172,45 @@ export function TimerView(props: Props) {
       <div className="controls">
         {!s.running ? (
           <button type="button" className="btn btn-primary" onClick={props.onStart}>
-            Start
+            {t("timer.start")}
           </button>
         ) : (
           <>
             {s.paused ? (
               <button type="button" className="btn btn-primary" onClick={props.onResume}>
-                Resume
+                {t("timer.resume")}
               </button>
             ) : (
               <button type="button" className="btn btn-primary" onClick={props.onPause}>
-                Pause
+                {t("timer.pause")}
               </button>
             )}
             <button type="button" className="btn btn-ghost" onClick={props.onSkip}>
-              Skip
+              {t("timer.skip")}
             </button>
             <button type="button" className="btn btn-ghost" onClick={props.onReset}>
-              Reset
+              {t("timer.reset")}
             </button>
             <button type="button" className="btn btn-danger" onClick={props.onStop}>
-              Stop
+              {t("timer.stop")}
             </button>
           </>
         )}
       </div>
 
       {props.stats && (
-        <div className="stats-strip" aria-label="Today at a glance">
+        <div className="stats-strip" aria-label={t("timer.todayGlance")}>
           <div>
             <strong>{Math.round(props.stats.focusSecsToday / 60)}m</strong>
-            focused today
+            {t("timer.focusedToday")}
           </div>
           <div>
             <strong>{props.stats.completedCyclesToday}</strong>
-            cycles
+            {t("timer.cycles", { count: props.stats.completedCyclesToday })}
           </div>
           <div>
             <strong>{props.stats.streakDays}</strong>
-            day streak
+            {t("timer.dayStreak")}
           </div>
         </div>
       )}

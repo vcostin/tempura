@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "酥脆的节奏。", "warming": "油在热起来…" },
+  "phase": { "idle": "就绪", "focus": "专注", "short_break": "短休息", "long_break": "长休息", "paused": "已暂停" },
+  "timer": {
+    "guideAria": "技法指南", "guideTitle": "每种技法适合什么", "statsAria": "今日统计", "statsTitle": "统计",
+    "settingsAria": "设置", "settingsTitle": "设置", "bestFor": "适合：{{value}}", "learnMore": "了解更多",
+    "cycle": " · 第 {{count}} 轮", "flowing": " · 心流中", "hybridBell": "专注铃 — 休息，或继续流动。",
+    "keepFlowing": "继续流动", "takeBreak": "去休息", "workingOn": "正在做…", "workingOnAria": "你正在做什么",
+    "start": "开始", "resume": "继续", "pause": "暂停", "skip": "跳过", "reset": "重置", "stop": "停止",
+    "todayGlance": "今日一览", "focusedToday": "今日专注",
+    "cycles_one": "轮", "cycles_other": "轮", "dayStreak": "天连续"
+  },
+  "picker": { "aria": "专注技法" },
+  "scroll": { "more": "向下滚动看更多" },
+  "settings": {
+    "panel": "设置", "line": "设置 · 还能改更多。", "close": "关闭设置", "language": "语言",
+    "theme": "主题", "sessionDefaults": "会话默认", "defaultTechnique": "默认技法",
+    "longBreakEvery": "每 N 轮一次长休息", "flowRatio": "心流时间休息比例",
+    "flowHint": "休息 ≈ 工作 × {{ratio}}（大约 1:{{inverse}}）", "notifications": "通知",
+    "phaseNotifications": "阶段通知", "gentleSound": "轻柔提示音", "halfwayTick": "中点提示",
+    "windowsHint": "在 Windows 上，已安装的构建里通知显示正常；未打包的开发环境可能会显示 PowerShell 图标。",
+    "desktop": "桌面", "launchAtLogin": "登录时启动", "startMinimized": "启动时最小化到托盘",
+    "quit": "退出 Tempura", "customTechniques": "自定义技法", "builtIn": "内置", "customKind": "自定义",
+    "edit": "编辑", "delete": "删除", "editTechnique": "编辑技法", "newTechnique": "新技法",
+    "namePlaceholder": "名称", "defaultCustomName": "自定义", "mode": "模式", "modeClassic": "经典间隔",
+    "modeFlowtime": "心流时间", "modeHybrid": "混合", "focusMinutes": "专注（分钟）", "shortBreak": "短休息",
+    "longBreak": "长休息", "cyclesBeforeLong": "长休息前的轮数", "saveChanges": "保存更改",
+    "addTechnique": "添加技法", "cancel": "取消", "about": "关于", "version": " · v{{version}}",
+    "privacy": "你的数据留在这台机器上。没有账号，没有云，没有同步。",
+    "aboutBody": "应用数据目录下的本地 SQLite 才是真相来源。关闭窗口会藏到托盘 — 从这里或托盘菜单退出。",
+    "techniquesGuide": "技法指南"
+  },
+  "stats": {
+    "panel": "统计", "line": "今天 · 你做得到。", "close": "关闭", "empty": "还没有统计 — 开始一段专注节奏。",
+    "aria": "今日统计", "focusTime": "专注时间", "cyclesFinished": "完成的轮次", "sessions": "会话", "dayStreak": "天连续"
+  },
+  "guide": {
+    "panel": "技法指南", "line": "技法 · 选一个合适的节奏。", "close": "关闭", "openSettings": "打开设置",
+    "customFlowtimeWorkBreak": "向上计时 · 按比例休息", "customFlowtimeBestFor": "偏心流的创作",
+    "customFlowtimeBlurb": "你的心流时间节奏 — 专注消退再按比例休息。",
+    "customHybridWorkBreak": "固定开始 → 铃后可选心流", "customHybridBestFor": "进阶用户",
+    "customHybridBlurb": "你的混合节奏 — 有结构的开始，也有继续的空间。",
+    "customIntervalWorkBreak": "自定专注、休息和长休息节奏", "customIntervalBestFor": "进阶用户",
+    "customIntervalBlurb": "你的间隔套装 — 按当天调比例和长休息节奏。",
+    "tooltipBestFor": "适合：{{value}}"
+  },
+  "themes": { "batter": "面糊", "mist": "薄雾", "grove": "林间", "dusk": "黄昏", "sandstone": "砂岩" },
+  "format": {
+    "minutes": "{{count}} 分", "hours": "{{count}} 小时", "hoursMinutes": "{{hours}} 小时 {{minutes}} 分",
+    "flowtimeRhythm": "向上计时 · 休息 ≈ 工作 × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}}（然后可选心流） · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}} 分专注", "breakMins": "{{count}} 分休息", "longMins": "{{count}} 分长休", "longEvery": " · 每 {{count}} 轮长休"
+  },
+  "tray": {
+    "hideWindow": "隐藏窗口", "showWindow": "显示窗口", "start": "开始", "resume": "继续", "pause": "暂停",
+    "skipPhase": "跳过阶段", "statusReady": "状态 · 就绪", "statusRunning": "状态 · {{phase}} · {{time}}",
+    "openSettings": "打开设置", "quit": "退出", "tooltipReady": "Tempura · 就绪",
+    "tooltipPaused": "Tempura · {{phase}} · 已暂停", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "专注结束", "hybridBody": "休息一下，或越过铃声继续流动。", "breakComplete": "休息结束",
+    "longBreakComplete": "长休息结束", "appName": "Tempura", "timeToFocus": "该专注了。",
+    "enjoyShortBreak": "享受一小段休息。", "earnedLongBreak": "你赢得了更长的休息。",
+    "sessionFinished": "会话结束。", "halfwayTitle": "过半了", "halfwayBody": "你在中点。"
+  },
+  "site": {
+    "title": "Tempura — 酥脆的节奏。",
+    "description": "面向桌面的高级专注节奏计时器。结构化间隔、灵活心流、本地优先。没有账号，没有云，没有同步。",
+    "ogDescription": "面向桌面的高级专注计时器。本地优先、托盘原生、没有账号。",
+    "skip": "跳到下载", "navAria": "站点", "navTechniques": "技法", "navDownload": "下载", "language": "语言",
+    "eyebrow": "桌面 · 本地优先 · v{{version}}", "lede": "酥脆的节奏。",
+    "deck": "一台安静的专注节奏计时器，给结构化间隔和灵活心流。会话住在你的机器上 — 托盘原生，没有账号，没有云。",
+    "ctaLatest": "获取最新构建", "ctaGithub": "GitHub Releases", "ctaLookingUp": "正在查找最新打标签的构建…",
+    "seeReleases": "查看 GitHub Releases", "allPlatforms": "所有平台",
+    "firstBuildCooking": "第一个打标签的构建还在炸。页面会从 GitHub Releases 接住它。",
+    "couldNotRead": "刚才读不了 GitHub。发布在 GitHub 上。",
+    "downloadFor": "下载 {{os}} 版", "latestOther": "最新是 v{{tag}}。其他平台在下面。",
+    "choosePlatform": "选择平台", "desktopOnly": "Tempura 是桌面应用。请为你工作的那台电脑取一个构建。",
+    "latestPick": "最新是 v{{tag}}。在下面选一个文件。", "taggedWaiting": "v{{tag}} 已打标签，但安装包还没传完。",
+    "couldNotReach": "连不上 GitHub。请用发布页面。", "checksumFile": "完整校验和文件: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "冲刺技法下的 Tempura 计时器：剩余 14:54，正在做 Learning Tauri",
+    "rhythmsHeading": "锅里的技法", "techniquesAria": "专注技法",
+    "techniqueNote": "给书桌的工作节奏 — 不是诊断，也不是医疗建议。",
+    "pointClockTitle": "Rust 握住时钟",
+    "pointClockBody": "倒计时属于原生一侧，所以隐藏的窗口或睡着的机器骗不了这次会话。开始、暂停、跳过、重置、停止 — 托盘提示一直活着。",
+    "pointTrayTitle": "关掉它。它还在。",
+    "pointTrayBody": "Tempura 住在系统托盘。关窗口只是藏起来；退出是从托盘或设置里作出的明确选择。想让它和烧水壶一起等着，就登录时启动。",
+    "pointLocalTitle": "什么都不离开案板",
+    "pointLocalBody": "预设、设置和历史都在应用数据目录下的本地 SQLite 里。没有账号，没有云，没有同步 — MIT 许可，供你查看。",
+    "installHeading": "落地之后", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "桌面", "osUnknown": "你的系统",
+    "installLinux": "AppImage：对文件执行 <code>chmod +x</code> 再运行。Debian：安装 <code>.deb</code>。Fedora 和 openSUSE：<code>.rpm</code>。AppImage 可能需要 FUSE。",
+    "installWindows": "第一次运行时 SmartScreen 可能会警告 — 构建未签名。更多信息 → 仍要运行，或使用 MSI。",
+    "installMacos": "Gatekeeper 可能会拦截未签名应用。右键应用 → 打开。Apple Silicon 和 Intel 各有自己的磁盘映像。",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "源码", "footerReleases": "所有发布",
+    "footerTwemoji": "虾标改编自", "footerLicense": "(CC-BY 4.0)."
+  }
+}

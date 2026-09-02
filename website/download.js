@@ -1,3 +1,5 @@
+import { refresh, t, whenReady } from "./i18n.js";
+
 const REPO = "vcostin/tempura";
 const RELEASES = `https://github.com/${REPO}/releases/latest`;
 const API = `https://api.github.com/repos/${REPO}/releases/latest`;
@@ -46,14 +48,15 @@ function detectOs() {
 }
 
 function osLabel(os) {
-  return { linux: "Linux", windows: "Windows", macos: "macOS", mobile: "desktop" }[os] ?? "your OS";
+  const key = { linux: "osLinux", windows: "osWindows", macos: "osMacos", mobile: "osMobile" }[os];
+  return key ? t(`site.${key}`) : t("site.osUnknown");
 }
 
 function archLabel(os, arch) {
-  if (os === "macos" && arch === "arm64") return "Apple Silicon";
-  if (os === "macos" && arch === "x64") return "Intel";
-  if (arch === "arm64") return "ARM64";
-  if (arch === "x64") return "x64";
+  if (os === "macos" && arch === "arm64") return t("site.archAppleSilicon");
+  if (os === "macos" && arch === "x64") return t("site.archIntel");
+  if (arch === "arm64") return t("site.archArm64");
+  if (arch === "x64") return t("site.archX64");
   return arch;
 }
 
@@ -88,23 +91,113 @@ const shaLine = document.getElementById("sha-line");
 const shaValue = document.getElementById("sha-value");
 const sumsLink = document.getElementById("sums-link");
 
-function setFallback(message) {
-  primary.href = RELEASES;
-  primaryLabel.textContent = "See GitHub Releases";
-  primaryMeta.textContent = "All platforms";
-  statusEl.textContent = message;
+/** @type {null | { kind: string, tag?: string, os?: string, assets?: object[], releaseUrl?: string, sumsUrl?: string, chosen?: object }} */
+let paintState = null;
+
+function setFallback(kind, tag) {
+  paintState = { kind, tag };
+  paint();
 }
+
+function paint() {
+  if (!paintState) return;
+  const { kind, tag, os, assets, releaseUrl, sumsUrl, chosen } = paintState;
+
+  if (kind === "see-releases") {
+    primary.href = RELEASES;
+    primaryLabel.textContent = t("site.seeReleases");
+    primaryMeta.textContent = t("site.allPlatforms");
+    statusEl.textContent = t("site.couldNotReach");
+    return;
+  }
+  if (kind === "cooking") {
+    primary.href = RELEASES;
+    primaryLabel.textContent = t("site.seeReleases");
+    primaryMeta.textContent = t("site.allPlatforms");
+    statusEl.textContent = t("site.firstBuildCooking");
+    return;
+  }
+  if (kind === "github-fail") {
+    primary.href = RELEASES;
+    primaryLabel.textContent = t("site.seeReleases");
+    primaryMeta.textContent = t("site.allPlatforms");
+    statusEl.textContent = t("site.couldNotRead");
+    return;
+  }
+  if (kind === "waiting") {
+    primary.href = RELEASES;
+    primaryLabel.textContent = t("site.seeReleases");
+    primaryMeta.textContent = t("site.allPlatforms");
+    statusEl.textContent = t("site.taggedWaiting", { tag });
+    return;
+  }
+
+  if (sumsUrl) {
+    const a = document.createElement("a");
+    a.href = sumsUrl;
+    a.textContent = "SHA256SUMS";
+    sumsLink.replaceChildren(t("site.checksumFile"), a);
+    sumsLink.hidden = false;
+  }
+
+  if (kind === "chosen" && chosen) {
+    const arch = archLabel(chosen.info.os, chosen.info.arch);
+    const hash = sha256(chosen);
+    primary.href = chosen.browser_download_url;
+    primaryLabel.textContent = t("site.downloadFor", { os: osLabel(os) });
+    primaryMeta.textContent = [chosen.info.kind, arch, formatBytes(chosen.size)]
+      .filter(Boolean)
+      .join(" · ");
+    if (hash) {
+      primary.title = t("site.shaTitle", { hash });
+      shaValue.textContent = hash;
+      shaLine.hidden = false;
+    }
+    statusEl.textContent = t("site.latestOther", { tag });
+  } else if (kind === "pick") {
+    primary.href = releaseUrl ?? RELEASES;
+    primaryLabel.textContent = t("site.choosePlatform");
+    primaryMeta.textContent = `v${tag}`;
+    statusEl.textContent =
+      os === "mobile" ? t("site.desktopOnly") : t("site.latestPick", { tag });
+  }
+
+  if (assets) {
+    others.hidden = assets.length === 0;
+    others.replaceChildren(
+      ...assets.map((asset) => {
+        const li = document.createElement("li");
+        const a = document.createElement("a");
+        a.href = asset.browser_download_url;
+        const arch = archLabel(asset.info.os, asset.info.arch);
+        const hash = sha256(asset);
+        a.textContent = [osLabel(asset.info.os), asset.info.kind, arch].filter(Boolean).join(" · ");
+        if (hash) a.title = t("site.shaTitle", { hash });
+        li.append(a);
+        return li;
+      }),
+    );
+  }
+}
+
+await whenReady;
+
+document.addEventListener("tempura:locale", () => {
+  refresh();
+  paint();
+});
 
 try {
   const res = await fetch(API, { headers: { Accept: "application/vnd.github+json" } });
   if (res.status === 404) {
-    setFallback("First tagged build is still cooking. The page will pick it up from GitHub Releases.");
+    setFallback("cooking");
   } else if (!res.ok) {
-    setFallback("Could not read GitHub just now. Releases are on GitHub.");
+    setFallback("github-fail");
   } else {
     const release = await res.json();
     const tag = String(release.tag_name ?? "").replace(/^v/, "") || "0.1.0";
     versionLabel.textContent = tag;
+    refresh();
 
     const assets = (release.assets ?? [])
       .map((asset) => {
@@ -115,57 +208,31 @@ try {
 
     const os = detectOs();
     const chosen = os === "mobile" || os === "unknown" ? null : pickPrimary(assets, os);
-
     const sums = (release.assets ?? []).find((asset) => asset.name === "SHA256SUMS");
-    if (sums) {
-      const a = document.createElement("a");
-      a.href = sums.browser_download_url;
-      a.textContent = "SHA256SUMS";
-      sumsLink.replaceChildren("Full checksum file: ", a);
-      sumsLink.hidden = false;
-    }
 
     if (chosen) {
-      const arch = archLabel(chosen.info.os, chosen.info.arch);
-      const hash = sha256(chosen);
-      primary.href = chosen.browser_download_url;
-      primaryLabel.textContent = `Download for ${osLabel(os)}`;
-      primaryMeta.textContent = [chosen.info.kind, arch, formatBytes(chosen.size)]
-        .filter(Boolean)
-        .join(" · ");
-      if (hash) {
-        primary.title = `SHA-256 ${hash}`;
-        shaValue.textContent = hash;
-        shaLine.hidden = false;
-      }
-      statusEl.textContent = `Latest is v${tag}. Other platforms below.`;
+      paintState = {
+        kind: "chosen",
+        tag,
+        os,
+        assets,
+        chosen,
+        sumsUrl: sums?.browser_download_url,
+      };
     } else if (assets.length) {
-      primary.href = release.html_url ?? RELEASES;
-      primaryLabel.textContent = "Choose a platform";
-      primaryMeta.textContent = `v${tag}`;
-      statusEl.textContent =
-        os === "mobile"
-          ? "Tempura is a desktop app. Grab a build for the computer you work on."
-          : `Latest is v${tag}. Pick a file below.`;
+      paintState = {
+        kind: "pick",
+        tag,
+        os,
+        assets,
+        releaseUrl: release.html_url ?? RELEASES,
+        sumsUrl: sums?.browser_download_url,
+      };
     } else {
-      setFallback(`v${tag} is tagged, but installers have not finished uploading yet.`);
+      paintState = { kind: "waiting", tag };
     }
-
-    others.hidden = assets.length === 0;
-    others.replaceChildren(
-      ...assets.map((asset) => {
-        const li = document.createElement("li");
-        const a = document.createElement("a");
-        a.href = asset.browser_download_url;
-        const arch = archLabel(asset.info.os, asset.info.arch);
-        const hash = sha256(asset);
-        a.textContent = [osLabel(asset.info.os), asset.info.kind, arch].filter(Boolean).join(" · ");
-        if (hash) a.title = `SHA-256 ${hash}`;
-        li.append(a);
-        return li;
-      }),
-    );
+    paint();
   }
 } catch {
-  setFallback("Could not reach GitHub. Use the releases page.");
+  setFallback("see-releases");
 }

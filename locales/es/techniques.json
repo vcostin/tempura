@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Clásico",
+    "workBreak": "25 min de foco / 5 min de pausa · pausa larga cada 4 ciclos",
+    "bestFor": "Empezar tareas, trabajo ligero",
+    "blurb": "Una rampa suave. Bloques cortos mantienen el ritmo sin intimidar: ideal para arrancar o despejar trabajo ligero."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min de foco / 3 min de pausa",
+    "bestFor": "Calentar, entrar en una tarea dura",
+    "blurb": "Intervalos minúsculos para ponerse en marcha. Sirve para romper la inercia o recuperar la atención tras una distracción."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min de foco / 10 min de pausa",
+    "bestFor": "Concentración sostenida",
+    "blurb": "Foco más largo con una recuperación de verdad. Bien cuando ya sabes qué hacer y necesitas un tramo sin interrupciones."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min de foco / 17 min de pausa",
+    "bestFor": "Programar, escribir, analizar",
+    "blurb": "Ritmo de escritorio con una pausa generosa. Pista suficiente para problemas duros, luego levantarse, estirar y resetear."
+  },
+  "ultradian": {
+    "name": "Ultradiano",
+    "workBreak": "90 min de foco / 20 min de pausa",
+    "bestFor": "Trabajo creativo profundo",
+    "blurb": "Alineado con los ciclos ultradianos. Una inmersión larga y un descanso de verdad: lo mejor para inmersiones creativas."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Cuenta hacia arriba hasta que pares · pausa ≈ 1/5 del trabajo",
+    "bestFor": "Trabajo creativo con flow",
+    "blurb": "Sin duración fija. Sigue la ola mientras dure; Tempura sugiere una pausa proporcional al tiempo trabajado."
+  },
+  "hybrid": {
+    "name": "Híbrido",
+    "workBreak": "Inicio clásico → Flowtime opcional tras el primer toque",
+    "bestFor": "La mayoría de usuarios avanzados",
+    "blurb": "Empieza con un foco fijo. Al sonar la campana, pausa — o sigue fluyendo y convierte la sesión en Flowtime."
+  },
+  "custom": {
+    "name": "La tuya",
+    "workBreak": "Proporciones propias + cadencia de pausa larga",
+    "bestFor": "Usuarios avanzados",
+    "blurb": "Hornea tus intervalos en Ajustes: nombre, foco, pausa corta, pausa larga y cada cuántos ciclos cae el descanso largo."
+  }
+}

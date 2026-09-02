@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type UIEvent } from "react";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   children: ReactNode;
@@ -8,6 +9,7 @@ interface Props {
 
 /** Full-screen panel with visible scroll + bottom “more” cue. */
 export function ScrollPanel({ children, label, className = "" }: Props) {
+  const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
   const [canScroll, setCanScroll] = useState(false);
   const [atBottom, setAtBottom] = useState(true);
@@ -51,7 +53,7 @@ export function ScrollPanel({ children, label, className = "" }: Props) {
       </div>
       {showCue && (
         <div className="scroll-cue" aria-hidden="true">
-          <span>Scroll for more</span>
+          <span>{t("scroll.more")}</span>
         </div>
       )}
     </div>

@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Klassisch",
+    "workBreak": "25 Min. Fokus / 5 Min. Pause · lange Pause nach 4 Zyklen",
+    "bestFor": "Einstieg, leichtere Aufgaben",
+    "blurb": "Ein sanfter Einstieg. Kurze Fokusblöcke halten den Schwung, ohne zu überfordern — ideal zum Anlaufen oder für leichteres Arbeiten."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 Min. Fokus / 3 Min. Pause",
+    "bestFor": "Aufwärmen, schwerer Start",
+    "blurb": "Mini-Intervalle, um in Bewegung zu kommen. Gut gegen Trägheit, zum Eintauchen in eine schwere Aufgabe oder nach einer Ablenkung."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 Min. Fokus / 10 Min. Pause",
+    "bestFor": "Anhaltende Konzentration",
+    "blurb": "Längerer Fokus mit echter Erholung. Gut, wenn du weißt, was zu tun ist, und ungestörte Stretch-Zeit brauchst."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 Min. Fokus / 17 Min. Pause",
+    "bestFor": "Programmieren, Schreiben, Analyse",
+    "blurb": "Schreibtisch-Rhythmus mit großzügiger Pause. Genug Bahn für harte Probleme, dann aufstehen, strecken, zurücksetzen."
+  },
+  "ultradian": {
+    "name": "Ultradian",
+    "workBreak": "90 Min. Fokus / 20 Min. Pause",
+    "bestFor": "Tiefes kreatives Arbeiten",
+    "blurb": "An natürliche ultradiane Zyklen angelehnt. Eine lange Immersion, dann echte Ruhe — am besten für kreative Tiefenarbeit."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Hochzählen, bis du stoppst · Pause ≈ 1/5 der Arbeitszeit",
+    "bestFor": "Flow-lastige Kreativarbeit",
+    "blurb": "Keine feste Fokuslänge. Reite die Welle, solange sie trägt; Tempura schlägt eine Pause proportional zur Arbeitszeit vor."
+  },
+  "hybrid": {
+    "name": "Hybrid",
+    "workBreak": "Klassischer Start → optionales Flowtime nach dem ersten Gong",
+    "bestFor": "Die meisten Power-User",
+    "blurb": "Beginne mit festem Fokus. Wenn es klingelt: Pause — oder weiterfließen und die Sitzung in Flowtime verwandeln."
+  },
+  "custom": {
+    "name": "Eigene",
+    "workBreak": "Eigene Verhältnisse + lange-Pausen-Takt",
+    "bestFor": "Power-User",
+    "blurb": "Backe deine Intervalle in den Einstellungen — Name, Fokus, kurze Pause, lange Pause und wie oft die lange Pause fällt."
+  }
+}

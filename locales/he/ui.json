@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "תזמון שמתפצפץ.", "warming": "השמן מתחמם…" },
+  "phase": { "idle": "מוכן", "focus": "מיקוד", "short_break": "הפסקה קצרה", "long_break": "הפסקה ארוכה", "paused": "מושהה" },
+  "timer": {
+    "guideAria": "מדריך טכניקות", "guideTitle": "למה כל טכניקה טובה", "statsAria": "סטטיסטיקות היום", "statsTitle": "סטטיסטיקות",
+    "settingsAria": "הגדרות", "settingsTitle": "הגדרות", "bestFor": "הכי מתאים ל: {{value}}", "learnMore": "למידע נוסף",
+    "cycle": " · מחזור {{count}}", "flowing": " · בזרימה", "hybridBell": "פעמון מיקוד — קחו הפסקה או המשיכו לזרום.",
+    "keepFlowing": "להמשיך לזרום", "takeBreak": "לקחת הפסקה", "workingOn": "עובדים על…", "workingOnAria": "על מה אתם עובדים",
+    "start": "התחלה", "resume": "המשך", "pause": "השהיה", "skip": "דילוג", "reset": "איפוס", "stop": "עצירה",
+    "todayGlance": "היום במבט", "focusedToday": "מיקוד היום",
+    "cycles_one": "מחזור", "cycles_two": "מחזורים", "cycles_other": "מחזורים", "dayStreak": "ימים ברצף"
+  },
+  "picker": { "aria": "טכניקת מיקוד" },
+  "scroll": { "more": "גללו לעוד" },
+  "settings": {
+    "panel": "הגדרות", "line": "הגדרות · אפשר לשנות עוד.", "close": "סגירת הגדרות", "language": "שפה",
+    "theme": "ערכת נושא", "sessionDefaults": "ברירות מחדל של סשן", "defaultTechnique": "טכניקת ברירת מחדל",
+    "longBreakEvery": "הפסקה ארוכה כל N מחזורים", "flowRatio": "יחס הפסקת פלואוטיים",
+    "flowHint": "הפסקה ≈ עבודה × {{ratio}} (בערך 1:{{inverse}})", "notifications": "התראות",
+    "phaseNotifications": "התראות שלב", "gentleSound": "צליל עדין", "halfwayTick": "טיק באמצע",
+    "windowsHint": "ב-Windows ההתראות נראות נכון בבילדים מותקנים; פיתוח לא ארוז עלול להציג סמל PowerShell.",
+    "desktop": "שולחן עבודה", "launchAtLogin": "הפעלה בכניסה", "startMinimized": "התחלה ממוזערת למגש",
+    "quit": "יציאה מ-Tempura", "customTechniques": "טכניקות מותאמות", "builtIn": "מובנית", "customKind": "מותאמת",
+    "edit": "עריכה", "delete": "מחיקה", "editTechnique": "עריכת טכניקה", "newTechnique": "טכניקה חדשה",
+    "namePlaceholder": "שם", "defaultCustomName": "מותאמת", "mode": "מצב", "modeClassic": "מרווחים קלאסיים",
+    "modeFlowtime": "פלואוטיים", "modeHybrid": "היברידי", "focusMinutes": "מיקוד (דקות)", "shortBreak": "הפסקה קצרה",
+    "longBreak": "הפסקה ארוכה", "cyclesBeforeLong": "מחזורים לפני הארוכה", "saveChanges": "שמירת שינויים",
+    "addTechnique": "הוספת טכניקה", "cancel": "ביטול", "about": "אודות", "version": " · v{{version}}",
+    "privacy": "הנתונים נשארים במכונה הזאת. בלי חשבונות, בלי ענן, בלי סנכרון.",
+    "aboutBody": "SQLite מקומי תחת תיקיית נתוני האפליקציה הוא מקור האמת. סגירת החלון מסתירה למגש — צאו מכאן או מתפריט המגש.",
+    "techniquesGuide": "מדריך טכניקות"
+  },
+  "stats": {
+    "panel": "סטטיסטיקות", "line": "היום · אפשר.", "close": "סגירה", "empty": "עדיין אין סטטיסטיקות — התחילו קצב מיקוד.",
+    "aria": "סטטיסטיקות היום", "focusTime": "זמן מיקוד", "cyclesFinished": "מחזורים שהסתיימו", "sessions": "סשנים", "dayStreak": "ימים ברצף"
+  },
+  "guide": {
+    "panel": "מדריך טכניקות", "line": "טכניקות · בחרו קצב שמתאים.", "close": "סגירה", "openSettings": "פתיחת הגדרות",
+    "customFlowtimeWorkBreak": "ספירה למעלה · הפסקה יחסית", "customFlowtimeBestFor": "יצירה עם פלואו",
+    "customFlowtimeBlurb": "קצב הפלואוטיים שלכם — עבדו עד שהמיקוד דועך, ואז לנוח ביחס.",
+    "customHybridWorkBreak": "התחלה קבועה → זרימה אופציונלית אחרי הפעמון", "customHybridBestFor": "משתמשים מתקדמים",
+    "customHybridBlurb": "הקצב ההיברידי שלכם — התחלה מובנית עם מקום להמשיך.",
+    "customIntervalWorkBreak": "מיקוד, הפסקה וקצב ארוך שאתם מגדירים", "customIntervalBestFor": "משתמשים מתקדמים",
+    "customIntervalBlurb": "סט המרווחים שלכם — כוונו יחסים וקצב הפסקה ארוכה ליום.",
+    "tooltipBestFor": "הכי מתאים ל: {{value}}"
+  },
+  "themes": { "batter": "בלילה", "mist": "ערפל", "grove": "חורשה", "dusk": "דמדומים", "sandstone": "אבן חול" },
+  "format": {
+    "minutes": "{{count}}דק׳", "hours": "{{count}}שע׳", "hoursMinutes": "{{hours}}שע׳ {{minutes}}דק׳",
+    "flowtimeRhythm": "ספירה למעלה · הפסקה ≈ עבודה × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (ואז זרימה אופציונלית) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}דק׳ מיקוד", "breakMins": "{{count}}דק׳ הפסקה", "longMins": "{{count}}דק׳ ארוכה", "longEvery": " · ארוכה כל {{count}}"
+  },
+  "tray": {
+    "hideWindow": "הסתרת חלון", "showWindow": "הצגת חלון", "start": "התחלה", "resume": "המשך", "pause": "השהיה",
+    "skipPhase": "דילוג על שלב", "statusReady": "סטטוס · מוכן", "statusRunning": "סטטוס · {{phase}} · {{time}}",
+    "openSettings": "פתיחת הגדרות", "quit": "יציאה", "tooltipReady": "Tempura · מוכן",
+    "tooltipPaused": "Tempura · {{phase}} · מושהה", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "המיקוד הסתיים", "hybridBody": "קחו הפסקה, או המשיכו לזרום מעבר לפעמון.", "breakComplete": "ההפסקה הסתיימה",
+    "longBreakComplete": "ההפסקה הארוכה הסתיימה", "appName": "Tempura", "timeToFocus": "זמן להתמקד.",
+    "enjoyShortBreak": "תהנו מהפסקה קצרה.", "earnedLongBreak": "הרווחתם הפסקה ארוכה יותר.",
+    "sessionFinished": "הסשן הסתיים.", "halfwayTitle": "באמצע הדרך", "halfwayBody": "אתם בנקודת האמצע."
+  },
+  "site": {
+    "title": "Tempura — תזמון שמתפצפץ.",
+    "description": "טיימר קצב מיקוד פרימיום לשולחן העבודה. מרווחים מובנים, זרימה גמישה, מקומי-קודם. בלי חשבונות, בלי ענן, בלי סנכרון.",
+    "ogDescription": "טיימר מיקוד פרימיום לשולחן העבודה. מקומי-קודם, מגש מקורי, בלי חשבונות.",
+    "skip": "דלגו להורדה", "navAria": "אתר", "navTechniques": "טכניקות", "navDownload": "הורדה", "language": "שפה",
+    "eyebrow": "שולחן עבודה · מקומי-קודם · v{{version}}", "lede": "תזמון שמתפצפץ.",
+    "deck": "טיימר קצב מיקוד רגוע למרווחים מובנים ולזרימה גמישה. הסשן חי על המכונה שלכם — מגש מקורי, בלי חשבונות, בלי ענן.",
+    "ctaLatest": "קבלו את הבילד האחרון", "ctaGithub": "GitHub Releases", "ctaLookingUp": "מחפשים את הבילד המתויג האחרון…",
+    "seeReleases": "ראו GitHub Releases", "allPlatforms": "כל הפלטפורמות",
+    "firstBuildCooking": "הבילד המתויג הראשון עדיין מטוגן. הדף יאסוף אותו מ-GitHub Releases.",
+    "couldNotRead": "לא ניתן לקרוא את GitHub כרגע. השחרורים ב-GitHub.",
+    "downloadFor": "הורדה עבור {{os}}", "latestOther": "האחרון הוא v{{tag}}. פלטפורמות אחרות למטה.",
+    "choosePlatform": "בחרו פלטפורמה", "desktopOnly": "Tempura היא אפליקציית שולחן עבודה. קחו בילד למחשב שעליו אתם עובדים.",
+    "latestPick": "האחרון הוא v{{tag}}. בחרו קובץ למטה.", "taggedWaiting": "v{{tag}} מתויג, אבל המתקינים עדיין לא סיימו לעלות.",
+    "couldNotReach": "לא ניתן להגיע ל-GitHub. השתמשו בדף השחרורים.", "checksumFile": "קובץ סיכום ביקורת מלא: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "טיימר Tempura בספרינט: נותרו 14:54, עובדים על Learning Tauri",
+    "rhythmsHeading": "טכניקות במחבת", "techniquesAria": "טכניקות מיקוד",
+    "techniqueNote": "קצבי עבודה לשולחן — לא אבחנה ולא ייעוץ רפואי.",
+    "pointClockTitle": "Rust מחזיק את השעון",
+    "pointClockBody": "הספירה לאחור שייכת לצד המקורי, כך שחלון מוסתר או מכונה שישנה לא מרמים את הסשן. התחלה, השהיה, דילוג, איפוס, עצירה — חלונית המגש נשארת חיה.",
+    "pointTrayTitle": "סוגרים. זה נשאר.",
+    "pointTrayBody": "Tempura חיה במגש המערכת. סגירת החלון מסתירה אותה; יציאה היא בחירה מכוונת מהמגש או מההגדרות. הפעילו בכניסה אם אתם רוצים שתחכה עם הקומקום.",
+    "pointLocalTitle": "שום דבר לא עוזב את הקרש",
+    "pointLocalBody": "קביעות מראש, הגדרות והיסטוריה יושבים ב-SQLite מקומי תחת תיקיית נתוני האפליקציה. בלי חשבונות, בלי ענן, בלי סנכרון — רישיון MIT, שלכם לבדיקה.",
+    "installHeading": "אחרי הנחיתה", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "שולחן עבודה", "osUnknown": "מערכת ההפעלה שלכם",
+    "installLinux": "AppImage: <code>chmod +x</code> לקובץ ואז להריץ. דביאן: התקינו את ה-<code>.deb</code>. פדורה ו-openSUSE: ה-<code>.rpm</code>. ייתכן שתצטרכו FUSE ל-AppImage.",
+    "installWindows": "SmartScreen עלול להזהיר בהרצה הראשונה — הבילד לא חתום. מידע נוסף ← הרץ בכל זאת, או השתמשו ב-MSI.",
+    "installMacos": "Gatekeeper עלול לחסום אפליקציה לא חתומה. לחצן ימני על האפליקציה ← פתח. ל-Apple Silicon ול-Intel יש לכל אחד דיסק אימג׳ משלו.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "מקור", "footerReleases": "כל השחרורים",
+    "footerTwemoji": "סימן השרימפס עובד מ", "footerLicense": "(CC-BY 4.0)."
+  }
+}

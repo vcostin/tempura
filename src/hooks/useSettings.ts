@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "../lib/api";
+import { i18n, resolveLocale } from "../lib/i18n";
 import {
   getAutostartEnabled,
   isDesktopShell,
@@ -19,7 +20,25 @@ const defaultSettings: AppSettings = {
   longBreakEveryN: 4,
   flowRatio: 0.2,
   workingOn: "",
+  locale: "",
 };
+
+async function systemLocale(): Promise<string> {
+  if (isTauri()) {
+    try {
+      return await api.getSystemLocale();
+    } catch {
+      return resolveLocale();
+    }
+  }
+  return resolveLocale();
+}
+
+async function applyLocale(code: string) {
+  const lng = code || (await systemLocale());
+  if (i18n.language === lng) return;
+  await i18n.changeLanguage(lng);
+}
 
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
@@ -32,11 +51,13 @@ export function useSettings() {
     async function load() {
       if (!isTauri()) {
         document.documentElement.setAttribute("data-theme", settings.theme);
+        await applyLocale(settings.locale);
         return;
       }
       const s = await api.getSettings();
       setSettings(s);
       document.documentElement.setAttribute("data-theme", s.theme);
+      await applyLocale(s.locale);
       setInfo(await api.getAppInfo());
       if (desktop) {
         try {
@@ -54,6 +75,7 @@ export function useSettings() {
   const save = useCallback(async (next: AppSettings) => {
     setSettings(next);
     document.documentElement.setAttribute("data-theme", next.theme);
+    await applyLocale(next.locale);
     if (isTauri()) {
       await api.updateSettings(next);
     }

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { DebugView } from "./components/DebugView";
 import { SettingsView } from "./components/SettingsView";
@@ -10,11 +11,13 @@ import { useSettings } from "./hooks/useSettings";
 import { api } from "./lib/api";
 import { isDebugAccessEnabled } from "./lib/debugAccess";
 import { isDesktopShell, isTauri } from "./lib/platform";
+import "./styles/fonts.css";
 import "./styles/global.css";
 
 type View = "timer" | "settings" | "stats" | "guide" | "debug";
 
 export default function App() {
+  const { t } = useTranslation();
   const session = useSession();
   const settingsApi = useSettings();
   const [view, setView] = useState<View>("timer");
@@ -106,7 +109,7 @@ export default function App() {
         <h1 className="brand">
           Tem<span>pura</span>
         </h1>
-        <p className="tagline tagline--accent">Warming the oil…</p>
+        <p className="tagline tagline--accent">{t("brand.warming")}</p>
       </div>
     );
   }

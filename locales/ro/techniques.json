@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Clasic",
+    "workBreak": "25 min focus / 5 min pauză · pauză lungă după 4 cicluri",
+    "bestFor": "Pornirea taskurilor, lucru ușor",
+    "blurb": "O rampă blândă. Blocuri scurte țin ritmul fără intimidare — ideal când pornești sau cureți lucrul mai ușor."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min focus / 3 min pauză",
+    "bestFor": "Încălzire, start greu",
+    "blurb": "Intervale minuscule ca să te miști. Pentru a rupe inerția sau a-ți recâștiga atenția după o distragere."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min focus / 10 min pauză",
+    "bestFor": "Concentrare susținută",
+    "blurb": "Focus mai lung cu o recuperare reală. Bun când știi deja ce faci și ai nevoie de un interval neîntrerupt."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min focus / 17 min pauză",
+    "bestFor": "Cod, scris, analiză",
+    "blurb": "Ritm de birou cu o pauză generoasă. Destulă pistă pentru probleme grele, apoi ridică-te, întinde-te, resetează."
+  },
+  "ultradian": {
+    "name": "Ultradian",
+    "workBreak": "90 min focus / 20 min pauză",
+    "bestFor": "Lucru creativ profund",
+    "blurb": "Aliniat ciclurilor ultradiene. O imersiune lungă, apoi o odihnă adevărată — cel mai bun pentru scufundări creative."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Numără până te oprești · pauză ≈ 1/5 din timpul de lucru",
+    "bestFor": "Creare în flow",
+    "blurb": "Fără durată fixă. Surfează valul cât ține; Tempura propune o pauză proporțională cu timpul lucrat."
+  },
+  "hybrid": {
+    "name": "Hibrid",
+    "workBreak": "Start clasic → Flowtime opțional după primul gong",
+    "bestFor": "Majoritatea utilizatorilor avansați",
+    "blurb": "Începe cu un focus fix. Când sună, ia o pauză — sau continuă și lasă sesiunea să devină Flowtime."
+  },
+  "custom": {
+    "name": "A ta",
+    "workBreak": "Rapoarte definite + cadența pauzei lungi",
+    "bestFor": "Utilizatori avansați",
+    "blurb": "Frământă-ți intervalele în Setări — nume, focus, pauză scurtă, pauză lungă și cât de des cade odihna lungă."
+  }
+}

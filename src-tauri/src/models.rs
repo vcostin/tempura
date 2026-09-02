@@ -10,12 +10,12 @@ pub enum Phase {
 }
 
 impl Phase {
-    pub fn label(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
-            Phase::Idle => "Ready",
-            Phase::Focus => "Focus",
-            Phase::ShortBreak => "Short break",
-            Phase::LongBreak => "Long break",
+            Phase::Idle => "idle",
+            Phase::Focus => "focus",
+            Phase::ShortBreak => "short_break",
+            Phase::LongBreak => "long_break",
         }
     }
 }
@@ -69,6 +69,8 @@ pub struct AppSettings {
     pub long_break_every_n: i64,
     pub flow_ratio: f64,
     pub working_on: String,
+    #[serde(default)]
+    pub locale: String,
 }
 
 impl Default for AppSettings {
@@ -83,6 +85,7 @@ impl Default for AppSettings {
             long_break_every_n: 4,
             flow_ratio: 0.2,
             working_on: String::new(),
+            locale: String::new(),
         }
     }
 }
@@ -92,6 +95,7 @@ pub const TECHNIQUE_MODES: &[&str] = &["classic", "flowtime", "hybrid"];
 const NAME_MAX: usize = 80;
 const ID_MAX: usize = 64;
 const WORKING_ON_MAX: usize = 200;
+const LOCALE_MAX: usize = 16;
 const ACCENT_MAX: usize = 16;
 const SECS_MAX: i64 = 8 * 60 * 60;
 const CYCLES_MIN: i64 = 1;
@@ -217,6 +221,17 @@ impl AppSettings {
             .filter(|c| *c == ' ' || *c == '\t' || !c.is_control())
             .take(WORKING_ON_MAX)
             .collect();
+
+        self.locale = self.locale.trim().to_string();
+        if !self.locale.is_empty()
+            && (self.locale.len() > LOCALE_MAX
+                || !self
+                    .locale
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || c == '-'))
+        {
+            return Err("invalid locale".into());
+        }
 
         Ok(self)
     }

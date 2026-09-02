@@ -133,6 +133,11 @@ pub fn get_settings(state: State<'_, AppState>) -> Result<AppSettings, String> {
 }
 
 #[tauri::command]
+pub fn get_system_locale() -> String {
+    crate::i18n::resolve_locale("")
+}
+
+#[tauri::command]
 pub fn update_settings(
     app: AppHandle,
     state: State<'_, AppState>,
@@ -146,6 +151,7 @@ pub fn update_settings(
         .update_settings(&settings)
         .map_err(|e| e.to_string())?;
     engine.load_settings(settings.clone());
+    engine.update_tray(&app);
     let _ = app.emit("settings-updated", &settings);
     Ok(settings)
 }
@@ -160,7 +166,7 @@ pub fn get_app_info() -> AppInfo {
     AppInfo {
         name: "Tempura".into(),
         version: env!("CARGO_PKG_VERSION").into(),
-        privacy: "Your data stays on this machine. No accounts, no cloud, no sync.".into(),
+        privacy: String::new(),
         debug: cfg!(debug_assertions),
         notification_backend: crate::notify::backend_label().into(),
     }

@@ -28,18 +28,22 @@
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
-    <a class="skip" href="#download">Skip to download</a>
+    <a class="skip" href="#download" data-i18n="site.skip">Skip to download</a>
 
     <header class="nav-wrap">
-      <nav class="nav" aria-label="Site">
+      <nav class="nav" data-i18n-attr="aria-label:site.navAria" aria-label="Site">
         <a class="nav-brand" href="#top">
           <img src="./icon.svg" width="28" height="28" alt="" />
           <span>Tempura</span>
         </a>
         <div class="nav-links">
-          <a href="#techniques">Techniques</a>
-          <a href="#download">Download</a>
+          <a href="#techniques" data-i18n="site.navTechniques">Techniques</a>
+          <a href="#download" data-i18n="site.navDownload">Download</a>
           <a href="https://github.com/vcostin/tempura">GitHub</a>
+          <label class="lang-switch">
+            <span class="visually-hidden" data-i18n="site.language">Language</span>
+            <select id="lang-select"></select>
+          </label>
         </div>
       </nav>
     </header>
@@ -47,18 +51,19 @@
     <main id="top">
       <section class="hero">
         <div class="hero-copy">
-          <p class="eyebrow">Desktop · local-first · v<span id="version-label">0.1.0</span></p>
+          <span id="version-label" hidden>0.1.0</span>
+          <p class="eyebrow" data-i18n="site.eyebrow">Desktop · local-first · v0.1.0</p>
           <h1 class="brand">Tem<span>pura</span></h1>
-          <p class="lede">Timing that crisps.</p>
-          <p class="deck">
+          <p class="lede" data-i18n="site.lede">Timing that crisps.</p>
+          <p class="deck" data-i18n="site.deck">
             A calm focus-rhythm timer for structured intervals and flexible flow.
             The session lives on your machine — tray-native, no accounts, no cloud.
           </p>
 
           <div class="cta-block" id="download">
             <a class="cta" id="primary-download" href="https://github.com/vcostin/tempura/releases/latest">
-              <span class="cta-label" id="primary-label">Get the latest build</span>
-              <span class="cta-meta" id="primary-meta">GitHub Releases</span>
+              <span class="cta-label" id="primary-label" data-i18n="site.ctaLatest">Get the latest build</span>
+              <span class="cta-meta" id="primary-meta" data-i18n="site.ctaGithub">GitHub Releases</span>
               <span class="cta-icon" aria-hidden="true">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
@@ -71,7 +76,7 @@
                 </svg>
               </span>
             </a>
-            <p class="cta-status" id="cta-status">Looking up the latest tagged build…</p>
+            <p class="cta-status" id="cta-status" data-i18n="site.ctaLookingUp">Looking up the latest tagged build…</p>
             <p class="sha-line" id="sha-line" hidden>
               SHA-256 <code id="sha-value"></code>
             </p>
@@ -115,6 +120,7 @@
                   </div>
                   <img
                     src="./shots/timer.png"
+                    data-i18n-attr="alt:site.timerAlt"
                     alt="Tempura timer on Sprint: 14:54 remaining, working on Learning Tauri"
                     width="417"
                     height="813"
@@ -127,8 +133,8 @@
       </section>
 
       <section class="rhythms" id="techniques" aria-labelledby="rhythms-heading">
-        <p class="rhythms-label" id="rhythms-heading">Techniques in the pan</p>
-        <div class="chips" role="tablist" aria-label="Focus techniques" id="technique-tabs"></div>
+        <p class="rhythms-label" id="rhythms-heading" data-i18n="site.rhythmsHeading">Techniques in the pan</p>
+        <div class="chips" role="tablist" data-i18n-attr="aria-label:site.techniquesAria" aria-label="Focus techniques" id="technique-tabs"></div>
         <article class="technique-card" id="technique-panel" role="tabpanel" tabindex="0">
           <header>
             <h2 id="technique-name">Sprint</h2>
@@ -140,31 +146,31 @@
             or rebuild attention after a distraction.
           </p>
         </article>
-        <p class="technique-note">
+        <p class="technique-note" data-i18n="site.techniqueNote">
           Work rhythms for the desk — not a diagnosis, and not medical advice.
         </p>
       </section>
 
       <section class="points">
         <article class="point">
-          <h2>Rust holds the clock</h2>
-          <p>
+          <h2 data-i18n="site.pointClockTitle">Rust holds the clock</h2>
+          <p data-i18n="site.pointClockBody">
             The countdown belongs to the native side, so a hidden window or a
             machine that slept does not cheat the session. Start, pause, skip,
             reset, stop — the tray tooltip stays live.
           </p>
         </article>
         <article class="point">
-          <h2>Close it. It stays.</h2>
-          <p>
+          <h2 data-i18n="site.pointTrayTitle">Close it. It stays.</h2>
+          <p data-i18n="site.pointTrayBody">
             Tempura lives in the system tray. Closing the window hides it; quitting
             is a deliberate choice from the tray or Settings. Launch at login if
             you want it waiting with the kettle.
           </p>
         </article>
         <article class="point">
-          <h2>Nothing leaves the board</h2>
-          <p>
+          <h2 data-i18n="site.pointLocalTitle">Nothing leaves the board</h2>
+          <p data-i18n="site.pointLocalBody">
             Presets, settings, and history sit in local SQLite under the app data
             directory. No accounts, no cloud, no sync — MIT licensed, yours to
             inspect.
@@ -173,26 +179,26 @@
       </section>
 
       <section class="install" aria-labelledby="install-heading">
-        <h2 id="install-heading">After it lands</h2>
+        <h2 id="install-heading" data-i18n="site.installHeading">After it lands</h2>
         <dl>
           <div>
-            <dt>Linux</dt>
-            <dd>
+            <dt data-i18n="site.osLinux">Linux</dt>
+            <dd data-i18n-html="site.installLinux">
               AppImage: <code>chmod +x</code> the file, then run it. Debian:
               install the <code>.deb</code>. Fedora and openSUSE: the
               <code>.rpm</code>. You may need FUSE for AppImage.
             </dd>
           </div>
           <div>
-            <dt>Windows</dt>
-            <dd>
+            <dt data-i18n="site.osWindows">Windows</dt>
+            <dd data-i18n="site.installWindows">
               SmartScreen may warn on the first run — the build is unsigned.
               More info → Run anyway, or use the MSI.
             </dd>
           </div>
           <div>
-            <dt>macOS</dt>
-            <dd>
+            <dt data-i18n="site.osMacos">macOS</dt>
+            <dd data-i18n="site.installMacos">
               Gatekeeper may block an unsigned app. Right-click the app → Open.
               Apple Silicon and Intel each have their own disk image.
             </dd>
@@ -204,18 +210,20 @@
     <footer class="foot">
       <p>
         <img src="./shrimp.svg" width="28" height="28" alt="" />
-        MIT © 2026 Vadim Costin ·
-        <a href="https://github.com/vcostin/tempura">Source</a>
+        <span data-i18n="site.footerCopy">MIT © 2026 Vadim Costin</span>
         ·
-        <a href="https://github.com/vcostin/tempura/releases">All releases</a>
+        <a href="https://github.com/vcostin/tempura" data-i18n="site.footerSource">Source</a>
+        ·
+        <a href="https://github.com/vcostin/tempura/releases" data-i18n="site.footerReleases">All releases</a>
       </p>
       <p class="fine">
-        Shrimp mark adapted from
+        <span data-i18n="site.footerTwemoji">Shrimp mark adapted from</span>
         <a href="https://github.com/jdecked/twemoji">Twemoji</a>
-        (CC-BY 4.0).
+        <span data-i18n="site.footerLicense">(CC-BY 4.0).</span>
       </p>
     </footer>
 
+    <script src="./i18n.js" type="module"></script>
     <script src="./download.js" type="module"></script>
     <script src="./techniques.js" type="module"></script>
   </body>

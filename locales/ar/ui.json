@@ -1,0 +1,100 @@
+{
+  "brand": { "tagline": "توقيت يقرمش.", "warming": "الزيت يسخن…" },
+  "phase": { "idle": "جاهز", "focus": "تركيز", "short_break": "استراحة قصيرة", "long_break": "استراحة طويلة", "paused": "متوقف" },
+  "timer": {
+    "guideAria": "دليل التقنيات", "guideTitle": "ما الذي تجيده كل تقنية", "statsAria": "إحصاءات اليوم", "statsTitle": "إحصاءات",
+    "settingsAria": "الإعدادات", "settingsTitle": "الإعدادات", "bestFor": "الأنسب لـ: {{value}}", "learnMore": "اعرف المزيد",
+    "cycle": " · الدورة {{count}}", "flowing": " · في التدفق", "hybridBell": "جرس التركيز — خذ استراحة أو واصل التدفق.",
+    "keepFlowing": "واصل التدفق", "takeBreak": "خذ استراحة", "workingOn": "أعمل على…", "workingOnAria": "ما تعمل عليه",
+    "start": "ابدأ", "resume": "استأنف", "pause": "إيقاف مؤقت", "skip": "تخطَّ", "reset": "إعادة", "stop": "إيقاف",
+    "todayGlance": "اليوم لمحة", "focusedToday": "تركيز اليوم",
+    "cycles_zero": "دورة", "cycles_one": "دورة", "cycles_two": "دورتان", "cycles_few": "دورات", "cycles_many": "دورة", "cycles_other": "دورة",
+    "dayStreak": "أيام متتالية"
+  },
+  "picker": { "aria": "تقنية التركيز" },
+  "scroll": { "more": "مرّر للمزيد" },
+  "settings": {
+    "panel": "الإعدادات", "line": "الإعدادات · يمكنك تغيير المزيد.", "close": "إغلاق الإعدادات", "language": "اللغة",
+    "theme": "السمة", "sessionDefaults": "افتراضيات الجلسة", "defaultTechnique": "التقنية الافتراضية",
+    "longBreakEvery": "استراحة طويلة كل N دورة", "flowRatio": "نسبة استراحة وقت التدفق",
+    "flowHint": "الاستراحة ≈ العمل × {{ratio}} (حوالي 1:{{inverse}})", "notifications": "الإشعارات",
+    "phaseNotifications": "إشعارات المرحلة", "gentleSound": "صوت لطيف", "halfwayTick": "نقرة المنتصف",
+    "windowsHint": "على ويندوز تبدو الإشعارات صحيحة في النسخ المثبتة؛ التطوير غير المعبأ قد يظهر أيقونة PowerShell.",
+    "desktop": "سطح المكتب", "launchAtLogin": "التشغيل عند تسجيل الدخول", "startMinimized": "البدء مصغّرًا في الصينية",
+    "quit": "إنهاء Tempura", "customTechniques": "تقنيات مخصصة", "builtIn": "مدمجة", "customKind": "مخصصة",
+    "edit": "تحرير", "delete": "حذف", "editTechnique": "تحرير التقنية", "newTechnique": "تقنية جديدة",
+    "namePlaceholder": "الاسم", "defaultCustomName": "مخصصة", "mode": "الوضع", "modeClassic": "فترات كلاسيكية",
+    "modeFlowtime": "وقت التدفق", "modeHybrid": "هجين", "focusMinutes": "التركيز (دقائق)", "shortBreak": "استراحة قصيرة",
+    "longBreak": "استراحة طويلة", "cyclesBeforeLong": "الدورات قبل الطويلة", "saveChanges": "حفظ التغييرات",
+    "addTechnique": "إضافة تقنية", "cancel": "إلغاء", "about": "حول", "version": " · v{{version}}",
+    "privacy": "بياناتك تبقى على هذا الجهاز. بلا حسابات، بلا سحابة، بلا مزامنة.",
+    "aboutBody": "SQLite المحلي تحت مجلد بيانات التطبيق هو مصدر الحقيقة. إغلاق النافذة يخفيها في الصينية — اخرج من هنا أو من قائمة الصينية.",
+    "techniquesGuide": "دليل التقنيات"
+  },
+  "stats": {
+    "panel": "إحصاءات", "line": "اليوم · تستطيع.", "close": "إغلاق", "empty": "لا إحصاءات بعد — ابدأ إيقاع تركيز.",
+    "aria": "إحصاءات اليوم", "focusTime": "وقت التركيز", "cyclesFinished": "دورات مكتملة", "sessions": "جلسات", "dayStreak": "أيام متتالية"
+  },
+  "guide": {
+    "panel": "دليل التقنيات", "line": "تقنيات · اختر إيقاعًا يناسبك.", "close": "إغلاق", "openSettings": "فتح الإعدادات",
+    "customFlowtimeWorkBreak": "عدّ تصاعدي · استراحة متناسبة", "customFlowtimeBestFor": "إبداع يعتمد على التدفق",
+    "customFlowtimeBlurb": "إيقاع وقت التدفق الخاص بك — اعمل حتى يخفت التركيز ثم استرح بنسبة العمل.",
+    "customHybridWorkBreak": "بداية ثابتة → تدفق اختياري بعد الجرس", "customHybridBestFor": "مستخدمون متقدمون",
+    "customHybridBlurb": "إيقاعك الهجين — بداية منظمة ومساحة للمتابعة.",
+    "customIntervalWorkBreak": "تركيز واستراحة وإيقاع طويل تعرّفها أنت", "customIntervalBestFor": "مستخدمون متقدمون",
+    "customIntervalBlurb": "مجموعة فتراتك — اضبط النسب وإيقاع الاستراحة الطويلة ليومك.",
+    "tooltipBestFor": "الأنسب لـ: {{value}}"
+  },
+  "themes": { "batter": "عجينة", "mist": "ضباب", "grove": "دغل", "dusk": "غسق", "sandstone": "حجر رملي" },
+  "format": {
+    "minutes": "{{count}}د", "hours": "{{count}}س", "hoursMinutes": "{{hours}}س {{minutes}}د",
+    "flowtimeRhythm": "عدّ تصاعدي · استراحة ≈ عمل × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (ثم تدفق اختياري) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}د تركيز", "breakMins": "{{count}}د استراحة", "longMins": "{{count}}د طويلة", "longEvery": " · طويلة كل {{count}}"
+  },
+  "tray": {
+    "hideWindow": "إخفاء النافذة", "showWindow": "إظهار النافذة", "start": "ابدأ", "resume": "استأنف", "pause": "إيقاف مؤقت",
+    "skipPhase": "تخطَّ المرحلة", "statusReady": "الحالة · جاهز", "statusRunning": "الحالة · {{phase}} · {{time}}",
+    "openSettings": "فتح الإعدادات", "quit": "خروج", "tooltipReady": "Tempura · جاهز",
+    "tooltipPaused": "Tempura · {{phase}} · متوقف", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "انتهى التركيز", "hybridBody": "خذ استراحة أو واصل التدفق بعد الجرس.", "breakComplete": "انتهت الاستراحة",
+    "longBreakComplete": "انتهت الاستراحة الطويلة", "appName": "Tempura", "timeToFocus": "حان وقت التركيز.",
+    "enjoyShortBreak": "استمتع باستراحة قصيرة.", "earnedLongBreak": "لقد استحققت استراحة أطول.",
+    "sessionFinished": "انتهت الجلسة.", "halfwayTitle": "في المنتصف", "halfwayBody": "أنت عند نقطة الوسط."
+  },
+  "site": {
+    "title": "Tempura — توقيت يقرمش.",
+    "description": "مؤقت إيقاع تركيز فاخر لسطح المكتب. فترات منظمة وتدفق مرن وأولوية محلية. بلا حسابات ولا سحابة ولا مزامنة.",
+    "ogDescription": "مؤقت تركيز فاخر لسطح المكتب. أولوية محلية وصينية أصلية وبلا حسابات.",
+    "skip": "تخطَّ إلى التنزيل", "navAria": "الموقع", "navTechniques": "التقنيات", "navDownload": "تنزيل", "language": "اللغة",
+    "eyebrow": "سطح مكتب · أولوية محلية · v{{version}}", "lede": "توقيت يقرمش.",
+    "deck": "مؤقت إيقاع تركيز هادئ للفترات المنظمة والتدفق المرن. الجلسة تعيش على جهازك — صينية أصلية بلا حسابات ولا سحابة.",
+    "ctaLatest": "احصل على أحدث بناء", "ctaGithub": "GitHub Releases", "ctaLookingUp": "أبحث عن أحدث بناء موسوم…",
+    "seeReleases": "انظر GitHub Releases", "allPlatforms": "كل المنصات",
+    "firstBuildCooking": "أول بناء موسوم ما زال يُقلى. ستأخذه الصفحة من GitHub Releases.",
+    "couldNotRead": "تعذر قراءة GitHub الآن. الإصدارات على GitHub.",
+    "downloadFor": "تنزيل لـ {{os}}", "latestOther": "الأحدث v{{tag}}. منصات أخرى أدناه.",
+    "choosePlatform": "اختر منصة", "desktopOnly": "تمبورا تطبيق سطح مكتب. خذ بناءً للحاسوب الذي تعمل عليه.",
+    "latestPick": "الأحدث v{{tag}}. اختر ملفًا أدناه.", "taggedWaiting": "وُسم v{{tag}} لكن المثبّتات لم تكتمل بعد.",
+    "couldNotReach": "تعذر الوصول إلى GitHub. استخدم صفحة الإصدارات.", "checksumFile": "ملف المجموع الكامل: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "مؤقت تمبورا على سبرنت: تبقى 14:54، يعمل على Learning Tauri",
+    "rhythmsHeading": "تقنيات في المقلاة", "techniquesAria": "تقنيات التركيز",
+    "techniqueNote": "إيقاعات عمل للمكتب — ليست تشخيصًا وليست نصيحة طبية.",
+    "pointClockTitle": "Rust يمسك الساعة",
+    "pointClockBody": "العد التنازلي يخص الجانب الأصلي، لذا نافذة مخفية أو جهاز نام لا يغش الجلسة. ابدأ وأوقف وتخطَّ وأعد وأوقف — تلميح الصينية يبقى حيًا.",
+    "pointTrayTitle": "أغلقه. يبقى.",
+    "pointTrayBody": "يعيش تمبورا في صينية النظام. إغلاق النافذة يخفيه؛ الخروج اختيار متعمد من الصينية أو الإعدادات. شغّله عند الدخول إن أردته ينتظر مع الغلاية.",
+    "pointLocalTitle": "لا شيء يغادر اللوح",
+    "pointLocalBody": "الإعدادات المسبقة والإعدادات والسجل في SQLite محلي تحت مجلد بيانات التطبيق. بلا حسابات ولا سحابة ولا مزامنة — رخصة MIT، لك أن تتفحص.",
+    "installHeading": "بعد الهبوط", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "سطح مكتب", "osUnknown": "نظامك",
+    "installLinux": "AppImage: <code>chmod +x</code> للملف ثم شغّله. دبيان: ثبّت <code>.deb</code>. فيدورا وopenSUSE: <code>.rpm</code>. قد تحتاج FUSE لـ AppImage.",
+    "installWindows": "قد يحذّر SmartScreen في التشغيل الأول — البناء غير موقَّع. مزيد من المعلومات ← تشغيل على أي حال، أو استخدم MSI.",
+    "installMacos": "قد يمنع Gatekeeper تطبيقًا غير موقَّع. انقر باليمين على التطبيق ← فتح. لـ Apple Silicon وIntel صورة قرص لكل منهما.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "المصدر", "footerReleases": "كل الإصدارات",
+    "footerTwemoji": "علامة الجمبري مقتبسة من", "footerLicense": "(CC-BY 4.0)."
+  }
+}

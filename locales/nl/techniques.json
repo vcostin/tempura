@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Klassiek",
+    "workBreak": "25 min focus / 5 min pauze · lange pauze na 4 cycli",
+    "bestFor": "Taken starten, licht werk",
+    "blurb": "Een zachte opstart. Korte blokken houden het tempo zonder intimidatie — ideaal om op gang te komen of lichter werk weg te werken."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min focus / 3 min pauze",
+    "bestFor": "Opwarmen, lastige start",
+    "blurb": "Mini-intervallen om in beweging te komen. Om inertie te breken of aandacht terug te winnen na afleiding."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min focus / 10 min pauze",
+    "bestFor": "Aanhoudende concentratie",
+    "blurb": "Langere focus met echte herstel. Goed als je al weet wat je doet en ononderbroken stretch-tijd nodig hebt."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min focus / 17 min pauze",
+    "bestFor": "Code, schrijven, analyse",
+    "blurb": "Bureauritme met een royale pauze. Genoeg baan voor lastige problemen, dan opstaan, rekken, resetten."
+  },
+  "ultradian": {
+    "name": "Ultradian",
+    "workBreak": "90 min focus / 20 min pauze",
+    "bestFor": "Diep creatief werk",
+    "blurb": "Afgestemd op natuurlijke ultradiane cycli. Eén lange onderdompeling, dan echte rust — het beste voor creatieve duiken."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Tellen tot je stopt · pauze ≈ 1/5 van de werktijd",
+    "bestFor": "Creatief werk in flow",
+    "blurb": "Geen vaste focusduur. Surf de golf zolang die duurt; Tempura stelt een pauze voor evenredig aan de gewerkte tijd."
+  },
+  "hybrid": {
+    "name": "Hybride",
+    "workBreak": "Klassieke start → optioneel Flowtime na de eerste bel",
+    "bestFor": "De meeste power users",
+    "blurb": "Begin met vaste focus. Als de bel gaat: pauze — of blijf stromen en laat de sessie Flowtime worden."
+  },
+  "custom": {
+    "name": "Je eigen",
+    "workBreak": "Eigen verhoudingen + cadans van de lange pauze",
+    "bestFor": "Power users",
+    "blurb": "Bak je intervallen in Instellingen — naam, focus, korte pauze, lange pauze en hoe vaak de lange rust valt."
+  }
+}

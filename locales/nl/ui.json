@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "Timing dat knispert.", "warming": "De olie wordt warm…" },
+  "phase": { "idle": "Klaar", "focus": "Focus", "short_break": "Korte pauze", "long_break": "Lange pauze", "paused": "Gepauzeerd" },
+  "timer": {
+    "guideAria": "Techniekengids", "guideTitle": "Waar elke techniek goed voor is", "statsAria": "Statistieken van vandaag", "statsTitle": "Statistieken",
+    "settingsAria": "Instellingen", "settingsTitle": "Instellingen", "bestFor": "Goed voor: {{value}}", "learnMore": "Meer weten",
+    "cycle": " · cyclus {{count}}", "flowing": " · in flow", "hybridBell": "Focusbel — pauze nemen of blijven stromen.",
+    "keepFlowing": "Blijf stromen", "takeBreak": "Pauze nemen", "workingOn": "Bezig met…", "workingOnAria": "Waar je aan werkt",
+    "start": "Start", "resume": "Hervatten", "pause": "Pauze", "skip": "Overslaan", "reset": "Reset", "stop": "Stop",
+    "todayGlance": "Vandaag in één oogopslag", "focusedToday": "vandaag gefocust",
+    "cycles_one": "cyclus", "cycles_other": "cycli", "dayStreak": "dagen op rij"
+  },
+  "picker": { "aria": "Focustechniek" },
+  "scroll": { "more": "Scroll voor meer" },
+  "settings": {
+    "panel": "Instellingen", "line": "Instellingen · je kunt meer veranderen.", "close": "Instellingen sluiten", "language": "Taal",
+    "theme": "Thema", "sessionDefaults": "Sessiedefaults", "defaultTechnique": "Standaardtechniek",
+    "longBreakEvery": "Lange pauze elke N cycli", "flowRatio": "Flowtime-pauzeratio",
+    "flowHint": "Pauze ≈ werk × {{ratio}} (ongeveer 1:{{inverse}})", "notifications": "Meldingen",
+    "phaseNotifications": "Fasemeldingen", "gentleSound": "Zacht geluid", "halfwayTick": "Halverwege-tik",
+    "windowsHint": "Op Windows zien meldingen er goed uit in geïnstalleerde builds; uitgepakte ontwikkeling toont misschien een PowerShell-pictogram.",
+    "desktop": "Desktop", "launchAtLogin": "Starten bij aanmelden", "startMinimized": "Start geminimaliseerd naar het vak",
+    "quit": "Tempura afsluiten", "customTechniques": "Eigen technieken", "builtIn": "Ingebouwd", "customKind": "Eigen",
+    "edit": "Bewerken", "delete": "Verwijderen", "editTechnique": "Techniek bewerken", "newTechnique": "Nieuwe techniek",
+    "namePlaceholder": "Naam", "defaultCustomName": "Eigen", "mode": "Modus", "modeClassic": "Klassieke intervallen",
+    "modeFlowtime": "Flowtime", "modeHybrid": "Hybride", "focusMinutes": "Focus (minuten)", "shortBreak": "Korte pauze",
+    "longBreak": "Lange pauze", "cyclesBeforeLong": "Cycli voor de lange", "saveChanges": "Wijzigingen opslaan",
+    "addTechnique": "Techniek toevoegen", "cancel": "Annuleren", "about": "Over", "version": " · v{{version}}",
+    "privacy": "Je gegevens blijven op deze machine. Geen accounts, geen cloud, geen sync.",
+    "aboutBody": "Lokale SQLite onder je app-datamap is de bron van waarheid. Het venster sluiten verbergt naar het vak — sluit hier of via het vakmenu af.",
+    "techniquesGuide": "Techniekengids"
+  },
+  "stats": {
+    "panel": "Statistieken", "line": "Vandaag · jij kunt dit.", "close": "Sluiten", "empty": "Nog geen statistieken — start een focusritme.",
+    "aria": "Statistieken van vandaag", "focusTime": "focustijd", "cyclesFinished": "cycli klaar", "sessions": "sessies", "dayStreak": "dagen op rij"
+  },
+  "guide": {
+    "panel": "Techniekengids", "line": "Technieken · kies een ritme dat past.", "close": "Sluiten", "openSettings": "Open Instellingen",
+    "customFlowtimeWorkBreak": "Omhoog tellen · evenredige pauze", "customFlowtimeBestFor": "Creatief werk in flow",
+    "customFlowtimeBlurb": "Jouw Flowtime-ritme — werk tot de focus wegebt, rust dan evenredig.",
+    "customHybridWorkBreak": "Vaste start → optionele flow na de bel", "customHybridBestFor": "Power users",
+    "customHybridBlurb": "Jouw hybride ritme — gestructureerde start met ruimte om door te gaan.",
+    "customIntervalWorkBreak": "Zelf gekozen focus, pauze en lange-pauze-cadans", "customIntervalBestFor": "Power users",
+    "customIntervalBlurb": "Jouw intervalset — zet ratio’s en lange-pauze-cadans naar de dag.",
+    "tooltipBestFor": "Goed voor: {{value}}"
+  },
+  "themes": { "batter": "Beslag", "mist": "Mist", "grove": "Bosje", "dusk": "Schemer", "sandstone": "Zandsteen" },
+  "format": {
+    "minutes": "{{count}}m", "hours": "{{count}}u", "hoursMinutes": "{{hours}}u {{minutes}}m",
+    "flowtimeRhythm": "Omhoog tellen · pauze ≈ werk × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (daarna optionele flow) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}m focus", "breakMins": "{{count}}m pauze", "longMins": "{{count}}m lang", "longEvery": " · lang elke {{count}}"
+  },
+  "tray": {
+    "hideWindow": "Venster verbergen", "showWindow": "Venster tonen", "start": "Start", "resume": "Hervatten", "pause": "Pauze",
+    "skipPhase": "Fase overslaan", "statusReady": "Status · Klaar", "statusRunning": "Status · {{phase}} · {{time}}",
+    "openSettings": "Open Instellingen", "quit": "Afsluiten", "tooltipReady": "Tempura · Klaar",
+    "tooltipPaused": "Tempura · {{phase}} · Gepauzeerd", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "Focus klaar", "hybridBody": "Pauze nemen, of voorbij de bel blijven stromen.", "breakComplete": "Pauze klaar",
+    "longBreakComplete": "Lange pauze klaar", "appName": "Tempura", "timeToFocus": "Tijd om te focussen.",
+    "enjoyShortBreak": "Geniet van een korte pauze.", "earnedLongBreak": "Je hebt een langere pauze verdiend.",
+    "sessionFinished": "Sessie klaar.", "halfwayTitle": "Halverwege", "halfwayBody": "Je bent in het midden."
+  },
+  "site": {
+    "title": "Tempura — Timing dat knispert.",
+    "description": "Premium focusritme-timer voor desktop. Gestructureerde intervallen, flexibele flow, local-first. Geen accounts, geen cloud, geen sync.",
+    "ogDescription": "Premium focustimer voor desktop. Local-first, tray-native, geen accounts.",
+    "skip": "Ga naar download", "navAria": "Site", "navTechniques": "Technieken", "navDownload": "Download", "language": "Taal",
+    "eyebrow": "Desktop · local-first · v{{version}}", "lede": "Timing dat knispert.",
+    "deck": "Een kalme focusritme-timer voor gestructureerde intervallen en flexibele flow. De sessie leeft op je machine — tray-native, geen accounts, geen cloud.",
+    "ctaLatest": "Haal de nieuwste build", "ctaGithub": "GitHub Releases", "ctaLookingUp": "Op zoek naar de nieuwste getagde build…",
+    "seeReleases": "Zie GitHub Releases", "allPlatforms": "Alle platformen",
+    "firstBuildCooking": "De eerste getagde build is nog aan het bakken. De pagina haalt hem van GitHub Releases.",
+    "couldNotRead": "GitHub kon zojuist niet worden gelezen. Releases staan op GitHub.",
+    "downloadFor": "Download voor {{os}}", "latestOther": "Nieuwste is v{{tag}}. Andere platformen hieronder.",
+    "choosePlatform": "Kies een platform", "desktopOnly": "Tempura is een desktop-app. Pak een build voor de computer waarop je werkt.",
+    "latestPick": "Nieuwste is v{{tag}}. Kies hieronder een bestand.", "taggedWaiting": "v{{tag}} is getagd, maar installers zijn nog niet klaar met uploaden.",
+    "couldNotReach": "GitHub niet bereikbaar. Gebruik de releases-pagina.", "checksumFile": "Volledig checksumbestand: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "Tempura-timer op Sprint: 14:54 resterend, werkt aan Learning Tauri",
+    "rhythmsHeading": "Technieken in de pan", "techniquesAria": "Focustechnieken",
+    "techniqueNote": "Werkritmes voor het bureau — geen diagnose en geen medisch advies.",
+    "pointClockTitle": "Rust houdt de klok",
+    "pointClockBody": "Het aftellen hoort bij de native kant, zodat een verborgen venster of een slapende machine de sessie niet bedriegt. Start, pauze, overslaan, reset, stop — de tray-tooltip blijft live.",
+    "pointTrayTitle": "Sluit het. Het blijft.",
+    "pointTrayBody": "Tempura leeft in het systeemvak. Het venster sluiten verbergt het; afsluiten is een bewuste keuze uit het vak of Instellingen. Starten bij aanmelden als je het bij de ketel wilt laten wachten.",
+    "pointLocalTitle": "Niets verlaat het bord",
+    "pointLocalBody": "Presets, instellingen en geschiedenis zitten in lokale SQLite onder de app-datamap. Geen accounts, geen cloud, geen sync — MIT-licentie, van jou om te bekijken.",
+    "installHeading": "Als het geland is", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "desktop", "osUnknown": "je OS",
+    "installLinux": "AppImage: <code>chmod +x</code> het bestand, daarna starten. Debian: installeer de <code>.deb</code>. Fedora en openSUSE: de <code>.rpm</code>. Voor AppImage heb je misschien FUSE nodig.",
+    "installWindows": "SmartScreen kan bij de eerste run waarschuwen — de build is ongetekend. Meer info → Toch uitvoeren, of gebruik de MSI.",
+    "installMacos": "Gatekeeper kan een ongetekende app blokkeren. Rechtsklik de app → Open. Apple Silicon en Intel hebben elk hun eigen schijfkopie.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "Bron", "footerReleases": "Alle releases",
+    "footerTwemoji": "Garnaalmerk bewerkt naar", "footerLicense": "(CC-BY 4.0)."
+  }
+}

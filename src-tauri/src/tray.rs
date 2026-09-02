@@ -33,6 +33,8 @@ struct TrayMenuItems {
     status: MenuItem<tauri::Wry>,
     toggle: MenuItem<tauri::Wry>,
     skip: MenuItem<tauri::Wry>,
+    settings: MenuItem<tauri::Wry>,
+    quit: MenuItem<tauri::Wry>,
 }
 
 pub fn restore_main(app: &AppHandle) {
@@ -76,11 +78,16 @@ pub fn hide_native_window(window: &Window) {
 fn set_window_shown(app: &AppHandle, shown: bool) {
     WINDOW_SHOWN.store(shown, Ordering::Relaxed);
     if let Some(items) = app.try_state::<TrayMenuItems>() {
-        let _ = items.visibility.set_text(if shown {
-            "Hide window"
-        } else {
-            "Show window"
-        });
+        let locale = app.state::<EngineHandle>().locale();
+        let _ = items.visibility.set_text(visibility_label(&locale, shown));
+    }
+}
+
+fn visibility_label(locale: &str, shown: bool) -> String {
+    if shown {
+        crate::i18n::t(locale, "tray.hideWindow")
+    } else {
+        crate::i18n::t(locale, "tray.showWindow")
     }
 }
 
@@ -122,15 +129,52 @@ fn schedule_linux_csd_heal(win: &WebviewWindow) {
 }
 
 pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
-    let visibility = MenuItem::with_id(app, "visibility", "Hide window", true, None::<&str>)?;
+    let locale = app.state::<EngineHandle>().locale();
+    let visibility = MenuItem::with_id(
+        app,
+        "visibility",
+        visibility_label(&locale, true),
+        true,
+        None::<&str>,
+    )?;
     let sep1 = PredefinedMenuItem::separator(app)?;
-    let toggle = MenuItem::with_id(app, "toggle", "Start", true, None::<&str>)?;
-    let skip = MenuItem::with_id(app, "skip", "Skip phase", false, None::<&str>)?;
-    let status = MenuItem::with_id(app, "status", "Status · Ready", false, None::<&str>)?;
+    let toggle = MenuItem::with_id(
+        app,
+        "toggle",
+        crate::i18n::t(&locale, "tray.start"),
+        true,
+        None::<&str>,
+    )?;
+    let skip = MenuItem::with_id(
+        app,
+        "skip",
+        crate::i18n::t(&locale, "tray.skipPhase"),
+        false,
+        None::<&str>,
+    )?;
+    let status = MenuItem::with_id(
+        app,
+        "status",
+        crate::i18n::t(&locale, "tray.statusReady"),
+        false,
+        None::<&str>,
+    )?;
     let sep2 = PredefinedMenuItem::separator(app)?;
-    let settings = MenuItem::with_id(app, "settings", "Open Settings", true, None::<&str>)?;
+    let settings = MenuItem::with_id(
+        app,
+        "settings",
+        crate::i18n::t(&locale, "tray.openSettings"),
+        true,
+        None::<&str>,
+    )?;
     let sep3 = PredefinedMenuItem::separator(app)?;
-    let quit = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    let quit = MenuItem::with_id(
+        app,
+        "quit",
+        crate::i18n::t(&locale, "tray.quit"),
+        true,
+        None::<&str>,
+    )?;
 
     let menu = Menu::with_items(
         app,
@@ -142,12 +186,14 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         status,
         toggle,
         skip,
+        settings,
+        quit,
     });
 
     let _tray = TrayIconBuilder::with_id("main")
         .icon(TRAY_ICON)
         .menu(&menu)
-        .tooltip("Tempura · Ready")
+        .tooltip(crate::i18n::t(&locale, "tray.tooltipReady"))
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| {
             handle_menu(app, event.id.as_ref());
@@ -205,7 +251,8 @@ fn handle_menu(app: &AppHandle, id: &str) {
 }
 
 pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
-    let tooltip = EngineHandle::format_tooltip(snap);
+    let locale = app.state::<EngineHandle>().locale();
+    let tooltip = EngineHandle::format_tooltip(snap, &locale);
     if let Some(tray) = app.tray_by_id("main") {
         let _ = tray.set_tooltip(Some(&tooltip));
     }
@@ -215,30 +262,40 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     };
 
     let toggle_label = if !snap.running {
-        "Start"
+        crate::i18n::t(&locale, "tray.start")
     } else if snap.paused {
-        "Resume"
+        crate::i18n::t(&locale, "tray.resume")
     } else {
-        "Pause"
+        crate::i18n::t(&locale, "tray.pause")
     };
     let _ = items.toggle.set_text(toggle_label);
     let _ = items
         .skip
         .set_enabled(snap.running && snap.phase != Phase::Idle);
-    let _ = items.status.set_text(status_text(snap));
+    let _ = items.status.set_text(status_text(snap, &locale));
+    let _ = items
+        .visibility
+        .set_text(visibility_label(&locale, WINDOW_SHOWN.load(Ordering::Relaxed)));
+    let _ = items
+        .settings
+        .set_text(crate::i18n::t(&locale, "tray.openSettings"));
+    let _ = items.quit.set_text(crate::i18n::t(&locale, "tray.quit"));
 }
 
-fn status_text(snap: &TimerSnapshot) -> String {
-    let phase = snap.phase.label();
+fn status_text(snap: &TimerSnapshot, locale: &str) -> String {
     if !snap.running {
-        "Status · Ready".to_string()
-    } else if snap.is_flow && snap.phase == Phase::Focus {
-        let m = snap.elapsed_secs / 60;
-        let s = snap.elapsed_secs % 60;
-        format!("Status · {phase} · {m:02}:{s:02}")
-    } else {
-        let m = snap.remaining_secs / 60;
-        let s = snap.remaining_secs % 60;
-        format!("Status · {phase} · {m:02}:{s:02}")
+        return crate::i18n::t(locale, "tray.statusReady");
     }
+    let phase = crate::i18n::phase_label(locale, snap.phase.as_str());
+    let (m, s) = if snap.is_flow && snap.phase == Phase::Focus {
+        (snap.elapsed_secs / 60, snap.elapsed_secs % 60)
+    } else {
+        (snap.remaining_secs / 60, snap.remaining_secs % 60)
+    };
+    let time = format!("{m:02}:{s:02}");
+    crate::i18n::t_vars(
+        locale,
+        "tray.statusRunning",
+        &[("phase", &phase), ("time", &time)],
+    )
 }

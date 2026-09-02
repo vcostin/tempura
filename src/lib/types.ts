@@ -37,6 +37,7 @@ export interface AppSettings {
   longBreakEveryN: number;
   flowRatio: number;
   workingOn: string;
+  locale: string;
 }
 
 export interface TimerSnapshot {
@@ -80,11 +81,11 @@ export interface PhaseEvent {
 }
 
 export const THEMES = [
-  { id: "batter", label: "Batter" },
-  { id: "mist", label: "Mist" },
-  { id: "grove", label: "Grove" },
-  { id: "dusk", label: "Dusk" },
-  { id: "sandstone", label: "Sandstone" },
+  { id: "batter" },
+  { id: "mist" },
+  { id: "grove" },
+  { id: "dusk" },
+  { id: "sandstone" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];

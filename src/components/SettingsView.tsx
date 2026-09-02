@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
-import { guideForTechnique } from "../lib/techniqueGuide";
+import { LOCALES } from "../lib/i18n";
+import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { Select } from "./Select";
 
 interface Props {
   settings: AppSettings;
@@ -28,6 +31,7 @@ interface Props {
 }
 
 export function SettingsView(props: Props) {
+  const { t, i18n } = useTranslation();
   const { settings } = props;
   const [draft, setDraft] = useState({
     name: "",
@@ -45,7 +49,7 @@ export function SettingsView(props: Props) {
     e.preventDefault();
     setError(null);
     const input: TechniqueInput = {
-      name: draft.name.trim() || "Custom",
+      name: draft.name.trim() || t("settings.defaultCustomName"),
       focusSecs: Math.round(draft.focusMins * 60),
       shortBreakSecs: Math.round(draft.shortMins * 60),
       longBreakSecs: Math.round(draft.longMins * 60),
@@ -75,66 +79,77 @@ export function SettingsView(props: Props) {
     }
   }
 
-  function startEdit(t: Technique) {
-    if (t.kind === "system") return;
-    setEditingId(t.id);
+  function startEdit(tech: Technique) {
+    if (tech.kind === "system") return;
+    setEditingId(tech.id);
     setDraft({
-      name: t.name,
-      focusMins: Math.round(t.focusSecs / 60),
-      shortMins: Math.round(t.shortBreakSecs / 60),
-      longMins: Math.round(t.longBreakSecs / 60),
-      cycles: t.cyclesBeforeLong,
-      mode: t.mode,
+      name: tech.name,
+      focusMins: Math.round(tech.focusSecs / 60),
+      shortMins: Math.round(tech.shortBreakSecs / 60),
+      longMins: Math.round(tech.longBreakSecs / 60),
+      cycles: tech.cyclesBeforeLong,
+      mode: tech.mode,
     });
   }
 
   return (
-    <ScrollPanel label="Settings">
+    <ScrollPanel label={t("settings.panel")}>
       <BrandHeader
-        line="Settings · you can change more."
+        line={t("settings.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label="Close settings" onClick={props.onClose}>
+          <button type="button" className="icon-btn" aria-label={t("settings.close")} onClick={props.onClose}>
             ✕
           </button>
         }
       />
 
       <section className="section">
-        <h3>Theme</h3>
+        <h3>{t("settings.language")}</h3>
+        <div className="field">
+          <label htmlFor="locale">{t("settings.language")}</label>
+          <Select
+            id="locale"
+            value={settings.locale || i18n.resolvedLanguage || i18n.language || "en"}
+            onChange={(code) => void props.onPatch({ locale: code })}
+            options={LOCALES.map((loc) => ({ value: loc.code, label: loc.nativeName }))}
+          />
+        </div>
+      </section>
+
+      <section className="section">
+        <h3>{t("settings.theme")}</h3>
         <div className="theme-grid">
-          {THEMES.map((t) => (
+          {THEMES.map((theme) => (
             <button
-              key={t.id}
+              key={theme.id}
               type="button"
               className="theme-swatch"
-              data-theme-preview={t.id}
-              aria-pressed={settings.theme === t.id}
-              onClick={() => void props.onPatch({ theme: t.id })}
+              data-theme-preview={theme.id}
+              aria-pressed={settings.theme === theme.id}
+              onClick={() => void props.onPatch({ theme: theme.id })}
             >
-              {t.label}
+              {t(`themes.${theme.id}`)}
             </button>
           ))}
         </div>
       </section>
 
       <section className="section">
-        <h3>Session defaults</h3>
+        <h3>{t("settings.sessionDefaults")}</h3>
         <div className="field">
-          <label htmlFor="default-tech">Default technique</label>
-          <select
+          <label htmlFor="default-tech">{t("settings.defaultTechnique")}</label>
+          <Select
             id="default-tech"
             value={settings.defaultTechniqueId}
-            onChange={(e) => void props.onPatch({ defaultTechniqueId: e.target.value })}
-          >
-            {props.techniques.map((t) => (
-              <option key={t.id} value={t.id}>
-                {t.name} — {formatTechniqueRhythm(t, settings.flowRatio)}
-              </option>
-            ))}
-          </select>
+            onChange={(id) => void props.onPatch({ defaultTechniqueId: id })}
+            options={props.techniques.map((tech) => ({
+              value: tech.id,
+              label: `${techniqueDisplayName(tech)} — ${formatTechniqueRhythm(tech, settings.flowRatio)}`,
+            }))}
+          />
         </div>
         <div className="field">
-          <label htmlFor="long-n">Long break every N cycles</label>
+          <label htmlFor="long-n">{t("settings.longBreakEvery")}</label>
           <input
             id="long-n"
             type="number"
@@ -147,7 +162,7 @@ export function SettingsView(props: Props) {
           />
         </div>
         <div className="field">
-          <label htmlFor="flow-ratio">Flowtime break ratio</label>
+          <label htmlFor="flow-ratio">{t("settings.flowRatio")}</label>
           <input
             id="flow-ratio"
             type="range"
@@ -159,16 +174,18 @@ export function SettingsView(props: Props) {
             }
           />
           <span className="hint">
-            Break ≈ work × {(settings.flowRatio).toFixed(2)} (about 1:
-            {Math.round(1 / settings.flowRatio)})
+            {t("settings.flowHint", {
+              ratio: settings.flowRatio.toFixed(2),
+              inverse: Math.round(1 / settings.flowRatio),
+            })}
           </span>
         </div>
       </section>
 
       <section className="section">
-        <h3>Notifications</h3>
+        <h3>{t("settings.notifications")}</h3>
         <div className="toggle-row">
-          <span>Phase notifications</span>
+          <span>{t("settings.phaseNotifications")}</span>
           <button
             type="button"
             className="toggle"
@@ -180,7 +197,7 @@ export function SettingsView(props: Props) {
           />
         </div>
         <div className="toggle-row">
-          <span>Gentle sound</span>
+          <span>{t("settings.gentleSound")}</span>
           <button
             type="button"
             className="toggle"
@@ -190,7 +207,7 @@ export function SettingsView(props: Props) {
           />
         </div>
         <div className="toggle-row">
-          <span>Halfway tick</span>
+          <span>{t("settings.halfwayTick")}</span>
           <button
             type="button"
             className="toggle"
@@ -203,10 +220,10 @@ export function SettingsView(props: Props) {
 
       {props.desktop && (
         <section className="section">
-          <h3>Desktop</h3>
+          <h3>{t("settings.desktop")}</h3>
           {props.autostartAvailable && (
             <div className="toggle-row">
-              <span>Launch at login</span>
+              <span>{t("settings.launchAtLogin")}</span>
               <button
                 type="button"
                 className="toggle"
@@ -217,7 +234,7 @@ export function SettingsView(props: Props) {
             </div>
           )}
           <div className="toggle-row">
-            <span>Start minimized to tray</span>
+            <span>{t("settings.startMinimized")}</span>
             <button
               type="button"
               className="toggle"
@@ -228,40 +245,40 @@ export function SettingsView(props: Props) {
           </div>
           {props.onQuit && (
             <button type="button" className="btn btn-ghost" style={{ marginTop: "0.75rem" }} onClick={props.onQuit}>
-              Quit Tempura
+              {t("settings.quit")}
             </button>
           )}
         </section>
       )}
 
       <section className="section">
-        <h3>Custom techniques</h3>
+        <h3>{t("settings.customTechniques")}</h3>
         <div className="tech-list">
-          {props.techniques.map((t) => (
-            <div key={t.id} className="tech-row">
+          {props.techniques.map((tech) => (
+            <div key={tech.id} className="tech-row">
               <div>
-                <strong>{t.name}</strong>
+                <strong>{techniqueDisplayName(tech)}</strong>
                 <div className="meta">
-                  {t.kind === "system" ? "Built-in" : "Custom"}
+                  {tech.kind === "system" ? t("settings.builtIn") : t("settings.customKind")}
                   {" · "}
-                  {formatTechniqueRhythm(t, settings.flowRatio)}
-                  {" · Best for: "}
-                  {guideForTechnique(t).bestFor}
+                  {formatTechniqueRhythm(tech, settings.flowRatio)}
+                  {" · "}
+                  {t("timer.bestFor", { value: guideForTechnique(tech).bestFor })}
                 </div>
               </div>
-              {t.kind === "custom" && (
+              {tech.kind === "custom" && (
                 <div style={{ display: "flex", gap: "0.35rem" }}>
-                  <button type="button" className="btn btn-ghost" onClick={() => startEdit(t)}>
-                    Edit
+                  <button type="button" className="btn btn-ghost" onClick={() => startEdit(tech)}>
+                    {t("settings.edit")}
                   </button>
                   <button
                     type="button"
                     className="btn btn-danger"
                     onClick={() =>
-                      void props.onDeleteTechnique(t.id).then(() => props.onTechniquesChanged())
+                      void props.onDeleteTechnique(tech.id).then(() => props.onTechniquesChanged())
                     }
                   >
-                    Delete
+                    {t("settings.delete")}
                   </button>
                 </div>
               )}
@@ -270,31 +287,32 @@ export function SettingsView(props: Props) {
         </div>
         <form onSubmit={saveCustom} style={{ marginTop: "1rem" }}>
           <div className="field">
-            <label htmlFor="c-name">{editingId ? "Edit technique" : "New technique"}</label>
+            <label htmlFor="c-name">{editingId ? t("settings.editTechnique") : t("settings.newTechnique")}</label>
             <input
               id="c-name"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              placeholder="Name"
+              placeholder={t("settings.namePlaceholder")}
               required
             />
           </div>
           <div className="field">
-            <label htmlFor="c-mode">Mode</label>
-            <select
+            <label htmlFor="c-mode">{t("settings.mode")}</label>
+            <Select
               id="c-mode"
               value={draft.mode}
-              onChange={(e) => setDraft({ ...draft, mode: e.target.value })}
-            >
-              <option value="classic">Classic intervals</option>
-              <option value="flowtime">Flowtime</option>
-              <option value="hybrid">Hybrid</option>
-            </select>
+              onChange={(mode) => setDraft({ ...draft, mode })}
+              options={[
+                { value: "classic", label: t("settings.modeClassic") },
+                { value: "flowtime", label: t("settings.modeFlowtime") },
+                { value: "hybrid", label: t("settings.modeHybrid") },
+              ]}
+            />
           </div>
           {draft.mode !== "flowtime" && (
             <>
               <div className="field">
-                <label htmlFor="c-focus">Focus (minutes)</label>
+                <label htmlFor="c-focus">{t("settings.focusMinutes")}</label>
                 <input
                   id="c-focus"
                   type="number"
@@ -304,7 +322,7 @@ export function SettingsView(props: Props) {
                 />
               </div>
               <div className="field">
-                <label htmlFor="c-short">Short break</label>
+                <label htmlFor="c-short">{t("settings.shortBreak")}</label>
                 <input
                   id="c-short"
                   type="number"
@@ -314,7 +332,7 @@ export function SettingsView(props: Props) {
                 />
               </div>
               <div className="field">
-                <label htmlFor="c-long">Long break</label>
+                <label htmlFor="c-long">{t("settings.longBreak")}</label>
                 <input
                   id="c-long"
                   type="number"
@@ -324,7 +342,7 @@ export function SettingsView(props: Props) {
                 />
               </div>
               <div className="field">
-                <label htmlFor="c-cycles">Cycles before long</label>
+                <label htmlFor="c-cycles">{t("settings.cyclesBeforeLong")}</label>
                 <input
                   id="c-cycles"
                   type="number"
@@ -337,23 +355,23 @@ export function SettingsView(props: Props) {
           )}
           {error && <p className="hint" style={{ color: "var(--danger)" }}>{error}</p>}
           <button type="submit" className="btn btn-primary">
-            {editingId ? "Save changes" : "Add technique"}
+            {editingId ? t("settings.saveChanges") : t("settings.addTechnique")}
           </button>
           {editingId && (
             <button
               type="button"
               className="btn btn-ghost"
-              style={{ marginLeft: "0.5rem" }}
+              style={{ marginInlineStart: "0.5rem" }}
               onClick={() => setEditingId(null)}
             >
-              Cancel
+              {t("settings.cancel")}
             </button>
           )}
         </form>
       </section>
 
       <section className="section">
-        <h3>About</h3>
+        <h3>{t("settings.about")}</h3>
         <div className="privacy-note">
           <p style={{ margin: "0 0 0.5rem" }}>
             <strong>{props.info?.name ?? "Tempura"}</strong>
@@ -381,14 +399,8 @@ export function SettingsView(props: Props) {
               </>
             ) : null}
           </p>
-          <p style={{ margin: 0 }}>
-            {props.info?.privacy ??
-              "Your data stays on this machine. No accounts, no cloud, no sync."}
-          </p>
-          <p style={{ margin: "0.75rem 0 0" }}>
-            Local SQLite under your app data folder is the source of truth. Closing the
-            window hides to the tray — quit from here or the tray menu.
-          </p>
+          <p style={{ margin: 0 }}>{t("settings.privacy")}</p>
+          <p style={{ margin: "0.75rem 0 0" }}>{t("settings.aboutBody")}</p>
           {props.onOpenGuide && (
             <button
               type="button"
@@ -396,7 +408,7 @@ export function SettingsView(props: Props) {
               style={{ marginTop: "0.85rem" }}
               onClick={props.onOpenGuide}
             >
-              Techniques guide
+              {t("settings.techniquesGuide")}
             </button>
           )}
         </div>

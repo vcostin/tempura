@@ -1,5 +1,6 @@
+import { useTranslation } from "react-i18next";
 import type { Technique } from "../lib/types";
-import { techniqueTooltip } from "../lib/techniqueGuide";
+import { techniqueDisplayName, techniqueTooltip } from "../lib/techniqueGuide";
 
 interface Props {
   techniques: Technique[];
@@ -9,22 +10,23 @@ interface Props {
 }
 
 export function TechniquePicker({ techniques, selectedId, onSelect, disabled }: Props) {
+  const { t } = useTranslation();
   return (
-    <div className="picker" role="listbox" aria-label="Focus technique">
-      {techniques.map((t) => (
+    <div className="picker" role="listbox" aria-label={t("picker.aria")}>
+      {techniques.map((tech) => (
         <button
-          key={t.id}
+          key={tech.id}
           type="button"
           className="chip"
           role="option"
-          aria-selected={t.id === selectedId}
-          aria-pressed={t.id === selectedId}
+          aria-selected={tech.id === selectedId}
+          aria-pressed={tech.id === selectedId}
           disabled={disabled}
-          onClick={() => onSelect(t.id)}
-          title={techniqueTooltip(t)}
-          aria-description={techniqueTooltip(t)}
+          onClick={() => onSelect(tech.id)}
+          title={techniqueTooltip(tech)}
+          aria-description={techniqueTooltip(tech)}
         >
-          {t.name}
+          {techniqueDisplayName(tech)}
         </button>
       ))}
     </div>

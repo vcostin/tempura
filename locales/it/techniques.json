@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Classico",
+    "workBreak": "25 min di focus / 5 min di pausa · pausa lunga dopo 4 cicli",
+    "bestFor": "Avviare i task, lavoro leggero",
+    "blurb": "Una rampa dolce. Blocchi brevi tengono il ritmo senza intimidire — ideale per mettersi in moto o sbrigare il lavoro più leggero."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min di focus / 3 min di pausa",
+    "bestFor": "Riscaldamento, inizio difficile",
+    "blurb": "Intervalli minuscoli per muoversi. Per spezzare l’inerzia, entrare in un task duro o recuperare l’attenzione dopo una distrazione."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min di focus / 10 min di pausa",
+    "bestFor": "Concentrazione sostenuta",
+    "blurb": "Focus più lungo con un recupero vero. Bene quando sai già cosa fare e ti serve un tratto ininterrotto."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min di focus / 17 min di pausa",
+    "bestFor": "Codice, scrittura, analisi",
+    "blurb": "Ritmo da scrivania con una pausa generosa. Abbastanza pista per i problemi duri, poi alzarsi, stiracchiarsi e azzerare."
+  },
+  "ultradian": {
+    "name": "Ultradiano",
+    "workBreak": "90 min di focus / 20 min di pausa",
+    "bestFor": "Lavoro creativo profondo",
+    "blurb": "Allineato ai cicli ultradiani. Una lunga immersione, poi un riposo vero — il meglio per le immersioni creative."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Conteggio fino a quando ti fermi · pausa ≈ 1/5 del lavoro",
+    "bestFor": "Creatività in flow",
+    "blurb": "Niente durata fissa. Cavalca l’onda finché dura; Tempura suggerisce una pausa proporzionale al tempo lavorato."
+  },
+  "hybrid": {
+    "name": "Ibrido",
+    "workBreak": "Avvio classico → Flowtime opzionale dopo il primo gong",
+    "bestFor": "La maggior parte degli utenti avanzati",
+    "blurb": "Inizia con un focus fisso. Al gong, fai una pausa — o continua a fluire e trasforma la sessione in Flowtime."
+  },
+  "custom": {
+    "name": "La tua",
+    "workBreak": "Rapporti personalizzati + cadenza della pausa lunga",
+    "bestFor": "Utenti avanzati",
+    "blurb": "Impasta i tuoi intervalli in Impostazioni: nome, focus, pausa breve, pausa lunga e ogni quanti cicli arriva il riposo lungo."
+  }
+}

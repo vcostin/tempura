@@ -1,0 +1,100 @@
+{
+  "brand": { "tagline": "바삭한 타이밍.", "warming": "기름이 데워지는 중…" },
+  "phase": { "idle": "준비됨", "focus": "집중", "short_break": "짧은 휴식", "long_break": "긴 휴식", "paused": "일시정지" },
+  "timer": {
+    "guideAria": "기법 가이드", "guideTitle": "각 기법이 좋은 이유", "statsAria": "오늘의 통계", "statsTitle": "통계",
+    "settingsAria": "설정", "settingsTitle": "설정", "bestFor": "적합한 경우: {{value}}", "learnMore": "더 보기",
+    "cycle": " · 사이클 {{count}}", "flowing": " · 플로 중", "hybridBell": "집중 벨 — 쉬거나 계속 흐르세요.",
+    "keepFlowing": "계속 흐르기", "takeBreak": "휴식하기", "workingOn": "작업 중…", "workingOnAria": "지금 하는 일",
+    "start": "시작", "resume": "재개", "pause": "일시정지", "skip": "건너뛰기", "reset": "리셋", "stop": "정지",
+    "todayGlance": "오늘 한눈에", "focusedToday": "오늘 집중",
+    "cycles_one": "사이클", "cycles_other": "사이클", "dayStreak": "일 연속"
+  },
+  "picker": { "aria": "집중 기법" },
+  "scroll": { "more": "더 보려면 스크롤" },
+  "settings": {
+    "panel": "설정", "line": "설정 · 더 바꿀 수 있습니다.", "close": "설정 닫기", "language": "언어",
+    "theme": "테마", "sessionDefaults": "세션 기본값", "defaultTechnique": "기본 기법",
+    "longBreakEvery": "N사이클마다 긴 휴식", "flowRatio": "플로타임 휴식 비율",
+    "flowHint": "휴식 ≈ 작업 × {{ratio}} (약 1:{{inverse}})", "notifications": "알림",
+    "phaseNotifications": "단계 알림", "gentleSound": "부드러운 소리", "halfwayTick": "중간 틱",
+    "windowsHint": "Windows에서는 설치된 빌드에서 알림이 올바르게 보입니다. 패키지되지 않은 개발은 PowerShell 아이콘이 나올 수 있습니다.",
+    "desktop": "데스크톱", "launchAtLogin": "로그인 시 실행", "startMinimized": "트레이로 최소화하여 시작",
+    "quit": "Tempura 종료", "customTechniques": "사용자 기법", "builtIn": "내장", "customKind": "사용자",
+    "edit": "편집", "delete": "삭제", "editTechnique": "기법 편집", "newTechnique": "새 기법",
+    "namePlaceholder": "이름", "defaultCustomName": "사용자", "mode": "모드", "modeClassic": "클래식 간격",
+    "modeFlowtime": "플로타임", "modeHybrid": "하이브리드", "focusMinutes": "집중(분)", "shortBreak": "짧은 휴식",
+    "longBreak": "긴 휴식", "cyclesBeforeLong": "긴 휴식 전 사이클", "saveChanges": "변경 저장",
+    "addTechnique": "기법 추가", "cancel": "취소", "about": "정보", "version": " · v{{version}}",
+    "privacy": "데이터는 이 기기에 남습니다. 계정 없음, 클라우드 없음, 동기화 없음.",
+    "aboutBody": "앱 데이터 폴더의 로컬 SQLite가 진실의 원천입니다. 창을 닫으면 트레이로 숨습니다. 종료는 여기 또는 트레이 메뉴에서.",
+    "techniquesGuide": "기법 가이드"
+  },
+  "stats": {
+    "panel": "통계", "line": "오늘 · 할 수 있어.", "close": "닫기", "empty": "아직 통계가 없습니다 — 집중 리듬을 시작하세요.",
+    "aria": "오늘의 통계", "focusTime": "집중 시간", "cyclesFinished": "완료한 사이클", "sessions": "세션", "dayStreak": "일 연속"
+  },
+  "guide": {
+    "panel": "기법 가이드", "line": "기법 · 맞는 리듬을 고르세요.", "close": "닫기", "openSettings": "설정 열기",
+    "customFlowtimeWorkBreak": "카운트업 · 비례 휴식", "customFlowtimeBestFor": "플로 위주 창작",
+    "customFlowtimeBlurb": "당신의 플로타임 — 집중이 옅어질 때까지 일하고 비례해 쉽니다.",
+    "customHybridWorkBreak": "고정 시작 → 벨 후 선택적 플로", "customHybridBestFor": "파워 유저",
+    "customHybridBlurb": "당신의 하이브리드 — 구조 있는 시작과 이어갈 여지.",
+    "customIntervalWorkBreak": "직접 정한 집중, 휴식, 긴 휴식 주기", "customIntervalBestFor": "파워 유저",
+    "customIntervalBlurb": "당신의 간격 세트 — 비율과 긴 휴식 주기를 하루에 맞추세요.",
+    "tooltipBestFor": "적합한 경우: {{value}}"
+  },
+  "themes": { "batter": "반죽", "mist": "안개", "grove": "숲", "dusk": "황혼", "sandstone": "사암" },
+  "format": {
+    "minutes": "{{count}}분", "hours": "{{count}}시간", "hoursMinutes": "{{hours}}시간 {{minutes}}분",
+    "flowtimeRhythm": "카운트업 · 휴식 ≈ 작업 × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (이후 선택적 플로) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}분 집중", "breakMins": "{{count}}분 휴식", "longMins": "{{count}}분 긴 휴식", "longEvery": " · {{count}}마다 긴 휴식"
+  },
+  "tray": {
+    "hideWindow": "창 숨기기", "showWindow": "창 보이기", "start": "시작", "resume": "재개", "pause": "일시정지",
+    "skipPhase": "단계 건너뛰기", "statusReady": "상태 · 준비됨", "statusRunning": "상태 · {{phase}} · {{time}}",
+    "openSettings": "설정 열기", "quit": "종료", "tooltipReady": "Tempura · 준비됨",
+    "tooltipPaused": "Tempura · {{phase}} · 일시정지", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "집중 완료", "hybridBody": "쉬거나 벨을 지나 계속 흐르세요.", "breakComplete": "휴식 완료",
+    "longBreakComplete": "긴 휴식 완료", "appName": "Tempura", "timeToFocus": "집중할 시간입니다.",
+    "enjoyShortBreak": "짧은 휴식을 즐기세요.", "earnedLongBreak": "더 긴 휴식을 얻었습니다.",
+    "sessionFinished": "세션이 끝났습니다.", "halfwayTitle": "중간입니다", "halfwayBody": "중점에 있습니다."
+  },
+  "site": {
+    "title": "Tempura — 바삭한 타이밍.",
+    "description": "데스크톱용 프리미엄 집중 리듬 타이머. 구조화된 간격, 유연한 플로, 로컬 우선. 계정 없음, 클라우드 없음, 동기화 없음.",
+    "ogDescription": "데스크톱용 프리미엄 집중 타이머. 로컬 우선, 트레이 네이티브, 계정 없음.",
+    "skip": "다운로드로 건너뛰기", "navAria": "사이트", "navTechniques": "기법", "navDownload": "다운로드", "language": "언어",
+    "eyebrow": "데스크톱 · 로컬 우선 · v{{version}}", "lede": "바삭한 타이밍.",
+    "deck": "구조화된 간격과 유연한 플로를 위한 차분한 집중 리듬 타이머. 세션은 당신 기기에 있습니다 — 트레이 네이티브, 계정 없음, 클라우드 없음.",
+    "ctaLatest": "최신 빌드 받기", "ctaGithub": "GitHub Releases", "ctaLookingUp": "최신 태그 빌드를 찾는 중…",
+    "seeReleases": "GitHub Releases 보기", "allPlatforms": "모든 플랫폼",
+    "firstBuildCooking": "첫 태그 빌드가 아직 튀겨지고 있습니다. 페이지가 GitHub Releases에서 가져옵니다.",
+    "couldNotRead": "지금은 GitHub을 읽지 못했습니다. 릴리스는 GitHub에 있습니다.",
+    "downloadFor": "{{os}}용 다운로드", "latestOther": "최신은 v{{tag}}. 다른 플랫폼은 아래.",
+    "choosePlatform": "플랫폼 선택", "desktopOnly": "Tempura는 데스크톱 앱입니다. 작업하는 컴퓨터용 빌드를 받으세요.",
+    "latestPick": "최신은 v{{tag}}. 아래에서 파일을 고르세요.", "taggedWaiting": "v{{tag}}는 태그됐지만 설치 파일이 아직 올라가는 중입니다.",
+    "couldNotReach": "GitHub에 닿지 않습니다. 릴리스 페이지를 쓰세요.", "checksumFile": "전체 체크섬 파일: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "스프린트의 Tempura 타이머: 14:54 남음, Learning Tauri 작업 중",
+    "rhythmsHeading": "팬 안의 기법", "techniquesAria": "집중 기법",
+    "techniqueNote": "책상을 위한 작업 리듬 — 진단도, 의학적 조언도 아닙니다.",
+    "pointClockTitle": "Rust가 시계를 잡습니다",
+    "pointClockBody": "카운트다운은 네이티브 쪽 것이라 숨긴 창이나 잠든 기기가 세션을 속이지 않습니다. 시작, 일시정지, 건너뛰기, 리셋, 정지 — 트레이 툴팁은 살아 있습니다.",
+    "pointTrayTitle": "닫아도, 남습니다.",
+    "pointTrayBody": "Tempura는 시스템 트레이에 삽니다. 창을 닫으면 숨고, 종료는 트레이나 설정에서 하는 의도된 선택입니다. 주전자와 함께 기다리게 하려면 로그인 시 실행하세요.",
+    "pointLocalTitle": "도마를 떠나지 않습니다",
+    "pointLocalBody": "프리셋, 설정, 기록은 앱 데이터 디렉터리의 로컬 SQLite에 있습니다. 계정 없음, 클라우드 없음, 동기화 없음 — MIT 라이선스, 직접 살펴보세요.",
+    "installHeading": "도착한 뒤에",
+    "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "데스크톱", "osUnknown": "사용 중인 OS",
+    "installLinux": "AppImage: 파일에 <code>chmod +x</code> 한 뒤 실행. Debian: <code>.deb</code> 설치. Fedora와 openSUSE: <code>.rpm</code>. AppImage에는 FUSE가 필요할 수 있습니다.",
+    "installWindows": "첫 실행에서 SmartScreen이 경고할 수 있습니다 — 빌드가 서명되지 않았습니다. 추가 정보 → 그래도 실행, 또는 MSI를 쓰세요.",
+    "installMacos": "Gatekeeper가 서명되지 않은 앱을 막을 수 있습니다. 앱을 오른쪽 클릭 → 열기. Apple Silicon과 Intel은 각자 디스크 이미지가 있습니다.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "소스", "footerReleases": "모든 릴리스",
+    "footerTwemoji": "새우 마크는 다음에서 각색", "footerLicense": "(CC-BY 4.0)."
+  }
+}

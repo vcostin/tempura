@@ -86,6 +86,10 @@ impl EngineHandle {
         eng.snapshot.working_on = settings.working_on;
     }
 
+    pub fn locale(&self) -> String {
+        crate::i18n::resolve_locale(&self.inner.lock().settings.locale)
+    }
+
     pub fn start_ticker(self, app: AppHandle) {
         let stop = self.stop_flag.clone();
         thread::Builder::new()
@@ -390,9 +394,10 @@ impl EngineHandle {
                         eng.snapshot.remaining_secs = 0;
                         eng.phase_deadline = None;
                         eng.snapshot.paused = true;
+                        let loc = crate::i18n::resolve_locale(&eng.settings.locale);
                         notifications.push((
-                            "Focus complete".into(),
-                            "Take a break, or keep flowing past the bell.".into(),
+                            crate::i18n::t(&loc, "notifications.focusComplete"),
+                            crate::i18n::t(&loc, "notifications.hybridBody"),
                         ));
                         drop(eng);
                         self.notify(app, &notifications);
@@ -406,27 +411,32 @@ impl EngineHandle {
                     let next = eng.snapshot.phase;
                     phase_change = Some((previous, next));
 
+                    let loc = crate::i18n::resolve_locale(&eng.settings.locale);
                     let title = match previous {
-                        Phase::Focus => "Focus complete",
-                        Phase::ShortBreak => "Break complete",
-                        Phase::LongBreak => "Long break complete",
-                        Phase::Idle => "Tempura",
+                        Phase::Focus => crate::i18n::t(&loc, "notifications.focusComplete"),
+                        Phase::ShortBreak => crate::i18n::t(&loc, "notifications.breakComplete"),
+                        Phase::LongBreak => crate::i18n::t(&loc, "notifications.longBreakComplete"),
+                        Phase::Idle => crate::i18n::t(&loc, "notifications.appName"),
                     };
                     let body = match next {
-                        Phase::Focus => "Time to focus.".to_string(),
-                        Phase::ShortBreak => "Enjoy a short break.".to_string(),
-                        Phase::LongBreak => "You've earned a longer break.".to_string(),
-                        Phase::Idle => "Session finished.".to_string(),
+                        Phase::Focus => crate::i18n::t(&loc, "notifications.timeToFocus"),
+                        Phase::ShortBreak => crate::i18n::t(&loc, "notifications.enjoyShortBreak"),
+                        Phase::LongBreak => crate::i18n::t(&loc, "notifications.earnedLongBreak"),
+                        Phase::Idle => crate::i18n::t(&loc, "notifications.sessionFinished"),
                     };
-                    notifications.push((title.into(), body));
+                    notifications.push((title, body));
                 }
             }
         }
 
         if emit_halfway {
+            let loc = self.locale();
             self.notify(
                 app,
-                &[("Halfway there".into(), "You're at the midpoint.".into())],
+                &[(
+                    crate::i18n::t(&loc, "notifications.halfwayTitle"),
+                    crate::i18n::t(&loc, "notifications.halfwayBody"),
+                )],
             );
         }
 
@@ -591,21 +601,31 @@ impl EngineHandle {
         crate::tray::update_tray_ui(app, &self.snapshot());
     }
 
-    pub fn format_tooltip(snap: &TimerSnapshot) -> String {
+    pub fn format_tooltip(snap: &TimerSnapshot, locale: &str) -> String {
         if !snap.running {
-            return "Tempura · Ready".into();
+            return crate::i18n::t(locale, "tray.tooltipReady");
         }
-        let phase = snap.phase.label();
+        let phase = crate::i18n::phase_label(locale, snap.phase.as_str());
         if snap.paused {
-            return format!("Tempura · {phase} · Paused");
+            return crate::i18n::t_vars(locale, "tray.tooltipPaused", &[("phase", &phase)]);
         }
         if snap.is_flow && snap.phase == Phase::Focus {
             let m = snap.elapsed_secs / 60;
             let s = snap.elapsed_secs % 60;
-            return format!("Tempura · {phase} · {m:02}:{s:02}");
+            let time = format!("{m:02}:{s:02}");
+            return crate::i18n::t_vars(
+                locale,
+                "tray.tooltipRunning",
+                &[("phase", &phase), ("time", &time)],
+            );
         }
         let m = snap.remaining_secs / 60;
         let s = snap.remaining_secs % 60;
-        format!("Tempura · {phase} · {m:02}:{s:02}")
+        let time = format!("{m:02}:{s:02}");
+        crate::i18n::t_vars(
+            locale,
+            "tray.tooltipRunning",
+            &[("phase", &phase), ("time", &time)],
+        )
     }
 }

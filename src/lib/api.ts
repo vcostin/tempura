@@ -1,4 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
+import type { TFunction } from "i18next";
+import { i18n } from "./i18n";
 import type {
   AppInfo,
   AppSettings,
@@ -29,6 +31,7 @@ export const api = {
   getSettings: () => invoke<AppSettings>("get_settings"),
   updateSettings: (settings: AppSettings) =>
     invoke<AppSettings>("update_settings", { settings }),
+  getSystemLocale: () => invoke<string>("get_system_locale"),
 
   getStats: () => invoke<DayStats>("get_stats"),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
@@ -48,51 +51,54 @@ export function formatClock(totalSecs: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
-export function formatMinutes(secs: number): string {
+export function formatMinutes(secs: number, t: TFunction = i18n.t.bind(i18n)): string {
   const m = Math.round(secs / 60);
-  if (m < 60) return `${m}m`;
+  if (m < 60) return t("format.minutes", { count: m });
   const h = Math.floor(m / 60);
   const rem = m % 60;
-  return rem ? `${h}h ${rem}m` : `${h}h`;
+  return rem
+    ? t("format.hoursMinutes", { hours: h, minutes: rem })
+    : t("format.hours", { count: h });
 }
 
-export function phaseLabel(phase: string): string {
+export function phaseLabel(phase: string, t: TFunction = i18n.t.bind(i18n)): string {
   switch (phase) {
     case "focus":
-      return "Focus";
+      return t("phase.focus");
     case "short_break":
-      return "Short break";
+      return t("phase.short_break");
     case "long_break":
-      return "Long break";
+      return t("phase.long_break");
     default:
-      return "Ready";
+      return t("phase.idle");
   }
 }
 
 /** Human-readable focus / break / long-break summary for a technique. */
 export function formatTechniqueRhythm(
-  t: Pick<
+  tech: Pick<
     Technique,
     "mode" | "focusSecs" | "shortBreakSecs" | "longBreakSecs" | "cyclesBeforeLong" | "flowRatio"
   >,
   flowRatioFallback = 0.2,
+  t: TFunction = i18n.t.bind(i18n),
 ): string {
-  const ratio = t.flowRatio ?? flowRatioFallback;
+  const ratio = tech.flowRatio ?? flowRatioFallback;
   const ratioLabel = `1:${Math.round(1 / ratio)}`;
 
-  if (t.mode === "flowtime") {
-    return `Count-up focus · break ≈ work × ${ratio.toFixed(2)} (${ratioLabel})`;
+  if (tech.mode === "flowtime") {
+    return t("format.flowtimeRhythm", { ratio: ratio.toFixed(2), ratioLabel });
   }
 
-  const focus = `${Math.round(t.focusSecs / 60)}m focus`;
-  const shortBreak = `${Math.round(t.shortBreakSecs / 60)}m break`;
-  const longBreak = `${Math.round(t.longBreakSecs / 60)}m long`;
+  const focus = t("format.focusMins", { count: Math.round(tech.focusSecs / 60) });
+  const shortBreak = t("format.breakMins", { count: Math.round(tech.shortBreakSecs / 60) });
+  const longBreak = t("format.longMins", { count: Math.round(tech.longBreakSecs / 60) });
   const cycles =
-    t.cyclesBeforeLong > 0 ? ` · long every ${t.cyclesBeforeLong}` : "";
+    tech.cyclesBeforeLong > 0 ? t("format.longEvery", { count: tech.cyclesBeforeLong }) : "";
 
-  if (t.mode === "hybrid") {
-    return `${focus} (then optional flow) · ${shortBreak} · ${longBreak}${cycles}`;
+  if (tech.mode === "hybrid") {
+    return t("format.hybridRhythm", { focus, shortBreak, longBreak, cycles });
   }
 
-  return `${focus} · ${shortBreak} · ${longBreak}${cycles}`;
+  return t("format.classicRhythm", { focus, shortBreak, longBreak, cycles });
 }

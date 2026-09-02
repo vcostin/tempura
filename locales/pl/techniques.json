@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Klasyczny",
+    "workBreak": "25 min skupienia / 5 min przerwy · długa przerwa po 4 cyklach",
+    "bestFor": "Rozpoczynanie zadań, lżejsza praca",
+    "blurb": "Łagodny rozbieg. Krótkie bloki trzymają tempo bez presji — idealne na rozkręcenie lub lżejszą robotę."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min skupienia / 3 min przerwy",
+    "bestFor": "Rozgrzewka, trudny start",
+    "blurb": "Malutkie interwały, żeby ruszyć. Do zbicia inercji albo odzyskania uwagi po rozproszeniu."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min skupienia / 10 min przerwy",
+    "bestFor": "Trwała koncentracja",
+    "blurb": "Dłuższe skupienie z prawdziwą regeneracją. Dobrze, gdy wiesz, co robisz, i potrzebujesz nieprzerwanego odcinka."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min skupienia / 17 min przerwy",
+    "bestFor": "Kod, pisanie, analiza",
+    "blurb": "Biurkowy rytm z hojną przerwą. Dość rozbiegu na twarde problemy, potem wstań, rozciągnij się, zresetuj."
+  },
+  "ultradian": {
+    "name": "Ultradian",
+    "workBreak": "90 min skupienia / 20 min przerwy",
+    "bestFor": "Głęboka praca twórcza",
+    "blurb": "Zestrojony z naturalnymi cyklami ultradianowymi. Długie zanurzenie, potem prawdziwy odpoczynek — najlepsze na twórcze zanurzenia."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Liczy w górę, aż zatrzymasz · przerwa ≈ 1/5 czasu pracy",
+    "bestFor": "Twórczość w flow",
+    "blurb": "Bez stałej długości. Jedź na fali, póki trwa; Tempura zasugeruje przerwę proporcjonalną do przepracowanego czasu."
+  },
+  "hybrid": {
+    "name": "Hybryda",
+    "workBreak": "Klasyczny start → opcjonalny Flowtime po pierwszym dzwonku",
+    "bestFor": "Większość zaawansowanych użytkowników",
+    "blurb": "Zacznij od stałego skupienia. Gdy zadzwoni, zrób przerwę — albo płyń dalej i zamień sesję w Flowtime."
+  },
+  "custom": {
+    "name": "Własna",
+    "workBreak": "Własne proporcje + rytm długiej przerwy",
+    "bestFor": "Zaawansowani użytkownicy",
+    "blurb": "Upiecz własne interwały w Ustawieniach — nazwa, skupienie, krótka i długa przerwa oraz jak często wpada długi odpoczynek."
+  }
+}

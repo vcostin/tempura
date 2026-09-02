@@ -1,4 +1,5 @@
-import { CUSTOM_GUIDE, TECHNIQUE_GUIDE } from "../lib/techniqueGuide";
+import { useTranslation } from "react-i18next";
+import { customGuide, techniqueGuideEntries } from "../lib/techniqueGuide";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 
@@ -8,19 +9,23 @@ interface Props {
 }
 
 export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
+  const { t } = useTranslation();
+  const entries = techniqueGuideEntries();
+  const custom = customGuide();
+
   return (
-    <ScrollPanel label="Techniques guide">
+    <ScrollPanel label={t("guide.panel")}>
       <BrandHeader
-        line="Techniques · pick a rhythm that fits."
+        line={t("guide.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label="Close" onClick={onClose}>
+          <button type="button" className="icon-btn" aria-label={t("guide.close")} onClick={onClose}>
             ✕
           </button>
         }
       />
 
       <div className="guide-list">
-        {TECHNIQUE_GUIDE.map((g) => (
+        {entries.map((g) => (
           <article key={g.id} className="guide-card">
             <header>
               <h3>{g.name}</h3>
@@ -33,14 +38,14 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
 
         <article className="guide-card">
           <header>
-            <h3>{CUSTOM_GUIDE.name}</h3>
-            <p className="guide-best">{CUSTOM_GUIDE.bestFor}</p>
+            <h3>{custom.name}</h3>
+            <p className="guide-best">{custom.bestFor}</p>
           </header>
-          <p className="guide-ratio">{CUSTOM_GUIDE.workBreak}</p>
-          <p className="guide-blurb">{CUSTOM_GUIDE.blurb}</p>
+          <p className="guide-ratio">{custom.workBreak}</p>
+          <p className="guide-blurb">{custom.blurb}</p>
           {onOpenSettings && (
             <button type="button" className="btn btn-ghost" onClick={onOpenSettings}>
-              Open Settings
+              {t("guide.openSettings")}
             </button>
           )}
         </article>

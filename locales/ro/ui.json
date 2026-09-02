@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "Timing care trosnește.", "warming": "Se încălzește uleiul…" },
+  "phase": { "idle": "Pregătit", "focus": "Focus", "short_break": "Pauză scurtă", "long_break": "Pauză lungă", "paused": "Pauză" },
+  "timer": {
+    "guideAria": "Ghid de tehnici", "guideTitle": "La ce e bună fiecare tehnică", "statsAria": "Statisticile de azi", "statsTitle": "Statistici",
+    "settingsAria": "Setări", "settingsTitle": "Setări", "bestFor": "Bun pentru: {{value}}", "learnMore": "Află mai mult",
+    "cycle": " · ciclul {{count}}", "flowing": " · în flux", "hybridBell": "Gongul de focus — ia o pauză sau continuă fluxul.",
+    "keepFlowing": "Continuă fluxul", "takeBreak": "Ia o pauză", "workingOn": "Lucrez la…", "workingOnAria": "La ce lucrezi",
+    "start": "Start", "resume": "Reia", "pause": "Pauză", "skip": "Sari", "reset": "Resetează", "stop": "Stop",
+    "todayGlance": "Azi dintr-o privire", "focusedToday": "focusat azi",
+    "cycles_one": "ciclu", "cycles_few": "cicluri", "cycles_other": "de cicluri", "dayStreak": "zile la rând"
+  },
+  "picker": { "aria": "Tehnică de focus" },
+  "scroll": { "more": "Derulează pentru mai mult" },
+  "settings": {
+    "panel": "Setări", "line": "Setări · poți schimba mai mult.", "close": "Închide setările", "language": "Limbă",
+    "theme": "Temă", "sessionDefaults": "Valori implicite ale sesiunii", "defaultTechnique": "Tehnica implicită",
+    "longBreakEvery": "Pauză lungă la fiecare N cicluri", "flowRatio": "Raportul pauzei Flowtime",
+    "flowHint": "Pauză ≈ lucru × {{ratio}} (cam 1:{{inverse}})", "notifications": "Notificări",
+    "phaseNotifications": "Notificări de fază", "gentleSound": "Sunet blând", "halfwayTick": "Tic la jumătate",
+    "windowsHint": "Pe Windows, notificările arată corect în build-urile instalate; dezvoltarea neimpachetată poate arăta o iconiță PowerShell.",
+    "desktop": "Desktop", "launchAtLogin": "Pornește la autentificare", "startMinimized": "Pornește minimizat în tavă",
+    "quit": "Închide Tempura", "customTechniques": "Tehnici proprii", "builtIn": "Inclusă", "customKind": "Proprie",
+    "edit": "Editează", "delete": "Șterge", "editTechnique": "Editează tehnica", "newTechnique": "Tehnică nouă",
+    "namePlaceholder": "Nume", "defaultCustomName": "Proprie", "mode": "Mod", "modeClassic": "Intervale clasice",
+    "modeFlowtime": "Flowtime", "modeHybrid": "Hibrid", "focusMinutes": "Focus (minute)", "shortBreak": "Pauză scurtă",
+    "longBreak": "Pauză lungă", "cyclesBeforeLong": "Cicluri înainte de cea lungă", "saveChanges": "Salvează",
+    "addTechnique": "Adaugă tehnica", "cancel": "Anulează", "about": "Despre", "version": " · v{{version}}",
+    "privacy": "Datele rămân pe această mașină. Fără conturi, fără cloud, fără sync.",
+    "aboutBody": "SQLite local din folderul de date al aplicației e sursa adevărului. Închiderea ferestrei ascunde în tavă — ieși de aici sau din meniul tăvii.",
+    "techniquesGuide": "Ghid de tehnici"
+  },
+  "stats": {
+    "panel": "Statistici", "line": "Azi · poți.", "close": "Închide", "empty": "Încă nu sunt statistici — pornește un ritm de focus.",
+    "aria": "Statisticile de azi", "focusTime": "timp de focus", "cyclesFinished": "cicluri terminate", "sessions": "sesiuni", "dayStreak": "zile la rând"
+  },
+  "guide": {
+    "panel": "Ghid de tehnici", "line": "Tehnici · alege un ritm care se potrivește.", "close": "Închide", "openSettings": "Deschide Setări",
+    "customFlowtimeWorkBreak": "Focus cu numărare · pauză proporțională", "customFlowtimeBestFor": "Lucru creativ cu flux",
+    "customFlowtimeBlurb": "Ritmul tău Flowtime — lucrează până dispare focusul, apoi odihnește-te proporțional.",
+    "customHybridWorkBreak": "Start fix → flux opțional după gong", "customHybridBestFor": "Utilizatori avansați",
+    "customHybridBlurb": "Ritmul tău hibrid — start structurat cu loc să continui.",
+    "customIntervalWorkBreak": "Focus, pauză și cadență lungă definite de tine", "customIntervalBestFor": "Utilizatori avansați",
+    "customIntervalBlurb": "Setul tău de intervale — rapoarte și cadența pauzei lungi pe măsura zilei.",
+    "tooltipBestFor": "Bun pentru: {{value}}"
+  },
+  "themes": { "batter": "Aluat", "mist": "Ceață", "grove": "Crâng", "dusk": "Amurg", "sandstone": "Gresie" },
+  "format": {
+    "minutes": "{{count}}m", "hours": "{{count}}h", "hoursMinutes": "{{hours}}h {{minutes}}m",
+    "flowtimeRhythm": "Focus cu numărare · pauză ≈ lucru × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (apoi flux opțional) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}m focus", "breakMins": "{{count}}m pauză", "longMins": "{{count}}m lung", "longEvery": " · lung la fiecare {{count}}"
+  },
+  "tray": {
+    "hideWindow": "Ascunde fereastra", "showWindow": "Arată fereastra", "start": "Start", "resume": "Reia", "pause": "Pauză",
+    "skipPhase": "Sari faza", "statusReady": "Stare · Pregătit", "statusRunning": "Stare · {{phase}} · {{time}}",
+    "openSettings": "Deschide Setări", "quit": "Ieșire", "tooltipReady": "Tempura · Pregătit",
+    "tooltipPaused": "Tempura · {{phase}} · Pauză", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "Focus terminat", "hybridBody": "Ia o pauză sau continuă fluxul după gong.", "breakComplete": "Pauză terminată",
+    "longBreakComplete": "Pauză lungă terminată", "appName": "Tempura", "timeToFocus": "Timpul să te concentrezi.",
+    "enjoyShortBreak": "Savurează o pauză scurtă.", "earnedLongBreak": "Ai meritat o pauză mai lungă.",
+    "sessionFinished": "Sesiune încheiată.", "halfwayTitle": "La jumătate", "halfwayBody": "Ești la mijloc."
+  },
+  "site": {
+    "title": "Tempura — Timing care trosnește.",
+    "description": "Cronometru premium de ritm de focus pentru desktop. Intervale structurate, flux flexibil, local-first. Fără conturi, fără cloud, fără sync.",
+    "ogDescription": "Cronometru premium de focus pentru desktop. Local-first, nativ în tavă, fără conturi.",
+    "skip": "Sari la descărcare", "navAria": "Site", "navTechniques": "Tehnici", "navDownload": "Descarcă", "language": "Limbă",
+    "eyebrow": "Desktop · local-first · v{{version}}", "lede": "Timing care trosnește.",
+    "deck": "Un cronometru calm de ritm de focus pentru intervale structurate și flux flexibil. Sesiunea trăiește pe mașina ta — nativ în tavă, fără conturi, fără cloud.",
+    "ctaLatest": "Ia ultimul build", "ctaGithub": "GitHub Releases", "ctaLookingUp": "Caut ultimul build etichetat…",
+    "seeReleases": "Vezi GitHub Releases", "allPlatforms": "Toate platformele",
+    "firstBuildCooking": "Primul build etichetat încă se coace. Pagina îl va lua de pe GitHub Releases.",
+    "couldNotRead": "GitHub nu s-a putut citi acum. Release-urile sunt pe GitHub.",
+    "downloadFor": "Descarcă pentru {{os}}", "latestOther": "Ultimul e v{{tag}}. Alte platforme mai jos.",
+    "choosePlatform": "Alege o platformă", "desktopOnly": "Tempura e o aplicație de desktop. Ia un build pentru calculatorul pe care lucrezi.",
+    "latestPick": "Ultimul e v{{tag}}. Alege un fișier mai jos.", "taggedWaiting": "v{{tag}} e etichetat, dar instalatorii încă se încarcă.",
+    "couldNotReach": "GitHub nu e accesibil. Folosește pagina de release-uri.", "checksumFile": "Fișierul complet de checksum: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "Cronometrul Tempura pe Sprint: 14:54 rămase, lucrează la Learning Tauri",
+    "rhythmsHeading": "Tehnici în tigaie", "techniquesAria": "Tehnici de focus",
+    "techniqueNote": "Ritmuri de lucru pentru birou — nu un diagnostic și nu sfat medical.",
+    "pointClockTitle": "Rust ține ceasul",
+    "pointClockBody": "Numărătoarea inversă aparține părții native, astfel o fereastră ascunsă sau o mașină adormită nu trișează sesiunea. Start, pauză, sari, resetează, stop — tooltip-ul tăvii rămâne live.",
+    "pointTrayTitle": "Închide-l. Rămâne.",
+    "pointTrayBody": "Tempura trăiește în tava de sistem. Închiderea ferestrei îl ascunde; ieșirea e o alegere deliberată din tavă sau Setări. Pornește la autentificare dacă vrei să aștepte cu ibricul.",
+    "pointLocalTitle": "Nimic nu părăsește tocul",
+    "pointLocalBody": "Presetări, setări și istoric stau în SQLite local sub directorul de date al aplicației. Fără conturi, fără cloud, fără sync — licență MIT, al tău de inspectat.",
+    "installHeading": "După ce aterizează", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "desktop", "osUnknown": "sistemul tău",
+    "installLinux": "AppImage: <code>chmod +x</code> pe fișier, apoi rulează-l. Debian: instalează <code>.deb</code>. Fedora și openSUSE: <code>.rpm</code>. Poate îți trebuie FUSE pentru AppImage.",
+    "installWindows": "SmartScreen poate avertiza la prima rulare — build-ul e nesemnat. Mai multe informații → Rulează oricum, sau folosește MSI.",
+    "installMacos": "Gatekeeper poate bloca o aplicație nesemnată. Clic dreapta pe app → Deschide. Apple Silicon și Intel au fiecare propria imagine de disc.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "Sursă", "footerReleases": "Toate release-urile",
+    "footerTwemoji": "Marca crevetelui adaptată după", "footerLicense": "(CC-BY 4.0)."
+  }
+}

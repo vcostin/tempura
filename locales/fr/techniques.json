@@ -1,0 +1,50 @@
+{
+  "classic": {
+    "name": "Classique",
+    "workBreak": "25 min de focus / 5 min de pause · pause longue après 4 cycles",
+    "bestFor": "Démarrer, travail léger",
+    "blurb": "Une rampe douce. De courts blocs gardent l’élan sans intimider — idéal pour s’échauffer ou déblayer le travail léger."
+  },
+  "sprint": {
+    "name": "Sprint",
+    "workBreak": "15 min de focus / 3 min de pause",
+    "bestFor": "Échauffement, entrée dans une tâche dure",
+    "blurb": "De tout petits intervalles pour se mettre en mouvement. Pour casser l’inertie ou retrouver l’attention après une distraction."
+  },
+  "deep": {
+    "name": "Deep",
+    "workBreak": "50 min de focus / 10 min de pause",
+    "bestFor": "Concentration soutenue",
+    "blurb": "Un focus plus long avec une vraie récupération. Bien quand vous savez déjà ce que vous faites et qu’il faut un stretch sans interruption."
+  },
+  "fifty-two-seventeen": {
+    "name": "52/17",
+    "workBreak": "52 min de focus / 17 min de pause",
+    "bestFor": "Code, écriture, analyse",
+    "blurb": "Rythme de bureau avec une pause généreuse. Assez de piste pour les problèmes durs, puis se lever, s’étirer, réinitialiser."
+  },
+  "ultradian": {
+    "name": "Ultradien",
+    "workBreak": "90 min de focus / 20 min de pause",
+    "bestFor": "Travail créatif profond",
+    "blurb": "Aligné sur les cycles ultradien. Une longue immersion, puis un vrai repos — idéal pour les plongées créatives."
+  },
+  "flowtime": {
+    "name": "Flowtime",
+    "workBreak": "Compte jusqu’à l’arrêt · pause ≈ 1/5 du temps de travail",
+    "bestFor": "Création en flow",
+    "blurb": "Pas de durée fixe. Surfez la vague tant qu’elle dure ; Tempura propose une pause proportionnelle au temps travaillé."
+  },
+  "hybrid": {
+    "name": "Hybride",
+    "workBreak": "Départ classique → Flowtime optionnel après le premier gong",
+    "bestFor": "La plupart des utilisateurs avancés",
+    "blurb": "Commencez avec un focus fixe. Au gong, prenez une pause — ou continuez et laissez la session devenir Flowtime."
+  },
+  "custom": {
+    "name": "La vôtre",
+    "workBreak": "Ratios définis + cadence de pause longue",
+    "bestFor": "Utilisateurs avancés",
+    "blurb": "Fabriquez vos intervalles dans Réglages — nom, focus, pause courte, pause longue, et la fréquence du long repos."
+  }
+}

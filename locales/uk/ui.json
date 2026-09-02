@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "Час, що хрумтить.", "warming": "Олія нагрівається…" },
+  "phase": { "idle": "Готово", "focus": "Фокус", "short_break": "Коротка перерва", "long_break": "Довга перерва", "paused": "Пауза" },
+  "timer": {
+    "guideAria": "Гід технік", "guideTitle": "Для чого кожна техніка", "statsAria": "Сьогоднішня статистика", "statsTitle": "Статистика",
+    "settingsAria": "Налаштування", "settingsTitle": "Налаштування", "bestFor": "Найкраще для: {{value}}", "learnMore": "Дізнатися більше",
+    "cycle": " · цикл {{count}}", "flowing": " · у потоці", "hybridBell": "Гонг фокусу — зроби перерву або продовжуй плисти.",
+    "keepFlowing": "Продовжити потік", "takeBreak": "Зробити перерву", "workingOn": "Працюю над…", "workingOnAria": "Над чим ти працюєш",
+    "start": "Старт", "resume": "Продовжити", "pause": "Пауза", "skip": "Пропустити", "reset": "Скинути", "stop": "Стоп",
+    "todayGlance": "Сьогодні одним поглядом", "focusedToday": "у фокусі сьогодні",
+    "cycles_one": "цикл", "cycles_few": "цикли", "cycles_many": "циклів", "cycles_other": "циклів", "dayStreak": "днів поспіль"
+  },
+  "picker": { "aria": "Техніка фокусу" },
+  "scroll": { "more": "Гортай далі" },
+  "settings": {
+    "panel": "Налаштування", "line": "Налаштування · тут можна більше.", "close": "Закрити налаштування", "language": "Мова",
+    "theme": "Тема", "sessionDefaults": "Типові значення сесії", "defaultTechnique": "Типова техніка",
+    "longBreakEvery": "Довга перерва кожні N циклів", "flowRatio": "Співвідношення перерви Flowtime",
+    "flowHint": "Перерва ≈ робота × {{ratio}} (близько 1:{{inverse}})", "notifications": "Сповіщення",
+    "phaseNotifications": "Сповіщення фаз", "gentleSound": "М’який звук", "halfwayTick": "Тік на середині",
+    "windowsHint": "У Windows сповіщення виглядають правильно у встановлених збірках; неупакована розробка може показати іконку PowerShell.",
+    "desktop": "Стільниця", "launchAtLogin": "Запускати після входу", "startMinimized": "Запускати згорнутим у лоток",
+    "quit": "Вийти з Tempura", "customTechniques": "Власні техніки", "builtIn": "Вбудована", "customKind": "Власна",
+    "edit": "Редагувати", "delete": "Видалити", "editTechnique": "Редагувати техніку", "newTechnique": "Нова техніка",
+    "namePlaceholder": "Назва", "defaultCustomName": "Власна", "mode": "Режим", "modeClassic": "Класичні інтервали",
+    "modeFlowtime": "Flowtime", "modeHybrid": "Гібрид", "focusMinutes": "Фокус (хвилини)", "shortBreak": "Коротка перерва",
+    "longBreak": "Довга перерва", "cyclesBeforeLong": "Циклів до довгої", "saveChanges": "Зберегти зміни",
+    "addTechnique": "Додати техніку", "cancel": "Скасувати", "about": "Про програму", "version": " · v{{version}}",
+    "privacy": "Твої дані лишаються на цій машині. Без акаунтів, без хмари, без синхронізації.",
+    "aboutBody": "Локальний SQLite у теці даних програми — джерело істини. Закриття вікна ховає в лоток — виходь звідси або з меню лотка.",
+    "techniquesGuide": "Гід технік"
+  },
+  "stats": {
+    "panel": "Статистика", "line": "Сьогодні · ти можеш.", "close": "Закрити", "empty": "Ще немає статистики — почни ритм фокусу.",
+    "aria": "Сьогоднішня статистика", "focusTime": "час фокусу", "cyclesFinished": "циклів завершено", "sessions": "сесії", "dayStreak": "днів поспіль"
+  },
+  "guide": {
+    "panel": "Гід технік", "line": "Техніки · обери ритм, що пасує.", "close": "Закрити", "openSettings": "Відкрити налаштування",
+    "customFlowtimeWorkBreak": "Відлік угору · пропорційна перерва", "customFlowtimeBestFor": "Творчість у потоці",
+    "customFlowtimeBlurb": "Твій ритм Flowtime — працюй, доки фокус не згасне, потім відпочинь пропорційно.",
+    "customHybridWorkBreak": "Фіксований старт → опційний потік після гонга", "customHybridBestFor": "Досвідчені користувачі",
+    "customHybridBlurb": "Твій гібридний ритм — структурований старт із місцем продовжити.",
+    "customIntervalWorkBreak": "Власні фокус, перерва й ритм довгої перерви", "customIntervalBestFor": "Досвідчені користувачі",
+    "customIntervalBlurb": "Твій набір інтервалів — підкрути співвідношення й ритм довгої перерви під день.",
+    "tooltipBestFor": "Найкраще для: {{value}}"
+  },
+  "themes": { "batter": "Кляр", "mist": "Імла", "grove": "Гай", "dusk": "Сутінки", "sandstone": "Пісковик" },
+  "format": {
+    "minutes": "{{count}}хв", "hours": "{{count}}год", "hoursMinutes": "{{hours}}год {{minutes}}хв",
+    "flowtimeRhythm": "Відлік угору · перерва ≈ робота × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}} (потім опційний потік) · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "{{count}}хв фокус", "breakMins": "{{count}}хв перерва", "longMins": "{{count}}хв довга", "longEvery": " · довга кожні {{count}}"
+  },
+  "tray": {
+    "hideWindow": "Сховати вікно", "showWindow": "Показати вікно", "start": "Старт", "resume": "Продовжити", "pause": "Пауза",
+    "skipPhase": "Пропустити фазу", "statusReady": "Статус · Готово", "statusRunning": "Статус · {{phase}} · {{time}}",
+    "openSettings": "Відкрити налаштування", "quit": "Вийти", "tooltipReady": "Tempura · Готово",
+    "tooltipPaused": "Tempura · {{phase}} · Пауза", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "Фокус завершено", "hybridBody": "Зроби перерву або пливи далі повз гонг.", "breakComplete": "Перерву завершено",
+    "longBreakComplete": "Довгу перерву завершено", "appName": "Tempura", "timeToFocus": "Час зосередитися.",
+    "enjoyShortBreak": "Насолодись короткою перервою.", "earnedLongBreak": "Ти заслужив довшу перерву.",
+    "sessionFinished": "Сесію завершено.", "halfwayTitle": "На півдорозі", "halfwayBody": "Ти на середині."
+  },
+  "site": {
+    "title": "Tempura — Час, що хрумтить.",
+    "description": "Преміум-таймер ритму фокусу для стільниці. Структуровані інтервали, гнучкий потік, local-first. Без акаунтів, без хмари, без синхронізації.",
+    "ogDescription": "Преміум-таймер фокусу для стільниці. Local-first, нативний лоток, без акаунтів.",
+    "skip": "Перейти до завантаження", "navAria": "Сайт", "navTechniques": "Техніки", "navDownload": "Завантажити", "language": "Мова",
+    "eyebrow": "Стільниця · local-first · v{{version}}", "lede": "Час, що хрумтить.",
+    "deck": "Спокійний таймер ритму фокусу для структурованих інтервалів і гнучкого потоку. Сесія живе на твоїй машині — нативний лоток, без акаунтів, без хмари.",
+    "ctaLatest": "Взяти останню збірку", "ctaGithub": "GitHub Releases", "ctaLookingUp": "Шукаю останню позначену збірку…",
+    "seeReleases": "Дивитися GitHub Releases", "allPlatforms": "Усі платформи",
+    "firstBuildCooking": "Перша позначена збірка ще смажиться. Сторінка візьме її з GitHub Releases.",
+    "couldNotRead": "Зараз не вдалося прочитати GitHub. Релізи на GitHub.",
+    "downloadFor": "Завантажити для {{os}}", "latestOther": "Остання — v{{tag}}. Інші платформи нижче.",
+    "choosePlatform": "Обери платформу", "desktopOnly": "Tempura — стільнична програма. Візьми збірку для комп’ютера, на якому працюєш.",
+    "latestPick": "Остання — v{{tag}}. Обери файл нижче.", "taggedWaiting": "v{{tag}} позначено, але інсталятори ще завантажуються.",
+    "couldNotReach": "GitHub недоступний. Скористайся сторінкою релізів.", "checksumFile": "Повний файл контрольних сум: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "Таймер Tempura на Спринті: залишилось 14:54, робота над Learning Tauri",
+    "rhythmsHeading": "Техніки на пательні", "techniquesAria": "Техніки фокусу",
+    "techniqueNote": "Робочі ритми для столу — не діагноз і не медична порада.",
+    "pointClockTitle": "Rust тримає годинник",
+    "pointClockBody": "Відлік належить нативній стороні, тож сховане вікно чи машина, що заснула, не обдурять сесію. Старт, пауза, пропуск, скидання, стоп — підказка лотка лишається живою.",
+    "pointTrayTitle": "Закрий. Воно лишається.",
+    "pointTrayBody": "Tempura живе в системному лотку. Закриття вікна ховає її; вихід — свідомий вибір із лотка або Налаштувань. Запускай після входу, якщо хочеш, щоб чекала з чайником.",
+    "pointLocalTitle": "Нічого не йде з дошки",
+    "pointLocalBody": "Пресети, налаштування й історія лежать у локальному SQLite в теці даних програми. Без акаунтів, без хмари, без синхронізації — ліцензія MIT, твоє для перегляду.",
+    "installHeading": "Коли приземлилось", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "стільниця", "osUnknown": "твоя ОС",
+    "installLinux": "AppImage: <code>chmod +x</code> на файл, потім запусти. Debian: встанови <code>.deb</code>. Fedora й openSUSE: <code>.rpm</code>. Для AppImage може знадобитися FUSE.",
+    "installWindows": "SmartScreen може попередити при першому запуску — збірка непідписана. Докладніше → Все одно запустити, або скористайся MSI.",
+    "installMacos": "Gatekeeper може заблокувати непідписану програму. Правий клік по програмі → Відкрити. Apple Silicon та Intel мають власні образи диска.",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "Код", "footerReleases": "Усі релізи",
+    "footerTwemoji": "Знак креветки адаптовано з", "footerLicense": "(CC-BY 4.0)."
+  }
+}

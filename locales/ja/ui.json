@@ -1,0 +1,99 @@
+{
+  "brand": { "tagline": "カリッと揚がるタイミング。", "warming": "油を熱しています…" },
+  "phase": { "idle": "準備完了", "focus": "フォーカス", "short_break": "短い休憩", "long_break": "長い休憩", "paused": "一時停止" },
+  "timer": {
+    "guideAria": "テクニックガイド", "guideTitle": "各テクニックの向き", "statsAria": "今日の統計", "statsTitle": "統計",
+    "settingsAria": "設定", "settingsTitle": "設定", "bestFor": "向いていること: {{value}}", "learnMore": "もっと見る",
+    "cycle": " · サイクル {{count}}", "flowing": " · フロー中", "hybridBell": "フォーカスのベル — 休憩するか、流れ続けるか。",
+    "keepFlowing": "流れ続ける", "takeBreak": "休憩する", "workingOn": "取り組んでいること…", "workingOnAria": "今取り組んでいること",
+    "start": "開始", "resume": "再開", "pause": "一時停止", "skip": "スキップ", "reset": "リセット", "stop": "停止",
+    "todayGlance": "今日のひと目", "focusedToday": "今日のフォーカス",
+    "cycles_one": "サイクル", "cycles_other": "サイクル", "dayStreak": "日連続"
+  },
+  "picker": { "aria": "フォーカスタクニック" },
+  "scroll": { "more": "スクロールして続き" },
+  "settings": {
+    "panel": "設定", "line": "設定 · もっと変えられます。", "close": "設定を閉じる", "language": "言語",
+    "theme": "テーマ", "sessionDefaults": "セッションの既定", "defaultTechnique": "既定のテクニック",
+    "longBreakEvery": "N サイクルごとの長い休憩", "flowRatio": "フロータイム休憩比",
+    "flowHint": "休憩 ≈ 作業 × {{ratio}}（およそ 1:{{inverse}}）", "notifications": "通知",
+    "phaseNotifications": "フェーズ通知", "gentleSound": "やさしい音", "halfwayTick": "中間のティック",
+    "windowsHint": "Windows ではインストール済みビルドで通知が正しく見えます。パッケージ化していない開発では PowerShell のアイコンが出ることがあります。",
+    "desktop": "デスクトップ", "launchAtLogin": "ログイン時に起動", "startMinimized": "トレイに最小化して起動",
+    "quit": "Tempura を終了", "customTechniques": "カスタムテクニック", "builtIn": "組み込み", "customKind": "カスタム",
+    "edit": "編集", "delete": "削除", "editTechnique": "テクニックを編集", "newTechnique": "新しいテクニック",
+    "namePlaceholder": "名前", "defaultCustomName": "カスタム", "mode": "モード", "modeClassic": "クラシック間隔",
+    "modeFlowtime": "フロータイム", "modeHybrid": "ハイブリッド", "focusMinutes": "フォーカス（分）", "shortBreak": "短い休憩",
+    "longBreak": "長い休憩", "cyclesBeforeLong": "長い休憩までのサイクル", "saveChanges": "変更を保存",
+    "addTechnique": "テクニックを追加", "cancel": "キャンセル", "about": "このアプリについて", "version": " · v{{version}}",
+    "privacy": "データはこのマシンに残ります。アカウントなし、クラウドなし、同期なし。",
+    "aboutBody": "アプリデータフォルダ内のローカル SQLite が真実の源です。ウィンドウを閉じるとトレイに隠れます。終了はここかトレイメニューから。",
+    "techniquesGuide": "テクニックガイド"
+  },
+  "stats": {
+    "panel": "統計", "line": "今日 · できる。", "close": "閉じる", "empty": "まだ統計がありません — フォーカスリズムを始めてください。",
+    "aria": "今日の統計", "focusTime": "フォーカス時間", "cyclesFinished": "完了したサイクル", "sessions": "セッション", "dayStreak": "日連続"
+  },
+  "guide": {
+    "panel": "テクニックガイド", "line": "テクニック · 合うリズムを選ぶ。", "close": "閉じる", "openSettings": "設定を開く",
+    "customFlowtimeWorkBreak": "カウントアップ · 比例休憩", "customFlowtimeBestFor": "フロー寄りの創作",
+    "customFlowtimeBlurb": "あなたのフロータイム — フォーカスが薄れるまで働き、その分休む。",
+    "customHybridWorkBreak": "固定スタート → ベルのあと任意でフロー", "customHybridBestFor": "パワーユーザー",
+    "customHybridBlurb": "あなたのハイブリッド — 型のある開始と、続けられる余白。",
+    "customIntervalWorkBreak": "自分で決めるフォーカス・休憩・長い休憩の間隔", "customIntervalBestFor": "パワーユーザー",
+    "customIntervalBlurb": "あなたの間隔セット — 比率と長い休憩の間隔をその日に合わせる。",
+    "tooltipBestFor": "向いていること: {{value}}"
+  },
+  "themes": { "batter": "衣", "mist": "霧", "grove": "木立", "dusk": "黄昏", "sandstone": "砂岩" },
+  "format": {
+    "minutes": "{{count}}分", "hours": "{{count}}時間", "hoursMinutes": "{{hours}}時間 {{minutes}}分",
+    "flowtimeRhythm": "カウントアップ · 休憩 ≈ 作業 × {{ratio}} ({{ratioLabel}})",
+    "classicRhythm": "{{focus}} · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "hybridRhythm": "{{focus}}（その後任意でフロー） · {{shortBreak}} · {{longBreak}}{{cycles}}",
+    "focusMins": "フォーカス {{count}}分", "breakMins": "休憩 {{count}}分", "longMins": "長休憩 {{count}}分", "longEvery": " · {{count}} ごと長い"
+  },
+  "tray": {
+    "hideWindow": "ウィンドウを隠す", "showWindow": "ウィンドウを表示", "start": "開始", "resume": "再開", "pause": "一時停止",
+    "skipPhase": "フェーズをスキップ", "statusReady": "状態 · 準備完了", "statusRunning": "状態 · {{phase}} · {{time}}",
+    "openSettings": "設定を開く", "quit": "終了", "tooltipReady": "Tempura · 準備完了",
+    "tooltipPaused": "Tempura · {{phase}} · 一時停止", "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+  },
+  "notifications": {
+    "focusComplete": "フォーカス完了", "hybridBody": "休憩するか、ベルを越えて流れ続けてください。", "breakComplete": "休憩完了",
+    "longBreakComplete": "長い休憩完了", "appName": "Tempura", "timeToFocus": "フォーカスの時間です。",
+    "enjoyShortBreak": "短い休憩をどうぞ。", "earnedLongBreak": "長い休憩を勝ち取りました。",
+    "sessionFinished": "セッション終了。", "halfwayTitle": "折り返し", "halfwayBody": "中間です。"
+  },
+  "site": {
+    "title": "Tempura — カリッと揚がるタイミング。",
+    "description": "デスクトップ向けのプレミアムなフォーカスリズムタイマー。構造化された間隔、柔軟なフロー、ローカルファースト。アカウントなし、クラウドなし、同期なし。",
+    "ogDescription": "デスクトップ向けプレミアムフォーカスタイマー。ローカルファースト、トレイネイティブ、アカウントなし。",
+    "skip": "ダウンロードへスキップ", "navAria": "サイト", "navTechniques": "テクニック", "navDownload": "ダウンロード", "language": "言語",
+    "eyebrow": "デスクトップ · ローカルファースト · v{{version}}", "lede": "カリッと揚がるタイミング。",
+    "deck": "構造化された間隔と柔軟なフローのための、落ち着いたフォーカスリズムタイマー。セッションはあなたのマシンにあります — トレイネイティブ、アカウントなし、クラウドなし。",
+    "ctaLatest": "最新ビルドを入手", "ctaGithub": "GitHub Releases", "ctaLookingUp": "最新のタグ付きビルドを探しています…",
+    "seeReleases": "GitHub Releases を見る", "allPlatforms": "すべてのプラットフォーム",
+    "firstBuildCooking": "最初のタグ付きビルドはまだ揚げています。ページは GitHub Releases から拾います。",
+    "couldNotRead": "いま GitHub を読めませんでした。リリースは GitHub にあります。",
+    "downloadFor": "{{os}} 用をダウンロード", "latestOther": "最新は v{{tag}}。他のプラットフォームは下に。",
+    "choosePlatform": "プラットフォームを選ぶ", "desktopOnly": "Tempura はデスクトップアプリです。作業するコンピュータ用のビルドをどうぞ。",
+    "latestPick": "最新は v{{tag}}。下からファイルを選んでください。", "taggedWaiting": "v{{tag}} はタグ済みですが、インストーラのアップロードがまだ終わっていません。",
+    "couldNotReach": "GitHub に届きません。リリースページを使ってください。", "checksumFile": "完全なチェックサムファイル: ",
+    "shaTitle": "SHA-256 {{hash}}", "timerAlt": "スプリントの Tempura タイマー: 残り 14:54、Learning Tauri に取り組中",
+    "rhythmsHeading": "フライパンの中のテクニック", "techniquesAria": "フォーカスタクニック",
+    "techniqueNote": "机のための仕事リズム — 診断でも医療アドバイスでもありません。",
+    "pointClockTitle": "Rust が時計を持つ",
+    "pointClockBody": "カウントダウンはネイティブ側のものなので、隠したウィンドウや眠ったマシンがセッションをごまかしません。開始、一時停止、スキップ、リセット、停止 — トレイのツールチップは生きたままです。",
+    "pointTrayTitle": "閉じても、残る。",
+    "pointTrayBody": "Tempura はシステムトレイに住みます。ウィンドウを閉じると隠れ、終了はトレイか設定からの意図した選択です。やかんと一緒に待ってほしいならログイン時に起動を。",
+    "pointLocalTitle": "ボードから何も出ない",
+    "pointLocalBody": "プリセット、設定、履歴はアプリデータディレクトリのローカル SQLite にあります。アカウントなし、クラウドなし、同期なし — MIT ライセンス、あなたが調べられます。",
+    "installHeading": "着地したあと", "osLinux": "Linux", "osWindows": "Windows", "osMacos": "macOS", "osMobile": "デスクトップ", "osUnknown": "お使いの OS",
+    "installLinux": "AppImage: ファイルに <code>chmod +x</code> して実行。Debian: <code>.deb</code> をインストール。Fedora と openSUSE: <code>.rpm</code>。AppImage には FUSE が必要なことがあります。",
+    "installWindows": "初回実行で SmartScreen が警告することがあります — ビルドは未署名です。詳細情報 → とにかく実行、または MSI を使ってください。",
+    "installMacos": "Gatekeeper が未署名アプリを止めることがあります。アプリを右クリック → 開く。Apple Silicon と Intel はそれぞれディスクイメージがあります。",
+    "archAppleSilicon": "Apple Silicon", "archIntel": "Intel", "archArm64": "ARM64", "archX64": "x64",
+    "footerCopy": "MIT © 2026 Vadim Costin", "footerSource": "ソース", "footerReleases": "すべてのリリース",
+    "footerTwemoji": "エビのマークは次から翻案", "footerLicense": "(CC-BY 4.0)."
+  }
+}
