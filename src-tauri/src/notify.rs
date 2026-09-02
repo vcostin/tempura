@@ -13,6 +13,7 @@
 //! ## Linux / Windows
 //! Plain `notify_rust` text notifications (OS default attribution).
 
+#[cfg(target_os = "macos")]
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use tauri::AppHandle;
@@ -60,6 +61,7 @@ fn init_macos_un() {
     }
 }
 
+#[cfg(target_os = "macos")]
 fn escape_applescript(s: &str) -> String {
     s.replace('\\', "\\\\").replace('"', "\\\"")
 }

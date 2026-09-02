@@ -4,9 +4,9 @@
     "dev": "deno run -A --node-modules-dir npm:vite",
     "build": "deno run -A ./node_modules/typescript/bin/tsc --noEmit && deno run -A --node-modules-dir npm:vite build",
     "preview": "deno run -A --node-modules-dir npm:vite preview",
-    "tauri": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A --node-modules-dir npm:@tauri-apps/cli",
+    "tauri": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A ./scripts/tauri-ci.ts",
     "tauri:dev": "deno run -A --node-modules-dir npm:@tauri-apps/cli dev",
-    "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A --node-modules-dir npm:@tauri-apps/cli build",
+    "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A ./scripts/tauri-ci.ts build",
     "version": "deno run -A ./scripts/bump-version.ts"
   },
   "compilerOptions": {
