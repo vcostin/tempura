@@ -8,9 +8,49 @@ on:
 
 permissions:
   contents: write
+  # generate-notes / tauri-action release metadata
+  pull-requests: read
 
 jobs:
+  # Create the GitHub Release once on Linux. Matrix jobs used to call
+  # createRelease after each platform build; macos-latest then 403'd
+  # ("Resource not accessible by integration") even with contents:write,
+  # while windows-latest succeeded — so Mac .dmg files never uploaded.
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    outputs:
+      release_id: ${{ steps.create.outputs.release_id }}
+    steps:
+      - name: Ensure GitHub Release exists
+        id: create
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [[ "${GITHUB_REF}" != refs/tags/v* ]]; then
+            echo "Not a version tag; matrix jobs will fall back to tagName."
+            echo "release_id=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          TAG="${GITHUB_REF_NAME}"
+          NOTES="Desktop installers for Linux, Windows, and macOS.
+
+          Prefer the [download page](https://vcostin.github.io/tempura/) — it picks the build for your OS.
+
+          SHA-256 sums are in \`SHA256SUMS\` on this release (uploaded after all platform jobs finish)."
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "Tempura ${TAG}" \
+              --generate-notes \
+              --notes "$NOTES"
+          fi
+          rid="$(gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" --jq .id)"
+          echo "release_id=${rid}" >> "$GITHUB_OUTPUT"
+
   publish-tauri:
+    needs: create-release
     strategy:
       fail-fast: false
       matrix:
@@ -81,6 +121,7 @@ jobs:
         with:
           # Deno's task runner accepts VAR=value on every OS; npm scripts on Windows do not.
           tauriScript: deno task tauri
+          releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: v__VERSION__
           releaseName: Tempura v__VERSION__
           releaseBody: |
