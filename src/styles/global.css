@@ -31,20 +31,23 @@
 
 :root,
 [data-theme="batter"] {
-  /* Icon palette: sage squircle, charcoal mark, golden batter, pink tip */
+  /* Icon palette: sage squircle, charcoal mark, golden batter, pink tip.
+     Accent / muted / danger tuned for WCAG AA body text (~4.5:1) and UI chrome (~3:1)
+     against --bg0 / --surface-solid without abandoning the warm batter look. */
   --bg0: #d8e2da;
   --bg1: #e8efea;
   --bg2: #c5d1c8;
   --ink: #1e2a32;
-  --ink-muted: #5a6b66;
-  --accent: #c47a2c;
-  --accent-soft: rgba(196, 122, 44, 0.16);
-  --ring: #d4924a;
+  --ink-muted: #53645f;
+  --accent: #8f4f18;
+  --accent-soft: rgba(143, 79, 24, 0.16);
+  --on-accent: #ffffff;
+  --ring: #a86220;
   --surface: rgba(255, 255, 255, 0.55);
   --surface-solid: #f4f8f5;
-  --danger: #b85a6a;
-  --glow: radial-gradient(ellipse at 28% 18%, rgba(196, 122, 44, 0.22), transparent 55%),
-    radial-gradient(ellipse at 82% 78%, rgba(184, 90, 106, 0.14), transparent 50%),
+  --danger: #9c4555;
+  --glow: radial-gradient(ellipse at 28% 18%, rgba(143, 79, 24, 0.22), transparent 55%),
+    radial-gradient(ellipse at 82% 78%, rgba(156, 69, 85, 0.14), transparent 50%),
     linear-gradient(165deg, #d8e2da 0%, #c5d1c8 100%);
   --texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
 }
@@ -55,12 +58,13 @@
   --bg2: #dce6ec;
   --ink: #1e2a32;
   --ink-muted: #5a6b76;
-  --accent: #4a7c8a;
-  --accent-soft: rgba(74, 124, 138, 0.16);
-  --ring: #6a9aaa;
+  --accent: #43707d;
+  --accent-soft: rgba(67, 112, 125, 0.16);
+  --on-accent: #ffffff;
+  --ring: #4a7c8a;
   --surface: rgba(255, 255, 255, 0.55);
   --surface-solid: #f7fafb;
-  --danger: #a85a5a;
+  --danger: #8b4242;
   --glow: radial-gradient(ellipse at 30% 20%, rgba(120, 170, 190, 0.35), transparent 55%),
     radial-gradient(ellipse at 80% 80%, rgba(180, 200, 210, 0.4), transparent 50%),
     linear-gradient(165deg, #e8eef2 0%, #d5e0e8 100%);
@@ -72,25 +76,29 @@
   --bg2: #d2ddd0;
   --ink: #1c2b22;
   --ink-muted: #556b5c;
-  --accent: #4f7a5c;
-  --accent-soft: rgba(79, 122, 92, 0.16);
-  --ring: #6b9478;
+  --accent: #4a7256;
+  --accent-soft: rgba(74, 114, 86, 0.16);
+  --on-accent: #ffffff;
+  --ring: #4f7a5c;
   --surface: rgba(255, 255, 255, 0.5);
   --surface-solid: #f5f8f4;
-  --danger: #a85a5a;
+  --danger: #8b4242;
   --glow: radial-gradient(ellipse at 25% 15%, rgba(120, 170, 130, 0.32), transparent 55%),
     radial-gradient(ellipse at 85% 75%, rgba(160, 180, 140, 0.28), transparent 50%),
     linear-gradient(165deg, #e4ebe3 0%, #cfdccb 100%);
 }
 
 [data-theme="dusk"] {
+  /* Accent stays light for links on dark surfaces; --on-accent is dark so primary
+     buttons keep AA label contrast (a single mid-purple cannot do both). */
   --bg0: #1a1d28;
   --bg1: #222633;
   --bg2: #2c3142;
   --ink: #e8e6f0;
   --ink-muted: #9a96a8;
-  --accent: #8b7ec8;
-  --accent-soft: rgba(139, 126, 200, 0.2);
+  --accent: #9a8cd4;
+  --accent-soft: rgba(154, 140, 212, 0.22);
+  --on-accent: #1a1d28;
   --ring: #a99be0;
   --surface: rgba(40, 44, 58, 0.7);
   --surface-solid: #262a38;
@@ -106,12 +114,13 @@
   --bg2: #ddd4c4;
   --ink: #2a241c;
   --ink-muted: #6e6456;
-  --accent: #9a6b45;
-  --accent-soft: rgba(154, 107, 69, 0.16);
-  --ring: #b88960;
+  --accent: #855c3a;
+  --accent-soft: rgba(133, 92, 58, 0.16);
+  --on-accent: #ffffff;
+  --ring: #9a6b45;
   --surface: rgba(255, 252, 246, 0.55);
   --surface-solid: #faf6f0;
-  --danger: #a85a5a;
+  --danger: #8b4242;
   --glow: radial-gradient(ellipse at 30% 20%, rgba(200, 170, 130, 0.35), transparent 55%),
     radial-gradient(ellipse at 75% 85%, rgba(180, 150, 120, 0.25), transparent 50%),
     linear-gradient(165deg, #ebe4d8 0%, #dfd4c4 100%);
@@ -121,6 +130,11 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+html {
+  /* 100% (not a px lock) so rem UI tracks OS / webview text scaling. */
+  font-size: 100%;
 }
 
 html,
@@ -181,6 +195,12 @@ button {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* ProgressRing stroke easing is decorative — drop it entirely under reduced motion. */
+  .ring-progress {
+    transition: none !important;
   }
 }
 
@@ -439,7 +459,7 @@ button {
 
 .btn-primary {
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   padding-inline: 1.75rem;
   box-shadow: 0 8px 24px var(--accent-soft);
 }
@@ -896,28 +916,28 @@ button {
 }
 
 .theme-swatch[data-theme-preview="batter"] {
-  /* Gold-first so it stays visible on sage Batter UI */
-  background: linear-gradient(145deg, #c47a2c 0%, #d8e2da 55%, #b85a6a 100%);
+  /* Warm accent-first so it stays visible on sage Batter UI */
+  background: linear-gradient(145deg, #8f4f18 0%, #d8e2da 55%, #9c4555 100%);
   color: #1e2a32;
 }
 
 .theme-swatch[data-theme-preview="mist"] {
-  background: linear-gradient(135deg, #e8eef2, #c5d6e0);
+  background: linear-gradient(135deg, #e8eef2, #43707d);
   color: #1e2a32;
 }
 
 .theme-swatch[data-theme-preview="grove"] {
-  background: linear-gradient(135deg, #e4ebe3, #b8cbb8);
+  background: linear-gradient(135deg, #e4ebe3, #4a7256);
   color: #1c2b22;
 }
 
 .theme-swatch[data-theme-preview="dusk"] {
-  background: linear-gradient(135deg, #1a1d28, #3a3558);
+  background: linear-gradient(135deg, #1a1d28, #9a8cd4);
   color: #e8e6f0;
 }
 
 .theme-swatch[data-theme-preview="sandstone"] {
-  background: linear-gradient(135deg, #ebe4d8, #c9b49a);
+  background: linear-gradient(135deg, #ebe4d8, #855c3a);
   color: #2a241c;
 }
 
