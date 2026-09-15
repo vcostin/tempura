@@ -26,6 +26,7 @@ deno task tauri:dev
 |------|----------------|
 | `deno task dev` | Vite frontend only |
 | `deno task build` | Typecheck + Vite production build |
+| `deno task test` | Unit + Playwright a11y (Vite shell) |
 | `deno task tauri:dev` | Full Tauri + Vite |
 | `deno task tauri:build` | Packaged desktop app |
 | `deno task version 0.2.0` | Bump version in package.json, Cargo.toml, tauri.conf.json |
@@ -61,6 +62,19 @@ Day-to-day docs assume Deno.
 | `,` or `Ctrl+,` | Settings |
 | `Esc` | Back / hide to tray |
 
+
+### Accessibility
+
+Tempura aims for a calm, keyboard-friendly desktop UI:
+
+- **Keyboard**: full timer control without a mouse (see table above); `Esc` closes panels
+- **Dialogs**: Settings / Guide / Stats use `aria-modal`, focus trap, and restore focus to the opener
+- **Announcements**: phase changes (focus / break / pause / resume / stop) go to a polite live region — not every clock tick
+- **Motion**: respects `prefers-reduced-motion`
+- **CI**: Playwright a11y checks run on PRs via Deno (`deno task test:a11y`)
+
+**Limits (honest):** system tray and OS notifications live outside the webview, so screen-reader coverage there depends on the OS. Full VoiceOver / NVDA / Orca passes on each platform are still welcome — please open an issue if something fails.
+
 ## Privacy
 
 Presets, settings, and session history live in local SQLite under the app data directory. Nothing is uploaded. No accounts, no cloud, no sync.
@@ -71,8 +85,10 @@ Presets, settings, and session history live in local SQLite under the app data d
 src/                 React + TypeScript UI (timer, settings, guide, stats)
 src/lib/             API bridge, platform gating, technique guide copy
 src-tauri/           Rust: timer engine, SQLite, tray, notifications, autostart
+e2e/                 Playwright a11y checks (Vite shell)
+tests/unit/          Lightweight unit tests
 deno.json            Deno tasks (primary)
-package.json         Node fallback scripts
+package.json         npm metadata / fallback scripts
 ```
 
 Desktop-only concerns (tray, autostart, hide-to-tray) are gated so a future mobile entrypoint can reuse the core focus UI.
