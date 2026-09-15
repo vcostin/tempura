@@ -18,7 +18,13 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
       <BrandHeader
         line={t("guide.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label={t("guide.close")} onClick={onClose}>
+          <button
+            type="button"
+            className="icon-btn"
+            data-dialog-close
+            aria-label={t("guide.close")}
+            onClick={onClose}
+          >
             ✕
           </button>
         }
@@ -28,7 +34,7 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
         {entries.map((g) => (
           <article key={g.id} className="guide-card">
             <header>
-              <h3>{g.name}</h3>
+              <h2>{g.name}</h2>
               <p className="guide-best">{g.bestFor}</p>
             </header>
             <p className="guide-ratio">{g.workBreak}</p>
@@ -38,7 +44,7 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
 
         <article className="guide-card">
           <header>
-            <h3>{custom.name}</h3>
+            <h2>{custom.name}</h2>
             <p className="guide-best">{custom.bestFor}</p>
           </header>
           <p className="guide-ratio">{custom.workBreak}</p>

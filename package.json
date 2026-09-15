@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "test:unit": "deno task test:unit",
+    "test:a11y": "deno task test:a11y",
+    "test": "deno task test"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "^5.2.10",
@@ -28,6 +31,7 @@
     "react-i18next": "^15.7.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.60.0",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

@@ -56,14 +56,20 @@ export function DebugView(props: Props) {
       <BrandHeader
         line="Debug · tools for verifying the shell."
         actions={
-          <button type="button" className="icon-btn" aria-label="Close debug" onClick={props.onClose}>
+          <button
+            type="button"
+            className="icon-btn"
+            data-dialog-close
+            aria-label="Close debug"
+            onClick={props.onClose}
+          >
             ✕
           </button>
         }
       />
 
       <section className="section">
-        <h3>Build</h3>
+        <h2>Build</h2>
         <p className="hint" style={{ margin: 0 }}>
           {props.info?.name ?? "Tempura"}
           {props.info ? ` · v${props.info.version}` : ""}
@@ -77,7 +83,7 @@ export function DebugView(props: Props) {
       </section>
 
       <section className="section">
-        <h3>Notifications</h3>
+        <h2>Notifications</h2>
         <p className="hint">
           Delivery only — we do not customize the banner icon. On macOS without
           Apple Developer ID signing, the OS often attributes alerts to Script
@@ -102,7 +108,7 @@ export function DebugView(props: Props) {
 
       {!import.meta.env.DEV && !props.info?.debug && (
         <section className="section">
-          <h3>Access</h3>
+          <h2>Access</h2>
           <p className="hint">
             Debug was unlocked in this release build (version clicks in About).
             You can hide the beetle entry again until the next unlock.

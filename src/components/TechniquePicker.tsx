@@ -9,22 +9,20 @@ interface Props {
   disabled?: boolean;
 }
 
+/** Exclusive technique chips as a toggle group (not a listbox). */
 export function TechniquePicker({ techniques, selectedId, onSelect, disabled }: Props) {
   const { t } = useTranslation();
   return (
-    <div className="picker" role="listbox" aria-label={t("picker.aria")}>
+    <div className="picker" role="group" aria-label={t("picker.aria")}>
       {techniques.map((tech) => (
         <button
           key={tech.id}
           type="button"
           className="chip"
-          role="option"
-          aria-selected={tech.id === selectedId}
           aria-pressed={tech.id === selectedId}
           disabled={disabled}
           onClick={() => onSelect(tech.id)}
           title={techniqueTooltip(tech)}
-          aria-description={techniqueTooltip(tech)}
         >
           {techniqueDisplayName(tech)}
         </button>

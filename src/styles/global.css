@@ -204,6 +204,41 @@ button {
   transition: none !important;
 }
 
+.app-shell[data-panel="open"] {
+  overflow: hidden;
+}
+
+.timer-root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.timer-root main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.panel:focus,
+.panel:focus-visible {
+  outline: none;
+}
+
 .brand {
   font-family: var(--font-serif);
   font-weight: 600;
@@ -304,6 +339,7 @@ button {
   text-transform: uppercase;
   color: var(--ink-muted);
   min-height: 1.2em;
+  margin: 0;
   transition: opacity 0.35s ease, transform 0.35s ease;
 }
 
@@ -524,7 +560,7 @@ button {
   margin-bottom: 0.4rem;
 }
 
-.guide-card h3 {
+.guide-card :is(h2, h3) {
   margin: 0;
   font-family: var(--font-serif);
   font-weight: 600;
@@ -690,7 +726,7 @@ button {
   margin-bottom: 1.75rem;
 }
 
-.section h3 {
+.section :is(h2, h3) {
   margin: 0 0 0.75rem;
   font-size: 0.75rem;
   letter-spacing: 0.12em;
@@ -803,6 +839,7 @@ button {
   gap: 1rem;
   min-height: 48px;
   padding: 0.35rem 0;
+  cursor: pointer;
 }
 
 .toggle {

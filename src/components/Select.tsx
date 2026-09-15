@@ -116,6 +116,7 @@ export function Select({ id, value, options, onChange, disabled }: Props) {
     }
     if (e.key === "Escape") {
       e.preventDefault();
+      e.stopPropagation();
       close();
       return;
     }

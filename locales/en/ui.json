@@ -10,6 +10,14 @@
     "long_break": "Long break",
     "paused": "Paused"
   },
+  "announce": {
+    "focus": "Focus started.",
+    "short_break": "Short break started.",
+    "long_break": "Long break started.",
+    "paused": "Timer paused.",
+    "resumed": "Timer resumed.",
+    "stopped": "Timer stopped."
+  },
   "timer": {
     "guideAria": "Techniques guide",
     "guideTitle": "What each technique is good for",
