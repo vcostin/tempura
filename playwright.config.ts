@@ -13,7 +13,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "npx vite --host 127.0.0.1 --port 1420",
+    command: "deno run -A --node-modules-dir npm:vite --host 127.0.0.1 --port 1420",
     url: "http://127.0.0.1:1420",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

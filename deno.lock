@@ -7,7 +7,7 @@
     "npm:@fontsource-variable/noto-sans-kr@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans-sc@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans@^5.2.10": "5.3.0",
-    "npm:@playwright/test@1.55.0": "1.55.0",
+    "npm:@playwright/test@1.60.0": "1.60.0",
     "npm:@tauri-apps/api@2": "2.11.1",
     "npm:@tauri-apps/cli@*": "2.11.4",
     "npm:@tauri-apps/cli@2": "2.11.4",
@@ -19,14 +19,12 @@
     "npm:better-icons@*": "1.0.4_typescript@5.8.3_zod@4.4.3",
     "npm:i18next@^25.4.2": "25.10.10_typescript@5.8.3",
     "npm:npm@10": "10.9.9",
-    "npm:playwright@*": "1.55.0",
+    "npm:playwright@*": "1.60.0",
     "npm:react-dom@^19.1.0": "19.2.7_react@19.2.7",
     "npm:react-i18next@^15.7.3": "15.7.4_i18next@25.10.10_react@19.2.7_typescript@5.8.3",
     "npm:react@^19.1.0": "19.2.7",
     "npm:skills@*": "1.5.18",
     "npm:tsc@*": "2.0.4",
-    "npm:tsx@*": "4.20.5",
-    "npm:tsx@4.20.5": "4.20.5",
     "npm:typescript@~5.8.3": "5.8.3",
     "npm:vite@*": "7.3.6_tsx@4.20.5",
     "npm:vite@^7.0.4": "7.3.6_tsx@4.20.5"
@@ -520,8 +518,8 @@
         "zod-to-json-schema"
       ]
     },
-    "@playwright/test@1.55.0": {
-      "integrity": "sha512-04IXzPwHrW69XusN/SIdDdKZBzMfOT9UNT/YiJit/xpy2VuAoB8NHc8Aplb96zsWDddLnbkPL3TsmrS04ZU2xQ==",
+    "@playwright/test@1.60.0": {
+      "integrity": "sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==",
       "dependencies": [
         "playwright"
       ],
@@ -1323,12 +1321,12 @@
     "pkce-challenge@5.0.1": {
       "integrity": "sha512-wQ0b/W4Fr01qtpHlqSqspcj3EhBvimsdh0KlHhH8HRZnMsEa0ea2fTULOXOS9ccQr3om+GcGRk4e+isrZWV8qQ=="
     },
-    "playwright-core@1.55.0": {
-      "integrity": "sha512-GvZs4vU3U5ro2nZpeiwyb0zuFaqb9sUiAJuyrWpcGouD8y9/HLgGbNRjIph7zU9D3hnPaisMl9zG9CgFi/biIg==",
+    "playwright-core@1.60.0": {
+      "integrity": "sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA==",
       "bin": true
     },
-    "playwright@1.55.0": {
-      "integrity": "sha512-sdCWStblvV1YU909Xqx0DhOjPZE4/5lJsIS84IfN9dAZfcl/CIZ5O8l3o0j7hPMjDvqoTF8ZUcc+i/GL5erstA==",
+    "playwright@1.60.0": {
+      "integrity": "sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA==",
       "dependencies": [
         "playwright-core"
       ],
@@ -1658,7 +1656,7 @@
         "npm:@fontsource-variable/noto-sans-kr@^5.2.10",
         "npm:@fontsource-variable/noto-sans-sc@^5.2.10",
         "npm:@fontsource-variable/noto-sans@^5.2.10",
-        "npm:@playwright/test@1.55.0",
+        "npm:@playwright/test@1.60.0",
         "npm:@tauri-apps/api@2",
         "npm:@tauri-apps/cli@2",
         "npm:@tauri-apps/plugin-autostart@^2.5.1",
@@ -1670,7 +1668,6 @@
         "npm:react-dom@^19.1.0",
         "npm:react-i18next@^15.7.3",
         "npm:react@^19.1.0",
-        "npm:tsx@4.20.5",
         "npm:typescript@~5.8.3",
         "npm:vite@^7.0.4"
       ]
