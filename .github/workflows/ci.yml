@@ -25,16 +25,14 @@ jobs:
         with:
           deno-version: v2.x
 
-      - name: Cache npm / Playwright browsers
+      - name: Cache Playwright browsers
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          path: |
-            ~/.cache/ms-playwright
-            node_modules
-          key: ${{ runner.os }}-pw-1.60.0-${{ hashFiles('package.json', 'deno.lock') }}
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-pw-1.60.0-${{ hashFiles('deno.lock') }}
 
-      - name: Install dependencies
-        run: deno install --node-modules-dir=auto --allow-scripts
+      - name: Install dependencies (frozen lockfile)
+        run: deno ci
 
       - name: Typecheck + production build
         run: deno task build
