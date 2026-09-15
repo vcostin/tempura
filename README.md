@@ -70,10 +70,12 @@ Tempura aims for a calm, keyboard-friendly desktop UI:
 - **Keyboard**: full timer control without a mouse (see table above); `Esc` closes panels
 - **Dialogs**: Settings / Guide / Stats use `aria-modal`, focus trap, and restore focus to the opener
 - **Announcements**: phase changes (focus / break / pause / resume / stop) go to a polite live region — not every clock tick
-- **Motion**: respects `prefers-reduced-motion`
+- **Motion**: respects `prefers-reduced-motion` (including ProgressRing stroke easing and other decorative transitions)
+- **Contrast**: theme tokens target WCAG AA for body text / controls (`--ink`, `--ink-muted`, `--accent`, `--danger`, primary buttons via `--on-accent`)
+- **Type scale**: root `font-size: 100%` with a rem cascade so OS / webview text scaling can apply
 - **CI**: Playwright a11y checks run on PRs via Deno (`deno task test:a11y`)
 
-**Limits (honest):** system tray and OS notifications live outside the webview, so screen-reader coverage there depends on the OS. Full VoiceOver / NVDA / Orca passes on each platform are still welcome — please open an issue if something fails.
+**Limits (honest):** system tray and OS notifications live outside the webview, so screen-reader coverage there depends on the OS. Progress ring and some soft fills are decorative chrome (UI contrast aimed at 3:1, not body-text 4.5:1). Full VoiceOver / NVDA / Orca passes on each platform are still welcome — please open an issue if something fails.
 
 ## Privacy
 

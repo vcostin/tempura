@@ -20,6 +20,7 @@ export function ProgressRing({ snapshot }: Props) {
 
   const offset = C * (1 - Math.min(1, Math.max(0, progress)));
 
+  // Stroke transition lives on .ring-progress; prefers-reduced-motion disables it in global.css.
   return (
     <svg viewBox="0 0 100 100" aria-hidden="true" className="motion-safe" focusable="false">
       <circle className="ring-track" cx="50" cy="50" r={R} />
