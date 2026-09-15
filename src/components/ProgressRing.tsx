@@ -21,10 +21,10 @@ export function ProgressRing({ snapshot }: Props) {
   const offset = C * (1 - Math.min(1, Math.max(0, progress)));
 
   return (
-    <svg viewBox="0 0 100 100" aria-hidden="true" className="motion-safe">
+    <svg viewBox="0 0 100 100" aria-hidden="true" className="motion-safe" focusable="false">
       <circle className="ring-track" cx="50" cy="50" r={R} />
       <circle
-        className="ring-progress"
+        className="ring-progress motion-safe"
         cx="50"
         cy="50"
         r={R}

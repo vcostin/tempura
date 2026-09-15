@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { DebugView } from "./components/DebugView";
+import { SessionAnnouncer } from "./components/SessionAnnouncer";
 import { SettingsView } from "./components/SettingsView";
 import { StatsView } from "./components/StatsView";
 import { TechniquesGuide } from "./components/TechniquesGuide";
@@ -16,6 +17,28 @@ import "./styles/global.css";
 
 type View = "timer" | "settings" | "stats" | "guide" | "debug";
 
+const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
+  settings: '[data-open-panel="settings"]',
+  stats: '[data-open-panel="stats"]',
+  guide: '[data-open-panel="guide"]',
+  debug: '[data-open-panel="debug"]',
+};
+
+function isTypingTarget(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return true;
+  return el.isContentEditable;
+}
+
+function isButtonish(el: EventTarget | null): boolean {
+  if (!(el instanceof HTMLElement)) return false;
+  const tag = el.tagName;
+  if (tag === "BUTTON" || tag === "A" || tag === "SUMMARY") return true;
+  const role = el.getAttribute("role");
+  return role === "button" || role === "switch" || role === "radio" || role === "option" || role === "tab";
+}
+
 export default function App() {
   const { t } = useTranslation();
   const session = useSession();
@@ -26,6 +49,8 @@ export default function App() {
   const [debugEnabled, setDebugEnabled] = useState(() =>
     isDebugAccessEnabled(settingsApi.info?.debug),
   );
+  const returnFocusRef = useRef<HTMLElement | null>(null);
+  const panelOpen = view !== "timer";
 
   useEffect(() => {
     setDebugEnabled(isDebugAccessEnabled(settingsApi.info?.debug));
@@ -44,6 +69,29 @@ export default function App() {
     }
   }, []);
 
+  const openPanel = useCallback((next: Exclude<View, "timer">) => {
+    setView((current) => {
+      if (current === "timer") {
+        const active = document.activeElement;
+        if (active instanceof HTMLElement && active.closest(".timer-root") && isButtonish(active)) {
+          returnFocusRef.current = active;
+        } else {
+          returnFocusRef.current = document.querySelector<HTMLElement>(PANEL_OPENER[next]);
+        }
+      }
+      return next;
+    });
+  }, []);
+
+  const closePanel = useCallback(() => setView("timer"), []);
+
+  useLayoutEffect(() => {
+    if (view !== "timer") return;
+    const el = returnFocusRef.current;
+    if (!el?.isConnected) return;
+    el.focus();
+  }, [view]);
+
   useEffect(() => {
     const t = window.setTimeout(() => {
       if (workingOn === settingsApi.settings.workingOn) return;
@@ -54,10 +102,10 @@ export default function App() {
   }, [workingOn]);
 
   useEffect(() => {
-    const onOpen = () => setView("settings");
+    const onOpen = () => openPanel("settings");
     window.addEventListener("tempura:open-settings", onOpen);
     return () => window.removeEventListener("tempura:open-settings", onOpen);
-  }, []);
+  }, [openPanel]);
 
   useEffect(() => {
     const onDebugAccess = () => {
@@ -81,27 +129,36 @@ export default function App() {
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      if (e.key === "Escape") {
+        if (e.defaultPrevented) return;
+        if (view !== "timer") {
+          e.preventDefault();
+          closePanel();
+        } else if (!isTypingTarget(e.target)) {
+          void hideToTray();
+        }
+        return;
+      }
+
+      if (isTypingTarget(e.target)) return;
 
       if (e.code === "Space") {
+        if (view !== "timer" || isButtonish(e.target)) return;
         e.preventDefault();
         if (!session.snapshot.running) void session.start();
         else if (session.snapshot.paused) void session.resume();
         else void session.pause();
       } else if (e.key === "s" || e.key === "S") {
+        if (view !== "timer") return;
         if (session.snapshot.running) void session.skip();
       } else if (e.key === "," || (e.ctrlKey && e.key === ",")) {
         e.preventDefault();
-        setView("settings");
-      } else if (e.key === "Escape") {
-        if (view !== "timer") setView("timer");
-        else void hideToTray();
+        openPanel("settings");
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, view, hideToTray]);
+  }, [session, view, hideToTray, openPanel, closePanel]);
 
   if (!session.ready) {
     return (
@@ -115,8 +172,13 @@ export default function App() {
   }
 
   return (
-    <div className="app-shell" data-hidden={windowHidden ? "true" : "false"}>
-      {view === "timer" && (
+    <div
+      className="app-shell"
+      data-hidden={windowHidden ? "true" : "false"}
+      data-panel={panelOpen ? "open" : "closed"}
+    >
+      <SessionAnnouncer snapshot={session.snapshot} />
+      <div className="timer-root" inert={panelOpen || undefined}>
         <TimerView
           snapshot={session.snapshot}
           techniques={session.techniques}
@@ -133,19 +195,19 @@ export default function App() {
           onReset={() => void session.reset()}
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
-          onOpenSettings={() => setView("settings")}
-          onOpenStats={() => setView("stats")}
-          onOpenGuide={() => setView("guide")}
-          onOpenDebug={debugEnabled ? () => setView("debug") : undefined}
+          onOpenSettings={() => openPanel("settings")}
+          onOpenStats={() => openPanel("stats")}
+          onOpenGuide={() => openPanel("guide")}
+          onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />
-      )}
+      </div>
 
       {view === "settings" && (
         <SettingsView
           settings={settingsApi.settings}
           onPatch={settingsApi.patch}
           techniques={session.techniques}
-          onClose={() => setView("timer")}
+          onClose={closePanel}
           desktop={settingsApi.desktop}
           autostart={settingsApi.autostart}
           autostartAvailable={settingsApi.autostartAvailable}
@@ -155,10 +217,10 @@ export default function App() {
           onUpdateTechnique={settingsApi.updateTechnique}
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
-          onOpenGuide={() => setView("guide")}
+          onOpenGuide={() => openPanel("guide")}
           onDebugUnlocked={() => {
             setDebugEnabled(true);
-            setView("debug");
+            openPanel("debug");
           }}
           onQuit={
             settingsApi.desktop
@@ -171,20 +233,20 @@ export default function App() {
       )}
 
       {view === "stats" && (
-        <StatsView stats={session.stats} onClose={() => setView("timer")} />
+        <StatsView stats={session.stats} onClose={closePanel} />
       )}
 
       {view === "guide" && (
         <TechniquesGuide
-          onClose={() => setView("timer")}
-          onOpenSettings={() => setView("settings")}
+          onClose={closePanel}
+          onOpenSettings={() => openPanel("settings")}
         />
       )}
 
       {view === "debug" && debugEnabled && (
         <DebugView
           info={settingsApi.info}
-          onClose={() => setView("timer")}
+          onClose={closePanel}
           onAccessChanged={() =>
             setDebugEnabled(isDebugAccessEnabled(settingsApi.info?.debug))
           }

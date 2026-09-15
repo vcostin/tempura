@@ -50,6 +50,8 @@ export function TimerView(props: Props) {
         })
       : s.techniqueName;
 
+  const phaseText = s.paused && s.running ? t("phase.paused") : phaseLabel(s.phase, t);
+
   return (
     <>
       <BrandHeader
@@ -59,6 +61,8 @@ export function TimerView(props: Props) {
             <button
               type="button"
               className="icon-btn"
+              data-open-panel="guide"
+              aria-haspopup="dialog"
               aria-label={t("timer.guideAria")}
               onClick={props.onOpenGuide}
               title={t("timer.guideTitle")}
@@ -68,6 +72,8 @@ export function TimerView(props: Props) {
             <button
               type="button"
               className="icon-btn"
+              data-open-panel="stats"
+              aria-haspopup="dialog"
               aria-label={t("timer.statsAria")}
               onClick={props.onOpenStats}
               title={t("timer.statsTitle")}
@@ -77,6 +83,8 @@ export function TimerView(props: Props) {
             <button
               type="button"
               className="icon-btn"
+              data-open-panel="settings"
+              aria-haspopup="dialog"
               aria-label={t("timer.settingsAria")}
               onClick={props.onOpenSettings}
               title={t("timer.settingsTitle")}
@@ -87,6 +95,8 @@ export function TimerView(props: Props) {
               <button
                 type="button"
                 className="icon-btn"
+                data-open-panel="debug"
+                aria-haspopup="dialog"
                 aria-label="Debug"
                 onClick={props.onOpenDebug}
                 title="Debug"
@@ -98,6 +108,7 @@ export function TimerView(props: Props) {
         }
       />
 
+      <main id="timer-main">
       <TechniquePicker
         techniques={props.techniques}
         selectedId={props.selectedId}
@@ -106,7 +117,7 @@ export function TimerView(props: Props) {
       />
       {rhythm && (
         <div className="rhythm-block">
-          <p className="rhythm-summary" aria-live="polite">
+          <p className="rhythm-summary">
             {rhythm}
           </p>
           {guide && (
@@ -115,6 +126,8 @@ export function TimerView(props: Props) {
               <button
                 type="button"
                 className="linkish"
+                data-open-panel="guide"
+                aria-haspopup="dialog"
                 onClick={props.onOpenGuide}
               >
                 {t("timer.learnMore")}
@@ -128,10 +141,10 @@ export function TimerView(props: Props) {
         <div className="ring-wrap motion-safe">
           <ProgressRing snapshot={s} />
           <div className="ring-center">
-            <p className="phase-label is-enter" key={s.phase}>
-              {s.paused && s.running ? t("phase.paused") : phaseLabel(s.phase, t)}
-            </p>
-            <p className="clock" aria-live="polite">
+            <h2 className="phase-label is-enter" key={s.phase}>
+              {phaseText}
+            </h2>
+            <p className="clock" aria-hidden={showClock ? undefined : true}>
               {showClock ? formatClock(displaySecs) : "––:––"}
             </p>
             {(shownName || selected) && (
@@ -199,7 +212,7 @@ export function TimerView(props: Props) {
       </div>
 
       {props.stats && (
-        <div className="stats-strip" aria-label={t("timer.todayGlance")}>
+        <aside className="stats-strip" aria-label={t("timer.todayGlance")}>
           <div>
             <strong>{Math.round(props.stats.focusSecsToday / 60)}m</strong>
             {t("timer.focusedToday")}
@@ -212,15 +225,16 @@ export function TimerView(props: Props) {
             <strong>{props.stats.streakDays}</strong>
             {t("timer.dayStreak")}
           </div>
-        </div>
+        </aside>
       )}
+      </main>
     </>
   );
 }
 
 function GuideIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
       <circle cx="12" cy="12" r="9" />
       <path d="M12 10.5v6" strokeLinecap="round" />
       <circle cx="12" cy="7.25" r="0.9" fill="currentColor" stroke="none" />
@@ -230,7 +244,7 @@ function GuideIcon() {
 
 function GearIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
       <path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
       <path d="M19.4 13a7.8 7.8 0 0 0 .1-2l2-1.5-2-3.5-2.4.5a7.6 7.6 0 0 0-1.7-1L15 3h-6l-.4 2.5a7.6 7.6 0 0 0-1.7 1L4.5 6 2.5 9.5 4.5 11a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.5 2.4-.5a7.6 7.6 0 0 0 1.7 1L9 21h6l.4-2.5a7.6 7.6 0 0 0 1.7-1l2.4.5 2-3.5-2-1.5Z" />
     </svg>
@@ -239,7 +253,7 @@ function GearIcon() {
 
 function StatsIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
       <path d="M4 19V9M10 19V5M16 19v-7M22 19H2" strokeLinecap="round" />
     </svg>
   );
@@ -247,7 +261,7 @@ function StatsIcon() {
 
 function BugIcon() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
       <path
         d="M8 9.5C8 7 9.8 5 12 5s4 2 4 4.5v5c0 2.5-1.8 4.5-4 4.5s-4-2-4-4.5v-5Z"
         strokeLinecap="round"

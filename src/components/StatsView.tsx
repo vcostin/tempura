@@ -16,7 +16,13 @@ export function StatsView({ stats, onClose }: Props) {
       <BrandHeader
         line={t("stats.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label={t("stats.close")} onClick={onClose}>
+          <button
+            type="button"
+            className="icon-btn"
+            data-dialog-close
+            aria-label={t("stats.close")}
+            onClick={onClose}
+          >
             ✕
           </button>
         }

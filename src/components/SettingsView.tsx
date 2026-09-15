@@ -97,14 +97,20 @@ export function SettingsView(props: Props) {
       <BrandHeader
         line={t("settings.line")}
         actions={
-          <button type="button" className="icon-btn" aria-label={t("settings.close")} onClick={props.onClose}>
+          <button
+            type="button"
+            className="icon-btn"
+            data-dialog-close
+            aria-label={t("settings.close")}
+            onClick={props.onClose}
+          >
             ✕
           </button>
         }
       />
 
       <section className="section">
-        <h3>{t("settings.language")}</h3>
+        <h2>{t("settings.language")}</h2>
         <div className="field">
           <label htmlFor="locale">{t("settings.language")}</label>
           <Select
@@ -117,8 +123,8 @@ export function SettingsView(props: Props) {
       </section>
 
       <section className="section">
-        <h3>{t("settings.theme")}</h3>
-        <div className="theme-grid">
+        <h2>{t("settings.theme")}</h2>
+        <div className="theme-grid" role="group" aria-label={t("settings.theme")}>
           {THEMES.map((theme) => (
             <button
               key={theme.id}
@@ -135,7 +141,7 @@ export function SettingsView(props: Props) {
       </section>
 
       <section className="section">
-        <h3>{t("settings.sessionDefaults")}</h3>
+        <h2>{t("settings.sessionDefaults")}</h2>
         <div className="field">
           <label htmlFor="default-tech">{t("settings.defaultTechnique")}</label>
           <Select
@@ -183,8 +189,8 @@ export function SettingsView(props: Props) {
       </section>
 
       <section className="section">
-        <h3>{t("settings.notifications")}</h3>
-        <div className="toggle-row">
+        <h2>{t("settings.notifications")}</h2>
+        <label className="toggle-row">
           <span>{t("settings.phaseNotifications")}</span>
           <button
             type="button"
@@ -195,8 +201,8 @@ export function SettingsView(props: Props) {
               void props.onPatch({ notificationsEnabled: !settings.notificationsEnabled })
             }
           />
-        </div>
-        <div className="toggle-row">
+        </label>
+        <label className="toggle-row">
           <span>{t("settings.gentleSound")}</span>
           <button
             type="button"
@@ -205,8 +211,8 @@ export function SettingsView(props: Props) {
             aria-checked={settings.soundEnabled}
             onClick={() => void props.onPatch({ soundEnabled: !settings.soundEnabled })}
           />
-        </div>
-        <div className="toggle-row">
+        </label>
+        <label className="toggle-row">
           <span>{t("settings.halfwayTick")}</span>
           <button
             type="button"
@@ -215,14 +221,14 @@ export function SettingsView(props: Props) {
             aria-checked={settings.halfwayTick}
             onClick={() => void props.onPatch({ halfwayTick: !settings.halfwayTick })}
           />
-        </div>
+        </label>
       </section>
 
       {props.desktop && (
         <section className="section">
-          <h3>{t("settings.desktop")}</h3>
+          <h2>{t("settings.desktop")}</h2>
           {props.autostartAvailable && (
-            <div className="toggle-row">
+            <label className="toggle-row">
               <span>{t("settings.launchAtLogin")}</span>
               <button
                 type="button"
@@ -231,9 +237,9 @@ export function SettingsView(props: Props) {
                 aria-checked={props.autostart}
                 onClick={() => void props.onToggleAutostart(!props.autostart)}
               />
-            </div>
+            </label>
           )}
-          <div className="toggle-row">
+          <label className="toggle-row">
             <span>{t("settings.startMinimized")}</span>
             <button
               type="button"
@@ -242,7 +248,7 @@ export function SettingsView(props: Props) {
               aria-checked={settings.startMinimized}
               onClick={() => void props.onPatch({ startMinimized: !settings.startMinimized })}
             />
-          </div>
+          </label>
           {props.onQuit && (
             <button type="button" className="btn btn-ghost" style={{ marginTop: "0.75rem" }} onClick={props.onQuit}>
               {t("settings.quit")}
@@ -252,7 +258,7 @@ export function SettingsView(props: Props) {
       )}
 
       <section className="section">
-        <h3>{t("settings.customTechniques")}</h3>
+        <h2>{t("settings.customTechniques")}</h2>
         <div className="tech-list">
           {props.techniques.map((tech) => (
             <div key={tech.id} className="tech-row">
@@ -371,7 +377,7 @@ export function SettingsView(props: Props) {
       </section>
 
       <section className="section">
-        <h3>{t("settings.about")}</h3>
+        <h2>{t("settings.about")}</h2>
         <div className="privacy-note">
           <p style={{ margin: "0 0 0.5rem" }}>
             <strong>{props.info?.name ?? "Tempura"}</strong>
