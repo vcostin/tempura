@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:build": "tauri build"
+    "tauri:build": "tauri build",
+    "test:unit": "deno run -A --sloppy-imports tests/unit/sessionAnnounce.test.ts",
+    "test:a11y": "playwright test",
+    "test": "npm run test:unit && npm run test:a11y"
   },
   "dependencies": {
     "@fontsource-variable/noto-sans": "^5.2.10",
@@ -28,10 +31,12 @@
     "react-i18next": "^15.7.3"
   },
   "devDependencies": {
+    "@playwright/test": "1.55.0",
     "@tauri-apps/cli": "^2",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
+    "tsx": "4.20.5",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   }

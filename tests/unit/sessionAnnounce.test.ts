@@ -1,5 +1,5 @@
-import { sessionAnnounceKind } from "./sessionAnnounce";
-import type { TimerSnapshot } from "./types";
+import { sessionAnnounceKind } from "../../src/lib/sessionAnnounce.ts";
+import type { TimerSnapshot } from "../../src/lib/types.ts";
 
 const idle: TimerSnapshot = {
   phase: "idle",
@@ -70,3 +70,5 @@ assertEqual(
   null,
   "tick",
 );
+
+console.log("sessionAnnounce unit tests passed");
