@@ -40,7 +40,7 @@ export function useDialogFocus(containerRef: RefObject<HTMLElement | null>, acti
     const root: HTMLElement = el;
 
     const initial = firstControl(root);
-    initial.focus();
+    initial.focus({ preventScroll: true, focusVisible: true } as FocusOptions);
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== "Tab") return;

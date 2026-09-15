@@ -89,7 +89,7 @@ export default function App() {
     if (view !== "timer") return;
     const el = returnFocusRef.current;
     if (!el?.isConnected) return;
-    el.focus();
+    el.focus({ preventScroll: true, focusVisible: true } as FocusOptions);
   }, [view]);
 
   useEffect(() => {
