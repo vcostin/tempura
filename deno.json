@@ -8,7 +8,7 @@
     "tauri:dev": "deno run -A --node-modules-dir npm:@tauri-apps/cli dev",
     "tauri:build": "NO_STRIP=true APPIMAGE_EXTRACT_AND_RUN=1 deno run -A ./scripts/tauri-ci.ts build",
     "version": "deno run -A ./scripts/bump-version.ts",
-    "test:unit": "deno run -A --sloppy-imports tests/unit/sessionAnnounce.test.ts",
+    "test:unit": "deno test -A --sloppy-imports tests/unit/",
     "playwright:install": "deno run -A npm:@playwright/test@1.60.0/cli install chromium",
     "test:a11y": "PW_DISABLE_TS_ESM=1 deno run -A npm:@playwright/test@1.60.0/cli test",
     "test": "deno task test:unit && deno task test:a11y"

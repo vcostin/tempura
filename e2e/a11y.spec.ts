@@ -130,3 +130,61 @@ test.describe("a11y dialogs and landmarks", () => {
     expect(label).toBe("Settings");
   });
 });
+
+test.describe("a11y Phase 3: contrast motion + rem scaling", () => {
+  test("prefers-reduced-motion zeros .ring-progress transition", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/");
+    await page.waitForSelector(".ring-progress");
+
+    const durationMs = await page.locator(".ring-progress").evaluate((el) => {
+      const raw = getComputedStyle(el).transitionDuration;
+      // Computed style is a comma-separated list of times like "0s" or "0.01ms".
+      const parts = raw.split(",").map((s) => s.trim());
+      let maxMs = 0;
+      for (const part of parts) {
+        if (part.endsWith("ms")) maxMs = Math.max(maxMs, parseFloat(part));
+        else if (part.endsWith("s")) maxMs = Math.max(maxMs, parseFloat(part) * 1000);
+      }
+      return maxMs;
+    });
+
+    // Phase 3 CSS: .ring-progress { transition: none } under reduced motion
+    // (or the global 0.01ms hammer). Either way duration must be ≤ 1ms.
+    expect(durationMs).toBeLessThanOrEqual(1);
+  });
+
+  test("html root font-size is not a fixed px lock from our stylesheet", async ({ page }) => {
+    await page.goto("/");
+    await page.waitForSelector(".brand");
+
+    const info = await page.evaluate(() => {
+      const html = document.documentElement;
+      // Walk stylesheets for an author html font-size declaration.
+      const declared: string[] = [];
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules: CSSRuleList;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue; // cross-origin
+        }
+        for (const rule of Array.from(rules)) {
+          if (!(rule instanceof CSSStyleRule)) continue;
+          if (rule.selectorText.split(",").some((s) => s.trim() === "html")) {
+            const fs = rule.style.fontSize;
+            if (fs) declared.push(fs);
+          }
+        }
+      }
+      return {
+        declared,
+        computed: getComputedStyle(html).fontSize,
+      };
+    });
+
+    // Our global.css ships `html { font-size: 100% }` — assert that, not a px lock.
+    expect(info.declared.some((v) => v === "100%" || v.endsWith("%"))).toBe(true);
+    expect(info.declared.every((v) => !/^\d+(\.\d+)?px$/.test(v))).toBe(true);
+  });
+});
