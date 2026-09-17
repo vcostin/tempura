@@ -372,11 +372,11 @@ export function SettingsView(props: Props) {
       </section>
 
       {props.onOpenAbout && (
-        <section className="section">
-          <button type="button" className="btn btn-ghost" onClick={props.onOpenAbout}>
+        <p style={{ margin: "0.35rem 0 0.75rem" }}>
+          <button type="button" className="linkish" onClick={props.onOpenAbout}>
             {t("settings.openAbout")}
           </button>
-        </section>
+        </p>
       )}
     </ScrollPanel>
   );
