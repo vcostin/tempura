@@ -89,7 +89,13 @@
     "privacy": "Je gegevens blijven op deze machine. Geen accounts, geen cloud, geen sync.",
     "aboutBody": "Lokale SQLite onder je app-datamap is de bron van waarheid. Het venster sluiten verbergt naar het vak — sluit hier of via het vakmenu af.",
     "techniquesGuide": "Techniekengids",
-    "sendFeedback": "Feedback versturen"
+    "sendFeedback": "Feedback versturen",
+    "openAbout": "Over…"
+  },
+  "about": {
+    "panel": "Over",
+    "line": "Over · lokaal, op deze machine.",
+    "close": "Sluiten"
   },
   "stats": {
     "panel": "Statistieken",
@@ -154,6 +160,7 @@
     "statusReady": "Status · Klaar",
     "statusRunning": "Status · {{phase}} · {{time}}",
     "openSettings": "Open Instellingen",
+    "about": "Over",
     "quit": "Afsluiten",
     "tooltipReady": "Tempura · Klaar",
     "tooltipPaused": "Tempura · {{phase}} · Gepauzeerd",

@@ -75,6 +75,9 @@ export function useSession() {
         await listen("open-settings", () => {
           window.dispatchEvent(new CustomEvent("tempura:open-settings"));
         }),
+        await listen("open-about", () => {
+          window.dispatchEvent(new CustomEvent("tempura:open-about"));
+        }),
       ];
     }
 

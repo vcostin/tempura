@@ -90,7 +90,13 @@
     "privacy": "Datele rămân pe această mașină. Fără conturi, fără cloud, fără sync.",
     "aboutBody": "SQLite local din folderul de date al aplicației e sursa adevărului. Închiderea ferestrei ascunde în tavă — ieși de aici sau din meniul tăvii.",
     "techniquesGuide": "Ghid de tehnici",
-    "sendFeedback": "Trimite feedback"
+    "sendFeedback": "Trimite feedback",
+    "openAbout": "Despre…"
+  },
+  "about": {
+    "panel": "Despre",
+    "line": "Despre · local, pe această mașină.",
+    "close": "Închide"
   },
   "stats": {
     "panel": "Statistici",
@@ -155,6 +161,7 @@
     "statusReady": "Stare · Pregătit",
     "statusRunning": "Stare · {{phase}} · {{time}}",
     "openSettings": "Deschide Setări",
+    "about": "Despre",
     "quit": "Ieșire",
     "tooltipReady": "Tempura · Pregătit",
     "tooltipPaused": "Tempura · {{phase}} · Pauză",

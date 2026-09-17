@@ -89,7 +89,13 @@
     "privacy": "你的数据留在这台机器上。没有账号，没有云，没有同步。",
     "aboutBody": "应用数据目录下的本地 SQLite 才是真相来源。关闭窗口会藏到托盘 — 从这里或托盘菜单退出。",
     "techniquesGuide": "技法指南",
-    "sendFeedback": "发送反馈"
+    "sendFeedback": "发送反馈",
+    "openAbout": "关于…"
+  },
+  "about": {
+    "panel": "关于",
+    "line": "关于 · 数据留在这台机器上。",
+    "close": "关闭"
   },
   "stats": {
     "panel": "统计",
@@ -154,6 +160,7 @@
     "statusReady": "状态 · 就绪",
     "statusRunning": "状态 · {{phase}} · {{time}}",
     "openSettings": "打开设置",
+    "about": "关于",
     "quit": "退出",
     "tooltipReady": "Tempura · 就绪",
     "tooltipPaused": "Tempura · {{phase}} · 已暂停",

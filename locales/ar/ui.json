@@ -93,7 +93,13 @@
     "privacy": "بياناتك تبقى على هذا الجهاز. بلا حسابات، بلا سحابة، بلا مزامنة.",
     "aboutBody": "SQLite المحلي تحت مجلد بيانات التطبيق هو مصدر الحقيقة. إغلاق النافذة يخفيها في الصينية — اخرج من هنا أو من قائمة الصينية.",
     "techniquesGuide": "دليل التقنيات",
-    "sendFeedback": "إرسال ملاحظات"
+    "sendFeedback": "إرسال ملاحظات",
+    "openAbout": "حول…"
+  },
+  "about": {
+    "panel": "حول",
+    "line": "حول · محلي، على هذا الجهاز.",
+    "close": "إغلاق"
   },
   "stats": {
     "panel": "إحصاءات",
@@ -158,6 +164,7 @@
     "statusReady": "الحالة · جاهز",
     "statusRunning": "الحالة · {{phase}} · {{time}}",
     "openSettings": "فتح الإعدادات",
+    "about": "حول",
     "quit": "خروج",
     "tooltipReady": "Tempura · جاهز",
     "tooltipPaused": "Tempura · {{phase}} · متوقف",

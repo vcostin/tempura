@@ -89,7 +89,13 @@
     "privacy": "Tus datos se quedan en esta máquina. Sin cuentas, sin nube, sin sincronización.",
     "aboutBody": "El SQLite local en la carpeta de datos de la app es la fuente de verdad. Cerrar la ventana la oculta en la bandeja — sal desde aquí o desde el menú de la bandeja.",
     "techniquesGuide": "Guía de técnicas",
-    "sendFeedback": "Enviar comentarios"
+    "sendFeedback": "Enviar comentarios",
+    "openAbout": "Acerca de…"
+  },
+  "about": {
+    "panel": "Acerca de",
+    "line": "Acerca de · local, en esta máquina.",
+    "close": "Cerrar"
   },
   "stats": {
     "panel": "Estadísticas",
@@ -154,6 +160,7 @@
     "statusReady": "Estado · Listo",
     "statusRunning": "Estado · {{phase}} · {{time}}",
     "openSettings": "Abrir Ajustes",
+    "about": "Acerca de",
     "quit": "Salir",
     "tooltipReady": "Tempura · Listo",
     "tooltipPaused": "Tempura · {{phase}} · En pausa",

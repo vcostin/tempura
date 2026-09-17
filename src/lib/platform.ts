@@ -1,7 +1,7 @@
 /** Desktop shell helpers — gated so core UI stays mobile-ready. */
 
-/** GitHub Discussions for product feedback. Prefer a pinned discussion URL when one exists. */
-export const FEEDBACK_URL = "https://github.com/vcostin/tempura/discussions";
+/** Pinned GitHub Feedback discussion. */
+export const FEEDBACK_URL = "https://github.com/vcostin/tempura/discussions/5";
 
 export function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;

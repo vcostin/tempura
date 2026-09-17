@@ -1,11 +1,9 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
-import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { LOCALES } from "../lib/i18n";
-import { openFeedback } from "../lib/platform";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
-import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
+import type { AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
@@ -20,15 +18,12 @@ interface Props {
   autostart: boolean;
   autostartAvailable: boolean;
   onToggleAutostart: (enabled: boolean) => Promise<void>;
-  info: AppInfo | null;
   onCreateTechnique: (input: TechniqueInput) => Promise<Technique>;
   onUpdateTechnique: (id: string, input: TechniqueInput) => Promise<Technique>;
   onDeleteTechnique: (id: string) => Promise<void>;
   onTechniquesChanged: () => Promise<void>;
-  onOpenGuide?: () => void;
+  onOpenAbout?: () => void;
   onQuit?: () => void;
-  /** After unlocking debug access in a release build. */
-  onDebugUnlocked?: () => void;
 }
 
 export function SettingsView(props: Props) {
@@ -44,7 +39,6 @@ export function SettingsView(props: Props) {
   });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [versionClicks, setVersionClicks] = useState(0);
 
   async function saveCustom(e: FormEvent) {
     e.preventDefault();
@@ -377,56 +371,13 @@ export function SettingsView(props: Props) {
         </form>
       </section>
 
-      <section className="section">
-        <h2>{t("settings.about")}</h2>
-        <div className="privacy-note">
-          <p style={{ margin: "0 0 0.5rem" }}>
-            <strong>{props.info?.name ?? "Tempura"}</strong>
-            {props.info ? (
-              <>
-                {" · "}
-                <button
-                  type="button"
-                  className="linkish"
-                  style={{ padding: 0, font: "inherit", color: "inherit" }}
-                  title="Version"
-                  onClick={() => {
-                    if (isDebugAccessEnabled(props.info?.debug)) return;
-                    const next = versionClicks + 1;
-                    setVersionClicks(next);
-                    if (next >= 5) {
-                      enableDebugAccess();
-                      setVersionClicks(0);
-                      props.onDebugUnlocked?.();
-                    }
-                  }}
-                >
-                  v{props.info.version}
-                </button>
-              </>
-            ) : null}
-          </p>
-          <p style={{ margin: 0 }}>{t("settings.privacy")}</p>
-          <p style={{ margin: "0.75rem 0 0" }}>{t("settings.aboutBody")}</p>
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "0.5rem",
-              marginTop: "0.85rem",
-            }}
-          >
-            {props.onOpenGuide && (
-              <button type="button" className="btn btn-ghost" onClick={props.onOpenGuide}>
-                {t("settings.techniquesGuide")}
-              </button>
-            )}
-            <button type="button" className="btn btn-ghost" onClick={() => void openFeedback()}>
-              {t("settings.sendFeedback")}
-            </button>
-          </div>
-        </div>
-      </section>
+      {props.onOpenAbout && (
+        <section className="section">
+          <button type="button" className="btn btn-ghost" onClick={props.onOpenAbout}>
+            {t("settings.openAbout")}
+          </button>
+        </section>
+      )}
     </ScrollPanel>
   );
 }

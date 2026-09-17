@@ -91,7 +91,13 @@
     "privacy": "Twoje dane zostają na tej maszynie. Bez kont, bez chmury, bez synchronizacji.",
     "aboutBody": "Lokalny SQLite w folderze danych aplikacji jest źródłem prawdy. Zamknięcie okna chowa do zasobnika — wyjdź stąd lub z menu zasobnika.",
     "techniquesGuide": "Przewodnik technik",
-    "sendFeedback": "Wyślij opinię"
+    "sendFeedback": "Wyślij opinię",
+    "openAbout": "O programie…"
+  },
+  "about": {
+    "panel": "O programie",
+    "line": "O programie · lokalnie, na tej maszynie.",
+    "close": "Zamknij"
   },
   "stats": {
     "panel": "Statystyki",
@@ -156,6 +162,7 @@
     "statusReady": "Status · Gotowe",
     "statusRunning": "Status · {{phase}} · {{time}}",
     "openSettings": "Otwórz ustawienia",
+    "about": "O programie",
     "quit": "Zakończ",
     "tooltipReady": "Tempura · Gotowe",
     "tooltipPaused": "Tempura · {{phase}} · Pauza",

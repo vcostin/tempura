@@ -89,7 +89,13 @@
     "privacy": "データはこのマシンに残ります。アカウントなし、クラウドなし、同期なし。",
     "aboutBody": "アプリデータフォルダ内のローカル SQLite が真実の源です。ウィンドウを閉じるとトレイに隠れます。終了はここかトレイメニューから。",
     "techniquesGuide": "テクニックガイド",
-    "sendFeedback": "フィードバックを送る"
+    "sendFeedback": "フィードバックを送る",
+    "openAbout": "このアプリについて…"
+  },
+  "about": {
+    "panel": "このアプリについて",
+    "line": "このアプリについて · このマシンに残ります。",
+    "close": "閉じる"
   },
   "stats": {
     "panel": "統計",
@@ -154,6 +160,7 @@
     "statusReady": "状態 · 準備完了",
     "statusRunning": "状態 · {{phase}} · {{time}}",
     "openSettings": "設定を開く",
+    "about": "このアプリについて",
     "quit": "終了",
     "tooltipReady": "Tempura · 準備完了",
     "tooltipPaused": "Tempura · {{phase}} · 一時停止",
