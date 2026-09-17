@@ -95,6 +95,7 @@
     "line": "Tu foco · solo local.",
     "close": "Cerrar",
     "empty": "Aún no hay tiempo de foco en este rango — empieza un ritmo.",
+    "loading": "Cargando este rango…",
     "aria": "Estadísticas de foco",
     "focusTime": "tiempo de foco",
     "cyclesFinished": "ciclos terminados",

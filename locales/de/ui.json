@@ -95,6 +95,7 @@
     "line": "Dein Fokus · nur lokal.",
     "close": "Schließen",
     "empty": "Noch keine Fokuszeit in diesem Zeitraum — starte einen Rhythmus.",
+    "loading": "Zeitraum wird geladen…",
     "aria": "Fokusstatistik",
     "focusTime": "Fokuszeit",
     "cyclesFinished": "Zyklen fertig",

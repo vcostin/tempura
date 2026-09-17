@@ -97,6 +97,7 @@
     "line": "Twój fokus · tylko lokalnie.",
     "close": "Zamknij",
     "empty": "Brak czasu skupienia w tym zakresie — zacznij rytm.",
+    "loading": "Ładowanie zakresu…",
     "aria": "Statystyki skupienia",
     "focusTime": "czas skupienia",
     "cyclesFinished": "ukończone cykle",

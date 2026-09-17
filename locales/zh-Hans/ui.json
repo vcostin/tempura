@@ -95,6 +95,7 @@
     "line": "你的专注 · 仅本地。",
     "close": "关闭",
     "empty": "此范围内还没有专注时间 — 开始一段节奏。",
+    "loading": "正在加载此范围…",
     "aria": "专注统计",
     "focusTime": "专注时间",
     "cyclesFinished": "完成的轮次",

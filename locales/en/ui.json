@@ -103,6 +103,7 @@
     "line": "Your focus · local only.",
     "close": "Close",
     "empty": "No focus time in this range yet — start a rhythm.",
+    "loading": "Loading this range…",
     "aria": "Focus statistics",
     "focusTime": "focus time",
     "cyclesFinished": "cycles finished",

@@ -95,6 +95,7 @@
     "line": "Votre focus · local seulement.",
     "close": "Fermer",
     "empty": "Pas encore de temps de focus sur cette période — lancez un rythme.",
+    "loading": "Chargement de cette période…",
     "aria": "Statistiques de focus",
     "focusTime": "temps de focus",
     "cyclesFinished": "cycles terminés",

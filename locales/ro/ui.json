@@ -96,6 +96,7 @@
     "line": "Focusul tău · doar local.",
     "close": "Închide",
     "empty": "Încă nu e timp de focus în acest interval — pornește un ritm.",
+    "loading": "Se încarcă intervalul…",
     "aria": "Statistici de focus",
     "focusTime": "timp de focus",
     "cyclesFinished": "cicluri terminate",

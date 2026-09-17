@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { api, formatMinutes } from "../lib/api";
 import type { StatsPeriod, StatsRange } from "../lib/types";
@@ -36,22 +36,25 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
   const [period, setPeriod] = useState<StatsPeriod>(7);
   const [range, setRange] = useState<StatsRange | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const load = useCallback(async (days: StatsPeriod) => {
-    setLoading(true);
-    try {
-      const next = await api.getStatsRange(days);
-      setRange(next);
-    } catch {
-      setRange(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const dateLocale = i18n.resolvedLanguage || i18n.language;
 
   useEffect(() => {
-    void load(period);
-  }, [period, load]);
+    let cancelled = false;
+    setLoading(true);
+    void (async () => {
+      try {
+        const next = await api.getStatsRange(period);
+        if (!cancelled) setRange(next);
+      } catch {
+        if (!cancelled) setRange(null);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [period]);
 
   const maxFocus = useMemo(() => {
     if (!range?.buckets.length) return 0;
@@ -92,58 +95,60 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
         ))}
       </div>
 
-      {loading && !range ? (
-        <p className="hint">{t("stats.empty")}</p>
-      ) : !hasAny ? (
-        <p className="hint">{t("stats.empty")}</p>
-      ) : (
-        <>
-          <div className="stats-strip stats-strip--page" aria-label={t("stats.aria")}>
-            <div>
-              <strong>{formatMinutes(range!.focusSecs)}</strong>
-              {t("stats.focusTime")}
+      <div aria-busy={loading || undefined}>
+        {loading && !range ? (
+          <p className="hint">{t("stats.loading")}</p>
+        ) : !hasAny ? (
+          <p className="hint">{t("stats.empty")}</p>
+        ) : (
+          <>
+            <div className="stats-strip stats-strip--page" aria-label={t("stats.aria")}>
+              <div>
+                <strong>{formatMinutes(range!.focusSecs)}</strong>
+                {t("stats.focusTime")}
+              </div>
+              <div>
+                <strong>{range!.completedCycles}</strong>
+                {t("stats.cyclesFinished")}
+              </div>
+              <div>
+                <strong>{range!.sessions}</strong>
+                {t("stats.sessions")}
+              </div>
+              <div>
+                <strong>{streak}</strong>
+                {t("stats.dayStreak")}
+              </div>
             </div>
-            <div>
-              <strong>{range!.completedCycles}</strong>
-              {t("stats.cyclesFinished")}
-            </div>
-            <div>
-              <strong>{range!.sessions}</strong>
-              {t("stats.sessions")}
-            </div>
-            <div>
-              <strong>{streak}</strong>
-              {t("stats.dayStreak")}
-            </div>
-          </div>
 
-          {period > 1 && (
-            <div className="stats-bars" aria-label={t("stats.dailyBreakdown")}>
-              <p className="stats-bars__label">{t("stats.dailyBreakdown")}</p>
-              <ul className="stats-bars__list">
-                {range!.buckets.map((b) => {
-                  const pct = Math.round((b.focusSecs / maxFocus) * 100);
-                  const label = shortDayLabel(b.date, period, i18n.language);
-                  const value =
-                    b.focusSecs > 0 ? formatMinutes(b.focusSecs) : t("stats.noFocusDay");
-                  return (
-                    <li key={b.date} className="stats-bars__row">
-                      <span className="stats-bars__day">{label}</span>
-                      <span className="stats-bars__track" aria-hidden="true">
-                        <span
-                          className="stats-bars__fill"
-                          style={{ width: `${b.focusSecs > 0 ? Math.max(pct, 4) : 0}%` }}
-                        />
-                      </span>
-                      <span className="stats-bars__value">{value}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          )}
-        </>
-      )}
+            {period > 1 && (
+              <div className="stats-bars" aria-label={t("stats.dailyBreakdown")}>
+                <p className="stats-bars__label">{t("stats.dailyBreakdown")}</p>
+                <ul className="stats-bars__list">
+                  {range!.buckets.map((b) => {
+                    const pct = Math.round((b.focusSecs / maxFocus) * 100);
+                    const label = shortDayLabel(b.date, period, dateLocale);
+                    const value =
+                      b.focusSecs > 0 ? formatMinutes(b.focusSecs) : t("stats.noFocusDay");
+                    return (
+                      <li key={b.date} className="stats-bars__row">
+                        <span className="stats-bars__day">{label}</span>
+                        <span className="stats-bars__track" aria-hidden="true">
+                          <span
+                            className="stats-bars__fill"
+                            style={{ width: `${b.focusSecs > 0 ? Math.max(pct, 4) : 0}%` }}
+                          />
+                        </span>
+                        <span className="stats-bars__value">{value}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </ScrollPanel>
   );
 }

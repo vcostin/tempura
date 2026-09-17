@@ -95,6 +95,7 @@
     "line": "Il tuo focus · solo locale.",
     "close": "Chiudi",
     "empty": "Ancora nessun tempo di focus in questo periodo — avvia un ritmo.",
+    "loading": "Caricamento di questo periodo…",
     "aria": "Statistiche di focus",
     "focusTime": "tempo di focus",
     "cyclesFinished": "cicli completati",
