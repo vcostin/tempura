@@ -96,7 +96,8 @@
     "version": " · v{{version}}",
     "privacy": "Your data stays on this machine. No accounts, no cloud, no sync.",
     "aboutBody": "Local SQLite under your app data folder is the source of truth. Closing the window hides to the tray — quit from here or the tray menu.",
-    "techniquesGuide": "Techniques guide"
+    "techniquesGuide": "Techniques guide",
+    "sendFeedback": "Send feedback"
   },
   "stats": {
     "panel": "Stats",

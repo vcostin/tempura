@@ -89,7 +89,8 @@
     "version": " · v{{version}}",
     "privacy": "Datele rămân pe această mașină. Fără conturi, fără cloud, fără sync.",
     "aboutBody": "SQLite local din folderul de date al aplicației e sursa adevărului. Închiderea ferestrei ascunde în tavă — ieși de aici sau din meniul tăvii.",
-    "techniquesGuide": "Ghid de tehnici"
+    "techniquesGuide": "Ghid de tehnici",
+    "sendFeedback": "Trimite feedback"
   },
   "stats": {
     "panel": "Statistici",

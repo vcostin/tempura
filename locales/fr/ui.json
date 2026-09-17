@@ -88,7 +88,8 @@
     "version": " · v{{version}}",
     "privacy": "Vos données restent sur cette machine. Pas de comptes, pas de cloud, pas de sync.",
     "aboutBody": "Le SQLite local sous le dossier de données de l’app est la source de vérité. Fermer la fenêtre masque dans la zone de notification — quittez d’ici ou depuis le menu.",
-    "techniquesGuide": "Guide des techniques"
+    "techniquesGuide": "Guide des techniques",
+    "sendFeedback": "Envoyer un retour"
   },
   "stats": {
     "panel": "Stats",

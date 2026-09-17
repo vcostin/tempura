@@ -11,6 +11,14 @@
     "notification:allow-request-permission",
     "autostart:allow-enable",
     "autostart:allow-disable",
-    "autostart:allow-is-enabled"
+    "autostart:allow-is-enabled",
+    {
+      "identifier": "opener:allow-open-url",
+      "allow": [
+        { "url": "https://github.com/vcostin/tempura/discussions" },
+        { "url": "https://github.com/vcostin/tempura/discussions/" },
+        { "url": "https://github.com/vcostin/tempura/discussions/*" }
+      ]
+    }
   ]
 }

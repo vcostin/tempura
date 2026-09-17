@@ -88,7 +88,8 @@
     "version": " · v{{version}}",
     "privacy": "Tus datos se quedan en esta máquina. Sin cuentas, sin nube, sin sincronización.",
     "aboutBody": "El SQLite local en la carpeta de datos de la app es la fuente de verdad. Cerrar la ventana la oculta en la bandeja — sal desde aquí o desde el menú de la bandeja.",
-    "techniquesGuide": "Guía de técnicas"
+    "techniquesGuide": "Guía de técnicas",
+    "sendFeedback": "Enviar comentarios"
   },
   "stats": {
     "panel": "Estadísticas",

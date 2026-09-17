@@ -88,7 +88,8 @@
     "version": " · v{{version}}",
     "privacy": "I tuoi dati restano su questa macchina. Niente account, niente cloud, niente sync.",
     "aboutBody": "Il SQLite locale nella cartella dati dell’app è la fonte di verità. Chiudere la finestra la nasconde nell’area di notifica — esci da qui o dal menu.",
-    "techniquesGuide": "Guida alle tecniche"
+    "techniquesGuide": "Guida alle tecniche",
+    "sendFeedback": "Invia feedback"
   },
   "stats": {
     "panel": "Statistiche",

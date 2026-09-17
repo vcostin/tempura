@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { LOCALES } from "../lib/i18n";
+import { openFeedback } from "../lib/platform";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
@@ -407,16 +408,23 @@ export function SettingsView(props: Props) {
           </p>
           <p style={{ margin: 0 }}>{t("settings.privacy")}</p>
           <p style={{ margin: "0.75rem 0 0" }}>{t("settings.aboutBody")}</p>
-          {props.onOpenGuide && (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={{ marginTop: "0.85rem" }}
-              onClick={props.onOpenGuide}
-            >
-              {t("settings.techniquesGuide")}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "0.5rem",
+              marginTop: "0.85rem",
+            }}
+          >
+            {props.onOpenGuide && (
+              <button type="button" className="btn btn-ghost" onClick={props.onOpenGuide}>
+                {t("settings.techniquesGuide")}
+              </button>
+            )}
+            <button type="button" className="btn btn-ghost" onClick={() => void openFeedback()}>
+              {t("settings.sendFeedback")}
             </button>
-          )}
+          </div>
         </div>
       </section>
     </ScrollPanel>

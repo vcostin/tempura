@@ -88,7 +88,8 @@
     "version": " · v{{version}}",
     "privacy": "Deine Daten bleiben auf diesem Rechner. Keine Konten, keine Cloud, kein Sync.",
     "aboutBody": "Lokales SQLite unter deinem App-Datenordner ist die Quelle der Wahrheit. Das Fenster schließen versteckt in den Tray — beenden hier oder im Tray-Menü.",
-    "techniquesGuide": "Technikführer"
+    "techniquesGuide": "Technikführer",
+    "sendFeedback": "Feedback senden"
   },
   "stats": {
     "panel": "Statistik",

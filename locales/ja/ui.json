@@ -88,7 +88,8 @@
     "version": " · v{{version}}",
     "privacy": "データはこのマシンに残ります。アカウントなし、クラウドなし、同期なし。",
     "aboutBody": "アプリデータフォルダ内のローカル SQLite が真実の源です。ウィンドウを閉じるとトレイに隠れます。終了はここかトレイメニューから。",
-    "techniquesGuide": "テクニックガイド"
+    "techniquesGuide": "テクニックガイド",
+    "sendFeedback": "フィードバックを送る"
   },
   "stats": {
     "panel": "統計",
