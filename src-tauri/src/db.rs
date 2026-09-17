@@ -1,6 +1,9 @@
-use crate::models::{AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind};
-use chrono::{Duration, Local, NaiveDate, Utc};
+use crate::models::{
+    AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
+};
+use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
+use std::collections::HashMap;
 use std::path::Path;
 use thiserror::Error;
 use uuid::Uuid;
@@ -14,6 +17,37 @@ pub enum DbError {
 }
 
 pub type DbResult<T> = Result<T, DbError>;
+
+/// Map a naive local wall time through DST folds/gaps without panicking.
+fn naive_to_local(naive: NaiveDateTime) -> DateTime<Local> {
+    match naive.and_local_timezone(Local) {
+        chrono::LocalResult::Single(dt) => dt,
+        chrono::LocalResult::Ambiguous(earliest, _) => earliest,
+        chrono::LocalResult::None => {
+            let mut shifted = naive;
+            for _ in 0..8 {
+                shifted += Duration::minutes(15);
+                match shifted.and_local_timezone(Local) {
+                    chrono::LocalResult::Single(dt) | chrono::LocalResult::Ambiguous(dt, _) => {
+                        return dt;
+                    }
+                    chrono::LocalResult::None => {}
+                }
+            }
+            DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc).with_timezone(&Local)
+        }
+    }
+}
+
+fn local_day_start_utc(day: NaiveDate) -> DateTime<Utc> {
+    naive_to_local(day.and_hms_opt(0, 0, 0).expect("midnight")).with_timezone(&Utc)
+}
+
+fn local_date_from_rfc3339(started_at: &str) -> Option<NaiveDate> {
+    DateTime::parse_from_rfc3339(started_at)
+        .ok()
+        .map(|dt| dt.with_timezone(&Local).date_naive())
+}
 
 pub struct Database {
     conn: Connection,
@@ -237,9 +271,7 @@ impl Database {
     pub fn get_settings(&self) -> DbResult<AppSettings> {
         let defaults = AppSettings::default();
         Ok(AppSettings {
-            theme: self
-                .get_setting("theme")?
-                .unwrap_or(defaults.theme),
+            theme: self.get_setting("theme")?.unwrap_or(defaults.theme),
             notifications_enabled: self
                 .get_setting("notifications_enabled")?
                 .as_deref()
@@ -386,9 +418,7 @@ impl Database {
             .get_technique(id)?
             .ok_or_else(|| DbError::Message("technique not found".into()))?;
         if matches!(existing.kind, TechniqueKind::System) {
-            return Err(DbError::Message(
-                "system techniques are immutable".into(),
-            ));
+            return Err(DbError::Message("system techniques are immutable".into()));
         }
         let now = Utc::now().to_rfc3339();
         let mode = input.mode.unwrap_or(existing.mode);
@@ -432,8 +462,10 @@ impl Database {
                 "system techniques cannot be deleted".into(),
             ));
         }
-        self.conn
-            .execute("DELETE FROM techniques WHERE id = ?1 AND kind = 'custom'", params![id])?;
+        self.conn.execute(
+            "DELETE FROM techniques WHERE id = ?1 AND kind = 'custom'",
+            params![id],
+        )?;
         Ok(())
     }
 
@@ -498,8 +530,7 @@ impl Database {
 
     pub fn day_stats(&self) -> DbResult<DayStats> {
         let today = Local::now().date_naive();
-        let start = today.and_hms_opt(0, 0, 0).unwrap().and_local_timezone(Local).unwrap();
-        let start_utc = start.with_timezone(&Utc).to_rfc3339();
+        let start_utc = local_day_start_utc(today).to_rfc3339();
 
         let (focus_secs_today, completed_cycles_today, sessions_today): (i64, i64, i64) =
             self.conn.query_row(
@@ -525,18 +556,12 @@ impl Database {
         })
     }
 
-
     /// Inclusive local-day window ending today (`days` = 1 today, 7 last week, 30 last month).
     pub fn range_stats(&self, days: i64) -> DbResult<StatsRange> {
         let days = days.clamp(1, 366);
         let today = Local::now().date_naive();
         let start_day = today - Duration::days(days - 1);
-        let start_local = start_day
-            .and_hms_opt(0, 0, 0)
-            .unwrap()
-            .and_local_timezone(Local)
-            .unwrap();
-        let start_utc = start_local.with_timezone(&Utc).to_rfc3339();
+        let start_utc = local_day_start_utc(start_day).to_rfc3339();
 
         let mut stmt = self.conn.prepare(
             "
@@ -549,20 +574,13 @@ impl Database {
             .query_map(params![start_utc], |row| {
                 Ok((row.get(0)?, row.get(1)?, row.get(2)?))
             })?
-            .filter_map(|r| r.ok())
-            .collect();
+            .collect::<Result<Vec<_>, _>>()?;
 
-        use std::collections::HashMap;
         let mut map: HashMap<NaiveDate, (i64, i64, i64)> = HashMap::new();
         for (started_at, focus, cycles) in &rows {
-            let local_date = chrono::DateTime::parse_from_rfc3339(started_at)
-                .ok()
-                .map(|dt| dt.with_timezone(&Local).date_naive())
-                .or_else(|| {
-                    // Fallback: date prefix if timezone parse fails
-                    NaiveDate::parse_from_str(&started_at.chars().take(10).collect::<String>(), "%Y-%m-%d").ok()
-                });
-            let Some(d) = local_date else { continue };
+            let Some(d) = local_date_from_rfc3339(started_at) else {
+                continue;
+            };
             if d < start_day || d > today {
                 continue;
             }
@@ -604,20 +622,20 @@ impl Database {
     fn compute_streak(&self, today: NaiveDate) -> DbResult<i64> {
         let mut stmt = self.conn.prepare(
             "
-            SELECT DISTINCT substr(started_at, 1, 10)
+            SELECT started_at
             FROM sessions
             WHERE focus_secs_completed > 0
-            ORDER BY 1 DESC
             ",
         )?;
-        let dates: Vec<NaiveDate> = stmt
-            .query_map([], |row| {
-                let s: String = row.get(0)?;
-                Ok(s)
-            })?
-            .filter_map(|r| r.ok())
-            .filter_map(|s| NaiveDate::parse_from_str(&s, "%Y-%m-%d").ok())
+        let mut dates: Vec<NaiveDate> = stmt
+            .query_map([], |row| row.get::<_, String>(0))?
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .filter_map(|s| local_date_from_rfc3339(&s))
             .collect();
+        dates.sort_unstable();
+        dates.dedup();
+        dates.reverse();
 
         if dates.is_empty() {
             return Ok(0);
@@ -645,14 +663,16 @@ impl Database {
     }
 }
 
-
 #[cfg(test)]
 mod range_stats_tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
     fn temp_db() -> Database {
-        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
         let path = std::env::temp_dir().join(format!("tempura-stats-{nanos}.sqlite"));
         let _ = std::fs::remove_file(&path);
         Database::open(&path).expect("open temp db")
@@ -674,5 +694,95 @@ mod range_stats_tests {
         assert_eq!(db.range_stats(0).unwrap().days, 1);
         assert_eq!(db.range_stats(400).unwrap().days, 366);
         assert_eq!(db.range_stats(400).unwrap().buckets.len(), 366);
+    }
+
+    fn local_hms_utc(day: NaiveDate, hour: u32, min: u32, sec: u32) -> DateTime<Utc> {
+        naive_to_local(day.and_hms_opt(hour, min, sec).expect("hms")).with_timezone(&Utc)
+    }
+
+    fn insert_session(db: &Database, started: DateTime<Utc>, focus: i64, cycles: i64) {
+        db.conn
+            .execute(
+                "
+                INSERT INTO sessions (
+                    id, technique_id, started_at, focus_secs_completed, completed_cycles, interrupted
+                ) VALUES (?1, 'classic', ?2, ?3, ?4, 0)
+                ",
+                params![Uuid::new_v4().to_string(), started.to_rfc3339(), focus, cycles],
+            )
+            .expect("insert session");
+    }
+
+    #[test]
+    fn range_stats_buckets_by_local_day_not_utc_prefix() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        // Late evening local time is the next UTC date west of UTC.
+        insert_session(&db, local_hms_utc(today, 23, 30, 0), 600, 1);
+
+        let range = db.range_stats(1).expect("range");
+        assert_eq!(range.sessions, 1);
+        assert_eq!(range.focus_secs, 600);
+        assert_eq!(range.completed_cycles, 1);
+        assert_eq!(range.buckets.len(), 1);
+        assert_eq!(range.buckets[0].date, today.format("%Y-%m-%d").to_string());
+        assert_eq!(range.buckets[0].focus_secs, 600);
+        assert_eq!(range.streak_days, 1);
+        assert_eq!(
+            range.focus_secs,
+            range.buckets.iter().map(|b| b.focus_secs).sum::<i64>()
+        );
+    }
+
+    #[test]
+    fn range_stats_excludes_session_before_window_and_fills_gaps() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let start_day = today - Duration::days(6);
+        insert_session(
+            &db,
+            local_hms_utc(start_day - Duration::days(1), 23, 0, 0),
+            900,
+            1,
+        );
+        insert_session(&db, local_hms_utc(today, 9, 0, 0), 300, 2);
+
+        let range = db.range_stats(7).expect("range");
+        assert_eq!(range.buckets.len(), 7);
+        assert_eq!(range.sessions, 1);
+        assert_eq!(range.focus_secs, 300);
+        assert_eq!(range.completed_cycles, 2);
+        assert_eq!(
+            range.buckets[0].date,
+            start_day.format("%Y-%m-%d").to_string()
+        );
+        assert_eq!(range.buckets[0].sessions, 0);
+        assert_eq!(range.buckets[6].focus_secs, 300);
+        assert_eq!(
+            range.focus_secs,
+            range.buckets.iter().map(|b| b.focus_secs).sum::<i64>()
+        );
+        assert_eq!(
+            range.sessions,
+            range.buckets.iter().map(|b| b.sessions).sum::<i64>()
+        );
+    }
+
+    #[test]
+    fn streak_uses_local_days_and_allows_yesterday_start() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let yesterday = today - Duration::days(1);
+        let two_ago = today - Duration::days(2);
+
+        insert_session(&db, local_hms_utc(two_ago, 23, 30, 0), 120, 1);
+        insert_session(&db, local_hms_utc(yesterday, 0, 15, 0), 120, 1);
+        // Zero-focus session today must not keep the streak alive.
+        insert_session(&db, local_hms_utc(today, 12, 0, 0), 0, 0);
+
+        let range = db.range_stats(7).expect("range");
+        assert_eq!(range.streak_days, 2);
+        assert_eq!(range.sessions, 3);
+        assert_eq!(range.focus_secs, 240);
     }
 }
