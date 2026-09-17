@@ -146,15 +146,41 @@ jobs:
           generateReleaseNotes: true
           releaseDraft: false
           prerelease: false
-          uploadUpdaterJson: true
+          # Matrix legs must not touch latest.json — tauri-action’s
+          # read/merge/delete/upload races (tauri-apps/tauri-action#1270).
+          # A later job synthesizes it once from these .sig files.
+          uploadUpdaterJson: false
           updaterJsonPreferNsis: true
           uploadUpdaterSignatures: true
           retryAttempts: 3
           args: ${{ matrix.args }}
 
+  updater-json:
+    name: Upload latest.json
+    needs: publish-tauri
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
+        with:
+          deno-version: v2.x
+
+      - name: Synthesize latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: deno run -A ./scripts/build-updater-json.ts --out latest.json
+
+      - name: Upload latest.json
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload "$GITHUB_REF_NAME" latest.json --repo "$GITHUB_REPOSITORY" --clobber
+
   checksums:
     name: Upload SHA256SUMS
-    needs: publish-tauri
+    needs: [publish-tauri, updater-json]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
