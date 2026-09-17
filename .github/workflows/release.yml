@@ -152,7 +152,8 @@ jobs:
           uploadUpdaterJson: false
           updaterJsonPreferNsis: true
           uploadUpdaterSignatures: true
-          retryAttempts: 3
+          # GitHub release asset uploads can flake on Windows/macOS; retries are intentional.
+          retryAttempts: 5
           args: ${{ matrix.args }}
 
   updater-json:
