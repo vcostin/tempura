@@ -16,7 +16,7 @@ git tag v0.2.0
 git push origin main --tags
 ```
 
-GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. The same release publishes `latest.json` and `.sig` files so the in-app updater can find a signed build.
+GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. `.sig` files go up with each platform; `latest.json` is written once after the matrix so the in-app updater sees every platform.
 
 The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 
@@ -53,6 +53,8 @@ deno task tauri signer generate -- -w ~/.tauri/tempura.key --ci
 4. Local `deno task tauri:build` needs the same private key in the environment (`TAURI_SIGNING_PRIVATE_KEY` or `TAURI_SIGNING_PRIVATE_KEY_PATH`).
 
 `.github/workflows/release.yml` fails fast if `TAURI_SIGNING_PRIVATE_KEY` is missing, then passes both signing env vars into tauri-action.
+
+Matrix jobs upload installers and `.sig` files only (`uploadUpdaterJson: false`). After they finish, one job writes `latest.json` via `scripts/build-updater-json.ts` so parallel legs cannot race on that file. Do not turn `uploadUpdaterJson` back on.
 
 Losing the private key (or rotating the public key in an already-shipped build) means existing installs cannot verify future updates. Generate a new pair only if you are willing to break in-app updates for those builds.
 
