@@ -226,5 +226,13 @@
     "footerReleases": "所有发布",
     "footerTwemoji": "虾标改编自",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "专注已开始。",
+    "short_break": "短休息已开始。",
+    "long_break": "长休息已开始。",
+    "paused": "计时器已暂停。",
+    "resumed": "计时器已继续。",
+    "stopped": "计时器已停止。"
   }
 }

@@ -226,5 +226,13 @@
     "footerReleases": "Todas as versões",
     "footerTwemoji": "Marca do camarão adaptada de",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Foco iniciado.",
+    "short_break": "Pausa curta iniciada.",
+    "long_break": "Pausa longa iniciada.",
+    "paused": "Temporizador pausado.",
+    "resumed": "Temporizador retomado.",
+    "stopped": "Temporizador parado."
   }
 }

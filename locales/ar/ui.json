@@ -230,5 +230,13 @@
     "footerReleases": "كل الإصدارات",
     "footerTwemoji": "علامة الجمبري مقتبسة من",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "بدأ التركيز.",
+    "short_break": "بدأت استراحة قصيرة.",
+    "long_break": "بدأت استراحة طويلة.",
+    "paused": "تم إيقاف المؤقت مؤقتًا.",
+    "resumed": "تم استئناف المؤقت.",
+    "stopped": "تم إيقاف المؤقت."
   }
 }

@@ -226,5 +226,13 @@
     "footerReleases": "Alle Releases",
     "footerTwemoji": "Shrimp-Marke nach",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Fokus gestartet.",
+    "short_break": "Kurze Pause gestartet.",
+    "long_break": "Lange Pause gestartet.",
+    "paused": "Timer pausiert.",
+    "resumed": "Timer fortgesetzt.",
+    "stopped": "Timer gestoppt."
   }
 }

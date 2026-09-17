@@ -226,5 +226,13 @@
     "footerReleases": "Tutte le release",
     "footerTwemoji": "Marchio del gambero adattato da",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Focus avviato.",
+    "short_break": "Pausa breve avviata.",
+    "long_break": "Pausa lunga avviata.",
+    "paused": "Timer in pausa.",
+    "resumed": "Timer ripreso.",
+    "stopped": "Timer fermato."
   }
 }

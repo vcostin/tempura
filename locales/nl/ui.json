@@ -226,5 +226,13 @@
     "footerReleases": "Alle releases",
     "footerTwemoji": "Garnaalmerk bewerkt naar",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Focus gestart.",
+    "short_break": "Korte pauze gestart.",
+    "long_break": "Lange pauze gestart.",
+    "paused": "Timer gepauzeerd.",
+    "resumed": "Timer hervat.",
+    "stopped": "Timer gestopt."
   }
 }

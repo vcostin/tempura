@@ -226,5 +226,13 @@
     "footerReleases": "Toutes les versions",
     "footerTwemoji": "Marque de la crevette d’après",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Focus démarré.",
+    "short_break": "Pause courte démarrée.",
+    "long_break": "Pause longue démarrée.",
+    "paused": "Minuteur en pause.",
+    "resumed": "Minuteur repris.",
+    "stopped": "Minuteur arrêté."
   }
 }

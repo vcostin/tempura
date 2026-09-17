@@ -226,5 +226,13 @@
     "footerReleases": "すべてのリリース",
     "footerTwemoji": "エビのマークは次から翻案",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "フォーカスを開始しました。",
+    "short_break": "短い休憩を開始しました。",
+    "long_break": "長い休憩を開始しました。",
+    "paused": "タイマーを一時停止しました。",
+    "resumed": "タイマーを再開しました。",
+    "stopped": "タイマーを停止しました。"
   }
 }

@@ -228,5 +228,13 @@
     "footerReleases": "Wszystkie wydania",
     "footerTwemoji": "Znak krewetki zaadaptowany z",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Skupienie rozpoczęte.",
+    "short_break": "Krótka przerwa rozpoczęta.",
+    "long_break": "Długa przerwa rozpoczęta.",
+    "paused": "Timer wstrzymany.",
+    "resumed": "Timer wznowiony.",
+    "stopped": "Timer zatrzymany."
   }
 }

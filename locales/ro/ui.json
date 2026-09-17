@@ -227,5 +227,13 @@
     "footerReleases": "Toate release-urile",
     "footerTwemoji": "Marca crevetelui adaptată după",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Focus început.",
+    "short_break": "Pauză scurtă începută.",
+    "long_break": "Pauză lungă începută.",
+    "paused": "Cronometru în pauză.",
+    "resumed": "Cronometru reluat.",
+    "stopped": "Cronometru oprit."
   }
 }

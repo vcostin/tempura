@@ -227,5 +227,13 @@
     "footerReleases": "כל השחרורים",
     "footerTwemoji": "סימן השרימפס עובד מ",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "המיקוד התחיל.",
+    "short_break": "הפסקה קצרה התחילה.",
+    "long_break": "הפסקה ארוכה התחילה.",
+    "paused": "הטיימר הושהה.",
+    "resumed": "הטיימר חודש.",
+    "stopped": "הטיימר נעצר."
   }
 }
