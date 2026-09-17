@@ -57,4 +57,5 @@ console.log(`  git tag v${version}`);
 console.log("  git push origin main --tags");
 console.log("");
 console.log(`That tag starts the Release workflow and publishes installers for v${version}.`);
+console.log("Signing / secrets: docs/releasing.md");
 console.log("Download page: https://vcostin.github.io/tempura/");

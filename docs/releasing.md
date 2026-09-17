@@ -1,8 +1,30 @@
 # Releasing Tempura
 
-Tag flow (version bump, `v*` push) lives in the [README](../README.md#releasing). This page is the maintainer source of truth for **in-app updater signing**.
+Maintainer source of truth for cutting a desktop release and for **in-app updater signing**.
 
 The updater talks only to GitHub Releases (`latest.json` + signed installers). There is no extra update server.
+
+## Cut a release
+
+Version lives in `package.json`, `src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml`. Keep them in lockstep, then push a `v*` tag:
+
+```bash
+deno task version 0.2.0
+git add package.json src-tauri/Cargo.toml src-tauri/Cargo.lock src-tauri/tauri.conf.json
+git commit -m "Release v0.2.0"
+git tag v0.2.0
+git push origin main --tags
+```
+
+GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. The same release publishes `latest.json` and `.sig` files so the in-app updater can find a signed build.
+
+The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
+
+### Linux AppImage
+
+Release and `deno task tauri:build` set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf`. After the Tauri CLI finishes, `scripts/tauri-ci.ts` drops bundled libwayland from AppImages so WebKit can use the host copy.
+
+Local `deno task tauri:build` also needs the updater private key in the environment (below).
 
 ## Signing (ed25519, not Authenticode)
 
