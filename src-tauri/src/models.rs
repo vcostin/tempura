@@ -71,6 +71,13 @@ pub struct AppSettings {
     pub working_on: String,
     #[serde(default)]
     pub locale: String,
+    /// Quiet GitHub Releases check when the app starts. Default on.
+    #[serde(default = "default_true")]
+    pub check_updates_on_launch: bool,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 impl Default for AppSettings {
@@ -86,6 +93,7 @@ impl Default for AppSettings {
             flow_ratio: 0.2,
             working_on: String::new(),
             locale: String::new(),
+            check_updates_on_launch: true,
         }
     }
 }
@@ -384,6 +392,11 @@ mod tests {
         s.working_on = "x".repeat(500);
         let v = s.validated().unwrap();
         assert_eq!(v.working_on.chars().count(), 200);
+    }
+
+    #[test]
+    fn settings_default_checks_updates_on_launch() {
+        assert!(AppSettings::default().check_updates_on_launch);
     }
 
     #[test]

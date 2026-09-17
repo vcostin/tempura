@@ -15,6 +15,9 @@ dist-ssr
 .cargo-home
 src-tauri/target
 
+# Updater ed25519 private key — never commit
+src-tauri/.keys/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

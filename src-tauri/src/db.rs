@@ -238,6 +238,10 @@ impl Database {
             ("flow_ratio", defaults.flow_ratio.to_string()),
             ("working_on", defaults.working_on),
             ("locale", defaults.locale),
+            (
+                "check_updates_on_launch",
+                defaults.check_updates_on_launch.to_string(),
+            ),
         ];
         for (key, value) in pairs {
             self.conn.execute(
@@ -307,6 +311,11 @@ impl Database {
                 .get_setting("working_on")?
                 .unwrap_or(defaults.working_on),
             locale: self.get_setting("locale")?.unwrap_or(defaults.locale),
+            check_updates_on_launch: self
+                .get_setting("check_updates_on_launch")?
+                .as_deref()
+                .map(|v| v == "true")
+                .unwrap_or(defaults.check_updates_on_launch),
         })
     }
 
@@ -327,6 +336,10 @@ impl Database {
         self.set_setting("flow_ratio", &settings.flow_ratio.to_string())?;
         self.set_setting("working_on", &settings.working_on)?;
         self.set_setting("locale", &settings.locale)?;
+        self.set_setting(
+            "check_updates_on_launch",
+            &settings.check_updates_on_launch.to_string(),
+        )?;
         Ok(())
     }
 

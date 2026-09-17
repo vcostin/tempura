@@ -49,9 +49,10 @@ Day-to-day docs assume Deno.
 - **Session engine**: Rust owns the countdown (correct while hidden / across sleep); Start, Pause/Resume, Skip, Reset, Stop
 - **System tray**: always present; close window hides to tray; live tooltip; Quit from tray or Settings
 - **Notifications**: focus / break / long-break complete; optional halfway tick; sound toggle
-- **Settings**: launch at login, start minimized, theme, notify/sound, defaults, flow ratio, privacy blurb
+- **Settings**: launch at login, start minimized, theme, notify/sound, defaults, flow ratio, optional GitHub update check, privacy blurb
 - **Themes**: Batter (default, icon palette), Mist, Grove, Dusk, Sandstone
 - **Stats**: focus minutes today, cycles, sessions, streak (local only)
+- **Updates**: optional check on launch (off if you want); Check now in Settings; skip anytime. GitHub Releases only — no extra server, no telemetry.
 
 ### Keyboard (desktop)
 
@@ -79,7 +80,7 @@ Tempura aims for a calm, keyboard-friendly desktop UI:
 
 ## Privacy
 
-Presets, settings, and session history live in local SQLite under the app data directory. Nothing is uploaded. No accounts, no cloud, no sync.
+Presets, settings, and session history live in local SQLite under the app data directory. No accounts, no cloud, no sync. Optional update checks ask GitHub for release metadata and, if you choose **Update & restart**, download the installer from GitHub Releases.
 
 ## Project layout
 
@@ -113,9 +114,22 @@ git tag v0.2.0
 git push origin main --tags
 ```
 
-GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release.
+GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. The same release also publishes `latest.json` and `.sig` files so the in-app updater can find a signed build.
 
-The first public tag is `v0.1.0`. Builds are unsigned, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
+**Updater signing (ed25519, not Authenticode):** generate a keypair once and keep the private half only in GitHub Actions secrets.
+
+```bash
+deno task tauri signer generate -- -w ~/.tauri/tempura.key --ci
+```
+
+1. Put the contents of `tempura.key.pub` in `src-tauri/tauri.conf.json` → `plugins.updater.pubkey` (already set for this repo).
+2. Repo secret `TAURI_SIGNING_PRIVATE_KEY` = contents of the private key file.
+3. Optional repo secret `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` if you generated the key with a password.
+4. Local `deno task tauri:build` needs the same private key in the environment (`TAURI_SIGNING_PRIVATE_KEY` or `TAURI_SIGNING_PRIVATE_KEY_PATH`). Do not commit the private key.
+
+Losing the private key means existing installs cannot verify future updates. Windows installers stay unsigned Authenticode for now; the updater signature is separate.
+
+The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 
 ## License
 

@@ -4,10 +4,12 @@ import { formatTechniqueRhythm } from "../lib/api";
 import { LOCALES } from "../lib/i18n";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { AppSettings, Technique, TechniqueInput } from "../lib/types";
+import type { UpdateUiStatus } from "../lib/updates";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
+import { UpdatesSection } from "./UpdatesSection";
 
 interface Props {
   settings: AppSettings;
@@ -24,6 +26,15 @@ interface Props {
   onTechniquesChanged: () => Promise<void>;
   onOpenAbout?: () => void;
   onQuit?: () => void;
+  updater?: {
+    version: string;
+    autoCheck: boolean;
+    onToggleAutoCheck: () => void;
+    status: UpdateUiStatus;
+    skipped: boolean;
+    onCheck: () => void;
+    onInstall: () => void;
+  };
 }
 
 export function SettingsView(props: Props) {
@@ -250,6 +261,18 @@ export function SettingsView(props: Props) {
             </button>
           )}
         </section>
+      )}
+
+      {props.updater && (
+        <UpdatesSection
+          version={props.updater.version}
+          autoCheck={props.updater.autoCheck}
+          onToggleAutoCheck={props.updater.onToggleAutoCheck}
+          status={props.updater.status}
+          skipped={props.updater.skipped}
+          onCheck={props.updater.onCheck}
+          onInstall={props.updater.onInstall}
+        />
       )}
 
       <section className="section">

@@ -8,15 +8,17 @@ import { SettingsView } from "./components/SettingsView";
 import { StatsView } from "./components/StatsView";
 import { TechniquesGuide } from "./components/TechniquesGuide";
 import { TimerView } from "./components/TimerView";
+import { UpdateView } from "./components/UpdateView";
 import { useSession } from "./hooks/useSession";
 import { useSettings } from "./hooks/useSettings";
+import { useUpdater } from "./hooks/useUpdater";
 import { api } from "./lib/api";
 import { isDebugAccessEnabled } from "./lib/debugAccess";
 import { isDesktopShell, isTauri } from "./lib/platform";
 import "./styles/fonts.css";
 import "./styles/global.css";
 
-type View = "timer" | "settings" | "stats" | "guide" | "debug" | "about";
+type View = "timer" | "settings" | "stats" | "guide" | "debug" | "about" | "update";
 
 const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
   settings: '[data-open-panel="settings"]',
@@ -24,6 +26,7 @@ const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
   guide: '[data-open-panel="guide"]',
   debug: '[data-open-panel="debug"]',
   about: '[data-open-panel="about"]',
+  update: '[data-open-panel="settings"]',
 };
 
 function isTypingTarget(el: EventTarget | null): boolean {
@@ -45,6 +48,11 @@ export default function App() {
   const { t } = useTranslation();
   const session = useSession();
   const settingsApi = useSettings();
+  const updater = useUpdater({
+    ready: settingsApi.info != null,
+    autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
+    allowAutoOffer: settingsApi.info != null && !settingsApi.info.debug,
+  });
   const [view, setView] = useState<View>("timer");
   const [windowHidden, setWindowHidden] = useState(false);
   const [workingOn, setWorkingOn] = useState("");
@@ -52,6 +60,7 @@ export default function App() {
     isDebugAccessEnabled(settingsApi.info?.debug),
   );
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const updateOfferedRef = useRef(false);
   const panelOpen = view !== "timer";
 
   useEffect(() => {
@@ -85,7 +94,12 @@ export default function App() {
     });
   }, []);
 
-  const closePanel = useCallback(() => setView("timer"), []);
+  const closePanel = useCallback(() => {
+    setView((current) => {
+      if (current === "update") updater.skip();
+      return "timer";
+    });
+  }, [updater.skip]);
 
   useLayoutEffect(() => {
     if (view !== "timer") return;
@@ -114,6 +128,12 @@ export default function App() {
     window.addEventListener("tempura:open-about", onOpen);
     return () => window.removeEventListener("tempura:open-about", onOpen);
   }, [openPanel]);
+
+  useEffect(() => {
+    if (!updater.hasOffer || updateOfferedRef.current) return;
+    updateOfferedRef.current = true;
+    if (view === "timer") openPanel("update");
+  }, [updater.hasOffer, view, openPanel]);
 
   useEffect(() => {
     const onDebugAccess = () => {
@@ -226,6 +246,22 @@ export default function App() {
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
           onOpenAbout={() => openPanel("about")}
+          updater={
+            updater.available
+              ? {
+                  version: settingsApi.info?.version ?? "",
+                  autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
+                  onToggleAutoCheck: () =>
+                    void settingsApi.patch({
+                      checkUpdatesOnLaunch: !settingsApi.settings.checkUpdatesOnLaunch,
+                    }),
+                  status: updater.status,
+                  skipped: updater.skipped,
+                  onCheck: updater.check,
+                  onInstall: updater.install,
+                }
+              : undefined
+          }
           onQuit={
             settingsApi.desktop
               ? () => {
@@ -244,6 +280,16 @@ export default function App() {
             setDebugEnabled(true);
             openPanel("debug");
           }}
+        />
+      )}
+
+      {view === "update" && (
+        <UpdateView
+          currentVersion={settingsApi.info?.version ?? ""}
+          newVersion={updater.offerVersion}
+          status={updater.status}
+          onInstall={updater.install}
+          onSkip={closePanel}
         />
       )}
 

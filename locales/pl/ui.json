@@ -102,6 +102,28 @@
     "close": "Zamknij",
     "feedbackOpened": "Otwarto w przeglądarce — sprawdź tam, jeśli karta nie wysunęła się na wierzch."
   },
+  "updates": {
+    "title": "Aktualizacje",
+    "panel": "Aktualizacja",
+    "line": "Nowsza wersja jest gotowa.",
+    "close": "Nie teraz",
+    "currentVersion": "Ta wersja to v{{version}}.",
+    "checkNow": "Sprawdź aktualizacje",
+    "checking": "Sprawdzanie…",
+    "upToDate": "Masz już najnowszą wersję.",
+    "available": "Wersja {{version}} jest gotowa.",
+    "updateAndRestart": "Aktualizuj i uruchom ponownie",
+    "skip": "Nie teraz",
+    "downloading": "Pobieranie… {{percent}}%",
+    "downloadingUnknown": "Pobieranie…",
+    "installing": "Instalowanie…",
+    "autoCheck": "Sprawdzaj aktualizacje przy starcie Tempury",
+    "autoCheckHint": "Milczy, gdy jesteś już na bieżąco.",
+    "privacy": "Sprawdzenie pyta GitHuba o najnowsze wydanie. Jeśli zaktualizujesz, instalator pobierze się stamtąd. Bez kont, bez telemetrii.",
+    "offline": "Nie udało się teraz połączyć z GitHubem. Spróbuj ponownie, gdy będziesz online.",
+    "error": "Nie udało się sprawdzić aktualizacji.",
+    "installError": "Nie udało się zainstalować tej aktualizacji."
+  },
   "stats": {
     "panel": "Statystyki",
     "line": "Twój fokus · tylko lokalnie.",

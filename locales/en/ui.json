@@ -108,6 +108,28 @@
     "close": "Close",
     "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward."
   },
+  "updates": {
+    "title": "Updates",
+    "panel": "Update",
+    "line": "A newer build is ready.",
+    "close": "Not now",
+    "currentVersion": "This build is v{{version}}.",
+    "checkNow": "Check for updates",
+    "checking": "Checking…",
+    "upToDate": "You're on the latest build.",
+    "available": "Version {{version}} is ready.",
+    "updateAndRestart": "Update & restart",
+    "skip": "Not now",
+    "downloading": "Downloading… {{percent}}%",
+    "downloadingUnknown": "Downloading…",
+    "installing": "Installing…",
+    "autoCheck": "Check for updates when Tempura starts",
+    "autoCheckHint": "Stays quiet when you're already current.",
+    "privacy": "Checks ask GitHub for the latest release. If you update, the installer is downloaded from there. No accounts, no telemetry.",
+    "offline": "Couldn't reach GitHub just now. Try again when you're online.",
+    "error": "Couldn't check for updates.",
+    "installError": "Couldn't install this update."
+  },
   "stats": {
     "panel": "Stats",
     "line": "Your focus · local only.",

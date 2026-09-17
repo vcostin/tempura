@@ -38,6 +38,7 @@ export interface AppSettings {
   flowRatio: number;
   workingOn: string;
   locale: string;
+  checkUpdatesOnLaunch: boolean;
 }
 
 export interface TimerSnapshot {

@@ -100,6 +100,28 @@
     "close": "Sluiten",
     "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam."
   },
+  "updates": {
+    "title": "Updates",
+    "panel": "Update",
+    "line": "Er is een nieuwere build klaar.",
+    "close": "Niet nu",
+    "currentVersion": "Deze build is v{{version}}.",
+    "checkNow": "Controleren op updates",
+    "checking": "Controleren…",
+    "upToDate": "Je hebt al de nieuwste build.",
+    "available": "Versie {{version}} is klaar.",
+    "updateAndRestart": "Bijwerken en herstarten",
+    "skip": "Niet nu",
+    "downloading": "Downloaden… {{percent}}%",
+    "downloadingUnknown": "Downloaden…",
+    "installing": "Installeren…",
+    "autoCheck": "Controleren op updates als Tempura start",
+    "autoCheckHint": "Blijft stil als je al bij bent.",
+    "privacy": "De check vraagt GitHub om de nieuwste release. Als je bijwerkt, wordt de installer daar vandaan gedownload. Geen accounts, geen telemetrie.",
+    "offline": "GitHub is nu niet bereikbaar. Probeer opnieuw als je online bent.",
+    "error": "Kon niet controleren op updates.",
+    "installError": "Kon deze update niet installeren."
+  },
   "stats": {
     "panel": "Statistieken",
     "line": "Jouw focus · alleen lokaal.",

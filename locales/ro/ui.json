@@ -101,6 +101,28 @@
     "close": "Închide",
     "feedbackOpened": "S-a deschis în browser — uită-te acolo dacă tab-ul n-a venit în față."
   },
+  "updates": {
+    "title": "Actualizări",
+    "panel": "Actualizare",
+    "line": "O versiune mai nouă e gata.",
+    "close": "Nu acum",
+    "currentVersion": "Această versiune este v{{version}}.",
+    "checkNow": "Caută actualizări",
+    "checking": "Se caută…",
+    "upToDate": "Ești deja la ultima versiune.",
+    "available": "Versiunea {{version}} e gata.",
+    "updateAndRestart": "Actualizează și repornește",
+    "skip": "Nu acum",
+    "downloading": "Se descarcă… {{percent}}%",
+    "downloadingUnknown": "Se descarcă…",
+    "installing": "Se instalează…",
+    "autoCheck": "Caută actualizări la pornirea Tempura",
+    "autoCheckHint": "Rămâne tăcut dacă ești deja la zi.",
+    "privacy": "Verificarea întreabă GitHub de ultima versiune. Dacă actualizezi, installerul se descarcă de acolo. Fără conturi, fără telemetrie.",
+    "offline": "GitHub nu e disponibil acum. Încearcă din nou când ești online.",
+    "error": "Nu s-au putut căuta actualizări.",
+    "installError": "Nu s-a putut instala această actualizare."
+  },
   "stats": {
     "panel": "Statistici",
     "line": "Focusul tău · doar local.",
