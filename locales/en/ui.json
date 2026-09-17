@@ -25,6 +25,8 @@
     "statsTitle": "Stats",
     "settingsAria": "Settings",
     "settingsTitle": "Settings",
+    "aboutAria": "About",
+    "aboutTitle": "About",
     "bestFor": "Best for: {{value}}",
     "learnMore": "Learn more",
     "cycle": " · cycle {{count}}",

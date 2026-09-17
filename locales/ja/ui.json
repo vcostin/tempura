@@ -17,6 +17,8 @@
     "statsTitle": "統計",
     "settingsAria": "設定",
     "settingsTitle": "設定",
+    "aboutAria": "このアプリについて",
+    "aboutTitle": "このアプリについて",
     "bestFor": "向いていること: {{value}}",
     "learnMore": "もっと見る",
     "cycle": " · サイクル {{count}}",

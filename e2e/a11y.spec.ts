@@ -120,6 +120,24 @@ test.describe("a11y dialogs and landmarks", () => {
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });
 
+  test("toolbar About opens About dialog with feedback", async ({ page }) => {
+    await page.locator('[data-open-panel="about"]').click();
+    await page.waitForSelector('[role="dialog"][aria-label="About"]');
+    const aboutToolbar = await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return {
+        modal: d?.getAttribute("aria-modal"),
+        feedback: Boolean(
+          [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Send feedback"),
+        ),
+      };
+    });
+    expect(aboutToolbar.modal).toBe("true");
+    expect(aboutToolbar.feedback).toBe(true);
+    await page.keyboard.press("Escape");
+    await page.waitForSelector('[role="dialog"]', { state: "detached" });
+  });
+
   test("settings About link opens About dialog with feedback", async ({ page }) => {
     await page.locator('[data-open-panel="settings"]').click();
     await page.waitForSelector('[role="dialog"]');

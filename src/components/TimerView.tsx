@@ -25,6 +25,7 @@ interface Props {
   onOpenSettings: () => void;
   onOpenStats: () => void;
   onOpenGuide: () => void;
+  onOpenAbout: () => void;
   onOpenDebug?: () => void;
 }
 
@@ -90,6 +91,17 @@ export function TimerView(props: Props) {
               title={t("timer.settingsTitle")}
             >
               <GearIcon />
+            </button>
+            <button
+              type="button"
+              className="icon-btn"
+              data-open-panel="about"
+              aria-haspopup="dialog"
+              aria-label={t("timer.aboutAria")}
+              onClick={props.onOpenAbout}
+              title={t("timer.aboutTitle")}
+            >
+              <AboutIcon />
             </button>
             {props.onOpenDebug && (
               <button
@@ -238,6 +250,16 @@ function GuideIcon() {
       <circle cx="12" cy="12" r="9" />
       <path d="M12 10.5v6" strokeLinecap="round" />
       <circle cx="12" cy="7.25" r="0.9" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function AboutIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.75 9.6a2.35 2.35 0 1 1 3.4 2.1c-.7.42-1.15.9-1.15 1.8" strokeLinecap="round" />
+      <circle cx="12" cy="16.7" r="0.9" fill="currentColor" stroke="none" />
     </svg>
   );
 }

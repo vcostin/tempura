@@ -17,6 +17,8 @@
     "statsTitle": "Статистика",
     "settingsAria": "Налаштування",
     "settingsTitle": "Налаштування",
+    "aboutAria": "Про програму",
+    "aboutTitle": "Про програму",
     "bestFor": "Найкраще для: {{value}}",
     "learnMore": "Дізнатися більше",
     "cycle": " · цикл {{count}}",

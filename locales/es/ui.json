@@ -17,6 +17,8 @@
     "statsTitle": "Estadísticas",
     "settingsAria": "Ajustes",
     "settingsTitle": "Ajustes",
+    "aboutAria": "Acerca de",
+    "aboutTitle": "Acerca de",
     "bestFor": "Ideal para: {{value}}",
     "learnMore": "Saber más",
     "cycle": " · ciclo {{count}}",

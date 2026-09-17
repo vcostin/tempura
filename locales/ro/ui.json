@@ -17,6 +17,8 @@
     "statsTitle": "Statistici",
     "settingsAria": "Setări",
     "settingsTitle": "Setări",
+    "aboutAria": "Despre",
+    "aboutTitle": "Despre",
     "bestFor": "Bun pentru: {{value}}",
     "learnMore": "Află mai mult",
     "cycle": " · ciclul {{count}}",

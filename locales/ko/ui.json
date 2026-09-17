@@ -17,6 +17,8 @@
     "statsTitle": "통계",
     "settingsAria": "설정",
     "settingsTitle": "설정",
+    "aboutAria": "정보",
+    "aboutTitle": "정보",
     "bestFor": "적합한 경우: {{value}}",
     "learnMore": "더 보기",
     "cycle": " · 사이클 {{count}}",

@@ -17,6 +17,8 @@
     "statsTitle": "إحصاءات",
     "settingsAria": "الإعدادات",
     "settingsTitle": "الإعدادات",
+    "aboutAria": "حول",
+    "aboutTitle": "حول",
     "bestFor": "الأنسب لـ: {{value}}",
     "learnMore": "اعرف المزيد",
     "cycle": " · الدورة {{count}}",

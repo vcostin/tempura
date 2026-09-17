@@ -17,6 +17,8 @@
     "statsTitle": "Statistieken",
     "settingsAria": "Instellingen",
     "settingsTitle": "Instellingen",
+    "aboutAria": "Over",
+    "aboutTitle": "Over",
     "bestFor": "Goed voor: {{value}}",
     "learnMore": "Meer weten",
     "cycle": " · cyclus {{count}}",

@@ -17,6 +17,8 @@
     "statsTitle": "统计",
     "settingsAria": "设置",
     "settingsTitle": "设置",
+    "aboutAria": "关于",
+    "aboutTitle": "关于",
     "bestFor": "适合：{{value}}",
     "learnMore": "了解更多",
     "cycle": " · 第 {{count}} 轮",

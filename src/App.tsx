@@ -206,6 +206,7 @@ export default function App() {
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
           onOpenGuide={() => openPanel("guide")}
+          onOpenAbout={() => openPanel("about")}
           onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />
       </div>

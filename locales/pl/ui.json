@@ -17,6 +17,8 @@
     "statsTitle": "Statystyki",
     "settingsAria": "Ustawienia",
     "settingsTitle": "Ustawienia",
+    "aboutAria": "O programie",
+    "aboutTitle": "O programie",
     "bestFor": "Najlepsze do: {{value}}",
     "learnMore": "Więcej",
     "cycle": " · cykl {{count}}",
