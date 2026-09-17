@@ -20,6 +20,17 @@ GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NS
 
 The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 
+### Release notes
+
+Every `v*` tag creates a GitHub Release whose body includes:
+
+1. The short installer / download-page blurb (static preamble in `.github/workflows/release.yml`)
+2. GitHub’s auto-generated **What’s Changed** list (merged PRs since the previous tag)
+
+This is already wired: `gh release create --generate-notes` in the create-release job, and `generateReleaseNotes: true` on tauri-action. Do not remove those flags. Optional hand-written highlights belong in the static preamble only — never replace the generated changelog.
+
+[v0.2.1](https://github.com/vcostin/tempura/releases/tag/v0.2.1) and [v0.2.2](https://github.com/vcostin/tempura/releases/tag/v0.2.2) show the resulting page.
+
 ### Linux AppImage
 
 Release and `deno task tauri:build` set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf`. After the Tauri CLI finishes, `scripts/tauri-ci.ts` drops bundled libwayland from AppImages so WebKit can use the host copy.
