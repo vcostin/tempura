@@ -88,6 +88,7 @@ Presets, settings, and session history live in local SQLite under the app data d
 src/                 React + TypeScript UI (timer, settings, guide, stats)
 src/lib/             API bridge, platform gating, technique guide copy
 src-tauri/           Rust: timer engine, SQLite, tray, notifications, autostart
+docs/                Maintainer notes (releasing / updater signing)
 e2e/                 Playwright a11y checks (Vite shell)
 tests/unit/          Lightweight unit tests
 deno.json            Deno tasks (primary)
@@ -114,20 +115,9 @@ git tag v0.2.0
 git push origin main --tags
 ```
 
-GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. The same release also publishes `latest.json` and `.sig` files so the in-app updater can find a signed build.
+GitHub Actions builds Linux, Windows, and macOS installers and attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release.
 
-**Updater signing (ed25519, not Authenticode):** generate a keypair once and keep the private half only in GitHub Actions secrets.
-
-```bash
-deno task tauri signer generate -- -w ~/.tauri/tempura.key --ci
-```
-
-1. Put the contents of `tempura.key.pub` in `src-tauri/tauri.conf.json` → `plugins.updater.pubkey` (already set for this repo).
-2. Repo secret `TAURI_SIGNING_PRIVATE_KEY` = contents of the private key file.
-3. Optional repo secret `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` if you generated the key with a password.
-4. Local `deno task tauri:build` needs the same private key in the environment (`TAURI_SIGNING_PRIVATE_KEY` or `TAURI_SIGNING_PRIVATE_KEY_PATH`). Do not commit the private key.
-
-Losing the private key means existing installs cannot verify future updates. Windows installers stay unsigned Authenticode for now; the updater signature is separate.
+Updater signing (keys, GitHub secrets, forks): [docs/releasing.md](docs/releasing.md).
 
 The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 
