@@ -134,6 +134,11 @@ test.describe("a11y dialogs and landmarks", () => {
     });
     expect(aboutToolbar.modal).toBe("true");
     expect(aboutToolbar.feedback).toBe(true);
+    await page.evaluate(() => {
+      window.open = () => null;
+    });
+    await page.getByRole("button", { name: "Send feedback" }).click();
+    await expect(page.getByText(/Opened in your browser/)).toBeVisible();
     await page.keyboard.press("Escape");
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });

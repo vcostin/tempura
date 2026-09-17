@@ -98,7 +98,8 @@
   "about": {
     "panel": "Despre",
     "line": "Despre · local, pe această mașină.",
-    "close": "Închide"
+    "close": "Închide",
+    "feedbackOpened": "S-a deschis în browser — uită-te acolo dacă tab-ul n-a venit în față."
   },
   "stats": {
     "panel": "Statistici",

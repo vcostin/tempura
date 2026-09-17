@@ -97,7 +97,8 @@
   "about": {
     "panel": "Over",
     "line": "Over · lokaal, op deze machine.",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam."
   },
   "stats": {
     "panel": "Statistieken",

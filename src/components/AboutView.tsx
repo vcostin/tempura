@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { openFeedback } from "../lib/platform";
@@ -16,6 +16,12 @@ interface Props {
 export function AboutView(props: Props) {
   const { t } = useTranslation();
   const versionClicks = useRef(0);
+  const [feedbackOpened, setFeedbackOpened] = useState(false);
+
+  async function sendFeedback() {
+    await openFeedback();
+    setFeedbackOpened(true);
+  }
 
   return (
     <ScrollPanel label={t("about.panel")}>
@@ -63,10 +69,18 @@ export function AboutView(props: Props) {
             type="button"
             className="btn btn-ghost"
             style={{ marginTop: "0.85rem" }}
-            onClick={() => void openFeedback()}
+            onClick={() => void sendFeedback()}
           >
             {t("settings.sendFeedback")}
           </button>
+          {feedbackOpened && (
+            <p className="hint" role="status" style={{ marginTop: "0.65rem" }}>
+              {t("about.feedbackOpened", {
+                defaultValue:
+                  "Opened in your browser — check there if a tab didn't come forward.",
+              })}
+            </p>
+          )}
         </div>
       </section>
     </ScrollPanel>

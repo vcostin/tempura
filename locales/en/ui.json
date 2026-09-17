@@ -105,7 +105,8 @@
   "about": {
     "panel": "About",
     "line": "About · local, on this machine.",
-    "close": "Close"
+    "close": "Close",
+    "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward."
   },
   "stats": {
     "panel": "Stats",

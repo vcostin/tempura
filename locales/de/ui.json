@@ -97,7 +97,8 @@
   "about": {
     "panel": "Über",
     "line": "Über · lokal, auf diesem Rechner.",
-    "close": "Schließen"
+    "close": "Schließen",
+    "feedbackOpened": "Im Browser geöffnet — schau dort nach, falls kein Tab nach vorn kam."
   },
   "stats": {
     "panel": "Statistik",

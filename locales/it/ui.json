@@ -97,7 +97,8 @@
   "about": {
     "panel": "Informazioni",
     "line": "Informazioni · locale, su questa macchina.",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "feedbackOpened": "Aperto nel browser — controlla lì se la scheda non è venuta in primo piano."
   },
   "stats": {
     "panel": "Statistiche",

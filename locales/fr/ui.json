@@ -97,7 +97,8 @@
   "about": {
     "panel": "À propos",
     "line": "À propos · local, sur cette machine.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan."
   },
   "stats": {
     "panel": "Stats",

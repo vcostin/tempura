@@ -97,7 +97,8 @@
   "about": {
     "panel": "关于",
     "line": "关于 · 数据留在这台机器上。",
-    "close": "关闭"
+    "close": "关闭",
+    "feedbackOpened": "已在浏览器中打开。如果没有跳到前台，请去浏览器里查看。"
   },
   "stats": {
     "panel": "统计",

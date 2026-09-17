@@ -99,7 +99,8 @@
   "about": {
     "panel": "O programie",
     "line": "O programie · lokalnie, na tej maszynie.",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "feedbackOpened": "Otwarto w przeglądarce — sprawdź tam, jeśli karta nie wysunęła się na wierzch."
   },
   "stats": {
     "panel": "Statystyki",

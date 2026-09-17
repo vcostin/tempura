@@ -97,7 +97,8 @@
   "about": {
     "panel": "Acerca de",
     "line": "Acerca de · local, en esta máquina.",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "feedbackOpened": "Se abrió en tu navegador — mira allí si la pestaña no salió al frente."
   },
   "stats": {
     "panel": "Estadísticas",
