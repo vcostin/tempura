@@ -4,6 +4,12 @@
   <img src="src-tauri/icons/128x128.png" alt="Tempura — minimalist shrimp icon" width="128" height="128" />
 </p>
 
+<p align="center">
+  <a href="https://github.com/vcostin/tempura/actions/workflows/ci.yml"><img src="https://github.com/vcostin/tempura/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/vcostin/tempura/releases/latest"><img src="https://img.shields.io/github/v/release/vcostin/tempura?label=release" alt="Latest release" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license" /></a>
+</p>
+
 Premium focus-rhythm timer for desktop — structured intervals, flexible flow techniques, local-first, tray-native.
 
 Timing matters. Tempura stays calm, polished, and entirely on your machine: **no accounts, no cloud, no sync.**
