@@ -158,7 +158,12 @@ jobs:
   updater-json:
     name: Upload latest.json
     needs: publish-tauri
-    if: startsWith(github.ref, 'refs/tags/v')
+    # Run even if a matrix leg failed after uploading — the script is the
+    # gate (missing platform → non-zero). Skip only if the matrix was cancelled.
+    if: |
+      always()
+      && startsWith(github.ref, 'refs/tags/v')
+      && needs.publish-tauri.result != 'cancelled'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -181,7 +186,10 @@ jobs:
   checksums:
     name: Upload SHA256SUMS
     needs: [publish-tauri, updater-json]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: |
+      always()
+      && startsWith(github.ref, 'refs/tags/v')
+      && needs.updater-json.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Write SHA256SUMS from GitHub asset digests
