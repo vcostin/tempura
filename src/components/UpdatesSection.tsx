@@ -2,14 +2,11 @@ import { useTranslation } from "react-i18next";
 import type { UpdateUiStatus } from "../lib/updates";
 
 interface Props {
-  version: string;
   autoCheck: boolean;
   onToggleAutoCheck: () => void;
   status: UpdateUiStatus;
-  skipped: boolean;
   onCheck: () => void;
   onInstall: () => void;
-  onSkip?: () => void;
 }
 
 export function UpdatesSection(props: Props) {
@@ -26,9 +23,6 @@ export function UpdatesSection(props: Props) {
   return (
     <section className="section">
       <h2>{t("updates.title")}</h2>
-      <p className="hint" style={{ margin: "0 0 0.65rem" }}>
-        {t("updates.currentVersion", { version: props.version })}
-      </p>
       <label className="toggle-row">
         <span>{t("updates.autoCheck")}</span>
         <button
@@ -61,14 +55,9 @@ export function UpdatesSection(props: Props) {
             {t("updates.updateAndRestart")}
           </button>
         )}
-        {props.status.kind === "available" && props.onSkip && !props.skipped && (
-          <button type="button" className="btn btn-ghost" onClick={props.onSkip}>
-            {t("updates.skip")}
-          </button>
-        )}
       </div>
       <UpdateStatusCopy status={props.status} />
-      <p className="privacy-note" style={{ marginTop: "0.85rem" }}>
+      <p className="hint" style={{ margin: "0.85rem 0 0" }}>
         {t("updates.privacy")}
       </p>
     </section>

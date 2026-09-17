@@ -3,14 +3,23 @@ import { useTranslation } from "react-i18next";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { openFeedback } from "../lib/platform";
 import type { AppInfo } from "../lib/types";
+import type { UpdateUiStatus } from "../lib/updates";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { UpdatesSection } from "./UpdatesSection";
 
 interface Props {
   info: AppInfo | null;
   onClose: () => void;
   /** After unlocking debug access in a release build. */
   onDebugUnlocked?: () => void;
+  updater?: {
+    autoCheck: boolean;
+    onToggleAutoCheck: () => void;
+    status: UpdateUiStatus;
+    onCheck: () => void;
+    onInstall: () => void;
+  };
 }
 
 export function AboutView(props: Props) {
@@ -83,6 +92,16 @@ export function AboutView(props: Props) {
           )}
         </div>
       </section>
+
+      {props.updater && (
+        <UpdatesSection
+          autoCheck={props.updater.autoCheck}
+          onToggleAutoCheck={props.updater.onToggleAutoCheck}
+          status={props.updater.status}
+          onCheck={props.updater.onCheck}
+          onInstall={props.updater.onInstall}
+        />
+      )}
     </ScrollPanel>
   );
 }

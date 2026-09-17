@@ -49,10 +49,10 @@ Day-to-day docs assume Deno.
 - **Session engine**: Rust owns the countdown (correct while hidden / across sleep); Start, Pause/Resume, Skip, Reset, Stop
 - **System tray**: always present; close window hides to tray; live tooltip; Quit from tray or Settings
 - **Notifications**: focus / break / long-break complete; optional halfway tick; sound toggle
-- **Settings**: launch at login, start minimized, theme, notify/sound, defaults, flow ratio, optional GitHub update check, privacy blurb
+- **Settings**: launch at login, start minimized, theme, notify/sound, defaults, flow ratio
 - **Themes**: Batter (default, icon palette), Mist, Grove, Dusk, Sandstone
 - **Stats**: focus minutes today, cycles, sessions, streak (local only)
-- **Updates**: optional check on launch (off if you want); Check now in Settings; skip anytime. GitHub Releases only — no extra server, no telemetry.
+- **About**: version, privacy, feedback, and optional GitHub updates (check on launch or Check now; skip anytime). No extra server, no telemetry.
 
 ### Keyboard (desktop)
 

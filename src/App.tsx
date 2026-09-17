@@ -8,7 +8,6 @@ import { SettingsView } from "./components/SettingsView";
 import { StatsView } from "./components/StatsView";
 import { TechniquesGuide } from "./components/TechniquesGuide";
 import { TimerView } from "./components/TimerView";
-import { UpdateView } from "./components/UpdateView";
 import { useSession } from "./hooks/useSession";
 import { useSettings } from "./hooks/useSettings";
 import { useUpdater } from "./hooks/useUpdater";
@@ -18,7 +17,7 @@ import { isDesktopShell, isTauri } from "./lib/platform";
 import "./styles/fonts.css";
 import "./styles/global.css";
 
-type View = "timer" | "settings" | "stats" | "guide" | "debug" | "about" | "update";
+type View = "timer" | "settings" | "stats" | "guide" | "debug" | "about";
 
 const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
   settings: '[data-open-panel="settings"]',
@@ -26,7 +25,6 @@ const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
   guide: '[data-open-panel="guide"]',
   debug: '[data-open-panel="debug"]',
   about: '[data-open-panel="about"]',
-  update: '[data-open-panel="settings"]',
 };
 
 function isTypingTarget(el: EventTarget | null): boolean {
@@ -96,10 +94,10 @@ export default function App() {
 
   const closePanel = useCallback(() => {
     setView((current) => {
-      if (current === "update") updater.skip();
+      if (current === "about" && updater.hasOffer) updater.skip();
       return "timer";
     });
-  }, [updater.skip]);
+  }, [updater.hasOffer, updater.skip]);
 
   useLayoutEffect(() => {
     if (view !== "timer") return;
@@ -132,7 +130,7 @@ export default function App() {
   useEffect(() => {
     if (!updater.hasOffer || updateOfferedRef.current) return;
     updateOfferedRef.current = true;
-    if (view === "timer") openPanel("update");
+    if (view === "timer") openPanel("about");
   }, [updater.hasOffer, view, openPanel]);
 
   useEffect(() => {
@@ -246,22 +244,6 @@ export default function App() {
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
           onOpenAbout={() => openPanel("about")}
-          updater={
-            updater.available
-              ? {
-                  version: settingsApi.info?.version ?? "",
-                  autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
-                  onToggleAutoCheck: () =>
-                    void settingsApi.patch({
-                      checkUpdatesOnLaunch: !settingsApi.settings.checkUpdatesOnLaunch,
-                    }),
-                  status: updater.status,
-                  skipped: updater.skipped,
-                  onCheck: updater.check,
-                  onInstall: updater.install,
-                }
-              : undefined
-          }
           onQuit={
             settingsApi.desktop
               ? () => {
@@ -280,16 +262,20 @@ export default function App() {
             setDebugEnabled(true);
             openPanel("debug");
           }}
-        />
-      )}
-
-      {view === "update" && (
-        <UpdateView
-          currentVersion={settingsApi.info?.version ?? ""}
-          newVersion={updater.offerVersion}
-          status={updater.status}
-          onInstall={updater.install}
-          onSkip={closePanel}
+          updater={
+            updater.available
+              ? {
+                  autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
+                  onToggleAutoCheck: () =>
+                    void settingsApi.patch({
+                      checkUpdatesOnLaunch: !settingsApi.settings.checkUpdatesOnLaunch,
+                    }),
+                  status: updater.status,
+                  onCheck: updater.check,
+                  onInstall: updater.install,
+                }
+              : undefined
+          }
         />
       )}
 
