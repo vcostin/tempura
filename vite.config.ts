@@ -29,4 +29,9 @@ export default defineConfig(async () => ({
       ignored: ["**/src-tauri/**"],
     },
   },
+  build: {
+    // Desktop WebView loads from disk; default 500 kB warn is for websites.
+    // Current main chunk is ~533 kB (i18n + UI). Raise, don't split for show.
+    chunkSizeWarningLimit: 1024,
+  },
 }));
