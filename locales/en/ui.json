@@ -100,14 +100,20 @@
   },
   "stats": {
     "panel": "Stats",
-    "line": "Today · you can do this.",
+    "line": "Your focus · local only.",
     "close": "Close",
-    "empty": "No stats yet — start a focus rhythm.",
-    "aria": "Today’s stats",
+    "empty": "No focus time in this range yet — start a rhythm.",
+    "aria": "Focus statistics",
     "focusTime": "focus time",
     "cyclesFinished": "cycles finished",
     "sessions": "sessions",
-    "dayStreak": "day streak"
+    "dayStreak": "day streak",
+    "periodToday": "Today",
+    "period7": "7 days",
+    "period30": "30 days",
+    "periodAria": "Stats range",
+    "dailyBreakdown": "Daily focus",
+    "noFocusDay": "—"
   },
   "guide": {
     "panel": "Techniques guide",

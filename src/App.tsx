@@ -233,7 +233,7 @@ export default function App() {
       )}
 
       {view === "stats" && (
-        <StatsView stats={session.stats} onClose={closePanel} />
+        <StatsView streakFallback={session.stats?.streakDays ?? 0} onClose={closePanel} />
       )}
 
       {view === "guide" && (

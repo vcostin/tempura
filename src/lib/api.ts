@@ -5,6 +5,7 @@ import type {
   AppInfo,
   AppSettings,
   DayStats,
+  StatsRange,
   Technique,
   TechniqueInput,
   TimerSnapshot,
@@ -34,6 +35,7 @@ export const api = {
   getSystemLocale: () => invoke<string>("get_system_locale"),
 
   getStats: () => invoke<DayStats>("get_stats"),
+  getStatsRange: (days: number) => invoke<StatsRange>("get_stats_range", { days }),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
   debugTestNotification: () => invoke<void>("debug_test_notification"),
   requestQuit: () => invoke<void>("request_quit"),

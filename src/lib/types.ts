@@ -63,6 +63,24 @@ export interface DayStats {
   streakDays: number;
 }
 
+export interface DayBucket {
+  date: string;
+  focusSecs: number;
+  completedCycles: number;
+  sessions: number;
+}
+
+export interface StatsRange {
+  days: number;
+  focusSecs: number;
+  completedCycles: number;
+  sessions: number;
+  streakDays: number;
+  buckets: DayBucket[];
+}
+
+export type StatsPeriod = 1 | 7 | 30;
+
 export interface AppInfo {
   name: string;
   version: string;

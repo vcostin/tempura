@@ -1,4 +1,4 @@
-use crate::models::{AppSettings, DayStats, Technique, TechniqueInput, TechniqueKind};
+use crate::models::{AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind};
 use chrono::{Duration, Local, NaiveDate, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
 use std::path::Path;
@@ -525,6 +525,82 @@ impl Database {
         })
     }
 
+
+    /// Inclusive local-day window ending today (`days` = 1 today, 7 last week, 30 last month).
+    pub fn range_stats(&self, days: i64) -> DbResult<StatsRange> {
+        let days = days.clamp(1, 366);
+        let today = Local::now().date_naive();
+        let start_day = today - Duration::days(days - 1);
+        let start_local = start_day
+            .and_hms_opt(0, 0, 0)
+            .unwrap()
+            .and_local_timezone(Local)
+            .unwrap();
+        let start_utc = start_local.with_timezone(&Utc).to_rfc3339();
+
+        let mut stmt = self.conn.prepare(
+            "
+            SELECT started_at, focus_secs_completed, completed_cycles
+            FROM sessions
+            WHERE started_at >= ?1
+            ",
+        )?;
+        let rows: Vec<(String, i64, i64)> = stmt
+            .query_map(params![start_utc], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+            })?
+            .filter_map(|r| r.ok())
+            .collect();
+
+        use std::collections::HashMap;
+        let mut map: HashMap<NaiveDate, (i64, i64, i64)> = HashMap::new();
+        for (started_at, focus, cycles) in &rows {
+            let local_date = chrono::DateTime::parse_from_rfc3339(started_at)
+                .ok()
+                .map(|dt| dt.with_timezone(&Local).date_naive())
+                .or_else(|| {
+                    // Fallback: date prefix if timezone parse fails
+                    NaiveDate::parse_from_str(&started_at.chars().take(10).collect::<String>(), "%Y-%m-%d").ok()
+                });
+            let Some(d) = local_date else { continue };
+            if d < start_day || d > today {
+                continue;
+            }
+            let e = map.entry(d).or_insert((0, 0, 0));
+            e.0 += focus;
+            e.1 += cycles;
+            e.2 += 1;
+        }
+
+        let mut buckets = Vec::with_capacity(days as usize);
+        let mut focus_secs = 0i64;
+        let mut completed_cycles = 0i64;
+        let mut sessions = 0i64;
+        let mut cursor = start_day;
+        while cursor <= today {
+            let (f, c, s) = map.get(&cursor).copied().unwrap_or((0, 0, 0));
+            focus_secs += f;
+            completed_cycles += c;
+            sessions += s;
+            buckets.push(DayBucket {
+                date: cursor.format("%Y-%m-%d").to_string(),
+                focus_secs: f,
+                completed_cycles: c,
+                sessions: s,
+            });
+            cursor += Duration::days(1);
+        }
+
+        Ok(StatsRange {
+            days,
+            focus_secs,
+            completed_cycles,
+            sessions,
+            streak_days: self.compute_streak(today)?,
+            buckets,
+        })
+    }
+
     fn compute_streak(&self, today: NaiveDate) -> DbResult<i64> {
         let mut stmt = self.conn.prepare(
             "
@@ -566,5 +642,37 @@ impl Database {
             }
         }
         Ok(streak)
+    }
+}
+
+
+#[cfg(test)]
+mod range_stats_tests {
+    use super::*;
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn temp_db() -> Database {
+        let nanos = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-stats-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        Database::open(&path).expect("open temp db")
+    }
+
+    #[test]
+    fn range_stats_fills_empty_days() {
+        let db = temp_db();
+        let range = db.range_stats(7).expect("range");
+        assert_eq!(range.days, 7);
+        assert_eq!(range.buckets.len(), 7);
+        assert_eq!(range.focus_secs, 0);
+        assert_eq!(range.sessions, 0);
+    }
+
+    #[test]
+    fn range_stats_clamps_days() {
+        let db = temp_db();
+        assert_eq!(db.range_stats(0).unwrap().days, 1);
+        assert_eq!(db.range_stats(400).unwrap().days, 366);
+        assert_eq!(db.range_stats(400).unwrap().buckets.len(), 366);
     }
 }
