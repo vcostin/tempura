@@ -92,14 +92,20 @@
   },
   "stats": {
     "panel": "Statistiche",
-    "line": "Oggi · ce la puoi fare.",
+    "line": "Il tuo focus · solo locale.",
     "close": "Chiudi",
-    "empty": "Ancora nessuna statistica — avvia un ritmo di focus.",
-    "aria": "Statistiche di oggi",
+    "empty": "Ancora nessun tempo di focus in questo periodo — avvia un ritmo.",
+    "aria": "Statistiche di focus",
     "focusTime": "tempo di focus",
     "cyclesFinished": "cicli completati",
     "sessions": "sessioni",
-    "dayStreak": "giorni di fila"
+    "dayStreak": "giorni di fila",
+    "periodToday": "Oggi",
+    "period7": "7 giorni",
+    "period30": "30 giorni",
+    "periodAria": "Intervallo statistiche",
+    "dailyBreakdown": "Focus giornaliero",
+    "noFocusDay": "—"
   },
   "guide": {
     "panel": "Guida alle tecniche",

@@ -92,14 +92,20 @@
   },
   "stats": {
     "panel": "Stats",
-    "line": "Aujourd’hui · vous pouvez le faire.",
+    "line": "Votre focus · local seulement.",
     "close": "Fermer",
-    "empty": "Pas encore de stats — lancez un rythme de focus.",
-    "aria": "Stats du jour",
+    "empty": "Pas encore de temps de focus sur cette période — lancez un rythme.",
+    "aria": "Statistiques de focus",
     "focusTime": "temps de focus",
     "cyclesFinished": "cycles terminés",
     "sessions": "sessions",
-    "dayStreak": "jours d’affilée"
+    "dayStreak": "jours d’affilée",
+    "periodToday": "Aujourd’hui",
+    "period7": "7 jours",
+    "period30": "30 jours",
+    "periodAria": "Période des stats",
+    "dailyBreakdown": "Focus quotidien",
+    "noFocusDay": "—"
   },
   "guide": {
     "panel": "Guide des techniques",
