@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
 import { openFeedback } from "../lib/platform";
@@ -15,7 +15,7 @@ interface Props {
 
 export function AboutView(props: Props) {
   const { t } = useTranslation();
-  const [versionClicks, setVersionClicks] = useState(0);
+  const versionClicks = useRef(0);
 
   return (
     <ScrollPanel label={t("about.panel")}>
@@ -38,29 +38,24 @@ export function AboutView(props: Props) {
         <div className="privacy-note">
           <p style={{ margin: "0 0 0.5rem" }}>
             <strong>{props.info?.name ?? "Tempura"}</strong>
-            {props.info ? (
-              <>
-                {" · "}
-                <button
-                  type="button"
-                  className="linkish"
-                  style={{ padding: 0, font: "inherit", color: "inherit" }}
-                  title="Version"
-                  onClick={() => {
-                    if (isDebugAccessEnabled(props.info?.debug)) return;
-                    const next = versionClicks + 1;
-                    setVersionClicks(next);
-                    if (next >= 5) {
-                      enableDebugAccess();
-                      setVersionClicks(0);
-                      props.onDebugUnlocked?.();
-                    }
-                  }}
-                >
-                  v{props.info.version}
-                </button>
-              </>
-            ) : null}
+            {" · "}
+            <button
+              type="button"
+              className="linkish"
+              style={{ padding: 0, font: "inherit", color: "inherit" }}
+              title="Version"
+              onClick={() => {
+                if (isDebugAccessEnabled(props.info?.debug)) return;
+                versionClicks.current += 1;
+                if (versionClicks.current >= 5) {
+                  versionClicks.current = 0;
+                  enableDebugAccess();
+                  props.onDebugUnlocked?.();
+                }
+              }}
+            >
+              {props.info ? `v${props.info.version}` : "web"}
+            </button>
           </p>
           <p style={{ margin: 0 }}>{t("settings.privacy")}</p>
           <p style={{ margin: "0.75rem 0 0" }}>{t("settings.aboutBody")}</p>

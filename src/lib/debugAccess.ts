@@ -1,32 +1,42 @@
-/** Gates the Debug page entry. Always on in Vite/dev and Rust debug builds;
- * unlock in release with {@link enableDebugAccess} (e.g. version click in About). */
+/** Gates the Debug page entry. Hidden until unlocked with {@link enableDebugAccess}
+ * (five version clicks in About). Hide again from the Debug view. */
 
 const STORAGE_KEY = "tempura:debug";
+const HIDDEN_KEY = "tempura:debug-hidden";
 
-export function isDebugAccessEnabled(infoDebug?: boolean | null): boolean {
-  if (import.meta.env.DEV) return true;
-  if (infoDebug) return true;
+function readFlag(key: string): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
+    return localStorage.getItem(key) === "1";
   } catch {
     return false;
   }
 }
 
-export function enableDebugAccess(): void {
+function writeFlag(key: string, on: boolean): void {
   try {
-    localStorage.setItem(STORAGE_KEY, "1");
+    if (on) localStorage.setItem(key, "1");
+    else localStorage.removeItem(key);
   } catch {
     /* ignore quota / private mode */
   }
+}
+
+/** True when the beetle / Debug view should be available. */
+export function isDebugAccessEnabled(infoDebug?: boolean | null): boolean {
+  if (readFlag(HIDDEN_KEY)) return false;
+  if (import.meta.env.DEV) return true;
+  if (infoDebug) return true;
+  return readFlag(STORAGE_KEY);
+}
+
+export function enableDebugAccess(): void {
+  writeFlag(HIDDEN_KEY, false);
+  writeFlag(STORAGE_KEY, true);
   window.dispatchEvent(new CustomEvent("tempura:debug-access"));
 }
 
 export function disableDebugAccess(): void {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    /* ignore */
-  }
+  writeFlag(STORAGE_KEY, false);
+  writeFlag(HIDDEN_KEY, true);
   window.dispatchEvent(new CustomEvent("tempura:debug-access"));
 }
