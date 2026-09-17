@@ -100,6 +100,28 @@
     "close": "Chiudi",
     "feedbackOpened": "Aperto nel browser — controlla lì se la scheda non è venuta in primo piano."
   },
+  "updates": {
+    "title": "Aggiornamenti",
+    "panel": "Aggiornamento",
+    "line": "Una versione più recente è pronta.",
+    "close": "Non ora",
+    "currentVersion": "Questa versione è v{{version}}.",
+    "checkNow": "Controlla aggiornamenti",
+    "checking": "Controllo…",
+    "upToDate": "Sei già all’ultima versione.",
+    "available": "La versione {{version}} è pronta.",
+    "updateAndRestart": "Aggiorna e riavvia",
+    "skip": "Non ora",
+    "downloading": "Download… {{percent}}%",
+    "downloadingUnknown": "Download…",
+    "installing": "Installazione…",
+    "autoCheck": "Controlla aggiornamenti all’avvio di Tempura",
+    "autoCheckHint": "Resta silenzioso se sei già aggiornato.",
+    "privacy": "Il controllo chiede a GitHub l’ultima versione. Se aggiorni, l’installer si scarica da lì. Niente account, niente telemetria.",
+    "offline": "GitHub non è raggiungibile in questo momento. Riprova quando sei online.",
+    "error": "Impossibile controllare gli aggiornamenti.",
+    "installError": "Impossibile installare questo aggiornamento."
+  },
   "stats": {
     "panel": "Statistiche",
     "line": "Il tuo focus · solo locale.",

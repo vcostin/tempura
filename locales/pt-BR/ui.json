@@ -100,6 +100,28 @@
     "close": "Fechar",
     "feedbackOpened": "Aberto no navegador — olhe lá se a aba não veio para a frente."
   },
+  "updates": {
+    "title": "Atualizações",
+    "panel": "Atualização",
+    "line": "Uma versão mais nova está pronta.",
+    "close": "Agora não",
+    "currentVersion": "Esta versão é v{{version}}.",
+    "checkNow": "Verificar atualizações",
+    "checking": "Verificando…",
+    "upToDate": "Você já está na versão mais recente.",
+    "available": "A versão {{version}} está pronta.",
+    "updateAndRestart": "Atualizar e reiniciar",
+    "skip": "Agora não",
+    "downloading": "Baixando… {{percent}}%",
+    "downloadingUnknown": "Baixando…",
+    "installing": "Instalando…",
+    "autoCheck": "Verificar atualizações ao abrir o Tempura",
+    "autoCheckHint": "Fica quieto se você já está em dia.",
+    "privacy": "A verificação pergunta ao GitHub pela versão mais recente. Se você atualizar, o instalador vem de lá. Sem contas, sem telemetria.",
+    "offline": "Não foi possível alcançar o GitHub agora. Tente de novo quando estiver online.",
+    "error": "Não foi possível verificar atualizações.",
+    "installError": "Não foi possível instalar esta atualização."
+  },
   "stats": {
     "panel": "Estatísticas",
     "line": "Seu foco · só local.",

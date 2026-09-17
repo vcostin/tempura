@@ -10,6 +10,7 @@ import { TechniquesGuide } from "./components/TechniquesGuide";
 import { TimerView } from "./components/TimerView";
 import { useSession } from "./hooks/useSession";
 import { useSettings } from "./hooks/useSettings";
+import { useUpdater } from "./hooks/useUpdater";
 import { api } from "./lib/api";
 import { isDebugAccessEnabled } from "./lib/debugAccess";
 import { isDesktopShell, isTauri } from "./lib/platform";
@@ -45,6 +46,11 @@ export default function App() {
   const { t } = useTranslation();
   const session = useSession();
   const settingsApi = useSettings();
+  const updater = useUpdater({
+    ready: settingsApi.info != null,
+    autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
+    allowAutoOffer: settingsApi.info != null && !settingsApi.info.debug,
+  });
   const [view, setView] = useState<View>("timer");
   const [windowHidden, setWindowHidden] = useState(false);
   const [workingOn, setWorkingOn] = useState("");
@@ -52,6 +58,7 @@ export default function App() {
     isDebugAccessEnabled(settingsApi.info?.debug),
   );
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const updateOfferedRef = useRef(false);
   const panelOpen = view !== "timer";
 
   useEffect(() => {
@@ -85,7 +92,12 @@ export default function App() {
     });
   }, []);
 
-  const closePanel = useCallback(() => setView("timer"), []);
+  const closePanel = useCallback(() => {
+    setView((current) => {
+      if (current === "about" && updater.hasOffer) updater.skip();
+      return "timer";
+    });
+  }, [updater.hasOffer, updater.skip]);
 
   useLayoutEffect(() => {
     if (view !== "timer") return;
@@ -114,6 +126,12 @@ export default function App() {
     window.addEventListener("tempura:open-about", onOpen);
     return () => window.removeEventListener("tempura:open-about", onOpen);
   }, [openPanel]);
+
+  useEffect(() => {
+    if (!updater.hasOffer || updateOfferedRef.current) return;
+    updateOfferedRef.current = true;
+    if (view === "timer") openPanel("about");
+  }, [updater.hasOffer, view, openPanel]);
 
   useEffect(() => {
     const onDebugAccess = () => {
@@ -244,6 +262,20 @@ export default function App() {
             setDebugEnabled(true);
             openPanel("debug");
           }}
+          updater={
+            updater.available
+              ? {
+                  autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
+                  onToggleAutoCheck: () =>
+                    void settingsApi.patch({
+                      checkUpdatesOnLaunch: !settingsApi.settings.checkUpdatesOnLaunch,
+                    }),
+                  status: updater.status,
+                  onCheck: updater.check,
+                  onInstall: updater.install,
+                }
+              : undefined
+          }
         />
       )}
 

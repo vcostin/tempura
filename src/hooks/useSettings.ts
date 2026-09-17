@@ -21,6 +21,7 @@ const defaultSettings: AppSettings = {
   flowRatio: 0.2,
   workingOn: "",
   locale: "",
+  checkUpdatesOnLaunch: true,
 };
 
 async function systemLocale(): Promise<string> {

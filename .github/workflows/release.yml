@@ -113,11 +113,24 @@ jobs:
       - name: Install frontend dependencies
         run: deno install --frozen --allow-scripts
 
+      - name: Require updater signing key
+        shell: bash
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+            echo "::error::Add repo secret TAURI_SIGNING_PRIVATE_KEY (ed25519 private key from \`deno task tauri signer generate\`). Public half lives in src-tauri/tauri.conf.json."
+            exit 1
+          fi
+
       - uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NO_STRIP: "true"
           APPIMAGE_EXTRACT_AND_RUN: "1"
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           # Deno's task runner accepts VAR=value on every OS; npm scripts on Windows do not.
           tauriScript: deno task tauri
@@ -133,7 +146,9 @@ jobs:
           generateReleaseNotes: true
           releaseDraft: false
           prerelease: false
-          uploadUpdaterJson: false
+          uploadUpdaterJson: true
+          updaterJsonPreferNsis: true
+          uploadUpdaterSignatures: true
           retryAttempts: 3
           args: ${{ matrix.args }}
 

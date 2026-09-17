@@ -459,6 +459,40 @@ button {
   transform: scale(0.97);
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.hint {
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+
+.update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.update-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--bg2);
+  overflow: hidden;
+  margin-top: 0.55rem;
+}
+
+.update-progress > span {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
+
 .btn-primary {
   background: var(--accent);
   color: var(--on-accent);

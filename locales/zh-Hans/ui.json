@@ -100,6 +100,28 @@
     "close": "关闭",
     "feedbackOpened": "已在浏览器中打开。如果没有跳到前台，请去浏览器里查看。"
   },
+  "updates": {
+    "title": "更新",
+    "panel": "更新",
+    "line": "有新的构建可用。",
+    "close": "暂不",
+    "currentVersion": "当前构建是 v{{version}}。",
+    "checkNow": "检查更新",
+    "checking": "正在检查…",
+    "upToDate": "已是最新构建。",
+    "available": "版本 {{version}} 已就绪。",
+    "updateAndRestart": "更新并重启",
+    "skip": "暂不",
+    "downloading": "正在下载… {{percent}}%",
+    "downloadingUnknown": "正在下载…",
+    "installing": "正在安装…",
+    "autoCheck": "启动 Tempura 时检查更新",
+    "autoCheckHint": "已是最新时保持安静。",
+    "privacy": "检查会向 GitHub 询问最新版本。若你选择更新，安装包也从那里下载。没有账号，没有遥测。",
+    "offline": "现在连不上 GitHub。联网后再试。",
+    "error": "无法检查更新。",
+    "installError": "无法安装这次更新。"
+  },
   "stats": {
     "panel": "统计",
     "line": "你的专注 · 仅本地。",

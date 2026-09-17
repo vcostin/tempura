@@ -100,6 +100,28 @@
     "close": "Fermer",
     "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan."
   },
+  "updates": {
+    "title": "Mises à jour",
+    "panel": "Mise à jour",
+    "line": "Une version plus récente est prête.",
+    "close": "Pas maintenant",
+    "currentVersion": "Cette version est v{{version}}.",
+    "checkNow": "Vérifier les mises à jour",
+    "checking": "Vérification…",
+    "upToDate": "Vous êtes déjà à jour.",
+    "available": "La version {{version}} est prête.",
+    "updateAndRestart": "Mettre à jour et redémarrer",
+    "skip": "Pas maintenant",
+    "downloading": "Téléchargement… {{percent}} %",
+    "downloadingUnknown": "Téléchargement…",
+    "installing": "Installation…",
+    "autoCheck": "Vérifier les mises à jour au démarrage de Tempura",
+    "autoCheckHint": "Reste silencieux si vous êtes déjà à jour.",
+    "privacy": "La vérification demande à GitHub la dernière version. Si vous mettez à jour, l’installateur est téléchargé depuis GitHub. Pas de comptes, pas de télémétrie.",
+    "offline": "GitHub est injoignable pour le moment. Réessayez une fois en ligne.",
+    "error": "Impossible de vérifier les mises à jour.",
+    "installError": "Impossible d’installer cette mise à jour."
+  },
   "stats": {
     "panel": "Stats",
     "line": "Votre focus · local seulement.",

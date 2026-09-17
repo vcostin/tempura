@@ -4,7 +4,7 @@ const REPO = "vcostin/tempura";
 const RELEASES = `https://github.com/${REPO}/releases/latest`;
 const API = `https://api.github.com/repos/${REPO}/releases/latest`;
 
-const SKIP = /\.(sig|json|tar\.gz)$/i;
+const SKIP = /\.(sig|json|tar\.gz)$/i; // updater sidecars: .sig, latest.json, macOS .app.tar.gz
 
 /**
  * @typedef {{ os: 'linux' | 'windows' | 'macos', kind: string, arch: string, primary?: boolean }} Classified

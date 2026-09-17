@@ -100,6 +100,28 @@
     "close": "Cerrar",
     "feedbackOpened": "Se abrió en tu navegador — mira allí si la pestaña no salió al frente."
   },
+  "updates": {
+    "title": "Actualizaciones",
+    "panel": "Actualización",
+    "line": "Hay una versión más nueva lista.",
+    "close": "Ahora no",
+    "currentVersion": "Esta versión es v{{version}}.",
+    "checkNow": "Buscar actualizaciones",
+    "checking": "Buscando…",
+    "upToDate": "Ya estás en la última versión.",
+    "available": "La versión {{version}} está lista.",
+    "updateAndRestart": "Actualizar y reiniciar",
+    "skip": "Ahora no",
+    "downloading": "Descargando… {{percent}}%",
+    "downloadingUnknown": "Descargando…",
+    "installing": "Instalando…",
+    "autoCheck": "Buscar actualizaciones al abrir Tempura",
+    "autoCheckHint": "Se queda en silencio si ya estás al día.",
+    "privacy": "La comprobación pregunta a GitHub por la última versión. Si actualizas, el instalador se descarga de ahí. Sin cuentas, sin telemetría.",
+    "offline": "No se pudo llegar a GitHub ahora. Prueba de nuevo cuando estés en línea.",
+    "error": "No se pudieron buscar actualizaciones.",
+    "installError": "No se pudo instalar esta actualización."
+  },
   "stats": {
     "panel": "Estadísticas",
     "line": "Tu foco · solo local.",

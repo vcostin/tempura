@@ -100,6 +100,28 @@
     "close": "閉じる",
     "feedbackOpened": "ブラウザで開きました。前面に出てこない場合はブラウザを確認してください。"
   },
+  "updates": {
+    "title": "更新",
+    "panel": "更新",
+    "line": "新しいビルドの準備ができました。",
+    "close": "あとで",
+    "currentVersion": "このビルドは v{{version}} です。",
+    "checkNow": "更新を確認",
+    "checking": "確認中…",
+    "upToDate": "最新のビルドです。",
+    "available": "バージョン {{version}} の準備ができました。",
+    "updateAndRestart": "更新して再起動",
+    "skip": "あとで",
+    "downloading": "ダウンロード中… {{percent}}%",
+    "downloadingUnknown": "ダウンロード中…",
+    "installing": "インストール中…",
+    "autoCheck": "Tempura の起動時に更新を確認する",
+    "autoCheckHint": "すでに最新なら何も出しません。",
+    "privacy": "確認は GitHub に最新リリースを尋ねます。更新するとインストーラーもそこからダウンロードします。アカウントもテレメトリもありません。",
+    "offline": "いま GitHub に届きませんでした。オンラインになってからもう一度。",
+    "error": "更新を確認できませんでした。",
+    "installError": "この更新をインストールできませんでした。"
+  },
   "stats": {
     "panel": "統計",
     "line": "あなたのフォーカス · ローカルのみ。",
