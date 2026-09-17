@@ -17,6 +17,8 @@
     "statsTitle": "Stats",
     "settingsAria": "Réglages",
     "settingsTitle": "Réglages",
+    "aboutAria": "À propos",
+    "aboutTitle": "À propos",
     "bestFor": "Idéal pour : {{value}}",
     "learnMore": "En savoir plus",
     "cycle": " · cycle {{count}}",
@@ -88,7 +90,15 @@
     "version": " · v{{version}}",
     "privacy": "Vos données restent sur cette machine. Pas de comptes, pas de cloud, pas de sync.",
     "aboutBody": "Le SQLite local sous le dossier de données de l’app est la source de vérité. Fermer la fenêtre masque dans la zone de notification — quittez d’ici ou depuis le menu.",
-    "techniquesGuide": "Guide des techniques"
+    "techniquesGuide": "Guide des techniques",
+    "sendFeedback": "Envoyer un retour",
+    "openAbout": "À propos…"
+  },
+  "about": {
+    "panel": "À propos",
+    "line": "À propos · local, sur cette machine.",
+    "close": "Fermer",
+    "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan."
   },
   "stats": {
     "panel": "Stats",
@@ -153,6 +163,7 @@
     "statusReady": "Statut · Prêt",
     "statusRunning": "Statut · {{phase}} · {{time}}",
     "openSettings": "Ouvrir Réglages",
+    "about": "À propos",
     "quit": "Quitter",
     "tooltipReady": "Tempura · Prêt",
     "tooltipPaused": "Tempura · {{phase}} · En pause",

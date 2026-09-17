@@ -120,6 +120,56 @@ test.describe("a11y dialogs and landmarks", () => {
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });
 
+  test("toolbar About opens About dialog with feedback", async ({ page }) => {
+    await page.locator('[data-open-panel="about"]').click();
+    await page.waitForSelector('[role="dialog"][aria-label="About"]');
+    const aboutToolbar = await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return {
+        modal: d?.getAttribute("aria-modal"),
+        feedback: Boolean(
+          [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Send feedback"),
+        ),
+      };
+    });
+    expect(aboutToolbar.modal).toBe("true");
+    expect(aboutToolbar.feedback).toBe(true);
+    await page.evaluate(() => {
+      window.open = () => null;
+    });
+    await page.getByRole("button", { name: "Send feedback" }).click();
+    await expect(page.getByText(/Opened in your browser/)).toBeVisible();
+    await page.keyboard.press("Escape");
+    await page.waitForSelector('[role="dialog"]', { state: "detached" });
+  });
+
+  test("settings About link opens About dialog with feedback", async ({ page }) => {
+    await page.locator('[data-open-panel="settings"]').click();
+    await page.waitForSelector('[role="dialog"]');
+    await page.getByRole("button", { name: "About…" }).click();
+    await page.waitForSelector('[role="dialog"][aria-label="About"]');
+
+    const about = await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      const active = document.activeElement as HTMLElement | null;
+      return {
+        modal: d?.getAttribute("aria-modal"),
+        label: d?.getAttribute("aria-label"),
+        close: active?.hasAttribute("data-dialog-close"),
+        feedback: Boolean(
+          [...document.querySelectorAll("button")].find((b) => b.textContent?.trim() === "Send feedback"),
+        ),
+      };
+    });
+    expect(about.modal).toBe("true");
+    expect(about.label).toBe("About");
+    expect(about.close).toBe(true);
+    expect(about.feedback).toBe(true);
+
+    await page.keyboard.press("Escape");
+    await page.waitForSelector('[role="dialog"]', { state: "detached" });
+  });
+
   test("comma opens settings", async ({ page }) => {
     await page.locator("body").click();
     await page.keyboard.press(",");

@@ -32,21 +32,21 @@
 :root,
 [data-theme="batter"] {
   /* Icon palette: sage squircle, charcoal mark, golden batter, pink tip.
-     Accent / muted / danger tuned for WCAG AA body text (~4.5:1) and UI chrome (~3:1)
-     against --bg0 / --surface-solid without abandoning the warm batter look. */
+     --accent is the fried-gold from the mark (fills, glow, brand type).
+     --on-accent is dark so the primary button label stays AA on that gold. */
   --bg0: #d8e2da;
   --bg1: #e8efea;
   --bg2: #c5d1c8;
   --ink: #1e2a32;
   --ink-muted: #53645f;
-  --accent: #8f4f18;
-  --accent-soft: rgba(143, 79, 24, 0.16);
-  --on-accent: #ffffff;
-  --ring: #a86220;
+  --accent: #c47a2c;
+  --accent-soft: rgba(196, 122, 44, 0.16);
+  --on-accent: #1a242c;
+  --ring: #d4924a;
   --surface: rgba(255, 255, 255, 0.55);
   --surface-solid: #f4f8f5;
   --danger: #9c4555;
-  --glow: radial-gradient(ellipse at 28% 18%, rgba(143, 79, 24, 0.22), transparent 55%),
+  --glow: radial-gradient(ellipse at 28% 18%, rgba(196, 122, 44, 0.22), transparent 55%),
     radial-gradient(ellipse at 82% 78%, rgba(156, 69, 85, 0.14), transparent 50%),
     linear-gradient(165deg, #d8e2da 0%, #c5d1c8 100%);
   --texture: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
@@ -297,11 +297,13 @@ button {
 
 .brand-lockup {
   min-width: 0;
+  flex: 1 1 auto;
 }
 
 .brand-actions {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: 0.35rem;
   flex-shrink: 0;
 }
 
@@ -311,9 +313,9 @@ button {
 
 .top-bar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.75rem;
   margin-bottom: 1.5rem;
 }
 
@@ -992,8 +994,8 @@ button {
 }
 
 .theme-swatch[data-theme-preview="batter"] {
-  /* Warm accent-first so it stays visible on sage Batter UI */
-  background: linear-gradient(145deg, #8f4f18 0%, #d8e2da 55%, #9c4555 100%);
+  /* Gold-first so it stays visible on sage Batter UI */
+  background: linear-gradient(145deg, #c47a2c 0%, #d8e2da 55%, #9c4555 100%);
   color: #1e2a32;
 }
 

@@ -1,5 +1,8 @@
 /** Desktop shell helpers — gated so core UI stays mobile-ready. */
 
+/** Pinned GitHub Feedback discussion. */
+export const FEEDBACK_URL = "https://github.com/vcostin/tempura/discussions/5";
+
 export function isTauri(): boolean {
   return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
 }
@@ -40,4 +43,18 @@ export async function getAutostartEnabled(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/** Open the Feedback discussion in the system browser (no telemetry, no in-app form). */
+export async function openFeedback(): Promise<void> {
+  try {
+    if (isTauri()) {
+      const { openUrl } = await import("@tauri-apps/plugin-opener");
+      await openUrl(FEEDBACK_URL);
+      return;
+    }
+  } catch {
+    /* fall through to window.open (Vite shell / missing opener) */
+  }
+  window.open(FEEDBACK_URL, "_blank", "noopener,noreferrer");
 }

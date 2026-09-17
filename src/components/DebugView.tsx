@@ -106,18 +106,16 @@ export function DebugView(props: Props) {
         )}
       </section>
 
-      {!import.meta.env.DEV && !props.info?.debug && (
-        <section className="section">
-          <h2>Access</h2>
-          <p className="hint">
-            Debug was unlocked in this release build (version clicks in About).
-            You can hide the beetle entry again until the next unlock.
-          </p>
-          <button type="button" className="btn btn-ghost" onClick={hideDebugEntry}>
-            Hide debug entry
-          </button>
-        </section>
-      )}
+      <section className="section">
+        <h2>Access</h2>
+        <p className="hint">
+          Hide the beetle on the timer. Click the version number in About five
+          times to show it again.
+        </p>
+        <button type="button" className="btn btn-ghost" onClick={hideDebugEntry}>
+          Hide debug entry
+        </button>
+      </section>
     </ScrollPanel>
   );
 }

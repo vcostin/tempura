@@ -25,6 +25,8 @@
     "statsTitle": "Stats",
     "settingsAria": "Settings",
     "settingsTitle": "Settings",
+    "aboutAria": "About",
+    "aboutTitle": "About",
     "bestFor": "Best for: {{value}}",
     "learnMore": "Learn more",
     "cycle": " · cycle {{count}}",
@@ -96,7 +98,15 @@
     "version": " · v{{version}}",
     "privacy": "Your data stays on this machine. No accounts, no cloud, no sync.",
     "aboutBody": "Local SQLite under your app data folder is the source of truth. Closing the window hides to the tray — quit from here or the tray menu.",
-    "techniquesGuide": "Techniques guide"
+    "techniquesGuide": "Techniques guide",
+    "sendFeedback": "Send feedback",
+    "openAbout": "About…"
+  },
+  "about": {
+    "panel": "About",
+    "line": "About · local, on this machine.",
+    "close": "Close",
+    "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward."
   },
   "stats": {
     "panel": "Stats",
@@ -161,6 +171,7 @@
     "statusReady": "Status · Ready",
     "statusRunning": "Status · {{phase}} · {{time}}",
     "openSettings": "Open Settings",
+    "about": "About",
     "quit": "Quit",
     "tooltipReady": "Tempura · Ready",
     "tooltipPaused": "Tempura · {{phase}} · Paused",

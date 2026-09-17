@@ -17,6 +17,8 @@
     "statsTitle": "Statistici",
     "settingsAria": "Setări",
     "settingsTitle": "Setări",
+    "aboutAria": "Despre",
+    "aboutTitle": "Despre",
     "bestFor": "Bun pentru: {{value}}",
     "learnMore": "Află mai mult",
     "cycle": " · ciclul {{count}}",
@@ -89,7 +91,15 @@
     "version": " · v{{version}}",
     "privacy": "Datele rămân pe această mașină. Fără conturi, fără cloud, fără sync.",
     "aboutBody": "SQLite local din folderul de date al aplicației e sursa adevărului. Închiderea ferestrei ascunde în tavă — ieși de aici sau din meniul tăvii.",
-    "techniquesGuide": "Ghid de tehnici"
+    "techniquesGuide": "Ghid de tehnici",
+    "sendFeedback": "Trimite feedback",
+    "openAbout": "Despre…"
+  },
+  "about": {
+    "panel": "Despre",
+    "line": "Despre · local, pe această mașină.",
+    "close": "Închide",
+    "feedbackOpened": "S-a deschis în browser — uită-te acolo dacă tab-ul n-a venit în față."
   },
   "stats": {
     "panel": "Statistici",
@@ -154,6 +164,7 @@
     "statusReady": "Stare · Pregătit",
     "statusRunning": "Stare · {{phase}} · {{time}}",
     "openSettings": "Deschide Setări",
+    "about": "Despre",
     "quit": "Ieșire",
     "tooltipReady": "Tempura · Pregătit",
     "tooltipPaused": "Tempura · {{phase}} · Pauză",

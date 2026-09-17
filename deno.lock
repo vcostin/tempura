@@ -1,6 +1,8 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.14",
     "npm:@fontsource-variable/noto-sans-arabic@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans-hebrew@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans-jp@^5.2.10": "5.3.0",
@@ -9,9 +11,11 @@
     "npm:@fontsource-variable/noto-sans@^5.2.10": "5.3.0",
     "npm:@playwright/test@1.60.0": "1.60.0",
     "npm:@tauri-apps/api@2": "2.11.1",
+    "npm:@tauri-apps/cli@*": "2.11.4",
     "npm:@tauri-apps/cli@2": "2.11.4",
     "npm:@tauri-apps/plugin-autostart@^2.5.1": "2.5.1",
     "npm:@tauri-apps/plugin-notification@^2.3.3": "2.3.3",
+    "npm:@tauri-apps/plugin-opener@2": "2.5.4",
     "npm:@types/react-dom@^19.1.6": "19.3.0_@types+react@19.3.0",
     "npm:@types/react@^19.1.8": "19.3.0",
     "npm:@vitejs/plugin-react@^4.6.0": "4.7.0_vite@7.3.6",
@@ -22,6 +26,17 @@
     "npm:typescript@~5.8.3": "5.8.3",
     "npm:vite@*": "7.3.6",
     "npm:vite@^7.0.4": "7.3.6"
+  },
+  "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    }
   },
   "npm": {
     "@babel/code-frame@7.29.7": {
@@ -561,6 +576,12 @@
         "@tauri-apps/api"
       ]
     },
+    "@tauri-apps/plugin-opener@2.5.4": {
+      "integrity": "sha512-1HnPkb+AmgO29HBazm4uPLKB+r7zzcTBW1d0fyYp1uP+jwtpoiNDGKMMzz58SFp49nOIrxdE3aUJtT57lfO9CQ==",
+      "dependencies": [
+        "@tauri-apps/api"
+      ]
+    },
     "@types/babel__core@7.20.5": {
       "integrity": "sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==",
       "dependencies": [
@@ -906,6 +927,7 @@
         "npm:@tauri-apps/cli@2",
         "npm:@tauri-apps/plugin-autostart@^2.5.1",
         "npm:@tauri-apps/plugin-notification@^2.3.3",
+        "npm:@tauri-apps/plugin-opener@2",
         "npm:@types/react-dom@^19.1.6",
         "npm:@types/react@^19.1.8",
         "npm:@vitejs/plugin-react@^4.6.0",

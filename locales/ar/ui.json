@@ -17,6 +17,8 @@
     "statsTitle": "إحصاءات",
     "settingsAria": "الإعدادات",
     "settingsTitle": "الإعدادات",
+    "aboutAria": "حول",
+    "aboutTitle": "حول",
     "bestFor": "الأنسب لـ: {{value}}",
     "learnMore": "اعرف المزيد",
     "cycle": " · الدورة {{count}}",
@@ -92,7 +94,15 @@
     "version": " · v{{version}}",
     "privacy": "بياناتك تبقى على هذا الجهاز. بلا حسابات، بلا سحابة، بلا مزامنة.",
     "aboutBody": "SQLite المحلي تحت مجلد بيانات التطبيق هو مصدر الحقيقة. إغلاق النافذة يخفيها في الصينية — اخرج من هنا أو من قائمة الصينية.",
-    "techniquesGuide": "دليل التقنيات"
+    "techniquesGuide": "دليل التقنيات",
+    "sendFeedback": "إرسال ملاحظات",
+    "openAbout": "حول…"
+  },
+  "about": {
+    "panel": "حول",
+    "line": "حول · محلي، على هذا الجهاز.",
+    "close": "إغلاق",
+    "feedbackOpened": "فُتح في المتصفح — تحقق هناك إن لم تظهر علامة التبويب في المقدمة."
   },
   "stats": {
     "panel": "إحصاءات",
@@ -157,6 +167,7 @@
     "statusReady": "الحالة · جاهز",
     "statusRunning": "الحالة · {{phase}} · {{time}}",
     "openSettings": "فتح الإعدادات",
+    "about": "حول",
     "quit": "خروج",
     "tooltipReady": "Tempura · جاهز",
     "tooltipPaused": "Tempura · {{phase}} · متوقف",

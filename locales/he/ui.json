@@ -17,6 +17,8 @@
     "statsTitle": "סטטיסטיקות",
     "settingsAria": "הגדרות",
     "settingsTitle": "הגדרות",
+    "aboutAria": "אודות",
+    "aboutTitle": "אודות",
     "bestFor": "הכי מתאים ל: {{value}}",
     "learnMore": "למידע נוסף",
     "cycle": " · מחזור {{count}}",
@@ -89,7 +91,15 @@
     "version": " · v{{version}}",
     "privacy": "הנתונים נשארים במכונה הזאת. בלי חשבונות, בלי ענן, בלי סנכרון.",
     "aboutBody": "SQLite מקומי תחת תיקיית נתוני האפליקציה הוא מקור האמת. סגירת החלון מסתירה למגש — צאו מכאן או מתפריט המגש.",
-    "techniquesGuide": "מדריך טכניקות"
+    "techniquesGuide": "מדריך טכניקות",
+    "sendFeedback": "שלח משוב",
+    "openAbout": "אודות…"
+  },
+  "about": {
+    "panel": "אודות",
+    "line": "אודות · מקומי, במכונה הזאת.",
+    "close": "סגירה",
+    "feedbackOpened": "נפתח בדפדפן — בדקו שם אם הלשונית לא עלתה לחזית."
   },
   "stats": {
     "panel": "סטטיסטיקות",
@@ -154,6 +164,7 @@
     "statusReady": "סטטוס · מוכן",
     "statusRunning": "סטטוס · {{phase}} · {{time}}",
     "openSettings": "פתיחת הגדרות",
+    "about": "אודות",
     "quit": "יציאה",
     "tooltipReady": "Tempura · מוכן",
     "tooltipPaused": "Tempura · {{phase}} · מושהה",

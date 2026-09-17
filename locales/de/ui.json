@@ -17,6 +17,8 @@
     "statsTitle": "Statistik",
     "settingsAria": "Einstellungen",
     "settingsTitle": "Einstellungen",
+    "aboutAria": "Über",
+    "aboutTitle": "Über",
     "bestFor": "Gut für: {{value}}",
     "learnMore": "Mehr erfahren",
     "cycle": " · Zyklus {{count}}",
@@ -88,7 +90,15 @@
     "version": " · v{{version}}",
     "privacy": "Deine Daten bleiben auf diesem Rechner. Keine Konten, keine Cloud, kein Sync.",
     "aboutBody": "Lokales SQLite unter deinem App-Datenordner ist die Quelle der Wahrheit. Das Fenster schließen versteckt in den Tray — beenden hier oder im Tray-Menü.",
-    "techniquesGuide": "Technikführer"
+    "techniquesGuide": "Technikführer",
+    "sendFeedback": "Feedback senden",
+    "openAbout": "Über…"
+  },
+  "about": {
+    "panel": "Über",
+    "line": "Über · lokal, auf diesem Rechner.",
+    "close": "Schließen",
+    "feedbackOpened": "Im Browser geöffnet — schau dort nach, falls kein Tab nach vorn kam."
   },
   "stats": {
     "panel": "Statistik",
@@ -153,6 +163,7 @@
     "statusReady": "Status · Bereit",
     "statusRunning": "Status · {{phase}} · {{time}}",
     "openSettings": "Einstellungen öffnen",
+    "about": "Über",
     "quit": "Beenden",
     "tooltipReady": "Tempura · Bereit",
     "tooltipPaused": "Tempura · {{phase}} · Pausiert",

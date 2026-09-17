@@ -17,6 +17,8 @@
     "statsTitle": "통계",
     "settingsAria": "설정",
     "settingsTitle": "설정",
+    "aboutAria": "정보",
+    "aboutTitle": "정보",
     "bestFor": "적합한 경우: {{value}}",
     "learnMore": "더 보기",
     "cycle": " · 사이클 {{count}}",
@@ -88,7 +90,15 @@
     "version": " · v{{version}}",
     "privacy": "데이터는 이 기기에 남습니다. 계정 없음, 클라우드 없음, 동기화 없음.",
     "aboutBody": "앱 데이터 폴더의 로컬 SQLite가 진실의 원천입니다. 창을 닫으면 트레이로 숨습니다. 종료는 여기 또는 트레이 메뉴에서.",
-    "techniquesGuide": "기법 가이드"
+    "techniquesGuide": "기법 가이드",
+    "sendFeedback": "피드백 보내기",
+    "openAbout": "정보…"
+  },
+  "about": {
+    "panel": "정보",
+    "line": "정보 · 이 기기에 남습니다.",
+    "close": "닫기",
+    "feedbackOpened": "브라우저에서 열었습니다. 앞으로 나오지 않으면 브라우저를 확인하세요."
   },
   "stats": {
     "panel": "통계",
@@ -153,6 +163,7 @@
     "statusReady": "상태 · 준비됨",
     "statusRunning": "상태 · {{phase}} · {{time}}",
     "openSettings": "설정 열기",
+    "about": "정보",
     "quit": "종료",
     "tooltipReady": "Tempura · 준비됨",
     "tooltipPaused": "Tempura · {{phase}} · 일시정지",

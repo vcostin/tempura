@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { getCurrentWindow } from "@tauri-apps/api/window";
+import { AboutView } from "./components/AboutView";
 import { DebugView } from "./components/DebugView";
 import { SessionAnnouncer } from "./components/SessionAnnouncer";
 import { SettingsView } from "./components/SettingsView";
@@ -15,13 +16,14 @@ import { isDesktopShell, isTauri } from "./lib/platform";
 import "./styles/fonts.css";
 import "./styles/global.css";
 
-type View = "timer" | "settings" | "stats" | "guide" | "debug";
+type View = "timer" | "settings" | "stats" | "guide" | "debug" | "about";
 
 const PANEL_OPENER: Record<Exclude<View, "timer">, string> = {
   settings: '[data-open-panel="settings"]',
   stats: '[data-open-panel="stats"]',
   guide: '[data-open-panel="guide"]',
   debug: '[data-open-panel="debug"]',
+  about: '[data-open-panel="about"]',
 };
 
 function isTypingTarget(el: EventTarget | null): boolean {
@@ -105,6 +107,12 @@ export default function App() {
     const onOpen = () => openPanel("settings");
     window.addEventListener("tempura:open-settings", onOpen);
     return () => window.removeEventListener("tempura:open-settings", onOpen);
+  }, [openPanel]);
+
+  useEffect(() => {
+    const onOpen = () => openPanel("about");
+    window.addEventListener("tempura:open-about", onOpen);
+    return () => window.removeEventListener("tempura:open-about", onOpen);
   }, [openPanel]);
 
   useEffect(() => {
@@ -198,6 +206,7 @@ export default function App() {
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
           onOpenGuide={() => openPanel("guide")}
+          onOpenAbout={() => openPanel("about")}
           onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />
       </div>
@@ -212,16 +221,11 @@ export default function App() {
           autostart={settingsApi.autostart}
           autostartAvailable={settingsApi.autostartAvailable}
           onToggleAutostart={settingsApi.toggleAutostart}
-          info={settingsApi.info}
           onCreateTechnique={settingsApi.createTechnique}
           onUpdateTechnique={settingsApi.updateTechnique}
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
-          onOpenGuide={() => openPanel("guide")}
-          onDebugUnlocked={() => {
-            setDebugEnabled(true);
-            openPanel("debug");
-          }}
+          onOpenAbout={() => openPanel("about")}
           onQuit={
             settingsApi.desktop
               ? () => {
@@ -229,6 +233,17 @@ export default function App() {
                 }
               : undefined
           }
+        />
+      )}
+
+      {view === "about" && (
+        <AboutView
+          info={settingsApi.info}
+          onClose={closePanel}
+          onDebugUnlocked={() => {
+            setDebugEnabled(true);
+            openPanel("debug");
+          }}
         />
       )}
 

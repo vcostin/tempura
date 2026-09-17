@@ -17,6 +17,8 @@
     "statsTitle": "Statistieken",
     "settingsAria": "Instellingen",
     "settingsTitle": "Instellingen",
+    "aboutAria": "Over",
+    "aboutTitle": "Over",
     "bestFor": "Goed voor: {{value}}",
     "learnMore": "Meer weten",
     "cycle": " · cyclus {{count}}",
@@ -88,7 +90,15 @@
     "version": " · v{{version}}",
     "privacy": "Je gegevens blijven op deze machine. Geen accounts, geen cloud, geen sync.",
     "aboutBody": "Lokale SQLite onder je app-datamap is de bron van waarheid. Het venster sluiten verbergt naar het vak — sluit hier of via het vakmenu af.",
-    "techniquesGuide": "Techniekengids"
+    "techniquesGuide": "Techniekengids",
+    "sendFeedback": "Feedback versturen",
+    "openAbout": "Over…"
+  },
+  "about": {
+    "panel": "Over",
+    "line": "Over · lokaal, op deze machine.",
+    "close": "Sluiten",
+    "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam."
   },
   "stats": {
     "panel": "Statistieken",
@@ -153,6 +163,7 @@
     "statusReady": "Status · Klaar",
     "statusRunning": "Status · {{phase}} · {{time}}",
     "openSettings": "Open Instellingen",
+    "about": "Over",
     "quit": "Afsluiten",
     "tooltipReady": "Tempura · Klaar",
     "tooltipPaused": "Tempura · {{phase}} · Gepauzeerd",

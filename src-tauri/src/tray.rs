@@ -34,6 +34,7 @@ struct TrayMenuItems {
     toggle: MenuItem<tauri::Wry>,
     skip: MenuItem<tauri::Wry>,
     settings: MenuItem<tauri::Wry>,
+    about: MenuItem<tauri::Wry>,
     quit: MenuItem<tauri::Wry>,
 }
 
@@ -167,6 +168,13 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         true,
         None::<&str>,
     )?;
+    let about = MenuItem::with_id(
+        app,
+        "about",
+        crate::i18n::t(&locale, "tray.about"),
+        true,
+        None::<&str>,
+    )?;
     let sep3 = PredefinedMenuItem::separator(app)?;
     let quit = MenuItem::with_id(
         app,
@@ -178,7 +186,18 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
 
     let menu = Menu::with_items(
         app,
-        &[&visibility, &sep1, &status, &toggle, &skip, &sep2, &settings, &sep3, &quit],
+        &[
+            &visibility,
+            &sep1,
+            &status,
+            &toggle,
+            &skip,
+            &sep2,
+            &settings,
+            &about,
+            &sep3,
+            &quit,
+        ],
     )?;
 
     app.manage(TrayMenuItems {
@@ -187,6 +206,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         toggle,
         skip,
         settings,
+        about,
         quit,
     });
 
@@ -240,6 +260,10 @@ fn handle_menu(app: &AppHandle, id: &str) {
             restore_main(app);
             let _ = app.emit("open-settings", ());
         }
+        "about" => {
+            restore_main(app);
+            let _ = app.emit("open-about", ());
+        }
         "quit" => {
             let engine = app.state::<EngineHandle>();
             engine.set_allow_quit(true);
@@ -279,6 +303,7 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     let _ = items
         .settings
         .set_text(crate::i18n::t(&locale, "tray.openSettings"));
+    let _ = items.about.set_text(crate::i18n::t(&locale, "tray.about"));
     let _ = items.quit.set_text(crate::i18n::t(&locale, "tray.quit"));
 }
 
