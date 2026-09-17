@@ -50,6 +50,7 @@ pub fn run() {
             commands::get_system_locale,
             commands::update_settings,
             commands::get_stats,
+            commands::get_stats_range,
             commands::get_app_info,
             commands::debug_test_notification,
             commands::request_quit,

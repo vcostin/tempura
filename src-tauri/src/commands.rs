@@ -1,7 +1,7 @@
 use crate::db::Database;
 use crate::engine::EngineHandle;
 use crate::models::{
-    validate_id, AppInfo, AppSettings, DayStats, Technique, TechniqueInput, TimerSnapshot,
+    validate_id, AppInfo, AppSettings, DayStats, StatsRange, Technique, TechniqueInput, TimerSnapshot,
 };
 use parking_lot::Mutex;
 use tauri::{AppHandle, Emitter, State};
@@ -159,6 +159,11 @@ pub fn update_settings(
 #[tauri::command]
 pub fn get_stats(state: State<'_, AppState>) -> Result<DayStats, String> {
     state.db.lock().day_stats().map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub fn get_stats_range(state: State<'_, AppState>, days: i64) -> Result<StatsRange, String> {
+    state.db.lock().range_stats(days).map_err(|e| e.to_string())
 }
 
 #[tauri::command]

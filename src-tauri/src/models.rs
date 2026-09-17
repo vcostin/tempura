@@ -286,6 +286,28 @@ pub struct DayStats {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct DayBucket {
+    /// Local calendar date `YYYY-MM-DD`.
+    pub date: String,
+    pub focus_secs: i64,
+    pub completed_cycles: i64,
+    pub sessions: i64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StatsRange {
+    /// Inclusive day count ending today (1 = today, 7 = last week, 30 = last month).
+    pub days: i64,
+    pub focus_secs: i64,
+    pub completed_cycles: i64,
+    pub sessions: i64,
+    pub streak_days: i64,
+    pub buckets: Vec<DayBucket>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppInfo {
     pub name: String,
     pub version: String,

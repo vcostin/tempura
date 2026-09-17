@@ -92,14 +92,21 @@
   },
   "stats": {
     "panel": "Estadísticas",
-    "line": "Hoy · tú puedes.",
+    "line": "Tu foco · solo local.",
     "close": "Cerrar",
-    "empty": "Aún no hay estadísticas — empieza un ritmo de foco.",
-    "aria": "Estadísticas de hoy",
+    "empty": "Aún no hay tiempo de foco en este rango — empieza un ritmo.",
+    "loading": "Cargando este rango…",
+    "aria": "Estadísticas de foco",
     "focusTime": "tiempo de foco",
     "cyclesFinished": "ciclos terminados",
     "sessions": "sesiones",
-    "dayStreak": "días seguidos"
+    "dayStreak": "días seguidos",
+    "periodToday": "Hoy",
+    "period7": "7 días",
+    "period30": "30 días",
+    "periodAria": "Rango de estadísticas",
+    "dailyBreakdown": "Foco diario",
+    "noFocusDay": "—"
   },
   "guide": {
     "panel": "Guía de técnicas",
@@ -220,5 +227,13 @@
     "footerReleases": "Todas las versiones",
     "footerTwemoji": "Marca del camarón adaptada de",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Foco iniciado.",
+    "short_break": "Descanso corto iniciado.",
+    "long_break": "Descanso largo iniciado.",
+    "paused": "Temporizador en pausa.",
+    "resumed": "Temporizador reanudado.",
+    "stopped": "Temporizador detenido."
   }
 }

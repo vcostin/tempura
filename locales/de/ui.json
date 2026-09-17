@@ -38,8 +38,12 @@
     "cycles_other": "Zyklen",
     "dayStreak": "Tage in Folge"
   },
-  "picker": { "aria": "Fokustechnik" },
-  "scroll": { "more": "Weiter scrollen" },
+  "picker": {
+    "aria": "Fokustechnik"
+  },
+  "scroll": {
+    "more": "Weiter scrollen"
+  },
   "settings": {
     "panel": "Einstellungen",
     "line": "Einstellungen · hier geht mehr.",
@@ -88,14 +92,21 @@
   },
   "stats": {
     "panel": "Statistik",
-    "line": "Heute · du schaffst das.",
+    "line": "Dein Fokus · nur lokal.",
     "close": "Schließen",
-    "empty": "Noch keine Statistik — starte einen Fokus-Rhythmus.",
-    "aria": "Heutige Statistik",
+    "empty": "Noch keine Fokuszeit in diesem Zeitraum — starte einen Rhythmus.",
+    "loading": "Zeitraum wird geladen…",
+    "aria": "Fokusstatistik",
     "focusTime": "Fokuszeit",
     "cyclesFinished": "Zyklen fertig",
     "sessions": "Sitzungen",
-    "dayStreak": "Tage in Folge"
+    "dayStreak": "Tage in Folge",
+    "periodToday": "Heute",
+    "period7": "7 Tage",
+    "period30": "30 Tage",
+    "periodAria": "Statistikzeitraum",
+    "dailyBreakdown": "Täglicher Fokus",
+    "noFocusDay": "—"
   },
   "guide": {
     "panel": "Technikführer",
@@ -216,5 +227,13 @@
     "footerReleases": "Alle Releases",
     "footerTwemoji": "Shrimp-Marke nach",
     "footerLicense": "(CC-BY 4.0)."
+  },
+  "announce": {
+    "focus": "Fokus gestartet.",
+    "short_break": "Kurze Pause gestartet.",
+    "long_break": "Lange Pause gestartet.",
+    "paused": "Timer pausiert.",
+    "resumed": "Timer fortgesetzt.",
+    "stopped": "Timer gestoppt."
   }
 }
