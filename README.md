@@ -27,6 +27,8 @@ deno install
 deno task tauri:dev
 ```
 
+If Ctrl+C leaves Vite on port 1420, `deno task free-dev-port` stops that leftover only (not whatever else might be bound there). `tauri:dev` does the same check first.
+
 ## Features
 
 - **Techniques**: Classic (25/5), Sprint (15/3), Deep (50/10), 52/17, Ultradian (90/20), Flowtime, Hybrid, plus custom rhythms
