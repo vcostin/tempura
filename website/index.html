@@ -9,10 +9,12 @@
       content="Premium focus-rhythm timer for desktop. Structured intervals, flexible flow, local-first. No accounts, no cloud, no sync."
     />
     <meta name="theme-color" content="#d8e2da" />
+    <!-- JSON-LD hash — keep in sync via test / scripts/sync-website-csp.ts -->
     <meta
       http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'; object-src 'none'"
+      content="default-src 'self'; script-src 'self' 'sha256-0ge3ZJtOZCADtbqzjBPp9UpFcgWokM/L8AkhldJ1JeE='; style-src 'self'; font-src 'self'; img-src 'self' data:; connect-src 'self' https://api.github.com; base-uri 'self'; form-action 'self'; object-src 'none'"
     />
+    <link rel="canonical" href="https://vcostin.github.io/tempura/" />
     <link rel="icon" type="image/svg+xml" href="./icon.svg" />
     <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32.png" />
     <link rel="apple-touch-icon" href="./favicon.png" />
@@ -21,9 +23,17 @@
       property="og:description"
       content="Premium focus-rhythm timer for desktop. Local-first, tray-native, no accounts."
     />
+    <meta property="og:url" content="https://vcostin.github.io/tempura/" />
     <meta property="og:image" content="https://vcostin.github.io/tempura/shots/timer.png" />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Tempura — Timing that crisps." />
+    <meta
+      name="twitter:description"
+      content="Premium focus-rhythm timer for desktop. Local-first, tray-native, no accounts."
+    />
+    <meta name="twitter:image" content="https://vcostin.github.io/tempura/shots/timer.png" />
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Tempura","url":"https://vcostin.github.io/tempura/","description":"Premium focus-rhythm timer for desktop. Structured intervals, flexible flow, local-first. No accounts, no cloud, no sync.","applicationCategory":"UtilitiesApplication","operatingSystem":"Linux, Windows, macOS","downloadUrl":"https://github.com/vcostin/tempura/releases/latest"}</script>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -39,7 +49,7 @@
         <div class="nav-links">
           <a href="#techniques" data-i18n="site.navTechniques">Techniques</a>
           <a href="#download" data-i18n="site.navDownload">Download</a>
-          <a href="https://github.com/vcostin/tempura">GitHub</a>
+          <a href="https://github.com/vcostin/tempura"><bdi>GitHub</bdi></a>
           <label class="lang-switch">
             <span class="visually-hidden" data-i18n="site.language">Language</span>
             <select id="lang-select"></select>
