@@ -84,6 +84,7 @@ fn run_opener(cmd: &mut Command, label: &str) -> Result<(), String> {
 
 /// Strip AppImage/AppRun prefixes so the host `xdg-open` sees a normal desktop env.
 /// No-op when `APPDIR` is unset (`tauri dev`).
+#[cfg(target_os = "linux")]
 pub fn sanitize_linux_opener_env(cmd: &mut Command) {
     let Some(appdir) = std::env::var_os("APPDIR") else {
         return;
@@ -142,6 +143,7 @@ pub fn sanitize_linux_opener_env(cmd: &mut Command) {
     }
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub fn strip_appdir_prefixes(value: &str, appdir: &str) -> String {
     value
         .split(':')
