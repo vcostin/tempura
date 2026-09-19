@@ -178,6 +178,8 @@ pub fn get_app_info() -> AppInfo {
 }
 
 /// Fires a sample OS notification through the same path as phase alerts.
+/// Release builds omit this command — UI hiding is not IPC lockdown.
+#[cfg(debug_assertions)]
 #[tauri::command]
 pub fn debug_test_notification(
     app: AppHandle,

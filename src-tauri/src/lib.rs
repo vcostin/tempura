@@ -34,33 +34,48 @@ pub fn run() {
             .plugin(tauri_plugin_process::init());
     }
 
+    macro_rules! tempura_invoke_handler {
+        ($($extra:path),* $(,)?) => {
+            tauri::generate_handler![
+                commands::get_timer_state,
+                commands::timer_start,
+                commands::timer_pause,
+                commands::timer_resume,
+                commands::timer_skip,
+                commands::timer_reset,
+                commands::timer_stop,
+                commands::timer_continue_flow,
+                commands::list_techniques,
+                commands::get_technique,
+                commands::create_technique,
+                commands::update_technique,
+                commands::delete_technique,
+                commands::get_settings,
+                commands::get_system_locale,
+                commands::update_settings,
+                commands::get_stats,
+                commands::get_stats_range,
+                commands::get_app_info,
+                commands::open_feedback_url,
+                commands::request_quit,
+                commands::hide_to_tray,
+                $($extra,)*
+            ]
+        };
+    }
+
     builder
         .manage(engine.clone())
-        .invoke_handler(tauri::generate_handler![
-            commands::get_timer_state,
-            commands::timer_start,
-            commands::timer_pause,
-            commands::timer_resume,
-            commands::timer_skip,
-            commands::timer_reset,
-            commands::timer_stop,
-            commands::timer_continue_flow,
-            commands::list_techniques,
-            commands::get_technique,
-            commands::create_technique,
-            commands::update_technique,
-            commands::delete_technique,
-            commands::get_settings,
-            commands::get_system_locale,
-            commands::update_settings,
-            commands::get_stats,
-            commands::get_stats_range,
-            commands::get_app_info,
-            commands::debug_test_notification,
-            commands::open_feedback_url,
-            commands::request_quit,
-            commands::hide_to_tray,
-        ])
+        .invoke_handler({
+            #[cfg(debug_assertions)]
+            {
+                tempura_invoke_handler![commands::debug_test_notification]
+            }
+            #[cfg(not(debug_assertions))]
+            {
+                tempura_invoke_handler![]
+            }
+        })
         .setup(move |app| {
             let app_data = app
                 .path()

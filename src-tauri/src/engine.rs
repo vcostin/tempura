@@ -76,6 +76,7 @@ impl EngineHandle {
         self.inner.lock().snapshot.clone()
     }
 
+    #[cfg(debug_assertions)]
     pub fn settings(&self) -> AppSettings {
         self.inner.lock().settings.clone()
     }
