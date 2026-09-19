@@ -54,6 +54,7 @@ export default function App() {
   const [view, setView] = useState<View>("timer");
   const [windowHidden, setWindowHidden] = useState(false);
   const [workingOn, setWorkingOn] = useState("");
+  const [composeRecipe, setComposeRecipe] = useState(false);
   const [debugEnabled, setDebugEnabled] = useState(() =>
     isDebugAccessEnabled(settingsApi.info?.debug),
   );
@@ -92,6 +93,14 @@ export default function App() {
     });
   }, []);
 
+  const openSettings = useCallback(
+    (compose = false) => {
+      setComposeRecipe(compose);
+      openPanel("settings");
+    },
+    [openPanel],
+  );
+
   const closePanel = useCallback(() => {
     setView((current) => {
       if (current === "about" && updater.hasOffer) updater.skip();
@@ -116,10 +125,10 @@ export default function App() {
   }, [workingOn]);
 
   useEffect(() => {
-    const onOpen = () => openPanel("settings");
+    const onOpen = () => openSettings();
     window.addEventListener("tempura:open-settings", onOpen);
     return () => window.removeEventListener("tempura:open-settings", onOpen);
-  }, [openPanel]);
+  }, [openSettings]);
 
   useEffect(() => {
     const onOpen = () => openPanel("about");
@@ -179,12 +188,12 @@ export default function App() {
         if (session.snapshot.running) void session.skip();
       } else if (e.key === "," || (e.ctrlKey && e.key === ",")) {
         e.preventDefault();
-        openPanel("settings");
+        openSettings();
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, view, hideToTray, openPanel, closePanel]);
+  }, [session, view, hideToTray, openSettings, closePanel]);
 
   if (!session.ready) {
     return (
@@ -209,7 +218,12 @@ export default function App() {
           snapshot={session.snapshot}
           techniques={session.techniques}
           selectedId={session.selectedId}
-          onSelectTechnique={session.setSelectedId}
+          onSelectTechnique={(id) => {
+            session.setSelectedId(id);
+            if (id !== settingsApi.settings.defaultTechniqueId) {
+              void settingsApi.patch({ defaultTechniqueId: id });
+            }
+          }}
           stats={session.stats}
           hybridBell={session.hybridBell}
           workingOn={workingOn}
@@ -221,7 +235,7 @@ export default function App() {
           onReset={() => void session.reset()}
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
-          onOpenSettings={() => openPanel("settings")}
+          onOpenSettings={() => openSettings()}
           onOpenStats={() => openPanel("stats")}
           onOpenGuide={() => openPanel("guide")}
           onOpenAbout={() => openPanel("about")}
@@ -243,6 +257,7 @@ export default function App() {
           onUpdateTechnique={settingsApi.updateTechnique}
           onDeleteTechnique={settingsApi.deleteTechnique}
           onTechniquesChanged={session.reloadTechniques}
+          composeRecipe={composeRecipe}
           onOpenAbout={() => openPanel("about")}
           onQuit={
             settingsApi.desktop
@@ -286,7 +301,7 @@ export default function App() {
       {view === "guide" && (
         <TechniquesGuide
           onClose={closePanel}
-          onOpenSettings={() => openPanel("settings")}
+          onOpenSettings={() => openSettings(true)}
         />
       )}
 

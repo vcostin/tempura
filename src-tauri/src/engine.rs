@@ -531,10 +531,10 @@ impl EngineHandle {
                     return;
                 }
 
-                let every_n = if eng.settings.long_break_every_n > 0 {
-                    eng.settings.long_break_every_n
-                } else {
+                let every_n = if tech.cycles_before_long > 0 {
                     tech.cycles_before_long
+                } else {
+                    eng.settings.long_break_every_n
                 };
                 if every_n > 0 && eng.snapshot.cycle % every_n == 0 {
                     Self::enter_timed_phase(eng, Phase::LongBreak, tech.long_break_secs);

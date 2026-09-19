@@ -2,7 +2,6 @@ import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { LOCALES } from "../lib/i18n";
-import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
@@ -24,68 +23,36 @@ interface Props {
   onTechniquesChanged: () => Promise<void>;
   onOpenAbout?: () => void;
   onQuit?: () => void;
+  /** Open already composing a custom technique (from the guide). */
+  composeRecipe?: boolean;
 }
 
-export function SettingsView(props: Props) {
-  const { t, i18n } = useTranslation();
-  const { settings } = props;
-  const [draft, setDraft] = useState({
+type Draft = {
+  name: string;
+  focusMins: number;
+  shortMins: number;
+  longMins: number;
+  cycles: number;
+  mode: string;
+  flowPct: number;
+};
+
+function blankDraft(flowRatio: number): Draft {
+  return {
     name: "",
     focusMins: 25,
     shortMins: 5,
     longMins: 15,
     cycles: 4,
     mode: "classic",
-  });
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+    flowPct: Math.round(flowRatio * 100),
+  };
+}
 
-  async function saveCustom(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    const input: TechniqueInput = {
-      name: draft.name.trim() || t("settings.defaultCustomName"),
-      focusSecs: Math.round(draft.focusMins * 60),
-      shortBreakSecs: Math.round(draft.shortMins * 60),
-      longBreakSecs: Math.round(draft.longMins * 60),
-      cyclesBeforeLong: draft.cycles,
-      flowRatio: draft.mode === "flowtime" || draft.mode === "hybrid" ? settings.flowRatio : null,
-      mode: draft.mode,
-      accent: "#6B8F71",
-    };
-    try {
-      if (editingId) {
-        await props.onUpdateTechnique(editingId, input);
-      } else {
-        await props.onCreateTechnique(input);
-      }
-      setDraft({
-        name: "",
-        focusMins: 25,
-        shortMins: 5,
-        longMins: 15,
-        cycles: 4,
-        mode: "classic",
-      });
-      setEditingId(null);
-      await props.onTechniquesChanged();
-    } catch (err) {
-      setError(String(err));
-    }
-  }
-
-  function startEdit(tech: Technique) {
-    if (tech.kind === "system") return;
-    setEditingId(tech.id);
-    setDraft({
-      name: tech.name,
-      focusMins: Math.round(tech.focusSecs / 60),
-      shortMins: Math.round(tech.shortBreakSecs / 60),
-      longMins: Math.round(tech.longBreakSecs / 60),
-      cycles: tech.cyclesBeforeLong,
-      mode: tech.mode,
-    });
-  }
+export function SettingsView(props: Props) {
+  const { t, i18n } = useTranslation();
+  const { settings } = props;
+  const customs = props.techniques.filter((tech) => tech.kind === "custom");
 
   return (
     <ScrollPanel label={t("settings.panel")}>
@@ -105,7 +72,7 @@ export function SettingsView(props: Props) {
       />
 
       <section className="section">
-        <h2>{t("settings.language")}</h2>
+        <h2>{t("settings.look")}</h2>
         <div className="field">
           <label htmlFor="locale">{t("settings.language")}</label>
           <Select
@@ -115,71 +82,22 @@ export function SettingsView(props: Props) {
             options={LOCALES.map((loc) => ({ value: loc.code, label: loc.nativeName }))}
           />
         </div>
-      </section>
-
-      <section className="section">
-        <h2>{t("settings.theme")}</h2>
-        <div className="theme-grid" role="group" aria-label={t("settings.theme")}>
-          {THEMES.map((theme) => (
-            <button
-              key={theme.id}
-              type="button"
-              className="theme-swatch"
-              data-theme-preview={theme.id}
-              aria-pressed={settings.theme === theme.id}
-              onClick={() => void props.onPatch({ theme: theme.id })}
-            >
-              {t(`themes.${theme.id}`)}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="section">
-        <h2>{t("settings.sessionDefaults")}</h2>
         <div className="field">
-          <label htmlFor="default-tech">{t("settings.defaultTechnique")}</label>
-          <Select
-            id="default-tech"
-            value={settings.defaultTechniqueId}
-            onChange={(id) => void props.onPatch({ defaultTechniqueId: id })}
-            options={props.techniques.map((tech) => ({
-              value: tech.id,
-              label: `${techniqueDisplayName(tech)} — ${formatTechniqueRhythm(tech, settings.flowRatio)}`,
-            }))}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="long-n">{t("settings.longBreakEvery")}</label>
-          <input
-            id="long-n"
-            type="number"
-            min={1}
-            max={12}
-            value={settings.longBreakEveryN}
-            onChange={(e) =>
-              void props.onPatch({ longBreakEveryN: Number(e.target.value) || 4 })
-            }
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="flow-ratio">{t("settings.flowRatio")}</label>
-          <input
-            id="flow-ratio"
-            type="range"
-            min={11}
-            max={33}
-            value={Math.round(settings.flowRatio * 100)}
-            onChange={(e) =>
-              void props.onPatch({ flowRatio: Number(e.target.value) / 100 })
-            }
-          />
-          <span className="hint">
-            {t("settings.flowHint", {
-              ratio: settings.flowRatio.toFixed(2),
-              inverse: Math.round(1 / settings.flowRatio),
-            })}
-          </span>
+          <label id="theme-label">{t("settings.theme")}</label>
+          <div className="theme-grid" role="group" aria-labelledby="theme-label">
+            {THEMES.map((theme) => (
+              <button
+                key={theme.id}
+                type="button"
+                className="theme-swatch"
+                data-theme-preview={theme.id}
+                aria-pressed={settings.theme === theme.id}
+                onClick={() => void props.onPatch({ theme: theme.id })}
+              >
+                {t(`themes.${theme.id}`)}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -245,56 +163,183 @@ export function SettingsView(props: Props) {
             />
           </label>
           {props.onQuit && (
-            <button type="button" className="btn btn-ghost" style={{ marginTop: "0.75rem" }} onClick={props.onQuit}>
+            <button type="button" className="btn btn-ghost settings-quit" onClick={props.onQuit}>
               {t("settings.quit")}
             </button>
           )}
         </section>
       )}
 
-      <section className="section">
-        <h2>{t("settings.customTechniques")}</h2>
+      <CustomRecipes
+        customs={customs}
+        flowRatio={settings.flowRatio}
+        composeOnOpen={props.composeRecipe}
+        onCreate={props.onCreateTechnique}
+        onUpdate={props.onUpdateTechnique}
+        onDelete={props.onDeleteTechnique}
+        onChanged={props.onTechniquesChanged}
+      />
+
+      {props.onOpenAbout && (
+        <p className="settings-foot">
+          <button type="button" className="linkish" onClick={props.onOpenAbout}>
+            {t("settings.openAbout")}
+          </button>
+        </p>
+      )}
+    </ScrollPanel>
+  );
+}
+
+interface RecipeProps {
+  customs: Technique[];
+  flowRatio: number;
+  composeOnOpen?: boolean;
+  onCreate: (input: TechniqueInput) => Promise<Technique>;
+  onUpdate: (id: string, input: TechniqueInput) => Promise<Technique>;
+  onDelete: (id: string) => Promise<void>;
+  onChanged: () => Promise<void>;
+}
+
+function CustomRecipes({
+  customs,
+  flowRatio,
+  composeOnOpen,
+  onCreate,
+  onUpdate,
+  onDelete,
+  onChanged,
+}: RecipeProps) {
+  const { t } = useTranslation();
+  const [draft, setDraft] = useState<Draft>(() => blankDraft(flowRatio));
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [composing, setComposing] = useState(Boolean(composeOnOpen));
+  const [error, setError] = useState<string | null>(null);
+
+  function closeForm() {
+    setComposing(false);
+    setEditingId(null);
+    setError(null);
+    setDraft(blankDraft(flowRatio));
+  }
+
+  function startCreate() {
+    setEditingId(null);
+    setError(null);
+    setDraft(blankDraft(flowRatio));
+    setComposing(true);
+  }
+
+  function startEdit(tech: Technique) {
+    setEditingId(tech.id);
+    setError(null);
+    setDraft({
+      name: tech.name,
+      focusMins: Math.round(tech.focusSecs / 60),
+      shortMins: Math.round(tech.shortBreakSecs / 60),
+      longMins: Math.round(tech.longBreakSecs / 60),
+      cycles: tech.cyclesBeforeLong,
+      mode: tech.mode,
+      flowPct: Math.round((tech.flowRatio ?? flowRatio) * 100),
+    });
+    setComposing(true);
+  }
+
+  async function saveCustom(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    const usesFlow = draft.mode === "flowtime" || draft.mode === "hybrid";
+    const input: TechniqueInput = {
+      name: draft.name.trim() || t("settings.defaultCustomName"),
+      focusSecs: Math.round(draft.focusMins * 60),
+      shortBreakSecs: Math.round(draft.shortMins * 60),
+      longBreakSecs: Math.round(draft.longMins * 60),
+      cyclesBeforeLong: draft.cycles,
+      flowRatio: usesFlow ? draft.flowPct / 100 : null,
+      mode: draft.mode,
+      accent: "#6B8F71",
+    };
+    try {
+      if (editingId) {
+        await onUpdate(editingId, input);
+      } else {
+        await onCreate(input);
+      }
+      closeForm();
+      await onChanged();
+    } catch (err) {
+      setError(String(err));
+    }
+  }
+
+  async function removeCustom(id: string) {
+    try {
+      await onDelete(id);
+      if (editingId === id) closeForm();
+      await onChanged();
+    } catch (err) {
+      setError(String(err));
+    }
+  }
+
+  return (
+    <section className="section">
+      <h2>{t("settings.customTechniques")}</h2>
+
+      {customs.length === 0 && !composing && (
+        <p className="empty-note">{t("settings.recipesEmpty")}</p>
+      )}
+
+      {customs.length > 0 && (
         <div className="tech-list">
-          {props.techniques.map((tech) => (
-            <div key={tech.id} className="tech-row">
+          {customs.map((tech) => (
+            <div
+              key={tech.id}
+              className={editingId === tech.id ? "tech-row is-editing" : "tech-row"}
+            >
               <div>
-                <strong>{techniqueDisplayName(tech)}</strong>
-                <div className="meta">
-                  {tech.kind === "system" ? t("settings.builtIn") : t("settings.customKind")}
-                  {" · "}
-                  {formatTechniqueRhythm(tech, settings.flowRatio)}
-                  {" · "}
-                  {t("timer.bestFor", { value: guideForTechnique(tech).bestFor })}
-                </div>
+                <strong dir="auto">{tech.name}</strong>
+                <div className="meta">{formatTechniqueRhythm(tech, flowRatio)}</div>
               </div>
-              {tech.kind === "custom" && (
-                <div style={{ display: "flex", gap: "0.35rem" }}>
-                  <button type="button" className="btn btn-ghost" onClick={() => startEdit(tech)}>
-                    {t("settings.edit")}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn btn-danger"
-                    onClick={() =>
-                      void props.onDeleteTechnique(tech.id).then(() => props.onTechniquesChanged())
-                    }
-                  >
-                    {t("settings.delete")}
-                  </button>
-                </div>
-              )}
+              <div className="tech-row-actions">
+                <button type="button" className="btn btn-ghost" onClick={() => startEdit(tech)}>
+                  {t("settings.edit")}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-danger"
+                  aria-label={`${t("settings.delete")}: ${tech.name}`}
+                  onClick={() => void removeCustom(tech.id)}
+                >
+                  {t("settings.delete")}
+                </button>
+              </div>
             </div>
           ))}
         </div>
-        <form onSubmit={saveCustom} style={{ marginTop: "1rem" }}>
+      )}
+
+      {!composing ? (
+        <button
+          type="button"
+          className={customs.length === 0 ? "btn btn-primary" : "btn btn-ghost"}
+          onClick={startCreate}
+        >
+          {t("settings.newTechnique")}
+        </button>
+      ) : (
+        <form className="recipe-form" onSubmit={saveCustom}>
           <div className="field">
-            <label htmlFor="c-name">{editingId ? t("settings.editTechnique") : t("settings.newTechnique")}</label>
+            <label htmlFor="c-name">
+              {editingId ? t("settings.editTechnique") : t("settings.newTechnique")}
+            </label>
             <input
               id="c-name"
               value={draft.name}
               onChange={(e) => setDraft({ ...draft, name: e.target.value })}
               placeholder={t("settings.namePlaceholder")}
               required
+              autoComplete="off"
             />
           </div>
           <div className="field">
@@ -311,7 +356,7 @@ export function SettingsView(props: Props) {
             />
           </div>
           {draft.mode !== "flowtime" && (
-            <>
+            <div className="field-grid">
               <div className="field">
                 <label htmlFor="c-focus">{t("settings.focusMinutes")}</label>
                 <input
@@ -352,32 +397,42 @@ export function SettingsView(props: Props) {
                   onChange={(e) => setDraft({ ...draft, cycles: Number(e.target.value) })}
                 />
               </div>
-            </>
+            </div>
           )}
-          {error && <p className="hint" style={{ color: "var(--danger)" }}>{error}</p>}
-          <button type="submit" className="btn btn-primary">
-            {editingId ? t("settings.saveChanges") : t("settings.addTechnique")}
-          </button>
-          {editingId && (
-            <button
-              type="button"
-              className="btn btn-ghost"
-              style={{ marginInlineStart: "0.5rem" }}
-              onClick={() => setEditingId(null)}
-            >
+          {(draft.mode === "flowtime" || draft.mode === "hybrid") && (
+            <div className="field">
+              <label htmlFor="c-flow">{t("settings.flowRatio")}</label>
+              <input
+                id="c-flow"
+                type="range"
+                min={11}
+                max={33}
+                value={draft.flowPct}
+                onChange={(e) => setDraft({ ...draft, flowPct: Number(e.target.value) })}
+              />
+              <span className="hint">
+                {t("settings.flowHint", {
+                  ratio: (draft.flowPct / 100).toFixed(2),
+                  inverse: Math.round(100 / draft.flowPct),
+                })}
+              </span>
+            </div>
+          )}
+          {error && (
+            <p className="hint" style={{ color: "var(--danger)" }}>
+              {error}
+            </p>
+          )}
+          <div className="form-actions">
+            <button type="submit" className="btn btn-primary">
+              {editingId ? t("settings.saveChanges") : t("settings.addTechnique")}
+            </button>
+            <button type="button" className="btn btn-ghost" onClick={closeForm}>
               {t("settings.cancel")}
             </button>
-          )}
+          </div>
         </form>
-      </section>
-
-      {props.onOpenAbout && (
-        <p style={{ margin: "0.35rem 0 0.75rem" }}>
-          <button type="button" className="linkish" onClick={props.onOpenAbout}>
-            {t("settings.openAbout")}
-          </button>
-        </p>
       )}
-    </ScrollPanel>
+    </section>
   );
 }
