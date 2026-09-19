@@ -1,14 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { TFunction } from "i18next";
 import { i18n } from "./i18n";
-import type {
-  AppInfo,
-  AppSettings,
-  DayStats,
-  StatsRange,
-  Technique,
-  TechniqueInput,
-  TimerSnapshot,
+import {
+  DEFAULT_FLOW_RATIO,
+  type AppInfo,
+  type AppSettings,
+  type DayStats,
+  type StatsRange,
+  type Technique,
+  type TechniqueInput,
+  type TimerSnapshot,
 } from "./types";
 
 export const api = {
@@ -83,10 +84,9 @@ export function formatTechniqueRhythm(
     Technique,
     "mode" | "focusSecs" | "shortBreakSecs" | "longBreakSecs" | "cyclesBeforeLong" | "flowRatio"
   >,
-  flowRatioFallback = 0.2,
   t: TFunction = i18n.t.bind(i18n),
 ): string {
-  const ratio = tech.flowRatio ?? flowRatioFallback;
+  const ratio = tech.flowRatio ?? DEFAULT_FLOW_RATIO;
   const ratioLabel = `1:${Math.round(1 / ratio)}`;
 
   if (tech.mode === "flowtime") {

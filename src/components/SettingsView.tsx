@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { LOCALES } from "../lib/i18n";
 import type { AppSettings, Technique, TechniqueInput } from "../lib/types";
-import { THEMES } from "../lib/types";
+import { DEFAULT_FLOW_RATIO, THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
@@ -37,7 +37,7 @@ type Draft = {
   flowPct: number;
 };
 
-function blankDraft(flowRatio: number): Draft {
+function blankDraft(): Draft {
   return {
     name: "",
     focusMins: 25,
@@ -45,7 +45,7 @@ function blankDraft(flowRatio: number): Draft {
     longMins: 15,
     cycles: 4,
     mode: "classic",
-    flowPct: Math.round(flowRatio * 100),
+    flowPct: Math.round(DEFAULT_FLOW_RATIO * 100),
   };
 }
 
@@ -172,7 +172,6 @@ export function SettingsView(props: Props) {
 
       <CustomRecipes
         customs={customs}
-        flowRatio={settings.flowRatio}
         composeOnOpen={props.composeRecipe}
         onCreate={props.onCreateTechnique}
         onUpdate={props.onUpdateTechnique}
@@ -193,7 +192,6 @@ export function SettingsView(props: Props) {
 
 interface RecipeProps {
   customs: Technique[];
-  flowRatio: number;
   composeOnOpen?: boolean;
   onCreate: (input: TechniqueInput) => Promise<Technique>;
   onUpdate: (id: string, input: TechniqueInput) => Promise<Technique>;
@@ -203,7 +201,6 @@ interface RecipeProps {
 
 function CustomRecipes({
   customs,
-  flowRatio,
   composeOnOpen,
   onCreate,
   onUpdate,
@@ -211,7 +208,7 @@ function CustomRecipes({
   onChanged,
 }: RecipeProps) {
   const { t } = useTranslation();
-  const [draft, setDraft] = useState<Draft>(() => blankDraft(flowRatio));
+  const [draft, setDraft] = useState<Draft>(() => blankDraft());
   const [editingId, setEditingId] = useState<string | null>(null);
   const [composing, setComposing] = useState(Boolean(composeOnOpen));
   const [error, setError] = useState<string | null>(null);
@@ -220,13 +217,13 @@ function CustomRecipes({
     setComposing(false);
     setEditingId(null);
     setError(null);
-    setDraft(blankDraft(flowRatio));
+    setDraft(blankDraft());
   }
 
   function startCreate() {
     setEditingId(null);
     setError(null);
-    setDraft(blankDraft(flowRatio));
+    setDraft(blankDraft());
     setComposing(true);
   }
 
@@ -240,7 +237,7 @@ function CustomRecipes({
       longMins: Math.round(tech.longBreakSecs / 60),
       cycles: tech.cyclesBeforeLong,
       mode: tech.mode,
-      flowPct: Math.round((tech.flowRatio ?? flowRatio) * 100),
+      flowPct: Math.round((tech.flowRatio ?? DEFAULT_FLOW_RATIO) * 100),
     });
     setComposing(true);
   }
@@ -299,7 +296,7 @@ function CustomRecipes({
             >
               <div>
                 <strong dir="auto">{tech.name}</strong>
-                <div className="meta">{formatTechniqueRhythm(tech, flowRatio)}</div>
+                <div className="meta">{formatTechniqueRhythm(tech)}</div>
               </div>
               <div className="tech-row-actions">
                 <button type="button" className="btn btn-ghost" onClick={() => startEdit(tech)}>
