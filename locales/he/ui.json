@@ -103,7 +103,8 @@
     "feedbackLinkHint": "אם לא הופיעה לשונית, פתחו או העתיקו את העמוד:",
     "copyFeedbackUrl": "העתק קישור",
     "feedbackCopied": "הועתק",
-    "feedbackOpenFailed": "לא ניתן לפתוח דפדפן — השתמשו בקישור."
+    "feedbackOpenFailed": "לא ניתן לפתוח דפדפן — השתמשו בקישור.",
+    "feedbackLinkLabel": "דיון GitHub מס' 5"
   },
   "updates": {
     "title": "עדכונים",

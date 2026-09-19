@@ -103,7 +103,8 @@
     "feedbackLinkHint": "Dacă nu apare un tab, deschide sau copiază pagina:",
     "copyFeedbackUrl": "Copiază linkul",
     "feedbackCopied": "Copiat",
-    "feedbackOpenFailed": "Nu s-a putut deschide un browser — folosește linkul."
+    "feedbackOpenFailed": "Nu s-a putut deschide un browser — folosește linkul.",
+    "feedbackLinkLabel": "Discuția GitHub #5"
   },
   "updates": {
     "title": "Actualizări",

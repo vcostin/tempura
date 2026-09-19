@@ -100,6 +100,7 @@ export function AboutView(props: Props) {
             <a
               className="linkish feedback-url"
               href={FEEDBACK_URL}
+              title={FEEDBACK_URL}
               target="_blank"
               rel="noopener noreferrer"
               onClick={(event) => {
@@ -107,7 +108,7 @@ export function AboutView(props: Props) {
                 void sendFeedback();
               }}
             >
-              {FEEDBACK_URL}
+              {t("about.feedbackLinkLabel")}
             </a>
             <button type="button" className="linkish" onClick={() => void copyFeedbackUrl()}>
               {copied ? t("about.feedbackCopied") : t("about.copyFeedbackUrl")}

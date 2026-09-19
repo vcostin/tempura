@@ -135,7 +135,7 @@ test.describe("a11y dialogs and landmarks", () => {
     expect(aboutToolbar.modal).toBe("true");
     expect(aboutToolbar.feedback).toBe(true);
     await expect(
-      page.getByRole("link", { name: "https://github.com/vcostin/tempura/discussions/5" }),
+      page.getByRole("link", { name: "GitHub Discussion #5" }),
     ).toBeVisible();
     await page.evaluate(() => {
       window.open = () => ({ closed: false });

@@ -102,7 +102,8 @@
     "feedbackLinkHint": "如果没有出现新标签页，请打开或复制此页面：",
     "copyFeedbackUrl": "复制链接",
     "feedbackCopied": "已复制",
-    "feedbackOpenFailed": "无法打开浏览器 — 请使用下面的链接。"
+    "feedbackOpenFailed": "无法打开浏览器 — 请使用下面的链接。",
+    "feedbackLinkLabel": "GitHub 讨论 #5"
   },
   "updates": {
     "title": "更新",

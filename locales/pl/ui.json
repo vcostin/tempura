@@ -104,7 +104,8 @@
     "feedbackLinkHint": "Jeśli karta się nie pojawi, otwórz lub skopiuj tę stronę:",
     "copyFeedbackUrl": "Kopiuj link",
     "feedbackCopied": "Skopiowano",
-    "feedbackOpenFailed": "Nie udało się otworzyć przeglądarki — użyj linku."
+    "feedbackOpenFailed": "Nie udało się otworzyć przeglądarki — użyj linku.",
+    "feedbackLinkLabel": "Dyskusja GitHub #5"
   },
   "updates": {
     "title": "Aktualizacje",

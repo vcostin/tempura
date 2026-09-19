@@ -102,7 +102,8 @@
     "feedbackLinkHint": "Als er geen tabblad verschijnt, open of kopieer deze pagina:",
     "copyFeedbackUrl": "Link kopiëren",
     "feedbackCopied": "Gekopieerd",
-    "feedbackOpenFailed": "Kon geen browser openen — gebruik de link."
+    "feedbackOpenFailed": "Kon geen browser openen — gebruik de link.",
+    "feedbackLinkLabel": "GitHub-discussie #5"
   },
   "updates": {
     "title": "Updates",

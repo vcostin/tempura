@@ -102,7 +102,8 @@
     "feedbackLinkHint": "Se non compare una scheda, apri o copia questa pagina:",
     "copyFeedbackUrl": "Copia link",
     "feedbackCopied": "Copiato",
-    "feedbackOpenFailed": "Impossibile aprire un browser — usa il link."
+    "feedbackOpenFailed": "Impossibile aprire un browser — usa il link.",
+    "feedbackLinkLabel": "Discussione GitHub #5"
   },
   "updates": {
     "title": "Aggiornamenti",

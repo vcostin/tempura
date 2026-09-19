@@ -106,7 +106,8 @@
     "feedbackLinkHint": "إن لم تظهر علامة تبويب، افتح هذه الصفحة أو انسخها:",
     "copyFeedbackUrl": "نسخ الرابط",
     "feedbackCopied": "تم النسخ",
-    "feedbackOpenFailed": "تعذر فتح المتصفح — استخدم الرابط."
+    "feedbackOpenFailed": "تعذر فتح المتصفح — استخدم الرابط.",
+    "feedbackLinkLabel": "نقاش GitHub رقم 5"
   },
   "updates": {
     "title": "التحديثات",

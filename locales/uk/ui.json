@@ -104,7 +104,8 @@
     "feedbackLinkHint": "Якщо вкладка не з’явилась, відкрий або скопіюй цю сторінку:",
     "copyFeedbackUrl": "Копіювати посилання",
     "feedbackCopied": "Скопійовано",
-    "feedbackOpenFailed": "Не вдалося відкрити браузер — скористайся посиланням."
+    "feedbackOpenFailed": "Не вдалося відкрити браузер — скористайся посиланням.",
+    "feedbackLinkLabel": "Обговорення GitHub #5"
   },
   "updates": {
     "title": "Оновлення",

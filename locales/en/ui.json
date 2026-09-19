@@ -110,7 +110,8 @@
     "feedbackLinkHint": "If a tab didn’t appear, open or copy this page:",
     "copyFeedbackUrl": "Copy link",
     "feedbackCopied": "Copied",
-    "feedbackOpenFailed": "Couldn’t open a browser — use the link."
+    "feedbackOpenFailed": "Couldn’t open a browser — use the link.",
+    "feedbackLinkLabel": "GitHub Discussion #5"
   },
   "updates": {
     "title": "Updates",

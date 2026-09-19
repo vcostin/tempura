@@ -102,7 +102,8 @@
     "feedbackLinkHint": "Si aucun onglet n’apparaît, ouvrez ou copiez cette page :",
     "copyFeedbackUrl": "Copier le lien",
     "feedbackCopied": "Copié",
-    "feedbackOpenFailed": "Impossible d’ouvrir un navigateur — utilisez le lien."
+    "feedbackOpenFailed": "Impossible d’ouvrir un navigateur — utilisez le lien.",
+    "feedbackLinkLabel": "Discussion GitHub n°5"
   },
   "updates": {
     "title": "Mises à jour",

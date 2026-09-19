@@ -102,7 +102,8 @@
     "feedbackLinkHint": "탭이 나타나지 않으면 이 페이지를 열거나 복사하세요:",
     "copyFeedbackUrl": "링크 복사",
     "feedbackCopied": "복사됨",
-    "feedbackOpenFailed": "브라우저를 열 수 없습니다. 링크를 사용하세요."
+    "feedbackOpenFailed": "브라우저를 열 수 없습니다. 링크를 사용하세요.",
+    "feedbackLinkLabel": "GitHub 토론 #5"
   },
   "updates": {
     "title": "업데이트",

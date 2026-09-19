@@ -102,7 +102,8 @@
     "feedbackLinkHint": "Si no aparece una pestaña, abre o copia esta página:",
     "copyFeedbackUrl": "Copiar enlace",
     "feedbackCopied": "Copiado",
-    "feedbackOpenFailed": "No se pudo abrir el navegador — usa el enlace."
+    "feedbackOpenFailed": "No se pudo abrir el navegador — usa el enlace.",
+    "feedbackLinkLabel": "Discusión de GitHub #5"
   },
   "updates": {
     "title": "Actualizaciones",
