@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "데스크톱",
     "osUnknown": "사용 중인 OS",
-    "installLinux": "AppImage: 파일에 <code>chmod +x</code> 한 뒤 실행. Debian: <code>.deb</code> 설치. Fedora와 openSUSE: <code>.rpm</code>. AppImage에는 FUSE가 필요할 수 있습니다.",
+    "installLinux": "AppImage: 파일에 chmod +x 한 뒤 실행. Debian: .deb 설치. Fedora와 openSUSE: .rpm. AppImage에는 FUSE가 필요할 수 있습니다.",
     "installWindows": "첫 실행에서 SmartScreen이 경고할 수 있습니다 — 빌드가 서명되지 않았습니다. 추가 정보 → 그래도 실행, 또는 MSI를 쓰세요.",
     "installMacos": "Gatekeeper가 서명되지 않은 앱을 막을 수 있습니다. 앱을 오른쪽 클릭 → 열기. Apple Silicon과 Intel은 각자 디스크 이미지가 있습니다.",
     "archAppleSilicon": "Apple Silicon",

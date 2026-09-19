@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "桌面",
     "osUnknown": "你的系统",
-    "installLinux": "AppImage：对文件执行 <code>chmod +x</code> 再运行。Debian：安装 <code>.deb</code>。Fedora 和 openSUSE：<code>.rpm</code>。AppImage 可能需要 FUSE。",
+    "installLinux": "AppImage：对文件执行 chmod +x 再运行。Debian：安装 .deb。Fedora 和 openSUSE：.rpm。AppImage 可能需要 FUSE。",
     "installWindows": "第一次运行时 SmartScreen 可能会警告 — 构建未签名。更多信息 → 仍要运行，或使用 MSI。",
     "installMacos": "Gatekeeper 可能会拦截未签名应用。右键应用 → 打开。Apple Silicon 和 Intel 各有自己的磁盘映像。",
     "archAppleSilicon": "Apple Silicon",

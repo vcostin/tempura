@@ -252,7 +252,7 @@
     "osMacos": "macOS",
     "osMobile": "pulpit",
     "osUnknown": "twój system",
-    "installLinux": "AppImage: <code>chmod +x</code> na plik, potem uruchom. Debian: zainstaluj <code>.deb</code>. Fedora i openSUSE: <code>.rpm</code>. Do AppImage może być potrzebny FUSE.",
+    "installLinux": "AppImage: chmod +x na plik, potem uruchom. Debian: zainstaluj .deb. Fedora i openSUSE: .rpm. Do AppImage może być potrzebny FUSE.",
     "installWindows": "SmartScreen może ostrzec przy pierwszym uruchomieniu — build jest niepodpisany. Więcej informacji → Uruchom mimo to, albo użyj MSI.",
     "installMacos": "Gatekeeper może zablokować niepodpisaną aplikację. Prawy przycisk na apce → Otwórz. Apple Silicon i Intel mają własne obrazy dysku.",
     "archAppleSilicon": "Apple Silicon",

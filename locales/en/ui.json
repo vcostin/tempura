@@ -258,7 +258,7 @@
     "osMacos": "macOS",
     "osMobile": "desktop",
     "osUnknown": "your OS",
-    "installLinux": "AppImage: <code>chmod +x</code> the file, then run it. Debian: install the <code>.deb</code>. Fedora and openSUSE: the <code>.rpm</code>. You may need FUSE for AppImage.",
+    "installLinux": "AppImage: chmod +x the file, then run it. Debian: install the .deb. Fedora and openSUSE: the .rpm. You may need FUSE for AppImage.",
     "installWindows": "SmartScreen may warn on the first run — the build is unsigned. More info → Run anyway, or use the MSI.",
     "installMacos": "Gatekeeper may block an unsigned app. Right-click the app → Open. Apple Silicon and Intel each have their own disk image.",
     "archAppleSilicon": "Apple Silicon",

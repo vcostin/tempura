@@ -47,11 +47,6 @@ function fillDom() {
     if (!key) continue;
     el.textContent = i18next.t(key, { version });
   }
-  for (const el of document.querySelectorAll("[data-i18n-html]")) {
-    const key = el.getAttribute("data-i18n-html");
-    if (!key) continue;
-    el.innerHTML = i18next.t(key);
-  }
   for (const el of document.querySelectorAll("[data-i18n-attr]")) {
     const spec = el.getAttribute("data-i18n-attr");
     if (!spec) continue;
@@ -134,7 +129,7 @@ const ready = (async () => {
     fallbackLng: "en",
     ns: ["ui", "techniques"],
     defaultNS: "ui",
-    interpolation: { escapeValue: false },
+    interpolation: { escapeValue: true },
     returnNull: false,
   });
 

@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "escritorio",
     "osUnknown": "tu OS",
-    "installLinux": "AppImage: <code>chmod +x</code> al archivo y luego ejecútalo. Debian: instala el <code>.deb</code>. Fedora y openSUSE: el <code>.rpm</code>. Puede que necesites FUSE para AppImage.",
+    "installLinux": "AppImage: chmod +x al archivo y luego ejecútalo. Debian: instala el .deb. Fedora y openSUSE: el .rpm. Puede que necesites FUSE para AppImage.",
     "installWindows": "SmartScreen puede avisar en la primera ejecución — la versión no está firmada. Más información → Ejecutar de todas formas, o usa el MSI.",
     "installMacos": "Gatekeeper puede bloquear una app sin firmar. Clic derecho en la app → Abrir. Apple Silicon e Intel tienen cada uno su propia imagen de disco.",
     "archAppleSilicon": "Apple Silicon",

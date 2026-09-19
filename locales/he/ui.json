@@ -251,7 +251,7 @@
     "osMacos": "macOS",
     "osMobile": "שולחן עבודה",
     "osUnknown": "מערכת ההפעלה שלכם",
-    "installLinux": "AppImage: <code>chmod +x</code> לקובץ ואז להריץ. דביאן: התקינו את ה-<code>.deb</code>. פדורה ו-openSUSE: ה-<code>.rpm</code>. ייתכן שתצטרכו FUSE ל-AppImage.",
+    "installLinux": "AppImage: chmod +x לקובץ ואז להריץ. דביאן: התקינו את ה-.deb. פדורה ו-openSUSE: ה-.rpm. ייתכן שתצטרכו FUSE ל-AppImage.",
     "installWindows": "SmartScreen עלול להזהיר בהרצה הראשונה — הבילד לא חתום. מידע נוסף ← הרץ בכל זאת, או השתמשו ב-MSI.",
     "installMacos": "Gatekeeper עלול לחסום אפליקציה לא חתומה. לחצן ימני על האפליקציה ← פתח. ל-Apple Silicon ול-Intel יש לכל אחד דיסק אימג׳ משלו.",
     "archAppleSilicon": "Apple Silicon",
