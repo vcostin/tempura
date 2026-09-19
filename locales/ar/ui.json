@@ -254,7 +254,7 @@
     "osMacos": "macOS",
     "osMobile": "سطح مكتب",
     "osUnknown": "نظامك",
-    "installLinux": "AppImage: <code>chmod +x</code> للملف ثم شغّله. دبيان: ثبّت <code>.deb</code>. فيدورا وopenSUSE: <code>.rpm</code>. قد تحتاج FUSE لـ AppImage.",
+    "installLinux": "AppImage: chmod +x للملف ثم شغّله. دبيان: ثبّت .deb. فيدورا وopenSUSE: .rpm. قد تحتاج FUSE لـ AppImage.",
     "installWindows": "قد يحذّر SmartScreen في التشغيل الأول — البناء غير موقَّع. مزيد من المعلومات ← تشغيل على أي حال، أو استخدم MSI.",
     "installMacos": "قد يمنع Gatekeeper تطبيقًا غير موقَّع. انقر باليمين على التطبيق ← فتح. لـ Apple Silicon وIntel صورة قرص لكل منهما.",
     "archAppleSilicon": "Apple Silicon",

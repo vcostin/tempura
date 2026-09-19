@@ -251,7 +251,7 @@
     "osMacos": "macOS",
     "osMobile": "desktop",
     "osUnknown": "sistemul tău",
-    "installLinux": "AppImage: <code>chmod +x</code> pe fișier, apoi rulează-l. Debian: instalează <code>.deb</code>. Fedora și openSUSE: <code>.rpm</code>. Poate îți trebuie FUSE pentru AppImage.",
+    "installLinux": "AppImage: chmod +x pe fișier, apoi rulează-l. Debian: instalează .deb. Fedora și openSUSE: .rpm. Poate îți trebuie FUSE pentru AppImage.",
     "installWindows": "SmartScreen poate avertiza la prima rulare — build-ul e nesemnat. Mai multe informații → Rulează oricum, sau folosește MSI.",
     "installMacos": "Gatekeeper poate bloca o aplicație nesemnată. Clic dreapta pe app → Deschide. Apple Silicon și Intel au fiecare propria imagine de disc.",
     "archAppleSilicon": "Apple Silicon",

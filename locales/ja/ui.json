@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "デスクトップ",
     "osUnknown": "お使いの OS",
-    "installLinux": "AppImage: ファイルに <code>chmod +x</code> して実行。Debian: <code>.deb</code> をインストール。Fedora と openSUSE: <code>.rpm</code>。AppImage には FUSE が必要なことがあります。",
+    "installLinux": "AppImage: ファイルに chmod +x して実行。Debian: .deb をインストール。Fedora と openSUSE: .rpm。AppImage には FUSE が必要なことがあります。",
     "installWindows": "初回実行で SmartScreen が警告することがあります — ビルドは未署名です。詳細情報 → とにかく実行、または MSI を使ってください。",
     "installMacos": "Gatekeeper が未署名アプリを止めることがあります。アプリを右クリック → 開く。Apple Silicon と Intel はそれぞれディスクイメージがあります。",
     "archAppleSilicon": "Apple Silicon",

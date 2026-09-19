@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "Desktop",
     "osUnknown": "dein OS",
-    "installLinux": "AppImage: <code>chmod +x</code> auf die Datei, dann starten. Debian: die <code>.deb</code> installieren. Fedora und openSUSE: die <code>.rpm</code>. Für AppImage brauchst du vielleicht FUSE.",
+    "installLinux": "AppImage: chmod +x auf die Datei, dann starten. Debian: die .deb installieren. Fedora und openSUSE: die .rpm. Für AppImage brauchst du vielleicht FUSE.",
     "installWindows": "SmartScreen warnt beim ersten Start vielleicht — der Build ist unsigniert. Weitere Infos → Trotzdem ausführen, oder das MSI nutzen.",
     "installMacos": "Gatekeeper kann eine unsignierte App blockieren. Rechtsklick auf die App → Öffnen. Apple Silicon und Intel haben jeweils ein eigenes Disk-Image.",
     "archAppleSilicon": "Apple Silicon",

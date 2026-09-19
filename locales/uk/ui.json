@@ -252,7 +252,7 @@
     "osMacos": "macOS",
     "osMobile": "стільниця",
     "osUnknown": "твоя ОС",
-    "installLinux": "AppImage: <code>chmod +x</code> на файл, потім запусти. Debian: встанови <code>.deb</code>. Fedora й openSUSE: <code>.rpm</code>. Для AppImage може знадобитися FUSE.",
+    "installLinux": "AppImage: chmod +x на файл, потім запусти. Debian: встанови .deb. Fedora й openSUSE: .rpm. Для AppImage може знадобитися FUSE.",
     "installWindows": "SmartScreen може попередити при першому запуску — збірка непідписана. Докладніше → Все одно запустити, або скористайся MSI.",
     "installMacos": "Gatekeeper може заблокувати непідписану програму. Правий клік по програмі → Відкрити. Apple Silicon та Intel мають власні образи диска.",
     "archAppleSilicon": "Apple Silicon",

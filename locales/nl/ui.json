@@ -250,7 +250,7 @@
     "osMacos": "macOS",
     "osMobile": "desktop",
     "osUnknown": "je OS",
-    "installLinux": "AppImage: <code>chmod +x</code> het bestand, daarna starten. Debian: installeer de <code>.deb</code>. Fedora en openSUSE: de <code>.rpm</code>. Voor AppImage heb je misschien FUSE nodig.",
+    "installLinux": "AppImage: chmod +x het bestand, daarna starten. Debian: installeer de .deb. Fedora en openSUSE: de .rpm. Voor AppImage heb je misschien FUSE nodig.",
     "installWindows": "SmartScreen kan bij de eerste run waarschuwen — de build is ongetekend. Meer info → Toch uitvoeren, of gebruik de MSI.",
     "installMacos": "Gatekeeper kan een ongetekende app blokkeren. Rechtsklik de app → Open. Apple Silicon en Intel hebben elk hun eigen schijfkopie.",
     "archAppleSilicon": "Apple Silicon",

@@ -30,7 +30,7 @@ Rust**, plus **how updates are chosen and verified**.
 | Webview is untrusted relative to Rust | CSP + `freezePrototype` reduce XSS. They do not replace command allowlists. Anything the frontend can `invoke` is available to a capable window. |
 | Updater authenticity ≠ first-run authenticity | In-app updates require an ed25519 signature that matches the pubkey baked into the binary. First install is whatever the user downloaded (SmartScreen / Gatekeeper may warn; see M2). |
 | Signing secret stays off the tree | Release CI fails without `TAURI_SIGNING_PRIVATE_KEY`. Private keys are gitignored. Losing or rotating the key breaks in-app updates for already-shipped builds. |
-| Locale catalogs are maintainer-trusted | The download site injects a few translation strings as HTML. A malicious locale PR is the threat, not a random visitor. |
+| Locale catalogs are maintainer-trusted | GitHub Pages copies `locales/` onto the download site. Strings are assigned with `textContent` (L5). A locale PR can change copy, not inject HTML. |
 
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
@@ -153,20 +153,22 @@ webview.
 
 #### L5 — Download site `innerHTML` from locale strings
 
-**Impact.** GitHub Pages (`website/`) sets `el.innerHTML = i18next.t(key)`
+**Status.** Addressed. Linux install copy uses `data-i18n` (`textContent`).
+`fillDom` has no `[data-i18n-html]` path. i18next interpolation uses
+`escapeValue: true`. `site.installLinux` is plain text in every locale
+(`chmod +x`, `.deb`, `.rpm` stay readable). Download links were already
+`textContent` / `createElement`.
+
+**Was.** GitHub Pages (`website/`) set `el.innerHTML = i18next.t(key)`
 for `[data-i18n-html]` (Linux install blurb with `<code>`). Catalogs
 ship in-repo. A bad translation PR could inject script into
 https://vcostin.github.io/tempura/ . Visitors cannot change those
-JSON files. Download links themselves are built with `textContent` /
-`createElement`.
+JSON files.
 
-**Evidence.** [`website/i18n.js`](../website/i18n.js) (`fillDom`, `escapeValue: false`);
-[`website/index.html`](../website/index.html) `data-i18n-html="site.installLinux"`;
-[`locales/en/ui.json`](../locales/en/ui.json) `site.installLinux`.
-
-**Fix sketch.** Keep `<code>` in the HTML template; put only plain text
-in locales (`textContent`). Or sanitize to a tiny allowlist (`code`,
-`em`).
+**Evidence.** [`website/i18n.js`](../website/i18n.js) (`fillDom`, `escapeValue: true`);
+[`website/index.html`](../website/index.html) `data-i18n="site.installLinux"`;
+[`locales/en/ui.json`](../locales/en/ui.json) `site.installLinux`;
+[`tests/unit/websiteI18n.test.ts`](../tests/unit/websiteI18n.test.ts).
 
 #### L6 — macOS `open` / Windows `cmd` used to resolve via `PATH`
 
@@ -229,16 +231,18 @@ Worth keeping; do not “fix” these into something weaker.
 - **Unix DB modes** — app-data dir `0700`, SQLite + WAL/SHM `0600` on open.
 - **Linux opener** strips AppImage `APPDIR` prefixes so `xdg-open`
   uses host libs (availability fix, not a privilege drop).
+- **Download site i18n** — locale strings go in via `textContent`;
+  interpolated values are escaped. No `innerHTML` from catalogs.
 
 ## Recommended fix order
 
-**M1**, **L2**, **L1**, **L4**, **L3**, and **L6** are done (raw AppImage
-in `latest.json`; feedback opener is Discussion #5 only; test
+**M1**, **L2**, **L1**, **L4**, **L3**, **L6**, and **L5** are done (raw
+AppImage in `latest.json`; feedback opener is Discussion #5 only; test
 notification IPC is debug-only; no `window.open` fallback; Unix DB
-modes; absolute opener binaries). Remaining:
+modes; absolute opener binaries; Pages i18n is `textContent` only).
+Remaining:
 
-1. **L5** — Stop `innerHTML` for locale strings on the download site.
-2. **M2** — Authenticode / notarization when you are ready to operate
+1. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here
