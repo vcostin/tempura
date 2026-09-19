@@ -41,7 +41,7 @@ This is already wired: `gh release create --generate-notes` in the create-releas
 
 ### Linux AppImage
 
-Release and `deno task tauri:build` set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf`. After the Tauri CLI finishes, `scripts/tauri-ci.ts` drops bundled libwayland from AppImages so WebKit can use the host copy, then **re-signs** each AppImage so the `.sig` matches the rewritten bytes. Never upload an AppImage whose `.sig` was produced before that rewrite — that mismatch is why AppImage self-update was broken on v0.3.1. Stale `*.AppImage.tar.gz` (and `*.AppImage.tar.gz.sig`) from the pre-patch bundle are deleted; `latest.json` already falls back to the raw `.AppImage`.
+Release and `deno task tauri:build` set `NO_STRIP=true` (linuxdeploy’s bundled `strip` breaks on modern ELF) and `APPIMAGE_EXTRACT_AND_RUN=1`. You may also need `fuse2`, `squashfs-tools`, and `patchelf`. After the Tauri CLI finishes, `scripts/tauri-ci.ts` drops bundled libwayland from AppImages so WebKit can use the host copy, then **re-signs** each AppImage so the `.sig` matches the rewritten bytes. Never upload an AppImage whose `.sig` was produced before that rewrite — that mismatch is why AppImage self-update was broken on v0.3.1. Stale `*.AppImage.tar.gz` (and `*.AppImage.tar.gz.sig`) from the pre-patch bundle are deleted; `latest.json` prefers the raw `.AppImage` even if a tarball is still listed.
 
 Local `deno task tauri:build` also needs the updater private key in the environment (below).
 

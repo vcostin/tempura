@@ -50,30 +50,25 @@ None.
 
 ### Medium
 
-#### M1 — Linux updater JSON prefers `.AppImage.tar.gz` over the rewritten AppImage
+#### M1 — Linux updater JSON preferred `.AppImage.tar.gz` over the rewritten AppImage
 
-**Impact.** After a Linux build, CI strips bundled libwayland from the
-raw AppImage and **re-signs those bytes**, then deletes leftover
-`*.AppImage.tar.gz` / `.sig`. The synthesizer that writes `latest.json`
-still prefers a packed `.AppImage.tar.gz` when both assets exist. Dual
-assets on a Release can point the in-app updater at the **pre-strip**
-tarball and a signature that no longer matches the file users should
-install — the same class of mismatch that broke AppImage self-update on
-v0.3.1.
+**Status.** Addressed. `pickLinux` now prefers the raw `.AppImage` (the
+wayland-stripped, re-signed file). Packed `.AppImage.tar.gz` is fallback
+only, for a hypothetical Release that never had a raw pair. If both
+assets are present, the synthesizer warns on stderr. CI still deletes
+stale tarballs before upload.
 
-The happy path is fine today because the tarball is deleted before
-upload. The preference is still inverted relative to the post-process.
+**Was.** The synthesizer preferred `.AppImage.tar.gz` first. Dual assets
+on a Release could point the in-app updater at a **pre-strip** tarball
+and a signature that no longer matched — the same class of mismatch that
+broke AppImage self-update on v0.3.1.
 
 **Evidence.**
 
-- [`scripts/build-updater-json.ts`](../scripts/build-updater-json.ts) — `pickLinux` tries `.AppImage.tar.gz` first, then raw `.AppImage`.
+- [`scripts/build-updater-json.ts`](../scripts/build-updater-json.ts) — `pickLinux` tries raw `.AppImage` first, then `.AppImage.tar.gz`.
 - [`scripts/tauri-ci.ts`](../scripts/tauri-ci.ts) — `removeStaleAppImageTarballs` / `resignPatchedAppImages`.
-- [`tests/unit/buildUpdaterJson.test.ts`](../tests/unit/buildUpdaterJson.test.ts) — “packed AppImage.tar.gz beats raw AppImage”.
+- [`tests/unit/buildUpdaterJson.test.ts`](../tests/unit/buildUpdaterJson.test.ts) — “raw AppImage beats packed tar.gz”.
 - [releasing.md](releasing.md) — strip-then-re-sign; never upload a `.sig` from before the rewrite.
-
-**Fix sketch.** Prefer raw `.AppImage` in `pickLinux` (keep tar.gz only
-as an explicit fallback you no longer produce), or fail the synthesizer
-if both names are present. Keep deleting stale tarballs.
 
 #### M2 — No Authenticode / Apple notarization
 
@@ -220,8 +215,9 @@ Worth keeping; do not “fix” these into something weaker.
   durations, themes, locale, accent.
 - **Updater pubkey pinned** in `tauri.conf.json`; Release workflow
   **fails** if `TAURI_SIGNING_PRIVATE_KEY` is missing; AppImage
-  **strip then re-sign**; `uploadUpdaterJson: false` so matrix legs
-  cannot race `latest.json`; one job runs `build-updater-json.ts`.
+  **strip then re-sign**; `latest.json` prefers that raw AppImage;
+  `uploadUpdaterJson: false` so matrix legs cannot race `latest.json`;
+  one job runs `build-updater-json.ts`.
 - **Locks frozen** (`deno.lock`, `Cargo.lock`); Actions pinned by
   commit SHA in `.github/workflows/*`; `.gitignore` has
   `src-tauri/.keys/`; no private key files in the tree.
@@ -232,19 +228,16 @@ Worth keeping; do not “fix” these into something weaker.
 
 ## Recommended fix order
 
-No code changes in this document’s PR. Suggested sequence:
+**M1** is done (synthesizer prefers the re-signed raw AppImage). Remaining:
 
-1. **M1** — Prefer raw `.AppImage` in the synthesizer (small, matches
-   the re-sign path; avoids a class of updater breakage you have
-   already hit).
-2. **L2** — Open only Discussion #5 from Rust.
-3. **L1** — Do not register `debug_test_notification` in release, or
+1. **L2** — Open only Discussion #5 from Rust.
+2. **L1** — Do not register `debug_test_notification` in release, or
    ACL it off.
-4. **L4** — Copy/link fallback only; no `window.open`.
-5. **L3** — Restrictive Unix modes on the app-data dir and DB.
-6. **L6** — Absolute opener binaries where the OS has a stable path.
-7. **L5** — Stop `innerHTML` for locale strings on the download site.
-8. **M2** — Authenticode / notarization when you are ready to operate
+3. **L4** — Copy/link fallback only; no `window.open`.
+4. **L3** — Restrictive Unix modes on the app-data dir and DB.
+5. **L6** — Absolute opener binaries where the OS has a stable path.
+6. **L5** — Stop `innerHTML` for locale strings on the download site.
+7. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here
