@@ -66,8 +66,6 @@ pub struct AppSettings {
     pub halfway_tick: bool,
     pub default_technique_id: String,
     pub start_minimized: bool,
-    pub long_break_every_n: i64,
-    pub flow_ratio: f64,
     pub working_on: String,
     #[serde(default)]
     pub locale: String,
@@ -89,8 +87,6 @@ impl Default for AppSettings {
             halfway_tick: false,
             default_technique_id: "classic".into(),
             start_minimized: false,
-            long_break_every_n: 4,
-            flow_ratio: 0.2,
             working_on: String::new(),
             locale: String::new(),
             check_updates_on_launch: true,
@@ -110,6 +106,8 @@ const CYCLES_MIN: i64 = 1;
 const CYCLES_MAX: i64 = 12;
 const FLOW_RATIO_MIN: f64 = 1.0 / 9.0;
 const FLOW_RATIO_MAX: f64 = 1.0 / 3.0;
+/// Break ≈ work × this when a technique has no `flow_ratio` of its own.
+pub const DEFAULT_FLOW_RATIO: f64 = 0.2;
 
 pub fn validate_id(id: &str) -> Result<(), String> {
     if id.is_empty() || id.len() > ID_MAX {
@@ -144,7 +142,9 @@ fn clamp_flow_ratio(ratio: f64) -> Result<f64, String> {
 fn validate_secs(value: i64, label: &str, allow_zero: bool) -> Result<i64, String> {
     let min = if allow_zero { 0 } else { 1 };
     if value < min || value > SECS_MAX {
-        return Err(format!("{label} must be between {min} and {SECS_MAX} seconds"));
+        return Err(format!(
+            "{label} must be between {min} and {SECS_MAX} seconds"
+        ));
     }
     Ok(value)
 }
@@ -214,14 +214,6 @@ impl AppSettings {
 
         self.default_technique_id = self.default_technique_id.trim().to_string();
         validate_id(&self.default_technique_id)?;
-
-        if self.long_break_every_n < CYCLES_MIN || self.long_break_every_n > CYCLES_MAX {
-            return Err(format!(
-                "long break every N must be {CYCLES_MIN}–{CYCLES_MAX}"
-            ));
-        }
-
-        self.flow_ratio = clamp_flow_ratio(self.flow_ratio)?;
 
         self.working_on = self
             .working_on
@@ -372,7 +364,7 @@ mod tests {
             short_break_secs: 0,
             long_break_secs: 0,
             cycles_before_long: 1,
-            flow_ratio: Some(0.2),
+            flow_ratio: Some(DEFAULT_FLOW_RATIO),
             accent: None,
             mode: Some("flowtime".into()),
         };
@@ -397,6 +389,15 @@ mod tests {
     #[test]
     fn settings_default_checks_updates_on_launch() {
         assert!(AppSettings::default().check_updates_on_launch);
+    }
+
+    #[test]
+    fn settings_json_omits_global_rhythm() {
+        let json = serde_json::to_value(AppSettings::default()).unwrap();
+        assert!(json.get("flowRatio").is_none());
+        assert!(json.get("longBreakEveryN").is_none());
+        assert!(json.get("flow_ratio").is_none());
+        assert!(json.get("long_break_every_n").is_none());
     }
 
     #[test]
