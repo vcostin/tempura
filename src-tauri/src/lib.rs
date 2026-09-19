@@ -4,6 +4,7 @@ mod engine;
 mod i18n;
 mod models;
 mod notify;
+mod open_url;
 mod tray;
 
 pub use commands::AppState;
@@ -18,7 +19,6 @@ pub fn run() {
 
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
             tray::restore_main(app);
         }));
@@ -57,6 +57,7 @@ pub fn run() {
             commands::get_stats_range,
             commands::get_app_info,
             commands::debug_test_notification,
+            commands::open_feedback_url,
             commands::request_quit,
             commands::hide_to_tray,
         ])

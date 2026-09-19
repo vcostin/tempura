@@ -15,7 +15,6 @@
     "npm:@tauri-apps/cli@2": "2.11.4",
     "npm:@tauri-apps/plugin-autostart@^2.5.1": "2.5.1",
     "npm:@tauri-apps/plugin-notification@^2.3.3": "2.3.3",
-    "npm:@tauri-apps/plugin-opener@2": "2.5.4",
     "npm:@tauri-apps/plugin-process@2": "2.3.1",
     "npm:@tauri-apps/plugin-updater@2": "2.11.0",
     "npm:@types/react-dom@^19.1.6": "19.3.0_@types+react@19.3.0",
@@ -578,12 +577,6 @@
         "@tauri-apps/api"
       ]
     },
-    "@tauri-apps/plugin-opener@2.5.4": {
-      "integrity": "sha512-1HnPkb+AmgO29HBazm4uPLKB+r7zzcTBW1d0fyYp1uP+jwtpoiNDGKMMzz58SFp49nOIrxdE3aUJtT57lfO9CQ==",
-      "dependencies": [
-        "@tauri-apps/api"
-      ]
-    },
     "@tauri-apps/plugin-process@2.3.1": {
       "integrity": "sha512-nCa4fGVaDL/B9ai03VyPOjfAHRHSBz5v6F/ObsB73r/dA3MHHhZtldaDMIc0V/pnUw9ehzr2iEG+XkSEyC0JJA==",
       "dependencies": [
@@ -941,7 +934,6 @@
         "npm:@tauri-apps/cli@2",
         "npm:@tauri-apps/plugin-autostart@^2.5.1",
         "npm:@tauri-apps/plugin-notification@^2.3.3",
-        "npm:@tauri-apps/plugin-opener@2",
         "npm:@tauri-apps/plugin-process@2",
         "npm:@tauri-apps/plugin-updater@2",
         "npm:@types/react-dom@^19.1.6",

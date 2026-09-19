@@ -99,7 +99,12 @@
     "panel": "אודות",
     "line": "אודות · מקומי, במכונה הזאת.",
     "close": "סגירה",
-    "feedbackOpened": "נפתח בדפדפן — בדקו שם אם הלשונית לא עלתה לחזית."
+    "feedbackOpened": "נפתח בדפדפן — בדקו שם אם הלשונית לא עלתה לחזית.",
+    "feedbackLinkHint": "אם לא הופיעה לשונית, פתחו או העתיקו את העמוד:",
+    "copyFeedbackUrl": "העתק קישור",
+    "feedbackCopied": "הועתק",
+    "feedbackOpenFailed": "לא ניתן לפתוח דפדפן — השתמשו בקישור.",
+    "feedbackLinkLabel": "דיון GitHub מס' 5"
   },
   "updates": {
     "title": "עדכונים",

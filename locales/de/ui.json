@@ -98,7 +98,12 @@
     "panel": "Über",
     "line": "Über · lokal, auf diesem Rechner.",
     "close": "Schließen",
-    "feedbackOpened": "Im Browser geöffnet — schau dort nach, falls kein Tab nach vorn kam."
+    "feedbackOpened": "Im Browser geöffnet — schau dort nach, falls kein Tab nach vorn kam.",
+    "feedbackLinkHint": "Falls kein Tab erscheint, öffne oder kopiere diese Seite:",
+    "copyFeedbackUrl": "Link kopieren",
+    "feedbackCopied": "Kopiert",
+    "feedbackOpenFailed": "Browser ließ sich nicht öffnen — nutze den Link.",
+    "feedbackLinkLabel": "GitHub-Diskussion #5"
   },
   "updates": {
     "title": "Updates",

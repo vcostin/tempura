@@ -586,6 +586,21 @@ button {
   align-items: center;
 }
 
+.feedback-fallback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.75rem;
+  margin: 0.7rem 0 0;
+}
+
+.feedback-url {
+  overflow-wrap: anywhere;
+  max-width: 100%;
+  min-height: 0;
+  padding-block: 0.25rem;
+}
+
 .guide-intro {
   margin: 0 0 1.25rem;
   color: var(--ink-muted);
