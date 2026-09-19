@@ -120,20 +120,20 @@ hardcoded-only to #5. `FEEDBACK_URL` in Rust was `#[allow(dead_code)]`.
 [`src/lib/platform.ts`](../src/lib/platform.ts);
 [`tests/unit/feedbackUrl.test.ts`](../tests/unit/feedbackUrl.test.ts).
 
-#### L3 — SQLite created without `0700` / `0600`
+#### L3 — SQLite lacked `0700` / `0600`
 
-**Impact.** `Database::open` does `create_dir_all` on the app-data
-parent and opens `tempura.db` with default umask (often `0755` / `0644`).
-On a shared Unix machine, another local user who can read that path can
-read presets, “working on”, and session history. Same-user malware
-already has the same view.
+**Status.** Addressed. On Unix, `Database::open` sets the app-data
+directory to `0700` and `tempura.db` plus `-wal`/`-shm` (when present)
+to `0600`. Best-effort: chmod failures on exotic mounts do not refuse
+startup. Windows is unchanged. `/tmp` is not chmod’d (tests and stray
+paths).
 
-**Evidence.** [`src-tauri/src/db.rs`](../src-tauri/src/db.rs) `Database::open`;
+**Was.** `create_dir_all` + `Connection::open` used the default umask
+(often `0755` / `0644`), so another local account could read presets
+and session history.
+
+**Evidence.** [`src-tauri/src/db.rs`](../src-tauri/src/db.rs) `restrict_unix_*`;
 [`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs) `app_data_dir().join("tempura.db")`.
-
-**Fix sketch.** After creating the directory and opening the file, set
-`0o700` / `0o600` on Unix. Windows ACL tightening is optional and
-noisier.
 
 #### L4 — `window.open` fallback on opener failure
 
@@ -227,19 +227,19 @@ Worth keeping; do not “fix” these into something weaker.
   `src-tauri/.keys/`; no private key files in the tree.
 - **Opener** opens `FEEDBACK_URL` only (no IPC URL argument; no
   `window.open` fallback).
+- **Unix DB modes** — app-data dir `0700`, SQLite + WAL/SHM `0600` on open.
 - **Linux opener** strips AppImage `APPDIR` prefixes so `xdg-open`
   uses host libs (availability fix, not a privilege drop).
 
 ## Recommended fix order
 
-**M1**, **L2**, **L1**, and **L4** are done (raw AppImage in `latest.json`;
-feedback opener is Discussion #5 only; test notification IPC is
-debug-only; no `window.open` fallback). Remaining:
+**M1**, **L2**, **L1**, **L4**, and **L3** are done (raw AppImage in
+`latest.json`; feedback opener is Discussion #5 only; test notification
+IPC is debug-only; no `window.open` fallback; Unix DB modes). Remaining:
 
-1. **L3** — Restrictive Unix modes on the app-data dir and DB.
-2. **L6** — Absolute opener binaries where the OS has a stable path.
-3. **L5** — Stop `innerHTML` for locale strings on the download site.
-4. **M2** — Authenticode / notarization when you are ready to operate
+1. **L6** — Absolute opener binaries where the OS has a stable path.
+2. **L5** — Stop `innerHTML` for locale strings on the download site.
+3. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here
