@@ -2,6 +2,7 @@
 /**
  * GitHub Pages must not inject locale strings as HTML (security.md L5).
  */
+import { extractCspSha256Tokens, jsonLdCspHash } from "../../scripts/sync-website-csp.ts";
 
 Deno.test("download site does not innerHTML locale strings", async () => {
   const i18n = await Deno.readTextFile(new URL("../../website/i18n.js", import.meta.url));
@@ -21,6 +22,19 @@ Deno.test("download site does not innerHTML locale strings", async () => {
   }
   if (!/data-i18n="site\.installLinux"/.test(html)) {
     throw new Error("Linux install blurb must use data-i18n (textContent)");
+  }
+});
+
+Deno.test("CSP sha256 matches the JSON-LD script body", async () => {
+  const html = await Deno.readTextFile(new URL("../../website/index.html", import.meta.url));
+  const token = await jsonLdCspHash(html);
+  const allow = extractCspSha256Tokens(html);
+  if (!allow.includes(token)) {
+    throw new Error(
+      `CSP script-src sha256 does not match the JSON-LD body (got ${
+        allow.map((t) => `'sha256-${t}'`).join(" ") || "none"
+      }, expected 'sha256-${token}'). update the CSP sha256 in website/index.html (or run scripts/sync-website-csp.ts)`,
+    );
   }
 });
 
