@@ -7,6 +7,7 @@
 
 use std::process::{Command, Stdio};
 
+#[allow(dead_code)] // pinned Discussion #5; asserted in tests, frontend has its own copy
 pub const FEEDBACK_URL: &str = "https://github.com/vcostin/tempura/discussions/5";
 const FEEDBACK_PREFIX: &str = "https://github.com/vcostin/tempura/discussions/";
 

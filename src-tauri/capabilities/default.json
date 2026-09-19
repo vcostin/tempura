@@ -13,13 +13,6 @@
     "autostart:allow-disable",
     "autostart:allow-is-enabled",
     "updater:default",
-    "process:allow-restart",
-    {
-      "identifier": "opener:allow-open-url",
-      "allow": [
-        { "url": "https://github.com/vcostin/tempura/discussions/5" },
-        { "url": "https://github.com/vcostin/tempura/discussions/*" }
-      ]
-    }
+    "process:allow-restart"
   ]
 }
