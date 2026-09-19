@@ -51,7 +51,7 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
           <p className="guide-blurb">{custom.blurb}</p>
           {onOpenSettings && (
             <button type="button" className="btn btn-ghost" onClick={onOpenSettings}>
-              {t("guide.openSettings")}
+              {t("guide.makeCustom")}
             </button>
           )}
         </article>

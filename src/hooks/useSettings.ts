@@ -17,8 +17,6 @@ const defaultSettings: AppSettings = {
   halfwayTick: false,
   defaultTechniqueId: "classic",
   startMinimized: false,
-  longBreakEveryN: 4,
-  flowRatio: 0.2,
   workingOn: "",
   locale: "",
   checkUpdatesOnLaunch: true,

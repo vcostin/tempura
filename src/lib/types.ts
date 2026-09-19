@@ -34,8 +34,6 @@ export interface AppSettings {
   halfwayTick: boolean;
   defaultTechniqueId: string;
   startMinimized: boolean;
-  longBreakEveryN: number;
-  flowRatio: number;
   workingOn: string;
   locale: string;
   checkUpdatesOnLaunch: boolean;
@@ -108,3 +106,6 @@ export const THEMES = [
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];
+
+/** Break ≈ work × this when a technique has no flowRatio of its own. */
+export const DEFAULT_FLOW_RATIO = 0.2;

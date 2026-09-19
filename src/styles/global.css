@@ -910,6 +910,14 @@ button {
   background: var(--surface-solid);
 }
 
+.field input[type="range"] {
+  min-height: 28px;
+  padding-inline: 0;
+  accent-color: var(--accent);
+  background: transparent;
+  border: none;
+}
+
 .select {
   width: 100%;
 }
@@ -1088,6 +1096,10 @@ button {
   gap: 0.5rem;
 }
 
+.tech-list + .btn {
+  margin-top: 0.75rem;
+}
+
 .tech-row {
   display: flex;
   align-items: center;
@@ -1103,6 +1115,48 @@ button {
   color: var(--ink-muted);
   line-height: 1.35;
   margin-top: 0.15rem;
+}
+
+.tech-row.is-editing {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.tech-row-actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.empty-note {
+  margin: 0 0 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ink-muted);
+}
+
+.recipe-form {
+  margin-top: 0.85rem;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.settings-quit {
+  margin-top: 0.75rem;
+}
+
+.settings-foot {
+  margin: 0.15rem 0 0.75rem;
 }
 
 .working-on {

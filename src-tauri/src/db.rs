@@ -1,5 +1,6 @@
 use crate::models::{
     AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
+    DEFAULT_FLOW_RATIO,
 };
 use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
@@ -110,6 +111,9 @@ impl Database {
             CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
             ",
         )?;
+        self.conn.execute_batch(
+            "DELETE FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n');",
+        )?;
         Ok(())
     }
 
@@ -178,7 +182,7 @@ impl Database {
                 0,
                 0,
                 1,
-                Some(0.2),
+                Some(DEFAULT_FLOW_RATIO),
                 "#B08968",
                 "flowtime",
             ),
@@ -189,7 +193,7 @@ impl Database {
                 5 * 60,
                 15 * 60,
                 4,
-                Some(0.2),
+                Some(DEFAULT_FLOW_RATIO),
                 "#8B6B61",
                 "hybrid",
             ),
@@ -231,11 +235,6 @@ impl Database {
             ("halfway_tick", defaults.halfway_tick.to_string()),
             ("default_technique_id", defaults.default_technique_id),
             ("start_minimized", defaults.start_minimized.to_string()),
-            (
-                "long_break_every_n",
-                defaults.long_break_every_n.to_string(),
-            ),
-            ("flow_ratio", defaults.flow_ratio.to_string()),
             ("working_on", defaults.working_on),
             ("locale", defaults.locale),
             (
@@ -299,14 +298,6 @@ impl Database {
                 .as_deref()
                 .map(|v| v == "true")
                 .unwrap_or(defaults.start_minimized),
-            long_break_every_n: self
-                .get_setting("long_break_every_n")?
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(defaults.long_break_every_n),
-            flow_ratio: self
-                .get_setting("flow_ratio")?
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(defaults.flow_ratio),
             working_on: self
                 .get_setting("working_on")?
                 .unwrap_or(defaults.working_on),
@@ -329,11 +320,6 @@ impl Database {
         self.set_setting("halfway_tick", &settings.halfway_tick.to_string())?;
         self.set_setting("default_technique_id", &settings.default_technique_id)?;
         self.set_setting("start_minimized", &settings.start_minimized.to_string())?;
-        self.set_setting(
-            "long_break_every_n",
-            &settings.long_break_every_n.to_string(),
-        )?;
-        self.set_setting("flow_ratio", &settings.flow_ratio.to_string())?;
         self.set_setting("working_on", &settings.working_on)?;
         self.set_setting("locale", &settings.locale)?;
         self.set_setting(
@@ -797,5 +783,36 @@ mod range_stats_tests {
         assert_eq!(range.streak_days, 2);
         assert_eq!(range.sessions, 3);
         assert_eq!(range.focus_secs, 240);
+    }
+
+    #[test]
+    fn drops_orphan_global_rhythm_settings() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-settings-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        db.set_setting("flow_ratio", "0.25").expect("seed flow");
+        db.set_setting("long_break_every_n", "6").expect("seed n");
+        drop(db);
+
+        let db = Database::open(&path).expect("reopen");
+        let mut stmt = db
+            .conn
+            .prepare("SELECT key FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n')")
+            .expect("query");
+        let leftover: Vec<String> = stmt
+            .query_map([], |row| row.get(0))
+            .expect("rows")
+            .collect::<Result<_, _>>()
+            .expect("collect");
+        assert!(
+            leftover.is_empty(),
+            "orphan keys still present: {leftover:?}"
+        );
+        let _ = db.get_settings().expect("settings load");
+        let _ = std::fs::remove_file(&path);
     }
 }

@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::models::{AppSettings, Phase, Technique, TimerSnapshot};
+use crate::models::{AppSettings, Phase, Technique, TimerSnapshot, DEFAULT_FLOW_RATIO};
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
@@ -519,7 +519,7 @@ impl EngineHandle {
 
                 let ratio = tech
                     .flow_ratio
-                    .unwrap_or(eng.settings.flow_ratio)
+                    .unwrap_or(DEFAULT_FLOW_RATIO)
                     .clamp(1.0 / 9.0, 1.0 / 3.0);
 
                 if eng.snapshot.is_flow || tech.mode == "flowtime" || eng.snapshot.hybrid_switched {
@@ -531,11 +531,7 @@ impl EngineHandle {
                     return;
                 }
 
-                let every_n = if eng.settings.long_break_every_n > 0 {
-                    eng.settings.long_break_every_n
-                } else {
-                    tech.cycles_before_long
-                };
+                let every_n = tech.cycles_before_long.max(1);
                 if every_n > 0 && eng.snapshot.cycle % every_n == 0 {
                     Self::enter_timed_phase(eng, Phase::LongBreak, tech.long_break_secs);
                 } else {
