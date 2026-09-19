@@ -1,6 +1,6 @@
 # Releasing Tempura
 
-Maintainer source of truth for cutting a desktop release and for **in-app updater signing**.
+Maintainer source of truth for cutting a desktop release and for **in-app updater signing**. Desktop trust model and audit notes: [security.md](security.md).
 
 The updater talks only to GitHub Releases (`latest.json` + signed installers). There is no extra update server.
 

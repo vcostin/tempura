@@ -52,9 +52,10 @@ Keyboard and dialogs are first-class. Screen readers on the timer UI should work
 
 Presets, settings, and history stay in local SQLite. No accounts, no cloud, no sync. Optional update checks ask GitHub for the latest release and, if you update, download the installer from there.
 
-## Releasing
+## Docs
 
-See [docs/releasing.md](docs/releasing.md).
+- [Releasing](docs/releasing.md) — cutting a desktop release and updater signing
+- [Security](docs/security.md) — desktop trust model and audit notes
 
 ## License
 
