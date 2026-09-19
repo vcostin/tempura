@@ -18,6 +18,9 @@ src-tauri/target
 # Updater ed25519 private key — never commit
 src-tauri/.keys/
 
+# Tauri CLI downloads minisign binaries into the repo cwd when signing
+minisign-linux/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
