@@ -114,9 +114,16 @@ export function UpdateStatusCopy({ status }: { status: UpdateUiStatus }) {
           ? "updates.offline"
           : "updates.error";
     return (
-      <p className="hint" role="status" style={{ margin: "0.65rem 0 0" }}>
-        {t(key)}
-      </p>
+      <div role="status" style={{ margin: "0.65rem 0 0" }}>
+        <p className="hint" style={{ margin: 0 }}>
+          {t(key)}
+        </p>
+        {status.detail && (
+          <p className="hint" style={{ margin: "0.35rem 0 0" }} title={status.detail}>
+            {status.detail}
+          </p>
+        )}
+      </div>
     );
   }
   return null;

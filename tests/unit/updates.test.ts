@@ -1,5 +1,9 @@
 /// <reference lib="deno.ns" />
-import { downloadPercent, isSoftUpdateError } from "../../src/lib/updates.ts";
+import {
+  downloadPercent,
+  formatUpdateErrorDetail,
+  isSoftUpdateError,
+} from "../../src/lib/updates.ts";
 
 Deno.test("downloadPercent: unknown or empty total stays null", () => {
   if (downloadPercent(10, null) !== null) throw new Error("null total");
@@ -32,5 +36,23 @@ Deno.test("isSoftUpdateError: network / missing latest.json", () => {
 Deno.test("isSoftUpdateError: signature / unexpected stay firm", () => {
   if (isSoftUpdateError(new Error("signature verification failed"))) {
     throw new Error("signature should not be soft");
+  }
+});
+
+Deno.test("formatUpdateErrorDetail: trims and collapses space", () => {
+  if (formatUpdateErrorDetail(new Error("  signature\n  failed  ")) !== "signature failed") {
+    throw new Error("collapse");
+  }
+  if (formatUpdateErrorDetail("plain") !== "plain") throw new Error("string");
+  if (formatUpdateErrorDetail(new Error("   ")) !== "") throw new Error("blank");
+});
+
+Deno.test("formatUpdateErrorDetail: caps length with ellipsis", () => {
+  const long = "x".repeat(300);
+  const out = formatUpdateErrorDetail(new Error(long), 20);
+  if (out.length !== 20) throw new Error(`len ${out.length}`);
+  if (!out.endsWith("…")) throw new Error("ellipsis");
+  if (formatUpdateErrorDetail(new Error("short"), 220) !== "short") {
+    throw new Error("under cap");
   }
 });

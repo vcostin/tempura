@@ -7,7 +7,21 @@ export type UpdateUiStatus =
   | { kind: "available"; version: string }
   | { kind: "downloading"; version: string; percent: number | null }
   | { kind: "installing"; version: string }
-  | { kind: "error"; source: "check" | "install"; soft: boolean };
+  | { kind: "error"; source: "check" | "install"; soft: boolean; detail?: string };
+
+export const UPDATE_ERROR_DETAIL_MAX = 220;
+
+/** One calm line for About — trim, collapse space, cap length. */
+export function formatUpdateErrorDetail(
+  err: unknown,
+  max = UPDATE_ERROR_DETAIL_MAX,
+): string {
+  const raw = err instanceof Error ? err.message : String(err);
+  const trimmed = raw.replace(/\s+/g, " ").trim();
+  if (!trimmed) return "";
+  if (max < 1 || trimmed.length <= max) return trimmed;
+  return `${trimmed.slice(0, max - 1).trimEnd()}…`;
+}
 
 export function downloadPercent(downloaded: number, total: number | null | undefined): number | null {
   if (total == null || total <= 0) return null;

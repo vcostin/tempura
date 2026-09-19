@@ -9,6 +9,7 @@
     "npm:@fontsource-variable/noto-sans-kr@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans-sc@^5.2.10": "5.3.0",
     "npm:@fontsource-variable/noto-sans@^5.2.10": "5.3.0",
+    "npm:@noble/hashes@1.8.0": "1.8.0",
     "npm:@playwright/test@1.60.0": "1.60.0",
     "npm:@tauri-apps/api@2": "2.11.1",
     "npm:@tauri-apps/cli@*": "2.11.4",
@@ -354,6 +355,9 @@
         "@jridgewell/resolve-uri",
         "@jridgewell/sourcemap-codec"
       ]
+    },
+    "@noble/hashes@1.8.0": {
+      "integrity": "sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A=="
     },
     "@playwright/test@1.60.0": {
       "integrity": "sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==",

@@ -3,6 +3,7 @@ import type { Update } from "@tauri-apps/plugin-updater";
 import { isDesktopShell, isTauri } from "../lib/platform";
 import {
   downloadPercent,
+  formatUpdateErrorDetail,
   isSoftUpdateError,
   type UpdateUiStatus,
 } from "../lib/updates";
@@ -48,7 +49,9 @@ export function useUpdater(options: Options) {
         setStatus({ kind: "idle" });
         return;
       }
-      setStatus({ kind: "error", source: "check", soft: isSoftUpdateError(err) });
+      const soft = isSoftUpdateError(err);
+      const detail = soft ? undefined : formatUpdateErrorDetail(err) || undefined;
+      setStatus({ kind: "error", source: "check", soft, detail });
     } finally {
       busyRef.current = false;
     }
@@ -87,7 +90,12 @@ export function useUpdater(options: Options) {
       const { relaunch } = await import("@tauri-apps/plugin-process");
       await relaunch();
     } catch (err) {
-      setStatus({ kind: "error", source: "install", soft: isSoftUpdateError(err) });
+      setStatus({
+        kind: "error",
+        source: "install",
+        soft: isSoftUpdateError(err),
+        detail: formatUpdateErrorDetail(err) || undefined,
+      });
     } finally {
       busyRef.current = false;
     }
