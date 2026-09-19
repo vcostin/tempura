@@ -1,6 +1,7 @@
 /// <reference lib="deno.ns" />
 import {
   buildUpdaterJson,
+  linuxHasPackedAndRaw,
   MissingPlatformsError,
   pickPlatforms,
   type ReleaseAsset,
@@ -76,13 +77,31 @@ Deno.test("pickPlatforms: bundle without .sig is not a platform", () => {
   }
 });
 
-Deno.test("pickPlatforms: packed AppImage.tar.gz beats raw AppImage", () => {
-  const picked = pickPlatforms([
+Deno.test("pickPlatforms: raw AppImage beats packed tar.gz", () => {
+  const both = [
     asset("Tempura_0.3.0_amd64.AppImage"),
     asset("Tempura_0.3.0_amd64.AppImage.sig"),
     asset("Tempura_0.3.0_amd64.AppImage.tar.gz"),
     asset("Tempura_0.3.0_amd64.AppImage.tar.gz.sig"),
+  ];
+  if (!linuxHasPackedAndRaw(both)) throw new Error("expected dual linux assets");
+  const picked = pickPlatforms(both);
+  if (picked["linux-x86_64"]?.bundle.name !== "Tempura_0.3.0_amd64.AppImage") {
+    throw new Error(picked["linux-x86_64"]?.bundle.name ?? "missing linux");
+  }
+});
+
+Deno.test("pickPlatforms: packed AppImage.tar.gz is fallback when raw is absent", () => {
+  const picked = pickPlatforms([
+    asset("Tempura_0.3.0_amd64.AppImage.tar.gz"),
+    asset("Tempura_0.3.0_amd64.AppImage.tar.gz.sig"),
   ]);
+  if (linuxHasPackedAndRaw([
+    asset("Tempura_0.3.0_amd64.AppImage.tar.gz"),
+    asset("Tempura_0.3.0_amd64.AppImage.tar.gz.sig"),
+  ])) {
+    throw new Error("tar.gz-only is not dual");
+  }
   if (picked["linux-x86_64"]?.bundle.name !== "Tempura_0.3.0_amd64.AppImage.tar.gz") {
     throw new Error(picked["linux-x86_64"]?.bundle.name ?? "missing linux");
   }

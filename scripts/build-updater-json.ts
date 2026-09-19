@@ -63,12 +63,25 @@ function firstMatch(
   return assets.find((a) => !isSig(a.name) && test(a.name));
 }
 
-/** Prefer AppImage; ignore deb/rpm for the primary linux-x86_64 updater key. */
+function linuxRawAppImage(assets: readonly ReleaseAsset[]): PlatformFiles | undefined {
+  return pair(assets, firstMatch(assets, (n) => n.endsWith(".AppImage")));
+}
+
+function linuxPackedAppImage(assets: readonly ReleaseAsset[]): PlatformFiles | undefined {
+  return pair(assets, firstMatch(assets, (n) => n.endsWith(".AppImage.tar.gz")));
+}
+
+/** True when a Release lists both a raw AppImage pair and a packed tar.gz pair. */
+export function linuxHasPackedAndRaw(assets: readonly ReleaseAsset[]): boolean {
+  return Boolean(linuxRawAppImage(assets) && linuxPackedAppImage(assets));
+}
+
+/**
+ * Prefer the raw AppImage (wayland-stripped and re-signed in `tauri-ci.ts`).
+ * Packed `.AppImage.tar.gz` is fallback only. Ignore deb/rpm.
+ */
 export function pickLinux(assets: readonly ReleaseAsset[]): PlatformFiles | undefined {
-  return (
-    pair(assets, firstMatch(assets, (n) => n.endsWith(".AppImage.tar.gz"))) ??
-    pair(assets, firstMatch(assets, (n) => n.endsWith(".AppImage")))
-  );
+  return linuxRawAppImage(assets) ?? linuxPackedAppImage(assets);
 }
 
 /** Prefer NSIS setup exe (matches `updaterJsonPreferNsis: true`); MSI is fallback only. */
@@ -200,6 +213,12 @@ async function main(): Promise<void> {
     `https://api.github.com/repos/${repo}/releases/${release.id}/assets?per_page=100`,
     token,
   );
+
+  if (linuxHasPackedAndRaw(assets)) {
+    console.warn(
+      "latest.json: both .AppImage and .AppImage.tar.gz are on this Release; using the raw .AppImage (re-signed after the Wayland strip).",
+    );
+  }
 
   const picked = pickPlatforms(assets);
   const missing = missingPlatforms(picked);
