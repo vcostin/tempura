@@ -7,23 +7,11 @@
 
 use std::process::{Command, Stdio};
 
-#[allow(dead_code)] // pinned Discussion #5; asserted in tests, frontend has its own copy
 pub const FEEDBACK_URL: &str = "https://github.com/vcostin/tempura/discussions/5";
-const FEEDBACK_PREFIX: &str = "https://github.com/vcostin/tempura/discussions/";
 
-pub fn is_allowed_feedback_url(url: &str) -> bool {
-    let Some(rest) = url.strip_prefix(FEEDBACK_PREFIX) else {
-        return false;
-    };
-    !rest.is_empty() && rest.chars().all(|c| c.is_ascii_digit())
-}
-
-/// Open an allowlisted feedback discussion in the system browser.
-pub fn open_feedback_url(url: &str) -> Result<(), String> {
-    if !is_allowed_feedback_url(url) {
-        return Err("URL is not an allowed feedback discussion".into());
-    }
-    open_in_host_browser(url)
+/// Open the pinned Feedback discussion in the system browser.
+pub fn open_feedback_url() -> Result<(), String> {
+    open_in_host_browser(FEEDBACK_URL)
 }
 
 fn open_in_host_browser(url: &str) -> Result<(), String> {
@@ -157,24 +145,17 @@ mod tests {
     use super::*;
 
     #[test]
-    fn allows_pinned_discussion() {
-        assert!(is_allowed_feedback_url(FEEDBACK_URL));
-        assert!(is_allowed_feedback_url(
+    fn pinned_feedback_url_is_discussion_five() {
+        assert_eq!(
+            FEEDBACK_URL,
+            "https://github.com/vcostin/tempura/discussions/5"
+        );
+        assert!(FEEDBACK_URL.starts_with("https://"));
+        assert!(!FEEDBACK_URL.contains(['?', '#']));
+        assert_ne!(
+            FEEDBACK_URL,
             "https://github.com/vcostin/tempura/discussions/12"
-        ));
-    }
-
-    #[test]
-    fn rejects_other_urls() {
-        assert!(!is_allowed_feedback_url("https://github.com/vcostin/tempura"));
-        assert!(!is_allowed_feedback_url(
-            "https://github.com/vcostin/tempura/discussions/5/extra"
-        ));
-        assert!(!is_allowed_feedback_url("https://evil.example/discussions/5"));
-        assert!(!is_allowed_feedback_url(
-            "https://github.com/vcostin/tempura/discussions/"
-        ));
-        assert!(!is_allowed_feedback_url("file:///etc/passwd"));
+        );
     }
 
     #[test]

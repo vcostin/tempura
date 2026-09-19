@@ -52,7 +52,7 @@ export async function getAutostartEnabled(): Promise<boolean> {
 export async function openFeedback(): Promise<boolean> {
   try {
     if (isTauri()) {
-      await invoke("open_feedback_url", { url: FEEDBACK_URL });
+      await invoke("open_feedback_url");
       return true;
     }
   } catch {

@@ -194,8 +194,8 @@ pub fn debug_test_notification(
 
 /// Open the Feedback discussion in the host browser (Linux: AppImage-safe env).
 #[tauri::command]
-pub fn open_feedback_url(url: String) -> Result<(), String> {
-    crate::open_url::open_feedback_url(&url)
+pub fn open_feedback_url() -> Result<(), String> {
+    crate::open_url::open_feedback_url()
 }
 
 #[tauri::command]

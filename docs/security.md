@@ -35,7 +35,7 @@ Rust**, plus **how updates are chosen and verified**.
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
 sig), relaunch, quit, timer/settings/stats, a test notification, open
-an allowlisted GitHub discussion. That is annoying, not “unsigned
+the pinned GitHub discussion. That is annoying, not “unsigned
 update.”
 
 ## Findings
@@ -102,22 +102,21 @@ notification with a fixed title/body. Not a data leak.
 ACL that omits it from release capabilities. UI hiding is not IPC
 lockdown.
 
-#### L2 — Feedback opener allowlists any `discussions/<digits>` URL
+#### L2 — Feedback opener allowed any `discussions/<digits>` URL
 
-**Impact.** The frontend always sends Discussion #5. Rust accepts any
-`https://github.com/vcostin/tempura/discussions/<digits>` (tests
-explicitly allow `#12`). XSS cannot open `file://` or a foreign host,
-but it is not hardcoded-only to #5. `FEEDBACK_URL` in Rust is
-`#[allow(dead_code)]` — used by tests, not by the allowlist.
+**Status.** Addressed. `open_feedback_url` takes no URL argument. Rust
+opens `FEEDBACK_URL` (Discussion #5) only. The frontend still keeps its
+own copy for the About link and clipboard.
 
-**Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs) (`FEEDBACK_PREFIX`, `is_allowed_feedback_url`);
-[`src-tauri/src/commands.rs`](../src-tauri/src/commands.rs) `open_feedback_url(url: String)`;
+**Was.** The frontend always sent Discussion #5, but Rust accepted any
+`https://github.com/vcostin/tempura/discussions/<digits>` (tests allowed
+`#12`). XSS could not open `file://` or a foreign host, but it was not
+hardcoded-only to #5. `FEEDBACK_URL` in Rust was `#[allow(dead_code)]`.
+
+**Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs) (`FEEDBACK_URL`, `open_feedback_url()`);
+[`src-tauri/src/commands.rs`](../src-tauri/src/commands.rs);
 [`src/lib/platform.ts`](../src/lib/platform.ts);
-[`tests/unit/feedbackUrl.test.ts`](../tests/unit/feedbackUrl.test.ts) (string presence, not allowlist equality).
-
-**Fix sketch.** Compare to `FEEDBACK_URL` only, or drop the `url`
-argument and open the constant. Keep the existing host/path digit
-checks as belt and braces.
+[`tests/unit/feedbackUrl.test.ts`](../tests/unit/feedbackUrl.test.ts).
 
 #### L3 — SQLite created without `0700` / `0600`
 
@@ -186,8 +185,8 @@ concatenation).
 
 These are easy to misread as stronger guarantees than they are.
 
-- **“Pinned feedback URL”** — frontend constant is #5; Rust allowlist is
-  any digit discussion under this repo (L2).
+- **“Pinned feedback URL”** — frontend constant and Rust opener are both
+  Discussion #5; the command no longer takes a URL (L2 addressed).
 - **Debug UI lock ≠ IPC lockdown** — L1.
 - **Capabilities list plugins, not app commands.**
   [`src-tauri/capabilities/default.json`](../src-tauri/capabilities/default.json)
@@ -221,23 +220,22 @@ Worth keeping; do not “fix” these into something weaker.
 - **Locks frozen** (`deno.lock`, `Cargo.lock`); Actions pinned by
   commit SHA in `.github/workflows/*`; `.gitignore` has
   `src-tauri/.keys/`; no private key files in the tree.
-- **Opener allowlist** rejects other hosts, extra path segments, and
-  `file://` even before L2 is tightened.
+- **Opener** opens `FEEDBACK_URL` only (no IPC URL argument).
 - **Linux opener** strips AppImage `APPDIR` prefixes so `xdg-open`
   uses host libs (availability fix, not a privilege drop).
 
 ## Recommended fix order
 
-**M1** is done (synthesizer prefers the re-signed raw AppImage). Remaining:
+**M1** and **L2** are done (raw AppImage in `latest.json`; feedback
+opener is Discussion #5 only). Remaining:
 
-1. **L2** — Open only Discussion #5 from Rust.
-2. **L1** — Do not register `debug_test_notification` in release, or
+1. **L1** — Do not register `debug_test_notification` in release, or
    ACL it off.
-3. **L4** — Copy/link fallback only; no `window.open`.
-4. **L3** — Restrictive Unix modes on the app-data dir and DB.
-5. **L6** — Absolute opener binaries where the OS has a stable path.
-6. **L5** — Stop `innerHTML` for locale strings on the download site.
-7. **M2** — Authenticode / notarization when you are ready to operate
+2. **L4** — Copy/link fallback only; no `window.open`.
+3. **L3** — Restrictive Unix modes on the app-data dir and DB.
+4. **L6** — Absolute opener binaries where the OS has a stable path.
+5. **L5** — Stop `innerHTML` for locale strings on the download site.
+6. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here
