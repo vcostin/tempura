@@ -34,9 +34,9 @@ Rust**, plus **how updates are chosen and verified**.
 
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
-sig), relaunch, quit, timer/settings/stats, a test notification, open
-the pinned GitHub discussion. That is annoying, not “unsigned
-update.”
+sig), relaunch, quit, timer/settings/stats, open the pinned GitHub
+discussion. Debug builds also expose a test notification. That is
+annoying, not “unsigned update.”
 
 ## Findings
 
@@ -87,20 +87,22 @@ rotating the Tauri updater key.
 
 ### Low
 
-#### L1 — `debug_test_notification` is always registered
+#### L1 — `debug_test_notification` was always registered
 
-**Impact.** The Debug page is a UI gate (`localStorage` + five version
-clicks in About). The Rust command is on the invoke handler in every
-build. Anyone who can call IPC (including XSS) can fire one OS
-notification with a fixed title/body. Not a data leak.
+**Status.** Addressed. The command is `#[cfg(debug_assertions)]` and is
+only added to `generate_handler!` in debug builds, matching
+`AppInfo.debug`. The Debug page still exists after five About clicks in
+release (build info, hide beetle) but does not offer a dead test-send
+button.
 
-**Evidence.** [`src-tauri/src/commands.rs`](../src-tauri/src/commands.rs) (`debug_test_notification`);
-[`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs) (always in `generate_handler!`);
-[`src/lib/debugAccess.ts`](../src/lib/debugAccess.ts).
+**Was.** The Debug page was a UI gate (`localStorage` + five version
+clicks). The Rust command was on the invoke handler in every build, so
+XSS could fire a fixed-title OS notification.
 
-**Fix sketch.** `#[cfg(debug_assertions)]` the command, or add a Tauri
-ACL that omits it from release capabilities. UI hiding is not IPC
-lockdown.
+**Evidence.** [`src-tauri/src/commands.rs`](../src-tauri/src/commands.rs);
+[`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs);
+[`src/components/DebugView.tsx`](../src/components/DebugView.tsx);
+[`tests/unit/debugCommandGate.test.ts`](../tests/unit/debugCommandGate.test.ts).
 
 #### L2 — Feedback opener allowed any `discussions/<digits>` URL
 
@@ -187,7 +189,10 @@ These are easy to misread as stronger guarantees than they are.
 
 - **“Pinned feedback URL”** — frontend constant and Rust opener are both
   Discussion #5; the command no longer takes a URL (L2 addressed).
-- **Debug UI lock ≠ IPC lockdown** — L1.
+- **Debug UI lock ≠ IPC lockdown** — five-click unlock still shows the
+  Debug page in release; `debug_test_notification` is compiled out
+  (L1 addressed). Other app commands remain available unless you ACL
+  them.
 - **Capabilities list plugins, not app commands.**
   [`src-tauri/capabilities/default.json`](../src-tauri/capabilities/default.json)
   is lean (no shell / fs / http / opener plugins). Custom
@@ -226,16 +231,15 @@ Worth keeping; do not “fix” these into something weaker.
 
 ## Recommended fix order
 
-**M1** and **L2** are done (raw AppImage in `latest.json`; feedback
-opener is Discussion #5 only). Remaining:
+**M1**, **L2**, and **L1** are done (raw AppImage in `latest.json`;
+feedback opener is Discussion #5 only; test notification IPC is
+debug-only). Remaining:
 
-1. **L1** — Do not register `debug_test_notification` in release, or
-   ACL it off.
-2. **L4** — Copy/link fallback only; no `window.open`.
-3. **L3** — Restrictive Unix modes on the app-data dir and DB.
-4. **L6** — Absolute opener binaries where the OS has a stable path.
-5. **L5** — Stop `innerHTML` for locale strings on the download site.
-6. **M2** — Authenticode / notarization when you are ready to operate
+1. **L4** — Copy/link fallback only; no `window.open`.
+2. **L3** — Restrictive Unix modes on the app-data dir and DB.
+3. **L6** — Absolute opener binaries where the OS has a stable path.
+4. **L5** — Stop `innerHTML` for locale strings on the download site.
+5. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here

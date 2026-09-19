@@ -51,6 +51,8 @@ export function DebugView(props: Props) {
       ? "vite-dev"
       : "release";
 
+  const canTestNotify = Boolean(props.info?.debug);
+
   return (
     <ScrollPanel label="Debug">
       <BrandHeader
@@ -90,15 +92,21 @@ export function DebugView(props: Props) {
           Editor; that limitation cannot be fixed in-app. Linux/Windows use the
           normal system notifier.
         </p>
-        <button
-          type="button"
-          className="btn btn-ghost"
-          style={{ marginTop: "0.75rem" }}
-          disabled={testNotifyBusy}
-          onClick={() => void sendTestNotification()}
-        >
-          {testNotifyBusy ? "Sending…" : "Send test notification"}
-        </button>
+        {canTestNotify ? (
+          <button
+            type="button"
+            className="btn btn-ghost"
+            style={{ marginTop: "0.75rem" }}
+            disabled={testNotifyBusy}
+            onClick={() => void sendTestNotification()}
+          >
+            {testNotifyBusy ? "Sending…" : "Send test notification"}
+          </button>
+        ) : (
+          <p className="hint" style={{ marginTop: "0.75rem" }}>
+            Test send is compiled out of release builds.
+          </p>
+        )}
         {testNotifyMsg && (
           <p className="hint" style={{ marginTop: "0.5rem" }}>
             {testNotifyMsg}
