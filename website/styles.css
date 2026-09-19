@@ -156,6 +156,7 @@ a:hover {
 .nav-links a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 36px;
   color: var(--ink-muted);
   font-size: 0.88rem;
@@ -165,6 +166,7 @@ a:hover {
   border-radius: 999px;
   text-decoration: none;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-links a:hover {
@@ -186,9 +188,25 @@ a:hover {
 }
 
 .lang-switch {
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
-  padding-inline-start: 0.2rem;
+  flex-shrink: 0;
+}
+
+.lang-switch::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 0.72rem;
+  top: 50%;
+  width: 0.68rem;
+  height: 0.42rem;
+  transform: translateY(-52%);
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.5 1.6 6 6.4 10.5 1.6' stroke='%235a6b66' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
 }
 
 .lang-switch select {
@@ -203,16 +221,12 @@ a:hover {
   font-weight: 500;
   line-height: 1;
   color: var(--ink-muted);
-  background-color: var(--surface-solid);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1.6 1.7 6 6.3 10.4 1.7' stroke='%235a6b66' stroke-width='1.45' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-size: 0.7rem 0.46rem;
-  background-position: right 0.7rem center;
+  background: var(--surface-solid);
   border: 1px solid rgba(30, 42, 50, 0.1);
   border-radius: 999px;
   padding-block: 0;
-  padding-inline-start: 0.85rem;
-  padding-inline-end: 1.7rem;
+  padding-inline-start: 0.9rem;
+  padding-inline-end: 1.75rem;
   min-height: 36px;
   max-width: 12rem;
   cursor: pointer;
@@ -241,10 +255,6 @@ a:hover {
 
 .lang-switch select::-ms-expand {
   display: none;
-}
-
-[dir="rtl"] .lang-switch select {
-  background-position: left 0.7rem center;
 }
 
 .hero {
@@ -307,7 +317,9 @@ a:hover {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
-  padding: 0.55rem 0.55rem 0.55rem 1.35rem;
+  padding-block: 0.55rem;
+  padding-inline-start: 1.35rem;
+  padding-inline-end: 0.55rem;
   border-radius: 999px;
   background: var(--accent);
   color: #fff8f0;
@@ -729,6 +741,25 @@ a:hover {
 
   .shot--stats .tilt {
     transform: rotate(6deg);
+  }
+
+  /* Fan toward the copy: settings sits on the copy side in both dirs. */
+  [dir="rtl"] .shot--settings {
+    left: auto;
+    right: 4%;
+  }
+
+  [dir="rtl"] .shot--stats {
+    right: auto;
+    left: 6%;
+  }
+
+  [dir="rtl"] .shot--settings .tilt {
+    transform: rotate(7deg);
+  }
+
+  [dir="rtl"] .shot--stats .tilt {
+    transform: rotate(-6deg);
   }
 
   .points {
