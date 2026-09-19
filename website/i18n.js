@@ -83,9 +83,37 @@ function populateSwitcher(select) {
     }),
   );
   select.value = currentLocale();
+  fitLangSelect(select);
   select.addEventListener("change", () => {
     void setLocale(select.value);
   });
+}
+
+/** Size the closed select to the current label so the chevron sits next to the text. */
+function fitLangSelect(select) {
+  if (!select?.selectedOptions?.[0]) return;
+  const cs = getComputedStyle(select);
+  const probe = document.createElement("span");
+  probe.textContent = select.selectedOptions[0].textContent ?? "";
+  probe.style.cssText = [
+    "position:absolute",
+    "inset-inline-start:0",
+    "top:0",
+    "visibility:hidden",
+    "pointer-events:none",
+    "white-space:nowrap",
+    `font:${cs.font}`,
+    `letter-spacing:${cs.letterSpacing}`,
+  ].join(";");
+  document.body.append(probe);
+  const start = Number.parseFloat(cs.paddingInlineStart) || 0;
+  const end = Number.parseFloat(cs.paddingInlineEnd) || 0;
+  const border =
+    (Number.parseFloat(cs.borderInlineStartWidth) || Number.parseFloat(cs.borderLeftWidth) || 0) +
+    (Number.parseFloat(cs.borderInlineEndWidth) || Number.parseFloat(cs.borderRightWidth) || 0);
+  const next = Math.ceil(probe.getBoundingClientRect().width + start + end + border + 1);
+  probe.remove();
+  select.style.width = `${next}px`;
 }
 
 async function loadBundle(code) {
@@ -118,6 +146,7 @@ export async function setLocale(code) {
   localStorage.setItem(STORAGE_KEY, code);
   applyDocument(code, meta?.dir ?? "ltr");
   fillDom();
+  fitLangSelect(document.getElementById("lang-select"));
   document.dispatchEvent(new CustomEvent("tempura:locale", { detail: { locale: code } }));
 }
 
@@ -173,6 +202,10 @@ const ready = (async () => {
   applyDocument(initial, meta.dir);
   fillDom();
   populateSwitcher(document.getElementById("lang-select"));
+  const fontsReady = document.fonts?.ready;
+  if (fontsReady) {
+    void fontsReady.then(() => fitLangSelect(document.getElementById("lang-select")));
+  }
 })();
 
 export function refresh() {
