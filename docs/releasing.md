@@ -10,7 +10,7 @@ The updater talks only to GitHub Releases (`latest.json` + signed installers). T
 
 Do this **before** `deno task version` / tag / push, so AppImage-only bugs show up here instead of after Release.
 
-1. Set `TAURI_SIGNING_PRIVATE_KEY` (or `TAURI_SIGNING_PRIVATE_KEY_PATH`) and run `deno task tauri:build`. Open the AppImage in `src-tauri/target/release/bundle/appimage/`.
+1. Run `deno task tauri:build:signed` (loads `src-tauri/.keys/tempura.key`, sets an empty updater password, unsets `TAURI_SIGNING_PRIVATE_KEY_PATH`). Or set `TAURI_SIGNING_PRIVATE_KEY` yourself and run `deno task tauri:build`. Open the AppImage in `src-tauri/target/release/bundle/appimage/`.
 2. On that build: window paints (Wayland/WebKit), tray, About version, **Send feedback** (browser or copy/link fallback is fine). If prefs shipped, open Settings and start a short session.
 3. Full in-app update still needs a published `latest.json` (previous install → new tag). Optionally confirm the local `.sig` matches after the wayland re-sign: `minisign -Vm path/to/*.AppImage -x path/to/*.AppImage.sig -p ~/.tauri/tempura.key.pub`.
 
