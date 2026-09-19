@@ -137,11 +137,8 @@ test.describe("a11y dialogs and landmarks", () => {
     await expect(
       page.getByRole("link", { name: "GitHub Discussion #5" }),
     ).toBeVisible();
-    await page.evaluate(() => {
-      window.open = () => ({ closed: false });
-    });
     await page.getByRole("button", { name: "Send feedback" }).click();
-    await expect(page.getByText(/Opened in your browser/)).toBeVisible();
+    await expect(page.getByText(/Couldn.t open a browser/)).toBeVisible();
     await page.keyboard.press("Escape");
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });

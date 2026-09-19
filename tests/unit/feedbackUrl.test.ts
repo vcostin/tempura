@@ -18,4 +18,7 @@ Deno.test("feedback URL is pinned in frontend and Rust opener", async () => {
   if (commands.includes("open_feedback_url(url")) {
     throw new Error("open_feedback_url must not take a URL argument");
   }
+  if (platform.includes("window.open(")) {
+    throw new Error("openFeedback must not fall back to window.open");
+  }
 });
