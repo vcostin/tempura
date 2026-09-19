@@ -168,20 +168,18 @@ JSON files. Download links themselves are built with `textContent` /
 in locales (`textContent`). Or sanitize to a tiny allowlist (`code`,
 `em`).
 
-#### L6 — macOS `open` / Windows `cmd` resolved via `PATH`
+#### L6 — macOS `open` / Windows `cmd` used to resolve via `PATH`
 
-**Impact.** Linux uses `/usr/bin/xdg-open` then `/usr/bin/gio`. macOS
-spawns `open`, Windows `cmd /C start "" <url>`. A poisoned `PATH` on
-those two OSes could wrap the opener. For a desktop app running as the
-user, `PATH` hijacking is usually already game-over; Linux being
-absolute is the better pattern.
+**Status.** Addressed. macOS uses `/usr/bin/open`. Windows uses
+`%SYSTEMROOT%\System32\cmd.exe` (fallback `C:\Windows\System32\cmd.exe`).
+The URL is still a separate `cmd` argument (`/C start "" <url>`), not
+concatenated into a shell string. Linux was already absolute
+(`/usr/bin/xdg-open`, `/usr/bin/gio`).
 
-**Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs) `open_in_host_browser` / `open_linux`.
+**Was.** macOS spawned `open` and Windows `cmd` via `PATH`.
 
-**Fix sketch.** Absolute paths where stable (`/usr/bin/open` is not
-macOS’s layout; `C:\Windows\System32\cmd.exe` is). Do not pass the URL
-through a shell on Windows beyond `cmd /C start` (already no extra
-concatenation).
+**Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs)
+`MACOS_OPEN`, `windows_cmd_exe`, `open_in_host_browser`.
 
 ### Info
 
@@ -226,20 +224,21 @@ Worth keeping; do not “fix” these into something weaker.
   commit SHA in `.github/workflows/*`; `.gitignore` has
   `src-tauri/.keys/`; no private key files in the tree.
 - **Opener** opens `FEEDBACK_URL` only (no IPC URL argument; no
-  `window.open` fallback).
+  `window.open` fallback). Host binaries are absolute paths (Linux,
+  macOS `/usr/bin/open`, Windows `System32\cmd.exe`).
 - **Unix DB modes** — app-data dir `0700`, SQLite + WAL/SHM `0600` on open.
 - **Linux opener** strips AppImage `APPDIR` prefixes so `xdg-open`
   uses host libs (availability fix, not a privilege drop).
 
 ## Recommended fix order
 
-**M1**, **L2**, **L1**, **L4**, and **L3** are done (raw AppImage in
-`latest.json`; feedback opener is Discussion #5 only; test notification
-IPC is debug-only; no `window.open` fallback; Unix DB modes). Remaining:
+**M1**, **L2**, **L1**, **L4**, **L3**, and **L6** are done (raw AppImage
+in `latest.json`; feedback opener is Discussion #5 only; test
+notification IPC is debug-only; no `window.open` fallback; Unix DB
+modes; absolute opener binaries). Remaining:
 
-1. **L6** — Absolute opener binaries where the OS has a stable path.
-2. **L5** — Stop `innerHTML` for locale strings on the download site.
-3. **M2** — Authenticode / notarization when you are ready to operate
+1. **L5** — Stop `innerHTML` for locale strings on the download site.
+2. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here

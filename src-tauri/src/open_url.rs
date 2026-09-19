@@ -7,7 +7,24 @@
 
 use std::process::{Command, Stdio};
 
+#[cfg(any(test, target_os = "windows"))]
+use std::path::PathBuf;
+
 pub const FEEDBACK_URL: &str = "https://github.com/vcostin/tempura/discussions/5";
+
+#[cfg(any(test, target_os = "macos"))]
+const MACOS_OPEN: &str = "/usr/bin/open";
+
+/// `%SYSTEMROOT%\System32\cmd.exe`, falling back to `C:\Windows\...` when unset.
+#[cfg(any(test, target_os = "windows"))]
+fn windows_cmd_exe() -> PathBuf {
+    let mut path = PathBuf::from(
+        std::env::var_os("SYSTEMROOT").unwrap_or_else(|| r"C:\Windows".into()),
+    );
+    path.push("System32");
+    path.push("cmd.exe");
+    path
+}
 
 /// Open the pinned Feedback discussion in the system browser.
 pub fn open_feedback_url() -> Result<(), String> {
@@ -21,13 +38,14 @@ fn open_in_host_browser(url: &str) -> Result<(), String> {
     }
     #[cfg(target_os = "macos")]
     {
-        let mut cmd = Command::new("open");
+        let mut cmd = Command::new(MACOS_OPEN);
         cmd.arg(url);
-        return run_opener(&mut cmd, "open");
+        return run_opener(&mut cmd, MACOS_OPEN);
     }
     #[cfg(target_os = "windows")]
     {
-        let mut cmd = Command::new("cmd");
+        let bin = windows_cmd_exe();
+        let mut cmd = Command::new(&bin);
         cmd.args(["/C", "start", "", url]);
         return run_opener(&mut cmd, "cmd start");
     }
@@ -143,6 +161,22 @@ pub fn strip_appdir_prefixes(value: &str, appdir: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn opener_binaries_are_absolute() {
+        assert_eq!(MACOS_OPEN, "/usr/bin/open");
+        let cmd = windows_cmd_exe();
+        assert_eq!(
+            cmd.file_name().and_then(|n| n.to_str()),
+            Some("cmd.exe")
+        );
+        let s = cmd.to_string_lossy();
+        assert!(s.contains("System32"), "{s}");
+        assert!(
+            s.starts_with(r"C:\Windows") || std::env::var_os("SYSTEMROOT").is_some(),
+            "{s}"
+        );
+    }
 
     #[test]
     fn pinned_feedback_url_is_discussion_five() {
