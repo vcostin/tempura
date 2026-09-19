@@ -47,20 +47,14 @@ export async function getAutostartEnabled(): Promise<boolean> {
   }
 }
 
-/** Open the Feedback discussion in the system browser (no telemetry, no in-app form).
- * Returns false if we could not hand the URL to a browser — callers should still show it. */
+/** Open the Feedback discussion in the host browser (no telemetry, no in-app form).
+ * Returns false if we could not hand the URL to a browser — callers should still show it.
+ * Fail closed: no `window.open` (that can pop a webview). About already has copy/link. */
 export async function openFeedback(): Promise<boolean> {
+  if (!isTauri()) return false;
   try {
-    if (isTauri()) {
-      await invoke("open_feedback_url");
-      return true;
-    }
-  } catch {
-    /* command missing or host opener failed — try the webview */
-  }
-  try {
-    const opened = window.open(FEEDBACK_URL, "_blank", "noopener,noreferrer");
-    return opened != null;
+    await invoke("open_feedback_url");
+    return true;
   } catch {
     return false;
   }

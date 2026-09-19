@@ -135,21 +135,21 @@ already has the same view.
 `0o700` / `0o600` on Unix. Windows ACL tightening is optional and
 noisier.
 
-#### L4 — `window.open` fallback; no navigation deny-list
+#### L4 — `window.open` fallback on opener failure
 
-**Impact.** If the Rust opener fails, the UI tries
-`window.open(FEEDBACK_URL, "_blank", "noopener,noreferrer")`. There is
-no `on_navigation` handler. CSP `default-src 'self'` is the main
-brake on loading a remote page **in** the webview; it is not a hard
-deny of new windows / opener behavior.
+**Status.** Addressed. `openFeedback` returns true only when the Rust
+command succeeds. Failure (and non-Tauri preview) returns false — no
+`window.open`. About already shows Discussion #5 plus copy, with calm
+“use the link” copy. There is still no `on_navigation` deny-list; CSP
+`default-src 'self'` remains the brake on loading remote pages in the
+webview.
+
+**Was.** If the Rust opener failed, the UI tried
+`window.open(FEEDBACK_URL, "_blank", …)`, which can pop a webview.
 
 **Evidence.** [`src/lib/platform.ts`](../src/lib/platform.ts) `openFeedback`;
-[`src-tauri/src/lib.rs`](../src-tauri/src/lib.rs) (no navigation hook);
-CSP in [`src-tauri/tauri.conf.json`](../src-tauri/tauri.conf.json).
-
-**Fix sketch.** On opener failure, show the URL to copy (About already
-does) and skip `window.open`. Optionally `on_navigation` → deny
-anything that is not the app origin.
+[`src/components/AboutView.tsx`](../src/components/AboutView.tsx);
+[`tests/unit/feedbackUrl.test.ts`](../tests/unit/feedbackUrl.test.ts).
 
 #### L5 — Download site `innerHTML` from locale strings
 
@@ -225,21 +225,21 @@ Worth keeping; do not “fix” these into something weaker.
 - **Locks frozen** (`deno.lock`, `Cargo.lock`); Actions pinned by
   commit SHA in `.github/workflows/*`; `.gitignore` has
   `src-tauri/.keys/`; no private key files in the tree.
-- **Opener** opens `FEEDBACK_URL` only (no IPC URL argument).
+- **Opener** opens `FEEDBACK_URL` only (no IPC URL argument; no
+  `window.open` fallback).
 - **Linux opener** strips AppImage `APPDIR` prefixes so `xdg-open`
   uses host libs (availability fix, not a privilege drop).
 
 ## Recommended fix order
 
-**M1**, **L2**, and **L1** are done (raw AppImage in `latest.json`;
+**M1**, **L2**, **L1**, and **L4** are done (raw AppImage in `latest.json`;
 feedback opener is Discussion #5 only; test notification IPC is
-debug-only). Remaining:
+debug-only; no `window.open` fallback). Remaining:
 
-1. **L4** — Copy/link fallback only; no `window.open`.
-2. **L3** — Restrictive Unix modes on the app-data dir and DB.
-3. **L6** — Absolute opener binaries where the OS has a stable path.
-4. **L5** — Stop `innerHTML` for locale strings on the download site.
-5. **M2** — Authenticode / notarization when you are ready to operate
+1. **L3** — Restrictive Unix modes on the app-data dir and DB.
+2. **L6** — Absolute opener binaries where the OS has a stable path.
+3. **L5** — Stop `innerHTML` for locale strings on the download site.
+4. **M2** — Authenticode / notarization when you are ready to operate
    those programs (cert/account work, not a weekend patch).
 
 ## Out of scope here
