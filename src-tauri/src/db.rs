@@ -19,6 +19,39 @@ pub enum DbError {
 
 pub type DbResult<T> = Result<T, DbError>;
 
+/// Best-effort `chmod`. Ignore errors (FAT, exotic mounts, vanished sidecars).
+#[cfg(unix)]
+fn chmod_unix(path: &Path, mode: u32) {
+    use std::os::unix::fs::PermissionsExt;
+    let Ok(meta) = std::fs::metadata(path) else {
+        return;
+    };
+    let mut perms = meta.permissions();
+    perms.set_mode(mode);
+    let _ = std::fs::set_permissions(path, perms);
+}
+
+/// `0700` on the app-data directory. Never touch `/` or the process temp dir.
+#[cfg(unix)]
+fn restrict_unix_app_data_dir(dir: &Path) {
+    if dir.as_os_str().is_empty() || dir == Path::new("/") {
+        return;
+    }
+    if dir == std::env::temp_dir() {
+        return;
+    }
+    chmod_unix(dir, 0o700);
+}
+
+/// `0600` on the DB and WAL/SHM sidecars when they exist.
+#[cfg(unix)]
+fn restrict_unix_db_files(path: &Path) {
+    chmod_unix(path, 0o600);
+    let base = path.as_os_str();
+    chmod_unix(Path::new(&format!("{}-wal", base.to_string_lossy())), 0o600);
+    chmod_unix(Path::new(&format!("{}-shm", base.to_string_lossy())), 0o600);
+}
+
 /// Map a naive local wall time through DST folds/gaps without panicking.
 fn naive_to_local(naive: NaiveDateTime) -> DateTime<Local> {
     match naive.and_local_timezone(Local) {
@@ -59,6 +92,8 @@ impl Database {
         if let Some(parent) = path.parent() {
             std::fs::create_dir_all(parent)
                 .map_err(|e| DbError::Message(format!("create app data dir: {e}")))?;
+            #[cfg(unix)]
+            restrict_unix_app_data_dir(parent);
         }
         let conn = Connection::open(path)?;
         conn.execute_batch(
@@ -71,6 +106,8 @@ impl Database {
         db.migrate()?;
         db.seed_system_techniques()?;
         db.ensure_default_settings()?;
+        #[cfg(unix)]
+        restrict_unix_db_files(path);
         Ok(db)
     }
 
@@ -814,5 +851,44 @@ mod range_stats_tests {
         );
         let _ = db.get_settings().expect("settings load");
         let _ = std::fs::remove_file(&path);
+    }
+}
+
+#[cfg(all(test, unix))]
+mod unix_mode_tests {
+    use super::*;
+    use std::os::unix::fs::PermissionsExt;
+    use std::path::{Path, PathBuf};
+    use std::time::{SystemTime, UNIX_EPOCH};
+
+    fn mode(path: &Path) -> u32 {
+        std::fs::metadata(path).expect("meta").permissions().mode() & 0o777
+    }
+
+    #[test]
+    fn unix_modes_are_restrictive_after_open() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let dir = std::env::temp_dir().join(format!("tempura-modes-{nanos}"));
+        let path = dir.join("tempura.db");
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).expect("mkdir");
+        std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o755)).expect("chmod dir");
+
+        let db = Database::open(&path).expect("open");
+        assert_eq!(mode(&dir), 0o700, "app-data dir");
+        assert_eq!(mode(&path), 0o600, "sqlite file");
+        let wal = PathBuf::from(format!("{}-wal", path.display()));
+        let shm = PathBuf::from(format!("{}-shm", path.display()));
+        if wal.exists() {
+            assert_eq!(mode(&wal), 0o600, "wal");
+        }
+        if shm.exists() {
+            assert_eq!(mode(&shm), 0o600, "shm");
+        }
+        drop(db);
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }
