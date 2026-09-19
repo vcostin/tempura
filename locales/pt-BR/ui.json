@@ -98,7 +98,11 @@
     "panel": "Sobre",
     "line": "Sobre · local, nesta máquina.",
     "close": "Fechar",
-    "feedbackOpened": "Aberto no navegador — olhe lá se a aba não veio para a frente."
+    "feedbackOpened": "Aberto no navegador — olhe lá se a aba não veio para a frente.",
+    "feedbackLinkHint": "Se nenhuma aba aparecer, abra ou copie esta página:",
+    "copyFeedbackUrl": "Copiar link",
+    "feedbackCopied": "Copiado",
+    "feedbackOpenFailed": "Não foi possível abrir o navegador — use o link."
   },
   "updates": {
     "title": "Atualizações",

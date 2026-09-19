@@ -106,7 +106,11 @@
     "panel": "About",
     "line": "About · local, on this machine.",
     "close": "Close",
-    "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward."
+    "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward.",
+    "feedbackLinkHint": "If a tab didn’t appear, open or copy this page:",
+    "copyFeedbackUrl": "Copy link",
+    "feedbackCopied": "Copied",
+    "feedbackOpenFailed": "Couldn’t open a browser — use the link."
   },
   "updates": {
     "title": "Updates",

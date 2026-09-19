@@ -98,7 +98,11 @@
     "panel": "Over",
     "line": "Over · lokaal, op deze machine.",
     "close": "Sluiten",
-    "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam."
+    "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam.",
+    "feedbackLinkHint": "Als er geen tabblad verschijnt, open of kopieer deze pagina:",
+    "copyFeedbackUrl": "Link kopiëren",
+    "feedbackCopied": "Gekopieerd",
+    "feedbackOpenFailed": "Kon geen browser openen — gebruik de link."
   },
   "updates": {
     "title": "Updates",

@@ -192,6 +192,12 @@ pub fn debug_test_notification(
     )
 }
 
+/// Open the Feedback discussion in the host browser (Linux: AppImage-safe env).
+#[tauri::command]
+pub fn open_feedback_url(url: String) -> Result<(), String> {
+    crate::open_url::open_feedback_url(&url)
+}
+
 #[tauri::command]
 pub fn hide_to_tray(app: AppHandle) {
     crate::tray::hide_main(&app);

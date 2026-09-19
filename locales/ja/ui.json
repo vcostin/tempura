@@ -98,7 +98,11 @@
     "panel": "このアプリについて",
     "line": "このアプリについて · このマシンに残ります。",
     "close": "閉じる",
-    "feedbackOpened": "ブラウザで開きました。前面に出てこない場合はブラウザを確認してください。"
+    "feedbackOpened": "ブラウザで開きました。前面に出てこない場合はブラウザを確認してください。",
+    "feedbackLinkHint": "タブが出ないときは、このページを開くかコピーしてください:",
+    "copyFeedbackUrl": "リンクをコピー",
+    "feedbackCopied": "コピーしました",
+    "feedbackOpenFailed": "ブラウザを開けませんでした。リンクを使ってください。"
   },
   "updates": {
     "title": "更新",

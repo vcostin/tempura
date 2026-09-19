@@ -99,7 +99,11 @@
     "panel": "Despre",
     "line": "Despre · local, pe această mașină.",
     "close": "Închide",
-    "feedbackOpened": "S-a deschis în browser — uită-te acolo dacă tab-ul n-a venit în față."
+    "feedbackOpened": "S-a deschis în browser — uită-te acolo dacă tab-ul n-a venit în față.",
+    "feedbackLinkHint": "Dacă nu apare un tab, deschide sau copiază pagina:",
+    "copyFeedbackUrl": "Copiază linkul",
+    "feedbackCopied": "Copiat",
+    "feedbackOpenFailed": "Nu s-a putut deschide un browser — folosește linkul."
   },
   "updates": {
     "title": "Actualizări",

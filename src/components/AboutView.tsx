@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { enableDebugAccess, isDebugAccessEnabled } from "../lib/debugAccess";
-import { openFeedback } from "../lib/platform";
+import { FEEDBACK_URL, openFeedback } from "../lib/platform";
 import type { AppInfo } from "../lib/types";
 import type { UpdateUiStatus } from "../lib/updates";
 import { BrandHeader } from "./BrandHeader";
@@ -25,11 +25,22 @@ interface Props {
 export function AboutView(props: Props) {
   const { t } = useTranslation();
   const versionClicks = useRef(0);
-  const [feedbackOpened, setFeedbackOpened] = useState(false);
+  const [feedbackStatus, setFeedbackStatus] = useState<"opened" | "failed" | null>(null);
+  const [copied, setCopied] = useState(false);
 
   async function sendFeedback() {
-    await openFeedback();
-    setFeedbackOpened(true);
+    const opened = await openFeedback();
+    setFeedbackStatus(opened ? "opened" : "failed");
+  }
+
+  async function copyFeedbackUrl() {
+    try {
+      await navigator.clipboard.writeText(FEEDBACK_URL);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      /* clipboard may be denied; the URL is still on screen to select */
+    }
   }
 
   return (
@@ -82,12 +93,34 @@ export function AboutView(props: Props) {
           >
             {t("settings.sendFeedback")}
           </button>
-          {feedbackOpened && (
-            <p className="hint" role="status" style={{ marginTop: "0.65rem" }}>
-              {t("about.feedbackOpened", {
-                defaultValue:
-                  "Opened in your browser — check there if a tab didn't come forward.",
-              })}
+          <p className="hint" style={{ margin: "0.7rem 0 0" }}>
+            {t("about.feedbackLinkHint")}
+          </p>
+          <p className="feedback-fallback">
+            <a
+              className="linkish feedback-url"
+              href={FEEDBACK_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(event) => {
+                event.preventDefault();
+                void sendFeedback();
+              }}
+            >
+              {FEEDBACK_URL}
+            </a>
+            <button type="button" className="linkish" onClick={() => void copyFeedbackUrl()}>
+              {copied ? t("about.feedbackCopied") : t("about.copyFeedbackUrl")}
+            </button>
+          </p>
+          {feedbackStatus === "opened" && (
+            <p className="hint" role="status" style={{ marginTop: "0.5rem" }}>
+              {t("about.feedbackOpened")}
+            </p>
+          )}
+          {feedbackStatus === "failed" && (
+            <p className="hint" role="status" style={{ marginTop: "0.5rem" }}>
+              {t("about.feedbackOpenFailed")}
             </p>
           )}
         </div>

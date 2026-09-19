@@ -98,7 +98,11 @@
     "panel": "Informazioni",
     "line": "Informazioni · locale, su questa macchina.",
     "close": "Chiudi",
-    "feedbackOpened": "Aperto nel browser — controlla lì se la scheda non è venuta in primo piano."
+    "feedbackOpened": "Aperto nel browser — controlla lì se la scheda non è venuta in primo piano.",
+    "feedbackLinkHint": "Se non compare una scheda, apri o copia questa pagina:",
+    "copyFeedbackUrl": "Copia link",
+    "feedbackCopied": "Copiato",
+    "feedbackOpenFailed": "Impossibile aprire un browser — usa il link."
   },
   "updates": {
     "title": "Aggiornamenti",

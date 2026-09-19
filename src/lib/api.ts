@@ -38,6 +38,7 @@ export const api = {
   getStatsRange: (days: number) => invoke<StatsRange>("get_stats_range", { days }),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
   debugTestNotification: () => invoke<void>("debug_test_notification"),
+  openFeedbackUrl: (url: string) => invoke<void>("open_feedback_url", { url }),
   requestQuit: () => invoke<void>("request_quit"),
   hideToTray: () => invoke<void>("hide_to_tray"),
 };

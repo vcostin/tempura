@@ -1,5 +1,7 @@
 /** Desktop shell helpers — gated so core UI stays mobile-ready. */
 
+import { invoke } from "@tauri-apps/api/core";
+
 /** Pinned GitHub Feedback discussion. */
 export const FEEDBACK_URL = "https://github.com/vcostin/tempura/discussions/5";
 
@@ -45,16 +47,21 @@ export async function getAutostartEnabled(): Promise<boolean> {
   }
 }
 
-/** Open the Feedback discussion in the system browser (no telemetry, no in-app form). */
-export async function openFeedback(): Promise<void> {
+/** Open the Feedback discussion in the system browser (no telemetry, no in-app form).
+ * Returns false if we could not hand the URL to a browser — callers should still show it. */
+export async function openFeedback(): Promise<boolean> {
   try {
     if (isTauri()) {
-      const { openUrl } = await import("@tauri-apps/plugin-opener");
-      await openUrl(FEEDBACK_URL);
-      return;
+      await invoke("open_feedback_url", { url: FEEDBACK_URL });
+      return true;
     }
   } catch {
-    /* fall through to window.open (Vite shell / missing opener) */
+    /* command missing or host opener failed — try the webview */
   }
-  window.open(FEEDBACK_URL, "_blank", "noopener,noreferrer");
+  try {
+    const opened = window.open(FEEDBACK_URL, "_blank", "noopener,noreferrer");
+    return opened != null;
+  } catch {
+    return false;
+  }
 }

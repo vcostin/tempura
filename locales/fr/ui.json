@@ -98,7 +98,11 @@
     "panel": "À propos",
     "line": "À propos · local, sur cette machine.",
     "close": "Fermer",
-    "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan."
+    "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan.",
+    "feedbackLinkHint": "Si aucun onglet n’apparaît, ouvrez ou copiez cette page :",
+    "copyFeedbackUrl": "Copier le lien",
+    "feedbackCopied": "Copié",
+    "feedbackOpenFailed": "Impossible d’ouvrir un navigateur — utilisez le lien."
   },
   "updates": {
     "title": "Mises à jour",
