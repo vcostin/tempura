@@ -56,14 +56,20 @@ function fillDom() {
     }
   }
   const title = i18next.t("site.title");
-  document.title = title;
-  const ogTitle = document.querySelector('meta[property="og:title"]');
-  if (ogTitle) ogTitle.setAttribute("content", title);
   const desc = i18next.t("site.description");
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc) metaDesc.setAttribute("content", desc);
-  const ogDesc = document.querySelector('meta[property="og:description"]');
-  if (ogDesc) ogDesc.setAttribute("content", i18next.t("site.ogDescription"));
+  const ogDescription = i18next.t("site.ogDescription");
+  document.title = title;
+  setMeta('meta[property="og:title"]', title);
+  setMeta('meta[name="twitter:title"]', title);
+  setMeta('meta[name="description"]', desc);
+  setMeta('meta[property="og:description"]', ogDescription);
+  setMeta('meta[name="twitter:description"]', ogDescription);
+}
+
+/** @param {string} selector @param {string} content */
+function setMeta(selector, content) {
+  const el = document.querySelector(selector);
+  if (el) el.setAttribute("content", content);
 }
 
 function populateSwitcher(select) {

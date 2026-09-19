@@ -116,7 +116,9 @@ a:hover {
   max-width: calc(100% - 0px);
   margin: 0 auto;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 1.5rem;
   padding: 0.4rem 0.45rem 0.4rem 0.55rem;
   background: color-mix(in srgb, var(--surface-solid) 78%, transparent);
@@ -143,6 +145,7 @@ a:hover {
 
 .nav-links {
   display: flex;
+  align-items: center;
   gap: 0.15rem;
 }
 
@@ -176,25 +179,60 @@ a:hover {
 .lang-switch {
   display: flex;
   align-items: center;
-  padding-inline: 0.35rem;
+  padding-inline-start: 0.2rem;
 }
 
 .lang-switch select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 500;
-  color: var(--ink);
-  background: var(--surface-solid);
+  color: var(--ink-muted);
+  background-color: var(--surface-solid);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M2.25 4.35 6 8.1 9.75 4.35' stroke='%235a6b66' stroke-width='1.35' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-size: 0.75rem;
+  background-position: right 0.7rem calc(50% - 1px);
   border: 1px solid rgba(30, 42, 50, 0.1);
   border-radius: 999px;
-  padding: 0.35rem 0.7rem;
+  padding-block: 0.35rem;
+  padding-inline-start: 0.85rem;
+  padding-inline-end: 1.95rem;
   min-height: 36px;
-  max-width: 10.5rem;
+  max-width: 11.5rem;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: start;
+  text-align-last: start;
+  transition: color 0.45s var(--ease), border-color 0.45s var(--ease),
+    background-color 0.45s var(--ease);
 }
 
-.nav {
-  flex-wrap: wrap;
-  justify-content: center;
+.lang-switch select:hover {
+  color: var(--ink);
+  border-color: rgba(30, 42, 50, 0.16);
+}
+
+.lang-switch select:focus {
+  outline: none;
+}
+
+.lang-switch select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.lang-switch select::-ms-expand {
+  display: none;
+}
+
+[dir="rtl"] .lang-switch select {
+  background-position-x: 0.7rem;
+  background-position-y: calc(50% - 1px);
 }
 
 .hero {
