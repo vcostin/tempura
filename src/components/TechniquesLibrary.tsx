@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
@@ -53,7 +53,8 @@ export function TechniquesLibrary(props: Props) {
   const [expandedId, setExpandedId] = useState<string | null>(focused?.id ?? null);
   const tabRefs = useRef<Record<LibraryTab, HTMLButtonElement | null>>({ mine: null, builtin: null });
 
-  useEffect(() => {
+  // Before paint, so the list doesn't show at the top and then jump.
+  useLayoutEffect(() => {
     props.onTabChange(tab);
     if (!focused) return;
     document

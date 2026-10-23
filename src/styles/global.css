@@ -228,8 +228,27 @@ button {
   overflow: hidden;
 }
 
-.app-shell[data-panel-swap="true"] .panel {
-  animation: none;
+/*
+ * One long-lived layer holds every panel. Routes swap the panel inside it, so
+ * WebKitGTK never has to build and paint a fresh fixed layer mid-navigation
+ * (that frame showed the timer, or the old panel, through).
+ */
+.panel-host {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: var(--glow);
+  animation: slideUp 0.35s ease both;
+}
+
+.panel-host[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-host {
+    animation: none;
+  }
 }
 
 .timer-root {
@@ -1002,13 +1021,10 @@ button {
 }
 
 .panel {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 40;
-  background: var(--glow);
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.35s ease;
 }
 
 .panel-scroll {
@@ -1474,13 +1490,10 @@ button {
 }
 
 .panel {
-  position: fixed;
+  position: absolute;
   inset: 0;
-  z-index: 40;
-  background: var(--glow);
   display: flex;
   flex-direction: column;
-  animation: slideUp 0.35s ease;
 }
 
 .panel-scroll {

@@ -116,15 +116,23 @@ test.describe("techniques library and editor", () => {
     await expect(page.locator(".library-row.is-open")).toContainText("Classic");
   });
 
-  test("panel to panel swaps without fading in over the timer", async ({ page }) => {
+  test("panels swap inside one long-lived layer, which slides in only from the timer", async ({ page }) => {
+    const host = page.locator(".panel-host");
+    await expect(host).toBeHidden();
     await page.keyboard.press(",");
-    // Opening from the timer still slides in.
-    await expect(page.locator(".panel")).toHaveCSS("animation-name", "slideUp");
+    await expect(host).toBeVisible();
+    await expect(host).toHaveCSS("animation-name", "slideUp");
+    await host.evaluate((el) => ((el as HTMLElement & { marker?: boolean }).marker = true));
+
     await page.locator(".link-row").click();
     await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
-    await expect(page.locator(".panel")).toHaveCSS("animation-name", "none");
     await page.locator(".library-new").click();
     await expect(page.locator("#c-name")).toBeVisible();
-    await expect(page.locator(".panel")).toHaveCSS("animation-name", "none");
+    // Same element throughout: no new layer to paint between panels.
+    expect(await host.evaluate((el) => (el as HTMLElement & { marker?: boolean }).marker)).toBe(true);
+
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("Escape");
+    await expect(host).toBeHidden();
   });
 });
