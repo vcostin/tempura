@@ -20,13 +20,19 @@ const PANEL_OPENER: Record<Panel, string> = {
   about: '[data-open-panel="about"]',
 };
 
+const NEW_TECHNIQUE_OPENER = '[data-open-panel="technique-new"]';
+
 /** What the timer shell hands to panel routes. */
 export interface Shell {
   updater: ReturnType<typeof useUpdater>;
   debugEnabled: boolean;
   setDebugEnabled: (enabled: boolean) => void;
-  openPanel: (panel: Panel, search?: string) => void;
+  openPanel: (panel: Panel) => void;
   closePanel: () => void;
+  /** Open the technique editor: `id` edits, `from` starts a new one from that technique. */
+  openTechniqueEditor: (target?: { id?: string; from?: string }) => void;
+  /** Return to wherever the current route was opened from. */
+  goBack: () => void;
 }
 
 export function useShell(): Shell {
@@ -87,25 +93,53 @@ export function TimerLayout() {
     }
   }, []);
 
-  const openPanel = useCallback(
-    (panel: Panel, search = "") => {
-      if (onTimer) {
-        const active = document.activeElement;
-        if (active instanceof HTMLElement && active.closest(".timer-root") && isButtonish(active)) {
-          returnFocusRef.current = active;
-        } else {
-          returnFocusRef.current = document.querySelector<HTMLElement>(PANEL_OPENER[panel]);
-        }
+  const rememberOpener = useCallback(
+    (fallbackSelector: string) => {
+      if (!onTimer) return;
+      const active = document.activeElement;
+      if (active instanceof HTMLElement && active.closest(".timer-root") && isButtonish(active)) {
+        returnFocusRef.current = active;
+      } else {
+        returnFocusRef.current = document.querySelector<HTMLElement>(fallbackSelector);
       }
-      navigate({ pathname: `/${panel}`, search });
     },
-    [navigate, onTimer],
+    [onTimer],
+  );
+
+  const openPanel = useCallback(
+    (panel: Panel) => {
+      rememberOpener(PANEL_OPENER[panel]);
+      navigate(`/${panel}`);
+    },
+    [navigate, rememberOpener],
+  );
+
+  const openTechniqueEditor = useCallback(
+    (target: { id?: string; from?: string } = {}) => {
+      rememberOpener(NEW_TECHNIQUE_OPENER);
+      if (target.id) {
+        navigate(`/techniques/${encodeURIComponent(target.id)}/edit`);
+      } else {
+        navigate({
+          pathname: "/techniques/new",
+          search: target.from ? `?from=${encodeURIComponent(target.from)}` : "",
+        });
+      }
+    },
+    [navigate, rememberOpener],
   );
 
   const closePanel = useCallback(() => {
     if (onAbout && updater.hasOffer) updater.skip();
     navigate("/");
   }, [navigate, onAbout, updater.hasOffer, updater.skip]);
+
+  const goBack = useCallback(() => {
+    if (location.key !== "default") navigate(-1);
+    else navigate("/", { replace: true });
+  }, [navigate, location.key]);
+
+  const inEditor = location.pathname.startsWith("/techniques/");
 
   useLayoutEffect(() => {
     if (!onTimer) return;
@@ -167,7 +201,8 @@ export function TimerLayout() {
         if (e.defaultPrevented) return;
         if (!onTimer) {
           e.preventDefault();
-          closePanel();
+          if (inEditor) goBack();
+          else closePanel();
         } else if (!isTypingTarget(e.target)) {
           void hideToTray();
         }
@@ -192,7 +227,7 @@ export function TimerLayout() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, onTimer, hideToTray, openPanel, closePanel]);
+  }, [session, onTimer, inEditor, hideToTray, openPanel, closePanel, goBack]);
 
   if (!session.ready) {
     return (
@@ -205,7 +240,15 @@ export function TimerLayout() {
     );
   }
 
-  const shell: Shell = { updater, debugEnabled, setDebugEnabled, openPanel, closePanel };
+  const shell: Shell = {
+    updater,
+    debugEnabled,
+    setDebugEnabled,
+    openPanel,
+    closePanel,
+    openTechniqueEditor,
+    goBack,
+  };
 
   return (
     <div
@@ -236,6 +279,7 @@ export function TimerLayout() {
           onReset={() => void session.reset()}
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
+          onNewTechnique={() => openTechniqueEditor()}
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
           onOpenGuide={() => openPanel("guide")}

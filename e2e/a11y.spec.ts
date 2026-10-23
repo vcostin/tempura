@@ -170,7 +170,25 @@ test.describe("a11y dialogs and landmarks", () => {
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });
 
-  test("comma opens settings", async ({ page }) => {
+  test("+ chip opens the technique editor; Esc returns focus to it", async ({ page }) => {
+    const add = page.locator('[data-open-panel="technique-new"]');
+    await add.focus();
+    await add.click();
+    await page.waitForSelector('[role="dialog"][aria-label="Technique editor"]');
+    await expect(page).toHaveURL(/#\/techniques\/new$/);
+
+    await page.fill("#c-focus", "40");
+    await expect(page.locator(".editor-preview")).toContainText("40");
+
+    await page.keyboard.press("Escape");
+    await page.waitForSelector('[role="dialog"]', { state: "detached" });
+    const opener = await page.evaluate(() =>
+      document.activeElement?.getAttribute("data-open-panel"),
+    );
+    expect(opener).toBe("technique-new");
+  });
+
+    test("comma opens settings", async ({ page }) => {
     await page.locator("body").click();
     await page.keyboard.press(",");
     await page.waitForSelector('[role="dialog"]');

@@ -42,7 +42,8 @@
     "dayStreak": "ימים ברצף"
   },
   "picker": {
-    "aria": "טכניקת מיקוד"
+    "aria": "טכניקת מיקוד",
+    "newTechnique": "טכניקה חדשה"
   },
   "scroll": {
     "more": "גללו לעוד"
@@ -158,6 +159,14 @@
     "customIntervalBestFor": "משתמשים מתקדמים",
     "customIntervalBlurb": "סט המרווחים שלכם — כוונו יחסים וקצב הפסקה ארוכה ליום.",
     "tooltipBestFor": "הכי מתאים ל: {{value}}"
+  },
+  "editor": {
+    "panel": "עורך טכניקות",
+    "line": "טכניקות · עצבו קצב משלכם.",
+    "back": "חזרה",
+    "preview": "קצב",
+    "copyName": "{{name}} (עותק)",
+    "confirmDelete": "למחוק לצמיתות?"
   },
   "themes": {
     "batter": "בלילה",

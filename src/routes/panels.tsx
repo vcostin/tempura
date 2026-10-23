@@ -1,8 +1,10 @@
-import { Navigate, useSearchParams } from "react-router";
+import { useRef } from "react";
+import { Navigate, useParams, useSearchParams } from "react-router";
 import { AboutView } from "../components/AboutView";
 import { DebugView } from "../components/DebugView";
 import { SettingsView } from "../components/SettingsView";
 import { StatsView } from "../components/StatsView";
+import { TechniqueEditor } from "../components/TechniqueEditor";
 import { TechniquesGuide } from "../components/TechniquesGuide";
 import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
@@ -12,8 +14,7 @@ import { useShell } from "./TimerLayout";
 export function SettingsRoute() {
   const session = useSessionContext();
   const settingsApi = useSettingsContext();
-  const { openPanel, closePanel } = useShell();
-  const [params] = useSearchParams();
+  const { openPanel, closePanel, openTechniqueEditor } = useShell();
   return (
     <SettingsView
       settings={settingsApi.settings}
@@ -24,11 +25,8 @@ export function SettingsRoute() {
       autostart={settingsApi.autostart}
       autostartAvailable={settingsApi.autostartAvailable}
       onToggleAutostart={settingsApi.toggleAutostart}
-      onCreateTechnique={settingsApi.createTechnique}
-      onUpdateTechnique={settingsApi.updateTechnique}
-      onDeleteTechnique={settingsApi.deleteTechnique}
-      onTechniquesChanged={session.reloadTechniques}
-      composeRecipe={params.get("compose") === "1"}
+      onNewTechnique={() => openTechniqueEditor()}
+      onEditTechnique={(id) => openTechniqueEditor({ id })}
       onOpenAbout={() => openPanel("about")}
       onQuit={
         settingsApi.desktop
@@ -77,9 +75,70 @@ export function StatsRoute() {
 }
 
 export function GuideRoute() {
-  const { openPanel, closePanel } = useShell();
+  const { closePanel, openTechniqueEditor } = useShell();
+  return <TechniquesGuide onClose={closePanel} onNewTechnique={() => openTechniqueEditor()} />;
+}
+
+/** `/techniques/new` (optionally `?from=<id>`) and `/techniques/:id/edit`. */
+export function TechniqueEditorRoute() {
+  const session = useSessionContext();
+  const settingsApi = useSettingsContext();
+  const { goBack } = useShell();
+  const { id } = useParams();
+  const [params] = useSearchParams();
+  const editing = id ? session.techniques.find((tech) => tech.id === id) : undefined;
+  const fromId = params.get("from");
+  const source = fromId ? session.techniques.find((tech) => tech.id === fromId) : undefined;
+  const deletedRef = useRef(false);
+
+  if (id && (!editing || editing.kind !== "custom")) {
+    // Just deleted: the list can refresh before history pops, so don't redirect over it.
+    if (deletedRef.current) return null;
+    // Unknown or built-in technique: nothing to edit here.
+    return <Navigate to="/" replace />;
+  }
+
+  function select(techId: string) {
+    if (session.snapshot.running) return;
+    session.setSelectedId(techId);
+    if (techId !== settingsApi.settings.defaultTechniqueId) {
+      void settingsApi.patch({ defaultTechniqueId: techId });
+    }
+  }
+
   return (
-    <TechniquesGuide onClose={closePanel} onOpenSettings={() => openPanel("settings", "?compose=1")} />
+    <TechniqueEditor
+      key={id ?? `new:${fromId ?? ""}`}
+      editing={editing}
+      source={source}
+      onClose={goBack}
+      onSave={async (input) => {
+        if (editing) {
+          await settingsApi.updateTechnique(editing.id, input);
+        } else {
+          const created = await settingsApi.createTechnique(input);
+          select(created.id);
+        }
+        await session.reloadTechniques();
+        goBack();
+      }}
+      onDelete={
+        editing
+          ? async () => {
+              deletedRef.current = true;
+              try {
+                await settingsApi.deleteTechnique(editing.id);
+              } catch (err) {
+                deletedRef.current = false;
+                throw err;
+              }
+              if (session.selectedId === editing.id) select("classic");
+              await session.reloadTechniques();
+              goBack();
+            }
+          : undefined
+      }
+    />
   );
 }
 

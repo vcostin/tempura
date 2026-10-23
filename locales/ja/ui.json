@@ -41,7 +41,8 @@
     "dayStreak": "日連続"
   },
   "picker": {
-    "aria": "フォーカスタクニック"
+    "aria": "フォーカスタクニック",
+    "newTechnique": "新しいテクニック"
   },
   "scroll": {
     "more": "スクロールして続き"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "パワーユーザー",
     "customIntervalBlurb": "あなたの間隔セット — 比率と長い休憩の間隔をその日に合わせる。",
     "tooltipBestFor": "向いていること: {{value}}"
+  },
+  "editor": {
+    "panel": "テクニックエディター",
+    "line": "テクニック · 自分だけのリズムを。",
+    "back": "戻る",
+    "preview": "リズム",
+    "copyName": "{{name}}（コピー）",
+    "confirmDelete": "完全に削除しますか？"
   },
   "themes": {
     "batter": "衣",

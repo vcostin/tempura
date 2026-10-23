@@ -41,7 +41,8 @@
     "dayStreak": "天连续"
   },
   "picker": {
-    "aria": "专注技法"
+    "aria": "专注技法",
+    "newTechnique": "新建技巧"
   },
   "scroll": {
     "more": "向下滚动看更多"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "进阶用户",
     "customIntervalBlurb": "你的间隔套装 — 按当天调比例和长休息节奏。",
     "tooltipBestFor": "适合：{{value}}"
+  },
+  "editor": {
+    "panel": "技巧编辑器",
+    "line": "技巧 · 打造你自己的节奏。",
+    "back": "返回",
+    "preview": "节奏",
+    "copyName": "{{name}}（副本）",
+    "confirmDelete": "确定永久删除？"
   },
   "themes": {
     "batter": "面糊",

@@ -41,7 +41,8 @@
     "dayStreak": "dias seguidos"
   },
   "picker": {
-    "aria": "Técnica de foco"
+    "aria": "Técnica de foco",
+    "newTechnique": "Nova técnica"
   },
   "scroll": {
     "more": "Role para ver mais"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "Usuários avançados",
     "customIntervalBlurb": "Seu conjunto de intervalos — ajuste proporções e cadência da pausa longa ao dia.",
     "tooltipBestFor": "Melhor para: {{value}}"
+  },
+  "editor": {
+    "panel": "Editor de técnicas",
+    "line": "Técnicas · crie seu próprio ritmo.",
+    "back": "Voltar",
+    "preview": "Ritmo",
+    "copyName": "{{name}} (cópia)",
+    "confirmDelete": "Excluir de vez?"
   },
   "themes": {
     "batter": "Massa",

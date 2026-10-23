@@ -6,11 +6,13 @@ interface Props {
   techniques: Technique[];
   selectedId: string;
   onSelect: (id: string) => void;
+  /** Opens the technique editor; stays available while a session runs. */
+  onCreate?: () => void;
   disabled?: boolean;
 }
 
 /** Exclusive technique chips as a toggle group (not a listbox). */
-export function TechniquePicker({ techniques, selectedId, onSelect, disabled }: Props) {
+export function TechniquePicker({ techniques, selectedId, onSelect, onCreate, disabled }: Props) {
   const { t } = useTranslation();
   return (
     <div className="picker" role="group" aria-label={t("picker.aria")}>
@@ -27,6 +29,19 @@ export function TechniquePicker({ techniques, selectedId, onSelect, disabled }: 
           {techniqueDisplayName(tech)}
         </button>
       ))}
+      {onCreate && (
+        <button
+          type="button"
+          className="chip chip-add"
+          data-open-panel="technique-new"
+          aria-haspopup="dialog"
+          aria-label={t("picker.newTechnique")}
+          title={t("picker.newTechnique")}
+          onClick={onCreate}
+        >
+          <span aria-hidden="true">+</span>
+        </button>
+      )}
     </div>
   );
 }

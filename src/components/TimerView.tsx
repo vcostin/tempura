@@ -22,6 +22,7 @@ interface Props {
   onReset: () => void;
   onStop: () => void;
   onContinueFlow: () => void;
+  onNewTechnique: () => void;
   onOpenSettings: () => void;
   onOpenStats: () => void;
   onOpenGuide: () => void;
@@ -125,6 +126,7 @@ export function TimerView(props: Props) {
         techniques={props.techniques}
         selectedId={props.selectedId}
         onSelect={props.onSelectTechnique}
+        onCreate={props.onNewTechnique}
         disabled={s.running}
       />
       {rhythm && (

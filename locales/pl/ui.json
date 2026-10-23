@@ -43,7 +43,8 @@
     "dayStreak": "dni z rzędu"
   },
   "picker": {
-    "aria": "Technika skupienia"
+    "aria": "Technika skupienia",
+    "newTechnique": "Nowa technika"
   },
   "scroll": {
     "more": "Przewiń po więcej"
@@ -159,6 +160,14 @@
     "customIntervalBestFor": "Zaawansowani",
     "customIntervalBlurb": "Twój zestaw interwałów — ustaw proporcje i rytm długiej przerwy pod dzień.",
     "tooltipBestFor": "Najlepsze do: {{value}}"
+  },
+  "editor": {
+    "panel": "Edytor techniki",
+    "line": "Techniki · ułóż własny rytm.",
+    "back": "Wstecz",
+    "preview": "Rytm",
+    "copyName": "{{name}} (kopia)",
+    "confirmDelete": "Usunąć na dobre?"
   },
   "themes": {
     "batter": "Panierka",

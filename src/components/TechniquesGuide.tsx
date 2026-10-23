@@ -5,10 +5,10 @@ import { ScrollPanel } from "./ScrollPanel";
 
 interface Props {
   onClose: () => void;
-  onOpenSettings?: () => void;
+  onNewTechnique?: () => void;
 }
 
-export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
+export function TechniquesGuide({ onClose, onNewTechnique }: Props) {
   const { t } = useTranslation();
   const entries = techniqueGuideEntries();
   const custom = customGuide();
@@ -49,8 +49,8 @@ export function TechniquesGuide({ onClose, onOpenSettings }: Props) {
           </header>
           <p className="guide-ratio">{custom.workBreak}</p>
           <p className="guide-blurb">{custom.blurb}</p>
-          {onOpenSettings && (
-            <button type="button" className="btn btn-ghost" onClick={onOpenSettings}>
+          {onNewTechnique && (
+            <button type="button" className="btn btn-ghost" onClick={onNewTechnique}>
               {t("guide.makeCustom")}
             </button>
           )}
