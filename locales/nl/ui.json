@@ -41,7 +41,8 @@
     "dayStreak": "dagen op rij"
   },
   "picker": {
-    "aria": "Focustechniek"
+    "aria": "Focustechniek",
+    "newTechnique": "Nieuwe techniek"
   },
   "scroll": {
     "more": "Scroll voor meer"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "Power users",
     "customIntervalBlurb": "Jouw intervalset — zet ratio’s en lange-pauze-cadans naar de dag.",
     "tooltipBestFor": "Goed voor: {{value}}"
+  },
+  "editor": {
+    "panel": "Techniekeditor",
+    "line": "Technieken · vorm je eigen ritme.",
+    "back": "Terug",
+    "preview": "Ritme",
+    "copyName": "{{name}} (kopie)",
+    "confirmDelete": "Definitief verwijderen?"
   },
   "themes": {
     "batter": "Beslag",

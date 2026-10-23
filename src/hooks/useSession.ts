@@ -72,6 +72,9 @@ export function useSession() {
         await listen("stats-updated", () => {
           void refreshStats();
         }),
+        await listen("techniques-updated", () => {
+          void api.listTechniques().then(setTechniques);
+        }),
         await listen("open-settings", () => {
           window.dispatchEvent(new CustomEvent("tempura:open-settings"));
         }),

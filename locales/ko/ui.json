@@ -41,7 +41,8 @@
     "dayStreak": "일 연속"
   },
   "picker": {
-    "aria": "집중 기법"
+    "aria": "집중 기법",
+    "newTechnique": "새 기법"
   },
   "scroll": {
     "more": "더 보려면 스크롤"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "파워 유저",
     "customIntervalBlurb": "당신의 간격 세트 — 비율과 긴 휴식 주기를 하루에 맞추세요.",
     "tooltipBestFor": "적합한 경우: {{value}}"
+  },
+  "editor": {
+    "panel": "기법 편집기",
+    "line": "기법 · 나만의 리듬을 만드세요.",
+    "back": "뒤로",
+    "preview": "리듬",
+    "copyName": "{{name}} (사본)",
+    "confirmDelete": "영구적으로 삭제할까요?"
   },
   "themes": {
     "batter": "반죽",

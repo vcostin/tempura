@@ -41,7 +41,8 @@
     "dayStreak": "Tage in Folge"
   },
   "picker": {
-    "aria": "Fokustechnik"
+    "aria": "Fokustechnik",
+    "newTechnique": "Neue Technik"
   },
   "scroll": {
     "more": "Weiter scrollen"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "Power-User",
     "customIntervalBlurb": "Dein Intervallsatz — Verhältnisse und Langpausen-Takt dem Tag anpassen.",
     "tooltipBestFor": "Gut für: {{value}}"
+  },
+  "editor": {
+    "panel": "Technik-Editor",
+    "line": "Techniken · gestalte deinen eigenen Rhythmus.",
+    "back": "Zurück",
+    "preview": "Rhythmus",
+    "copyName": "{{name}} (Kopie)",
+    "confirmDelete": "Endgültig löschen?"
   },
   "themes": {
     "batter": "Teig",

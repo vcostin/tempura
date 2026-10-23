@@ -1,5 +1,12 @@
 import { createHashRouter, Navigate } from "react-router";
-import { AboutRoute, DebugRoute, GuideRoute, SettingsRoute, StatsRoute } from "./routes/panels";
+import {
+  AboutRoute,
+  DebugRoute,
+  GuideRoute,
+  SettingsRoute,
+  StatsRoute,
+  TechniqueEditorRoute,
+} from "./routes/panels";
 import { TimerLayout } from "./routes/TimerLayout";
 
 /**
@@ -16,6 +23,8 @@ export const router = createHashRouter([
       { path: "guide", element: <GuideRoute /> },
       { path: "about", element: <AboutRoute /> },
       { path: "debug", element: <DebugRoute /> },
+      { path: "techniques/new", element: <TechniqueEditorRoute /> },
+      { path: "techniques/:id/edit", element: <TechniqueEditorRoute /> },
       { path: "*", element: <Navigate to="/" replace /> },
     ],
   },

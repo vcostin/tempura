@@ -1,9 +1,8 @@
-import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { LOCALES } from "../lib/i18n";
-import type { AppSettings, Technique, TechniqueInput } from "../lib/types";
-import { DEFAULT_FLOW_RATIO, THEMES } from "../lib/types";
+import type { AppSettings, Technique } from "../lib/types";
+import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
@@ -17,36 +16,10 @@ interface Props {
   autostart: boolean;
   autostartAvailable: boolean;
   onToggleAutostart: (enabled: boolean) => Promise<void>;
-  onCreateTechnique: (input: TechniqueInput) => Promise<Technique>;
-  onUpdateTechnique: (id: string, input: TechniqueInput) => Promise<Technique>;
-  onDeleteTechnique: (id: string) => Promise<void>;
-  onTechniquesChanged: () => Promise<void>;
+  onNewTechnique: () => void;
+  onEditTechnique: (id: string) => void;
   onOpenAbout?: () => void;
   onQuit?: () => void;
-  /** Open already composing a custom technique (from the guide). */
-  composeRecipe?: boolean;
-}
-
-type Draft = {
-  name: string;
-  focusMins: number;
-  shortMins: number;
-  longMins: number;
-  cycles: number;
-  mode: string;
-  flowPct: number;
-};
-
-function blankDraft(): Draft {
-  return {
-    name: "",
-    focusMins: 25,
-    shortMins: 5,
-    longMins: 15,
-    cycles: 4,
-    mode: "classic",
-    flowPct: Math.round(DEFAULT_FLOW_RATIO * 100),
-  };
 }
 
 export function SettingsView(props: Props) {
@@ -172,11 +145,8 @@ export function SettingsView(props: Props) {
 
       <CustomRecipes
         customs={customs}
-        composeOnOpen={props.composeRecipe}
-        onCreate={props.onCreateTechnique}
-        onUpdate={props.onUpdateTechnique}
-        onDelete={props.onDeleteTechnique}
-        onChanged={props.onTechniquesChanged}
+        onNew={props.onNewTechnique}
+        onEdit={props.onEditTechnique}
       />
 
       {props.onOpenAbout && (
@@ -192,123 +162,35 @@ export function SettingsView(props: Props) {
 
 interface RecipeProps {
   customs: Technique[];
-  composeOnOpen?: boolean;
-  onCreate: (input: TechniqueInput) => Promise<Technique>;
-  onUpdate: (id: string, input: TechniqueInput) => Promise<Technique>;
-  onDelete: (id: string) => Promise<void>;
-  onChanged: () => Promise<void>;
+  onNew: () => void;
+  onEdit: (id: string) => void;
 }
 
-function CustomRecipes({
-  customs,
-  composeOnOpen,
-  onCreate,
-  onUpdate,
-  onDelete,
-  onChanged,
-}: RecipeProps) {
+function CustomRecipes({ customs, onNew, onEdit }: RecipeProps) {
   const { t } = useTranslation();
-  const [draft, setDraft] = useState<Draft>(() => blankDraft());
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [composing, setComposing] = useState(Boolean(composeOnOpen));
-  const [error, setError] = useState<string | null>(null);
-
-  function closeForm() {
-    setComposing(false);
-    setEditingId(null);
-    setError(null);
-    setDraft(blankDraft());
-  }
-
-  function startCreate() {
-    setEditingId(null);
-    setError(null);
-    setDraft(blankDraft());
-    setComposing(true);
-  }
-
-  function startEdit(tech: Technique) {
-    setEditingId(tech.id);
-    setError(null);
-    setDraft({
-      name: tech.name,
-      focusMins: Math.round(tech.focusSecs / 60),
-      shortMins: Math.round(tech.shortBreakSecs / 60),
-      longMins: Math.round(tech.longBreakSecs / 60),
-      cycles: tech.cyclesBeforeLong,
-      mode: tech.mode,
-      flowPct: Math.round((tech.flowRatio ?? DEFAULT_FLOW_RATIO) * 100),
-    });
-    setComposing(true);
-  }
-
-  async function saveCustom(e: FormEvent) {
-    e.preventDefault();
-    setError(null);
-    const usesFlow = draft.mode === "flowtime" || draft.mode === "hybrid";
-    const input: TechniqueInput = {
-      name: draft.name.trim() || t("settings.defaultCustomName"),
-      focusSecs: Math.round(draft.focusMins * 60),
-      shortBreakSecs: Math.round(draft.shortMins * 60),
-      longBreakSecs: Math.round(draft.longMins * 60),
-      cyclesBeforeLong: draft.cycles,
-      flowRatio: usesFlow ? draft.flowPct / 100 : null,
-      mode: draft.mode,
-      accent: "#6B8F71",
-    };
-    try {
-      if (editingId) {
-        await onUpdate(editingId, input);
-      } else {
-        await onCreate(input);
-      }
-      closeForm();
-      await onChanged();
-    } catch (err) {
-      setError(String(err));
-    }
-  }
-
-  async function removeCustom(id: string) {
-    try {
-      await onDelete(id);
-      if (editingId === id) closeForm();
-      await onChanged();
-    } catch (err) {
-      setError(String(err));
-    }
-  }
 
   return (
     <section className="section">
       <h2>{t("settings.customTechniques")}</h2>
 
-      {customs.length === 0 && !composing && (
-        <p className="empty-note">{t("settings.recipesEmpty")}</p>
-      )}
+      {customs.length === 0 && <p className="empty-note">{t("settings.recipesEmpty")}</p>}
 
       {customs.length > 0 && (
         <div className="tech-list">
           {customs.map((tech) => (
-            <div
-              key={tech.id}
-              className={editingId === tech.id ? "tech-row is-editing" : "tech-row"}
-            >
+            <div key={tech.id} className="tech-row">
               <div>
                 <strong dir="auto">{tech.name}</strong>
                 <div className="meta">{formatTechniqueRhythm(tech)}</div>
               </div>
               <div className="tech-row-actions">
-                <button type="button" className="btn btn-ghost" onClick={() => startEdit(tech)}>
-                  {t("settings.edit")}
-                </button>
                 <button
                   type="button"
-                  className="btn btn-danger"
-                  aria-label={`${t("settings.delete")}: ${tech.name}`}
-                  onClick={() => void removeCustom(tech.id)}
+                  className="btn btn-ghost"
+                  aria-label={`${t("settings.edit")}: ${tech.name}`}
+                  onClick={() => onEdit(tech.id)}
                 >
-                  {t("settings.delete")}
+                  {t("settings.edit")}
                 </button>
               </div>
             </div>
@@ -316,120 +198,13 @@ function CustomRecipes({
         </div>
       )}
 
-      {!composing ? (
-        <button
-          type="button"
-          className={customs.length === 0 ? "btn btn-primary" : "btn btn-ghost"}
-          onClick={startCreate}
-        >
-          {t("settings.newTechnique")}
-        </button>
-      ) : (
-        <form className="recipe-form" onSubmit={saveCustom}>
-          <div className="field">
-            <label htmlFor="c-name">
-              {editingId ? t("settings.editTechnique") : t("settings.newTechnique")}
-            </label>
-            <input
-              id="c-name"
-              value={draft.name}
-              onChange={(e) => setDraft({ ...draft, name: e.target.value })}
-              placeholder={t("settings.namePlaceholder")}
-              required
-              autoComplete="off"
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="c-mode">{t("settings.mode")}</label>
-            <Select
-              id="c-mode"
-              value={draft.mode}
-              onChange={(mode) => setDraft({ ...draft, mode })}
-              options={[
-                { value: "classic", label: t("settings.modeClassic") },
-                { value: "flowtime", label: t("settings.modeFlowtime") },
-                { value: "hybrid", label: t("settings.modeHybrid") },
-              ]}
-            />
-          </div>
-          {draft.mode !== "flowtime" && (
-            <div className="field-grid">
-              <div className="field">
-                <label htmlFor="c-focus">{t("settings.focusMinutes")}</label>
-                <input
-                  id="c-focus"
-                  type="number"
-                  min={1}
-                  value={draft.focusMins}
-                  onChange={(e) => setDraft({ ...draft, focusMins: Number(e.target.value) })}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="c-short">{t("settings.shortBreak")}</label>
-                <input
-                  id="c-short"
-                  type="number"
-                  min={1}
-                  value={draft.shortMins}
-                  onChange={(e) => setDraft({ ...draft, shortMins: Number(e.target.value) })}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="c-long">{t("settings.longBreak")}</label>
-                <input
-                  id="c-long"
-                  type="number"
-                  min={1}
-                  value={draft.longMins}
-                  onChange={(e) => setDraft({ ...draft, longMins: Number(e.target.value) })}
-                />
-              </div>
-              <div className="field">
-                <label htmlFor="c-cycles">{t("settings.cyclesBeforeLong")}</label>
-                <input
-                  id="c-cycles"
-                  type="number"
-                  min={1}
-                  value={draft.cycles}
-                  onChange={(e) => setDraft({ ...draft, cycles: Number(e.target.value) })}
-                />
-              </div>
-            </div>
-          )}
-          {(draft.mode === "flowtime" || draft.mode === "hybrid") && (
-            <div className="field">
-              <label htmlFor="c-flow">{t("settings.flowRatio")}</label>
-              <input
-                id="c-flow"
-                type="range"
-                min={11}
-                max={33}
-                value={draft.flowPct}
-                onChange={(e) => setDraft({ ...draft, flowPct: Number(e.target.value) })}
-              />
-              <span className="hint">
-                {t("settings.flowHint", {
-                  ratio: (draft.flowPct / 100).toFixed(2),
-                  inverse: Math.round(100 / draft.flowPct),
-                })}
-              </span>
-            </div>
-          )}
-          {error && (
-            <p className="hint" style={{ color: "var(--danger)" }}>
-              {error}
-            </p>
-          )}
-          <div className="form-actions">
-            <button type="submit" className="btn btn-primary">
-              {editingId ? t("settings.saveChanges") : t("settings.addTechnique")}
-            </button>
-            <button type="button" className="btn btn-ghost" onClick={closeForm}>
-              {t("settings.cancel")}
-            </button>
-          </div>
-        </form>
-      )}
+      <button
+        type="button"
+        className={customs.length === 0 ? "btn btn-primary" : "btn btn-ghost"}
+        onClick={onNew}
+      >
+        {t("settings.newTechnique")}
+      </button>
     </section>
   );
 }

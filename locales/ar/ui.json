@@ -45,7 +45,8 @@
     "dayStreak": "أيام متتالية"
   },
   "picker": {
-    "aria": "تقنية التركيز"
+    "aria": "تقنية التركيز",
+    "newTechnique": "تقنية جديدة"
   },
   "scroll": {
     "more": "مرّر للمزيد"
@@ -161,6 +162,14 @@
     "customIntervalBestFor": "مستخدمون متقدمون",
     "customIntervalBlurb": "مجموعة فتراتك — اضبط النسب وإيقاع الاستراحة الطويلة ليومك.",
     "tooltipBestFor": "الأنسب لـ: {{value}}"
+  },
+  "editor": {
+    "panel": "محرر التقنيات",
+    "line": "التقنيات · اصنع إيقاعك الخاص.",
+    "back": "رجوع",
+    "preview": "الإيقاع",
+    "copyName": "{{name}} (نسخة)",
+    "confirmDelete": "حذف نهائيًا؟"
   },
   "themes": {
     "batter": "عجينة",

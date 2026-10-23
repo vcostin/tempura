@@ -91,40 +91,52 @@ pub fn get_technique(state: State<'_, AppState>, id: String) -> Result<Option<Te
 
 #[tauri::command]
 pub fn create_technique(
+    app: AppHandle,
     state: State<'_, AppState>,
     input: TechniqueInput,
 ) -> Result<Technique, String> {
     let input = input.validated()?;
-    state
+    let tech = state
         .db
         .lock()
         .create_technique(input)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    let _ = app.emit("techniques-updated", ());
+    Ok(tech)
 }
 
 #[tauri::command]
 pub fn update_technique(
+    app: AppHandle,
     state: State<'_, AppState>,
     id: String,
     input: TechniqueInput,
 ) -> Result<Technique, String> {
     validate_id(&id)?;
     let input = input.validated()?;
-    state
+    let tech = state
         .db
         .lock()
         .update_technique(&id, input)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    let _ = app.emit("techniques-updated", ());
+    Ok(tech)
 }
 
 #[tauri::command]
-pub fn delete_technique(state: State<'_, AppState>, id: String) -> Result<(), String> {
+pub fn delete_technique(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    id: String,
+) -> Result<(), String> {
     validate_id(&id)?;
     state
         .db
         .lock()
         .delete_technique(&id)
-        .map_err(|e| e.to_string())
+        .map_err(|e| e.to_string())?;
+    let _ = app.emit("techniques-updated", ());
+    Ok(())
 }
 
 #[tauri::command]

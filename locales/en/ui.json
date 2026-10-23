@@ -49,7 +49,8 @@
     "dayStreak": "day streak"
   },
   "picker": {
-    "aria": "Focus technique"
+    "aria": "Focus technique",
+    "newTechnique": "New technique"
   },
   "scroll": {
     "more": "Scroll for more"
@@ -165,6 +166,14 @@
     "customIntervalBestFor": "Power users",
     "customIntervalBlurb": "Your custom interval set — dial ratios and long-break cadence to match the day.",
     "tooltipBestFor": "Best for: {{value}}"
+  },
+  "editor": {
+    "panel": "Technique editor",
+    "line": "Techniques · shape your own rhythm.",
+    "back": "Back",
+    "preview": "Rhythm",
+    "copyName": "{{name}} (copy)",
+    "confirmDelete": "Delete for good?"
   },
   "themes": {
     "batter": "Batter",

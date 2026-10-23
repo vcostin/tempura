@@ -42,7 +42,8 @@
     "dayStreak": "zile la rând"
   },
   "picker": {
-    "aria": "Tehnică de focus"
+    "aria": "Tehnică de focus",
+    "newTechnique": "Tehnică nouă"
   },
   "scroll": {
     "more": "Derulează pentru mai mult"
@@ -158,6 +159,14 @@
     "customIntervalBestFor": "Utilizatori avansați",
     "customIntervalBlurb": "Setul tău de intervale — rapoarte și cadența pauzei lungi pe măsura zilei.",
     "tooltipBestFor": "Bun pentru: {{value}}"
+  },
+  "editor": {
+    "panel": "Editor de tehnici",
+    "line": "Tehnici · creează-ți propriul ritm.",
+    "back": "Înapoi",
+    "preview": "Ritm",
+    "copyName": "{{name}} (copie)",
+    "confirmDelete": "Ștergi definitiv?"
   },
   "themes": {
     "batter": "Aluat",

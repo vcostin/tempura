@@ -41,7 +41,8 @@
     "dayStreak": "jours d’affilée"
   },
   "picker": {
-    "aria": "Technique de focus"
+    "aria": "Technique de focus",
+    "newTechnique": "Nouvelle technique"
   },
   "scroll": {
     "more": "Faire défiler pour voir plus"
@@ -157,6 +158,14 @@
     "customIntervalBestFor": "Utilisateurs avancés",
     "customIntervalBlurb": "Votre jeu d’intervalles — ajustez ratios et cadence de pause longue à la journée.",
     "tooltipBestFor": "Idéal pour : {{value}}"
+  },
+  "editor": {
+    "panel": "Éditeur de technique",
+    "line": "Techniques · façonnez votre propre rythme.",
+    "back": "Retour",
+    "preview": "Rythme",
+    "copyName": "{{name}} (copie)",
+    "confirmDelete": "Supprimer définitivement ?"
   },
   "themes": {
     "batter": "Pâte",
