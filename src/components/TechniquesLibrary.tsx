@@ -21,6 +21,7 @@ interface Props {
   onUse: (id: string) => void;
   onNew: () => void;
   onEdit: (id: string) => void;
+  onDelete: (tech: Technique) => void;
   onCustomize: (id: string) => void;
   onClose: () => void;
 }
@@ -180,14 +181,28 @@ export function TechniquesLibrary(props: Props) {
                           {t("library.use")}
                         </button>
                         {tech.kind === "custom" ? (
-                          <button
-                            type="button"
-                            className="btn btn-ghost"
-                            aria-label={`${t("library.edit")}: ${name}`}
-                            onClick={() => props.onEdit(tech.id)}
-                          >
-                            {t("library.edit")}
-                          </button>
+                          <>
+                            <button
+                              type="button"
+                              className="btn btn-ghost"
+                              aria-label={`${t("library.edit")}: ${name}`}
+                              onClick={() => props.onEdit(tech.id)}
+                            >
+                              {t("library.edit")}
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-danger library-delete"
+                              aria-label={`${t("settings.delete")}: ${name}`}
+                              onClick={() => {
+                                // The row goes away; keep focus somewhere sensible.
+                                tabRefs.current[tab]?.focus();
+                                props.onDelete(tech);
+                              }}
+                            >
+                              {t("settings.delete")}
+                            </button>
+                          </>
                         ) : (
                           <button
                             type="button"

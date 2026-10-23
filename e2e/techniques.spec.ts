@@ -95,6 +95,21 @@ test.describe("techniques library and editor", () => {
     await expect(page.locator(".picker .chip", { hasText: "Reading" })).toHaveCount(1);
   });
 
+  test("delete from the library row, then Undo", async ({ page }) => {
+    await page.locator('[data-open-panel="technique-new"]').click();
+    await page.fill("#c-name", "Errands");
+    await page.getByRole("button", { name: "Add technique" }).click();
+
+    await page.locator('[data-open-panel="techniques"]').first().click();
+    await page.locator(".library-row-head", { hasText: "Errands" }).click();
+    await page.getByRole("button", { name: "Delete: Errands" }).click();
+    await expect(page.locator(".library-row", { hasText: "Errands" })).toHaveCount(0);
+    await expect(page.getByRole("tab", { name: /Mine/ })).toBeFocused();
+
+    await page.locator(".toast").getByRole("button", { name: "Undo" }).click();
+    await expect(page.locator(".library-row", { hasText: "Errands" })).toHaveCount(1);
+  });
+
   test("Learn more opens the library at the selected technique", async ({ page }) => {
     await page.getByRole("button", { name: "Learn more" }).click();
     await expect(page).toHaveURL(/#\/techniques\?focus=classic$/);

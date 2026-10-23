@@ -1861,3 +1861,7 @@ button {
     animation: none;
   }
 }
+
+.library-delete {
+  margin-inline-start: auto;
+}

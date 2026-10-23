@@ -97,6 +97,7 @@ let lastLibraryTab: LibraryTab | undefined;
 export function TechniquesRoute() {
   const session = useSessionContext();
   const select = useSelectTechnique();
+  const deleteTechnique = useDeleteTechnique();
   const { closePanel, openTechniqueEditor } = useShell();
   const [params] = useSearchParams();
   return (
@@ -118,6 +119,7 @@ export function TechniquesRoute() {
         openTechniqueEditor();
       }}
       onEdit={(id) => openTechniqueEditor({ id })}
+      onDelete={(tech) => void deleteTechnique(tech)}
       onCustomize={(id) => {
         lastLibraryTab = "mine";
         openTechniqueEditor({ from: id });
@@ -140,12 +142,37 @@ function toInput(tech: Technique): TechniqueInput {
   };
 }
 
-/** `/techniques/new` (optionally `?from=<id>`) and `/techniques/:id/edit`. */
-export function TechniqueEditorRoute() {
+/** Delete a custom technique and offer Undo, which recreates it (under a new id). */
+function useDeleteTechnique() {
   const { t } = useTranslation();
   const session = useSessionContext();
   const settingsApi = useSettingsContext();
-  const { goBack, showToast } = useShell();
+  const select = useSelectTechnique();
+  const { showToast } = useShell();
+  return async (tech: Technique) => {
+    const wasSelected = session.selectedId === tech.id;
+    await settingsApi.deleteTechnique(tech.id);
+    if (wasSelected) select("classic");
+    await session.reloadTechniques();
+    showToast({
+      message: t("toast.deleted", { name: tech.name }),
+      actionLabel: t("toast.undo"),
+      onAction: () => {
+        void settingsApi.createTechnique(toInput(tech)).then(async (restored) => {
+          if (wasSelected) select(restored.id);
+          await session.reloadTechniques();
+        });
+      },
+    });
+  };
+}
+
+/** `/techniques/new` (optionally `?from=<id>`) and `/techniques/:id/edit`. */
+export function TechniqueEditorRoute() {
+  const session = useSessionContext();
+  const settingsApi = useSettingsContext();
+  const { goBack } = useShell();
+  const deleteTechnique = useDeleteTechnique();
   const { id } = useParams();
   const [params] = useSearchParams();
   const editing = id ? session.techniques.find((tech) => tech.id === id) : undefined;
@@ -180,28 +207,14 @@ export function TechniqueEditorRoute() {
       onDelete={
         editing
           ? async () => {
-              const wasSelected = session.selectedId === editing.id;
               deletedRef.current = true;
               try {
-                await settingsApi.deleteTechnique(editing.id);
+                await deleteTechnique(editing);
               } catch (err) {
                 deletedRef.current = false;
                 throw err;
               }
-              if (wasSelected) select("classic");
-              await session.reloadTechniques();
               goBack();
-              showToast({
-                message: t("toast.deleted", { name: editing.name }),
-                actionLabel: t("toast.undo"),
-                onAction: () => {
-                  // Recreated under a new id; past sessions keep their totals either way.
-                  void settingsApi.createTechnique(toInput(editing)).then(async (restored) => {
-                    if (wasSelected) select(restored.id);
-                    await session.reloadTechniques();
-                  });
-                },
-              });
             }
           : undefined
       }
