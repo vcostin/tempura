@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Focustechniek",
-    "newTechnique": "Nieuwe techniek"
+    "newTechnique": "Nieuwe techniek",
+    "hidden": "Verborgen: {{n}}",
+    "hiddenAria": "Verborgen technieken: {{n}}",
+    "hide": "Verbergen op timer",
+    "keepSelected": "De gekozen techniek blijft op de timer.",
+    "keepOne": "Houd minstens één techniek op de timer."
   },
   "scroll": {
     "more": "Scroll voor meer"
@@ -155,7 +160,9 @@
     "customize": "Aanpassen",
     "emptyMine": "Nog geen eigen technieken. Maak er een vanaf nul of pas een ingebouwde aan.",
     "emptyHint": "Ingebouwde bekijken",
-    "runningHint": "Stop de sessie om van techniek te wisselen."
+    "runningHint": "Stop de sessie om van techniek te wisselen.",
+    "showOnTimer": "Tonen op timer",
+    "hidden": "Verborgen"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Omhoog tellen · evenredige pauze",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} verwijderd",
-    "undo": "Ongedaan maken"
+    "undo": "Ongedaan maken",
+    "hidden": "{{name}} verborgen op de timer"
   },
   "themes": {
     "batter": "Beslag",

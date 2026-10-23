@@ -37,6 +37,8 @@ export interface AppSettings {
   workingOn: string;
   locale: string;
   checkUpdatesOnLaunch: boolean;
+  /** Techniques left off the timer's picker; empty means all show. */
+  hiddenTechniqueIds: string[];
 }
 
 export interface TimerSnapshot {

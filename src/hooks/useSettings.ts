@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../lib/api";
 import { i18n, resolveLocale } from "../lib/i18n";
 import {
@@ -20,6 +20,7 @@ const defaultSettings: AppSettings = {
   workingOn: "",
   locale: "",
   checkUpdatesOnLaunch: true,
+  hiddenTechniqueIds: [],
 };
 
 async function systemLocale(): Promise<string> {
@@ -41,6 +42,9 @@ async function applyLocale(code: string) {
 
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
+  // Latest settings for callbacks that outlive a render, such as a toast's Undo.
+  const latest = useRef(settings);
+  latest.current = settings;
   const [autostart, setAutostartState] = useState(false);
   const [autostartAvailable, setAutostartAvailable] = useState(false);
   const [info, setInfo] = useState<AppInfo | null>(null);
@@ -54,6 +58,7 @@ export function useSettings() {
         return;
       }
       const s = await api.getSettings();
+      s.hiddenTechniqueIds ??= [];
       setSettings(s);
       document.documentElement.setAttribute("data-theme", s.theme);
       await applyLocale(s.locale);
@@ -87,6 +92,18 @@ export function useSettings() {
     [save, settings],
   );
 
+  /** Show or hide a technique on the timer, against the latest settings. */
+  const setTechniqueHidden = useCallback(
+    async (id: string, hidden: boolean) => {
+      const current = latest.current;
+      const others = current.hiddenTechniqueIds.filter((h) => h !== id);
+      const next = { ...current, hiddenTechniqueIds: hidden ? [...others, id] : others };
+      latest.current = next;
+      await save(next);
+    },
+    [save],
+  );
+
   const toggleAutostart = useCallback(async (enabled: boolean) => {
     await setAutostart(enabled);
     setAutostartState(enabled);
@@ -108,6 +125,7 @@ export function useSettings() {
     settings,
     patch,
     save,
+    setTechniqueHidden,
     autostart,
     autostartAvailable,
     toggleAutostart,

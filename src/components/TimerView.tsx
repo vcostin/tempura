@@ -5,10 +5,13 @@ import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
 import { TechniquePicker } from "./TechniquePicker";
+import type { HideBlock } from "../state/techniqueVisibility";
 
 interface Props {
   snapshot: TimerSnapshot;
   techniques: Technique[];
+  /** The techniques on the picker; the rest are hidden from the timer. */
+  visibleTechniques: Technique[];
   selectedId: string;
   onSelectTechnique: (id: string) => void;
   stats: DayStats | null;
@@ -23,6 +26,10 @@ interface Props {
   onStop: () => void;
   onContinueFlow: () => void;
   onNewTechnique: () => void;
+  onShowHiddenTechniques: () => void;
+  hideBlock: (id: string) => HideBlock;
+  onHideTechnique: (tech: Technique) => void;
+  onEditTechnique: (id: string) => void;
   onOpenSettings: () => void;
   onOpenStats: () => void;
   /** Opens the techniques library, optionally at one technique. */
@@ -124,11 +131,16 @@ export function TimerView(props: Props) {
 
       <main id="timer-main">
       <TechniquePicker
-        techniques={props.techniques}
+        techniques={props.visibleTechniques}
         selectedId={props.selectedId}
         onSelect={props.onSelectTechnique}
         onCreate={props.onNewTechnique}
         disabled={s.running}
+        hiddenCount={props.techniques.length - props.visibleTechniques.length}
+        onShowHidden={props.onShowHiddenTechniques}
+        hideBlock={props.hideBlock}
+        onHide={props.onHideTechnique}
+        onEdit={props.onEditTechnique}
       />
       {rhythm && (
         <div className="rhythm-block">

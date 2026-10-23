@@ -50,7 +50,12 @@
   },
   "picker": {
     "aria": "Focus technique",
-    "newTechnique": "New technique"
+    "newTechnique": "New technique",
+    "hidden": "{{n}} hidden",
+    "hiddenAria": "Hidden techniques: {{n}}",
+    "hide": "Hide from timer",
+    "keepSelected": "The selected technique stays on the timer.",
+    "keepOne": "Keep at least one technique on the timer."
   },
   "scroll": {
     "more": "Scroll for more"
@@ -163,7 +168,9 @@
     "customize": "Customize",
     "emptyMine": "No techniques of your own yet. Make one from scratch, or customize a built-in.",
     "emptyHint": "Browse built-ins",
-    "runningHint": "Stop the session to switch technique."
+    "runningHint": "Stop the session to switch technique.",
+    "showOnTimer": "Show on timer",
+    "hidden": "Hidden"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Count-up focus · proportional break",
@@ -186,7 +193,8 @@
   },
   "toast": {
     "deleted": "{{name}} deleted",
-    "undo": "Undo"
+    "undo": "Undo",
+    "hidden": "{{name}} hidden from the timer"
   },
   "themes": {
     "batter": "Batter",

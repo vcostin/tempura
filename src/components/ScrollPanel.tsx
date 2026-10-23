@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode, type UIEvent } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode, type UIEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useDialogFocus } from "../hooks/useDialogFocus";
 
@@ -26,7 +26,9 @@ export function ScrollPanel({ children, label, className = "" }: Props) {
     setAtBottom(!overflow || el.scrollTop + el.clientHeight >= el.scrollHeight - 8);
   }
 
-  useEffect(() => {
+  // Measure before paint: in an effect, the first frame showed the panel
+  // without its fade and "Scroll for more" cue, then the next frame added them.
+  useLayoutEffect(() => {
     measure();
     const el = scrollRef.current;
     if (!el) return;

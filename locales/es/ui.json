@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Técnica de foco",
-    "newTechnique": "Nueva técnica"
+    "newTechnique": "Nueva técnica",
+    "hidden": "Ocultas: {{n}}",
+    "hiddenAria": "Técnicas ocultas: {{n}}",
+    "hide": "Ocultar del temporizador",
+    "keepSelected": "La técnica seleccionada se queda en el temporizador.",
+    "keepOne": "Deja al menos una técnica en el temporizador."
   },
   "scroll": {
     "more": "Desplaza para ver más"
@@ -155,7 +160,9 @@
     "customize": "Personalizar",
     "emptyMine": "Aún no tienes técnicas propias. Crea una desde cero o personaliza una integrada.",
     "emptyHint": "Ver las integradas",
-    "runningHint": "Detén la sesión para cambiar de técnica."
+    "runningHint": "Detén la sesión para cambiar de técnica.",
+    "showOnTimer": "Mostrar en el temporizador",
+    "hidden": "Oculta"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Foco en cuenta hacia arriba · pausa proporcional",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} eliminada",
-    "undo": "Deshacer"
+    "undo": "Deshacer",
+    "hidden": "{{name}} oculta del temporizador"
   },
   "themes": {
     "batter": "Rebozado",

@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "专注技法",
-    "newTechnique": "新建技巧"
+    "newTechnique": "新建技巧",
+    "hidden": "已隐藏：{{n}}",
+    "hiddenAria": "已隐藏的技巧：{{n}}",
+    "hide": "从计时器隐藏",
+    "keepSelected": "所选技巧会保留在计时器上。",
+    "keepOne": "计时器上至少保留一个技巧。"
   },
   "scroll": {
     "more": "向下滚动看更多"
@@ -155,7 +160,9 @@
     "customize": "自定义",
     "emptyMine": "你还没有自己的技巧。从头创建一个，或自定义一个内置技巧。",
     "emptyHint": "浏览内置技巧",
-    "runningHint": "停止当前会话后才能切换技巧。"
+    "runningHint": "停止当前会话后才能切换技巧。",
+    "showOnTimer": "在计时器上显示",
+    "hidden": "已隐藏"
   },
   "guide": {
     "customFlowtimeWorkBreak": "向上计时 · 按比例休息",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "已删除 {{name}}",
-    "undo": "撤销"
+    "undo": "撤销",
+    "hidden": "已在计时器中隐藏 {{name}}"
   },
   "themes": {
     "batter": "面糊",

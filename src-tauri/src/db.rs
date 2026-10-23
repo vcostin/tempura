@@ -278,6 +278,7 @@ impl Database {
                 "check_updates_on_launch",
                 defaults.check_updates_on_launch.to_string(),
             ),
+            ("hidden_technique_ids", String::new()),
         ];
         for (key, value) in pairs {
             self.conn.execute(
@@ -344,6 +345,16 @@ impl Database {
                 .as_deref()
                 .map(|v| v == "true")
                 .unwrap_or(defaults.check_updates_on_launch),
+            // Comma-joined: technique ids never contain commas (see `validate_id`).
+            hidden_technique_ids: self
+                .get_setting("hidden_technique_ids")?
+                .map(|v| {
+                    v.split(',')
+                        .filter(|id| !id.is_empty())
+                        .map(str::to_string)
+                        .collect()
+                })
+                .unwrap_or(defaults.hidden_technique_ids),
         })
     }
 
@@ -362,6 +373,10 @@ impl Database {
         self.set_setting(
             "check_updates_on_launch",
             &settings.check_updates_on_launch.to_string(),
+        )?;
+        self.set_setting(
+            "hidden_technique_ids",
+            &settings.hidden_technique_ids.join(","),
         )?;
         Ok(())
     }
@@ -712,6 +727,22 @@ mod range_stats_tests {
         let path = std::env::temp_dir().join(format!("tempura-stats-{nanos}.sqlite"));
         let _ = std::fs::remove_file(&path);
         Database::open(&path).expect("open temp db")
+    }
+
+    #[test]
+    fn hidden_technique_ids_round_trip() {
+        let db = temp_db();
+        assert!(db.get_settings().unwrap().hidden_technique_ids.is_empty());
+        let mut s = db.get_settings().unwrap();
+        s.hidden_technique_ids = vec!["deep".into(), "custom_1".into()];
+        db.update_settings(&s).unwrap();
+        assert_eq!(
+            db.get_settings().unwrap().hidden_technique_ids,
+            vec!["deep".to_string(), "custom_1".to_string()]
+        );
+        s.hidden_technique_ids.clear();
+        db.update_settings(&s).unwrap();
+        assert!(db.get_settings().unwrap().hidden_technique_ids.is_empty());
     }
 
     #[test]

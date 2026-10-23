@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Fokustechnik",
-    "newTechnique": "Neue Technik"
+    "newTechnique": "Neue Technik",
+    "hidden": "Ausgeblendet: {{n}}",
+    "hiddenAria": "Ausgeblendete Techniken: {{n}}",
+    "hide": "Vom Timer ausblenden",
+    "keepSelected": "Die gewählte Technik bleibt auf dem Timer.",
+    "keepOne": "Mindestens eine Technik muss auf dem Timer bleiben."
   },
   "scroll": {
     "more": "Weiter scrollen"
@@ -155,7 +160,9 @@
     "customize": "Anpassen",
     "emptyMine": "Noch keine eigenen Techniken. Erstelle eine neue oder passe eine integrierte an.",
     "emptyHint": "Integrierte ansehen",
-    "runningHint": "Beende die Sitzung, um die Technik zu wechseln."
+    "runningHint": "Beende die Sitzung, um die Technik zu wechseln.",
+    "showOnTimer": "Auf dem Timer zeigen",
+    "hidden": "Ausgeblendet"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Hochzählen · proportionale Pause",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} gelöscht",
-    "undo": "Rückgängig"
+    "undo": "Rückgängig",
+    "hidden": "{{name}} vom Timer ausgeblendet"
   },
   "themes": {
     "batter": "Teig",
