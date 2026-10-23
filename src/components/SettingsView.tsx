@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { formatTechniqueRhythm } from "../lib/api";
 import { LOCALES } from "../lib/i18n";
-import type { AppSettings, Technique } from "../lib/types";
+import type { AppSettings } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
@@ -10,14 +9,14 @@ import { Select } from "./Select";
 interface Props {
   settings: AppSettings;
   onPatch: (partial: Partial<AppSettings>) => Promise<void>;
-  techniques: Technique[];
+  /** Counts shown on the Techniques link. */
+  techniqueCounts: { mine: number; builtIn: number };
   onClose: () => void;
   desktop: boolean;
   autostart: boolean;
   autostartAvailable: boolean;
   onToggleAutostart: (enabled: boolean) => Promise<void>;
-  onNewTechnique: () => void;
-  onEditTechnique: (id: string) => void;
+  onOpenTechniques: () => void;
   onOpenAbout?: () => void;
   onQuit?: () => void;
 }
@@ -25,7 +24,6 @@ interface Props {
 export function SettingsView(props: Props) {
   const { t, i18n } = useTranslation();
   const { settings } = props;
-  const customs = props.techniques.filter((tech) => tech.kind === "custom");
 
   return (
     <ScrollPanel label={t("settings.panel")}>
@@ -143,11 +141,20 @@ export function SettingsView(props: Props) {
         </section>
       )}
 
-      <CustomRecipes
-        customs={customs}
-        onNew={props.onNewTechnique}
-        onEdit={props.onEditTechnique}
-      />
+      <section className="section">
+        <h2>{t("settings.techniques")}</h2>
+        <button type="button" className="link-row" onClick={props.onOpenTechniques}>
+          <span>
+            <span className="link-row-title">{t("settings.manageTechniques")}</span>
+            <span className="link-row-meta">
+              {t("settings.techniquesMeta", props.techniqueCounts)}
+            </span>
+          </span>
+          <span className="link-row-chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      </section>
 
       {props.onOpenAbout && (
         <p className="settings-foot">
@@ -157,54 +164,5 @@ export function SettingsView(props: Props) {
         </p>
       )}
     </ScrollPanel>
-  );
-}
-
-interface RecipeProps {
-  customs: Technique[];
-  onNew: () => void;
-  onEdit: (id: string) => void;
-}
-
-function CustomRecipes({ customs, onNew, onEdit }: RecipeProps) {
-  const { t } = useTranslation();
-
-  return (
-    <section className="section">
-      <h2>{t("settings.customTechniques")}</h2>
-
-      {customs.length === 0 && <p className="empty-note">{t("settings.recipesEmpty")}</p>}
-
-      {customs.length > 0 && (
-        <div className="tech-list">
-          {customs.map((tech) => (
-            <div key={tech.id} className="tech-row">
-              <div>
-                <strong dir="auto">{tech.name}</strong>
-                <div className="meta">{formatTechniqueRhythm(tech)}</div>
-              </div>
-              <div className="tech-row-actions">
-                <button
-                  type="button"
-                  className="btn btn-ghost"
-                  aria-label={`${t("settings.edit")}: ${tech.name}`}
-                  onClick={() => onEdit(tech.id)}
-                >
-                  {t("settings.edit")}
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      <button
-        type="button"
-        className={customs.length === 0 ? "btn btn-primary" : "btn btn-ghost"}
-        onClick={onNew}
-      >
-        {t("settings.newTechnique")}
-      </button>
-    </section>
   );
 }

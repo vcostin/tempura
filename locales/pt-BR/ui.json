@@ -11,7 +11,7 @@
     "paused": "Pausado"
   },
   "timer": {
-    "guideAria": "Guia de técnicas",
+    "guideAria": "Técnicas",
     "guideTitle": "Para que cada técnica serve",
     "statsAria": "Estatísticas de hoje",
     "statsTitle": "Estatísticas",
@@ -65,9 +65,6 @@
     "launchAtLogin": "Abrir no login",
     "startMinimized": "Iniciar minimizado na bandeja",
     "quit": "Sair do Tempura",
-    "customTechniques": "Técnicas próprias",
-    "recipesEmpty": "Nenhuma ainda — as integradas ficam no timer.",
-    "edit": "Editar",
     "delete": "Excluir",
     "editTechnique": "Editar técnica",
     "newTechnique": "Nova técnica",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "Seus dados ficam nesta máquina. Sem contas, sem nuvem, sem sync.",
     "aboutBody": "O SQLite local na pasta de dados do app é a fonte da verdade. Fechar a janela esconde na bandeja — saia daqui ou pelo menu da bandeja.",
-    "techniquesGuide": "Guia de técnicas",
     "sendFeedback": "Enviar feedback",
-    "openAbout": "Sobre…"
+    "openAbout": "Sobre…",
+    "techniques": "Técnicas",
+    "manageTechniques": "Gerenciar técnicas",
+    "techniquesMeta": "Suas: {{mine}} · Integradas: {{builtIn}}"
   },
   "about": {
     "panel": "Sobre",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "Foco diário",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Guia de técnicas",
-    "line": "Técnicas · escolha um ritmo que sirva.",
+  "library": {
+    "panel": "Técnicas",
+    "line": "Seus ritmos e os clássicos.",
     "close": "Fechar",
-    "makeCustom": "Criar uma técnica",
+    "new": "Nova",
+    "tabMine": "Minhas",
+    "tabBuiltIn": "Integradas",
+    "selected": "Selecionada",
+    "use": "Usar",
+    "edit": "Editar",
+    "customize": "Personalizar",
+    "emptyMine": "Você ainda não tem técnicas próprias. Crie uma do zero ou personalize uma integrada.",
+    "emptyHint": "Ver as integradas",
+    "runningHint": "Pare a sessão para trocar de técnica."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Foco em contagem crescente · pausa proporcional",
     "customFlowtimeBestFor": "Criação com muito flow",
     "customFlowtimeBlurb": "Seu ritmo Flowtime — trabalhe até o foco esmorecer, depois descanse na proporção.",
@@ -164,8 +174,11 @@
     "line": "Técnicas · crie seu próprio ritmo.",
     "back": "Voltar",
     "preview": "Ritmo",
-    "copyName": "{{name}} (cópia)",
-    "confirmDelete": "Excluir de vez?"
+    "copyName": "{{name}} (cópia)"
+  },
+  "toast": {
+    "deleted": "{{name}} excluída",
+    "undo": "Desfazer"
   },
   "themes": {
     "batter": "Massa",

@@ -11,7 +11,7 @@
     "paused": "En pausa"
   },
   "timer": {
-    "guideAria": "Guía de técnicas",
+    "guideAria": "Técnicas",
     "guideTitle": "Para qué sirve cada técnica",
     "statsAria": "Estadísticas de hoy",
     "statsTitle": "Estadísticas",
@@ -65,9 +65,6 @@
     "launchAtLogin": "Abrir al iniciar sesión",
     "startMinimized": "Iniciar minimizado en la bandeja",
     "quit": "Salir de Tempura",
-    "customTechniques": "Técnicas propias",
-    "recipesEmpty": "Aún no hay ninguna — las incluidas están en el temporizador.",
-    "edit": "Editar",
     "delete": "Eliminar",
     "editTechnique": "Editar técnica",
     "newTechnique": "Nueva técnica",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "Tus datos se quedan en esta máquina. Sin cuentas, sin nube, sin sincronización.",
     "aboutBody": "El SQLite local en la carpeta de datos de la app es la fuente de verdad. Cerrar la ventana la oculta en la bandeja — sal desde aquí o desde el menú de la bandeja.",
-    "techniquesGuide": "Guía de técnicas",
     "sendFeedback": "Enviar comentarios",
-    "openAbout": "Acerca de…"
+    "openAbout": "Acerca de…",
+    "techniques": "Técnicas",
+    "manageTechniques": "Gestionar técnicas",
+    "techniquesMeta": "Tuyas: {{mine}} · Integradas: {{builtIn}}"
   },
   "about": {
     "panel": "Acerca de",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "Foco diario",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Guía de técnicas",
-    "line": "Técnicas · elige un ritmo que encaje.",
+  "library": {
+    "panel": "Técnicas",
+    "line": "Tus ritmos y los clásicos.",
     "close": "Cerrar",
-    "makeCustom": "Crear una técnica",
+    "new": "Nueva",
+    "tabMine": "Mías",
+    "tabBuiltIn": "Integradas",
+    "selected": "Seleccionada",
+    "use": "Usar",
+    "edit": "Editar",
+    "customize": "Personalizar",
+    "emptyMine": "Aún no tienes técnicas propias. Crea una desde cero o personaliza una integrada.",
+    "emptyHint": "Ver las integradas",
+    "runningHint": "Detén la sesión para cambiar de técnica."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Foco en cuenta hacia arriba · pausa proporcional",
     "customFlowtimeBestFor": "Creación con mucho flow",
     "customFlowtimeBlurb": "Tu ritmo Flowtime — trabaja hasta que el foco se apague, luego descansa en proporción.",
@@ -164,8 +174,11 @@
     "line": "Técnicas · crea tu propio ritmo.",
     "back": "Volver",
     "preview": "Ritmo",
-    "copyName": "{{name}} (copia)",
-    "confirmDelete": "¿Eliminar definitivamente?"
+    "copyName": "{{name}} (copia)"
+  },
+  "toast": {
+    "deleted": "{{name}} eliminada",
+    "undo": "Deshacer"
   },
   "themes": {
     "batter": "Rebozado",

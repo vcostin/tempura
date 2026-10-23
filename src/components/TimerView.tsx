@@ -25,7 +25,8 @@ interface Props {
   onNewTechnique: () => void;
   onOpenSettings: () => void;
   onOpenStats: () => void;
-  onOpenGuide: () => void;
+  /** Opens the techniques library, optionally at one technique. */
+  onOpenTechniques: (focusId?: string) => void;
   onOpenAbout: () => void;
   onOpenDebug?: () => void;
 }
@@ -63,10 +64,10 @@ export function TimerView(props: Props) {
             <button
               type="button"
               className="icon-btn"
-              data-open-panel="guide"
+              data-open-panel="techniques"
               aria-haspopup="dialog"
               aria-label={t("timer.guideAria")}
-              onClick={props.onOpenGuide}
+              onClick={() => props.onOpenTechniques()}
               title={t("timer.guideTitle")}
             >
               <GuideIcon />
@@ -140,9 +141,9 @@ export function TimerView(props: Props) {
               <button
                 type="button"
                 className="linkish"
-                data-open-panel="guide"
+                data-open-panel="techniques"
                 aria-haspopup="dialog"
-                onClick={props.onOpenGuide}
+                onClick={() => props.onOpenTechniques(selected?.id)}
               >
                 {t("timer.learnMore")}
               </button>

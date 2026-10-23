@@ -11,7 +11,7 @@
     "paused": "Pauză"
   },
   "timer": {
-    "guideAria": "Ghid de tehnici",
+    "guideAria": "Tehnici",
     "guideTitle": "La ce e bună fiecare tehnică",
     "statsAria": "Statisticile de azi",
     "statsTitle": "Statistici",
@@ -66,9 +66,6 @@
     "launchAtLogin": "Pornește la autentificare",
     "startMinimized": "Pornește minimizat în tavă",
     "quit": "Închide Tempura",
-    "customTechniques": "Tehnici proprii",
-    "recipesEmpty": "Niciuna încă — cele incluse stau pe temporizator.",
-    "edit": "Editează",
     "delete": "Șterge",
     "editTechnique": "Editează tehnica",
     "newTechnique": "Tehnică nouă",
@@ -89,9 +86,11 @@
     "version": " · v{{version}}",
     "privacy": "Datele rămân pe această mașină. Fără conturi, fără cloud, fără sync.",
     "aboutBody": "SQLite local din folderul de date al aplicației e sursa adevărului. Închiderea ferestrei ascunde în tavă — ieși de aici sau din meniul tăvii.",
-    "techniquesGuide": "Ghid de tehnici",
     "sendFeedback": "Trimite feedback",
-    "openAbout": "Despre…"
+    "openAbout": "Despre…",
+    "techniques": "Tehnici",
+    "manageTechniques": "Gestionează tehnicile",
+    "techniquesMeta": "Ale tale: {{mine}} · Integrate: {{builtIn}}"
   },
   "about": {
     "panel": "Despre",
@@ -144,11 +143,22 @@
     "dailyBreakdown": "Focus zilnic",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Ghid de tehnici",
-    "line": "Tehnici · alege un ritm care se potrivește.",
+  "library": {
+    "panel": "Tehnici",
+    "line": "Ritmurile tale și clasicele.",
     "close": "Închide",
-    "makeCustom": "Creează o tehnică",
+    "new": "Nouă",
+    "tabMine": "Ale mele",
+    "tabBuiltIn": "Integrate",
+    "selected": "Selectată",
+    "use": "Folosește",
+    "edit": "Editează",
+    "customize": "Personalizează",
+    "emptyMine": "Nu ai încă tehnici proprii. Creează una de la zero sau personalizează una integrată.",
+    "emptyHint": "Vezi tehnicile integrate",
+    "runningHint": "Oprește sesiunea ca să schimbi tehnica."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Focus cu numărare · pauză proporțională",
     "customFlowtimeBestFor": "Lucru creativ cu flux",
     "customFlowtimeBlurb": "Ritmul tău Flowtime — lucrează până dispare focusul, apoi odihnește-te proporțional.",
@@ -165,8 +175,11 @@
     "line": "Tehnici · creează-ți propriul ritm.",
     "back": "Înapoi",
     "preview": "Ritm",
-    "copyName": "{{name}} (copie)",
-    "confirmDelete": "Ștergi definitiv?"
+    "copyName": "{{name}} (copie)"
+  },
+  "toast": {
+    "deleted": "{{name}} a fost ștearsă",
+    "undo": "Anulează"
   },
   "themes": {
     "batter": "Aluat",

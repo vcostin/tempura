@@ -11,7 +11,7 @@
     "paused": "متوقف"
   },
   "timer": {
-    "guideAria": "دليل التقنيات",
+    "guideAria": "التقنيات",
     "guideTitle": "ما الذي تجيده كل تقنية",
     "statsAria": "إحصاءات اليوم",
     "statsTitle": "إحصاءات",
@@ -69,9 +69,6 @@
     "launchAtLogin": "التشغيل عند تسجيل الدخول",
     "startMinimized": "البدء مصغّرًا في الصينية",
     "quit": "إنهاء Tempura",
-    "customTechniques": "تقنيات مخصصة",
-    "recipesEmpty": "لا شيء بعد — المدمجة على المؤقت.",
-    "edit": "تحرير",
     "delete": "حذف",
     "editTechnique": "تحرير التقنية",
     "newTechnique": "تقنية جديدة",
@@ -92,9 +89,11 @@
     "version": " · v{{version}}",
     "privacy": "بياناتك تبقى على هذا الجهاز. بلا حسابات، بلا سحابة، بلا مزامنة.",
     "aboutBody": "SQLite المحلي تحت مجلد بيانات التطبيق هو مصدر الحقيقة. إغلاق النافذة يخفيها في الصينية — اخرج من هنا أو من قائمة الصينية.",
-    "techniquesGuide": "دليل التقنيات",
     "sendFeedback": "إرسال ملاحظات",
-    "openAbout": "حول…"
+    "openAbout": "حول…",
+    "techniques": "التقنيات",
+    "manageTechniques": "إدارة التقنيات",
+    "techniquesMeta": "الخاصة بك: {{mine}} · المدمجة: {{builtIn}}"
   },
   "about": {
     "panel": "حول",
@@ -147,11 +146,22 @@
     "dailyBreakdown": "التركيز اليومي",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "دليل التقنيات",
-    "line": "تقنيات · اختر إيقاعًا يناسبك.",
+  "library": {
+    "panel": "التقنيات",
+    "line": "إيقاعاتك والتقنيات الكلاسيكية.",
     "close": "إغلاق",
-    "makeCustom": "إنشاء تقنية",
+    "new": "جديدة",
+    "tabMine": "تقنياتي",
+    "tabBuiltIn": "المدمجة",
+    "selected": "محددة",
+    "use": "استخدام",
+    "edit": "تعديل",
+    "customize": "تخصيص",
+    "emptyMine": "لا توجد تقنيات خاصة بك بعد. أنشئ واحدة من البداية، أو خصّص تقنية مدمجة.",
+    "emptyHint": "تصفّح التقنيات المدمجة",
+    "runningHint": "أوقف الجلسة لتبديل التقنية."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "عدّ تصاعدي · استراحة متناسبة",
     "customFlowtimeBestFor": "إبداع يعتمد على التدفق",
     "customFlowtimeBlurb": "إيقاع وقت التدفق الخاص بك — اعمل حتى يخفت التركيز ثم استرح بنسبة العمل.",
@@ -168,8 +178,11 @@
     "line": "التقنيات · اصنع إيقاعك الخاص.",
     "back": "رجوع",
     "preview": "الإيقاع",
-    "copyName": "{{name}} (نسخة)",
-    "confirmDelete": "حذف نهائيًا؟"
+    "copyName": "{{name}} (نسخة)"
+  },
+  "toast": {
+    "deleted": "تم حذف {{name}}",
+    "undo": "تراجع"
   },
   "themes": {
     "batter": "عجينة",

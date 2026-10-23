@@ -11,7 +11,7 @@
     "paused": "מושהה"
   },
   "timer": {
-    "guideAria": "מדריך טכניקות",
+    "guideAria": "טכניקות",
     "guideTitle": "למה כל טכניקה טובה",
     "statsAria": "סטטיסטיקות היום",
     "statsTitle": "סטטיסטיקות",
@@ -66,9 +66,6 @@
     "launchAtLogin": "הפעלה בכניסה",
     "startMinimized": "התחלה ממוזערת למגש",
     "quit": "יציאה מ-Tempura",
-    "customTechniques": "טכניקות מותאמות",
-    "recipesEmpty": "עדיין אין — המובנות נמצאות בטיימר.",
-    "edit": "עריכה",
     "delete": "מחיקה",
     "editTechnique": "עריכת טכניקה",
     "newTechnique": "טכניקה חדשה",
@@ -89,9 +86,11 @@
     "version": " · v{{version}}",
     "privacy": "הנתונים נשארים במכונה הזאת. בלי חשבונות, בלי ענן, בלי סנכרון.",
     "aboutBody": "SQLite מקומי תחת תיקיית נתוני האפליקציה הוא מקור האמת. סגירת החלון מסתירה למגש — צאו מכאן או מתפריט המגש.",
-    "techniquesGuide": "מדריך טכניקות",
     "sendFeedback": "שלח משוב",
-    "openAbout": "אודות…"
+    "openAbout": "אודות…",
+    "techniques": "טכניקות",
+    "manageTechniques": "ניהול טכניקות",
+    "techniquesMeta": "שלכם: {{mine}} · מובנות: {{builtIn}}"
   },
   "about": {
     "panel": "אודות",
@@ -144,11 +143,22 @@
     "dailyBreakdown": "מיקוד יומי",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "מדריך טכניקות",
-    "line": "טכניקות · בחרו קצב שמתאים.",
+  "library": {
+    "panel": "טכניקות",
+    "line": "הקצבים שלכם והקלאסיקות.",
     "close": "סגירה",
-    "makeCustom": "יצירת טכניקה",
+    "new": "חדשה",
+    "tabMine": "שלי",
+    "tabBuiltIn": "מובנות",
+    "selected": "נבחרה",
+    "use": "שימוש",
+    "edit": "עריכה",
+    "customize": "התאמה אישית",
+    "emptyMine": "עדיין אין לכם טכניקות משלכם. צרו אחת מאפס או התאימו טכניקה מובנית.",
+    "emptyHint": "עיון בטכניקות המובנות",
+    "runningHint": "עצרו את הסשן כדי להחליף טכניקה."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "ספירה למעלה · הפסקה יחסית",
     "customFlowtimeBestFor": "יצירה עם פלואו",
     "customFlowtimeBlurb": "קצב הפלואוטיים שלכם — עבדו עד שהמיקוד דועך, ואז לנוח ביחס.",
@@ -165,8 +175,11 @@
     "line": "טכניקות · עצבו קצב משלכם.",
     "back": "חזרה",
     "preview": "קצב",
-    "copyName": "{{name}} (עותק)",
-    "confirmDelete": "למחוק לצמיתות?"
+    "copyName": "{{name}} (עותק)"
+  },
+  "toast": {
+    "deleted": "{{name}} נמחקה",
+    "undo": "ביטול"
   },
   "themes": {
     "batter": "בלילה",

@@ -11,7 +11,7 @@
     "paused": "Pauza"
   },
   "timer": {
-    "guideAria": "Przewodnik technik",
+    "guideAria": "Techniki",
     "guideTitle": "Do czego każda technika się nadaje",
     "statsAria": "Dzisiejsze statystyki",
     "statsTitle": "Statystyki",
@@ -67,9 +67,6 @@
     "launchAtLogin": "Uruchamiaj po zalogowaniu",
     "startMinimized": "Start zminimalizowany do zasobnika",
     "quit": "Zakończ Tempura",
-    "customTechniques": "Własne techniki",
-    "recipesEmpty": "Na razie brak — wbudowane są na timerze.",
-    "edit": "Edytuj",
     "delete": "Usuń",
     "editTechnique": "Edytuj technikę",
     "newTechnique": "Nowa technika",
@@ -90,9 +87,11 @@
     "version": " · v{{version}}",
     "privacy": "Twoje dane zostają na tej maszynie. Bez kont, bez chmury, bez synchronizacji.",
     "aboutBody": "Lokalny SQLite w folderze danych aplikacji jest źródłem prawdy. Zamknięcie okna chowa do zasobnika — wyjdź stąd lub z menu zasobnika.",
-    "techniquesGuide": "Przewodnik technik",
     "sendFeedback": "Wyślij opinię",
-    "openAbout": "O programie…"
+    "openAbout": "O programie…",
+    "techniques": "Techniki",
+    "manageTechniques": "Zarządzaj technikami",
+    "techniquesMeta": "Twoje: {{mine}} · Wbudowane: {{builtIn}}"
   },
   "about": {
     "panel": "O programie",
@@ -145,11 +144,22 @@
     "dailyBreakdown": "Dzienne skupienie",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Przewodnik technik",
-    "line": "Techniki · wybierz rytm, który pasuje.",
+  "library": {
+    "panel": "Techniki",
+    "line": "Twoje rytmy i klasyki.",
     "close": "Zamknij",
-    "makeCustom": "Utwórz technikę",
+    "new": "Nowa",
+    "tabMine": "Moje",
+    "tabBuiltIn": "Wbudowane",
+    "selected": "Wybrana",
+    "use": "Użyj",
+    "edit": "Edytuj",
+    "customize": "Dostosuj",
+    "emptyMine": "Nie masz jeszcze własnych technik. Utwórz nową albo dostosuj wbudowaną.",
+    "emptyHint": "Przeglądaj wbudowane",
+    "runningHint": "Zatrzymaj sesję, aby zmienić technikę."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Odliczanie w górę · proporcjonalna przerwa",
     "customFlowtimeBestFor": "Twórczość w flow",
     "customFlowtimeBlurb": "Twój rytm Flowtime — pracuj, aż skupienie zgaśnie, potem odpocznij proporcjonalnie.",
@@ -166,8 +176,11 @@
     "line": "Techniki · ułóż własny rytm.",
     "back": "Wstecz",
     "preview": "Rytm",
-    "copyName": "{{name}} (kopia)",
-    "confirmDelete": "Usunąć na dobre?"
+    "copyName": "{{name}} (kopia)"
+  },
+  "toast": {
+    "deleted": "Usunięto: {{name}}",
+    "undo": "Cofnij"
   },
   "themes": {
     "batter": "Panierka",

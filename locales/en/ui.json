@@ -19,8 +19,8 @@
     "stopped": "Timer stopped."
   },
   "timer": {
-    "guideAria": "Techniques guide",
-    "guideTitle": "What each technique is good for",
+    "guideAria": "Techniques",
+    "guideTitle": "Your techniques and the built-ins",
     "statsAria": "Today’s stats",
     "statsTitle": "Stats",
     "settingsAria": "Settings",
@@ -73,9 +73,6 @@
     "launchAtLogin": "Launch at login",
     "startMinimized": "Start minimized to tray",
     "quit": "Quit Tempura",
-    "customTechniques": "Custom techniques",
-    "recipesEmpty": "None yet — built-ins live on the timer.",
-    "edit": "Edit",
     "delete": "Delete",
     "editTechnique": "Edit technique",
     "newTechnique": "New technique",
@@ -96,9 +93,11 @@
     "version": " · v{{version}}",
     "privacy": "Your data stays on this machine. No accounts, no cloud, no sync.",
     "aboutBody": "Local SQLite under your app data folder is the source of truth. Closing the window hides to the tray — quit from here or the tray menu.",
-    "techniquesGuide": "Techniques guide",
     "sendFeedback": "Send feedback",
-    "openAbout": "About…"
+    "openAbout": "About…",
+    "techniques": "Techniques",
+    "manageTechniques": "Manage techniques",
+    "techniquesMeta": "Yours: {{mine}} · Built-in: {{builtIn}}"
   },
   "about": {
     "panel": "About",
@@ -151,11 +150,22 @@
     "dailyBreakdown": "Daily focus",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Techniques guide",
-    "line": "Techniques · pick a rhythm that fits.",
+  "library": {
+    "panel": "Techniques",
+    "line": "Your rhythms and the classics.",
     "close": "Close",
-    "makeCustom": "Make a technique",
+    "new": "New",
+    "tabMine": "Mine",
+    "tabBuiltIn": "Built-in",
+    "selected": "Selected",
+    "use": "Use",
+    "edit": "Edit",
+    "customize": "Customize",
+    "emptyMine": "No techniques of your own yet. Make one from scratch, or customize a built-in.",
+    "emptyHint": "Browse built-ins",
+    "runningHint": "Stop the session to switch technique."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Count-up focus · proportional break",
     "customFlowtimeBestFor": "Flow-heavy creative work",
     "customFlowtimeBlurb": "Your custom Flowtime rhythm — work until focus fades, then rest in proportion.",
@@ -172,8 +182,11 @@
     "line": "Techniques · shape your own rhythm.",
     "back": "Back",
     "preview": "Rhythm",
-    "copyName": "{{name}} (copy)",
-    "confirmDelete": "Delete for good?"
+    "copyName": "{{name}} (copy)"
+  },
+  "toast": {
+    "deleted": "{{name}} deleted",
+    "undo": "Undo"
   },
   "themes": {
     "batter": "Batter",

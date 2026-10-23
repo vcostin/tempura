@@ -62,7 +62,6 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
     return draftFrom(undefined, "");
   });
   const [error, setError] = useState<string | null>(null);
-  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [busy, setBusy] = useState(false);
 
   const usesFlow = draft.mode === "flowtime" || draft.mode === "hybrid";
@@ -92,10 +91,6 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
 
   async function remove() {
     if (!onDelete) return;
-    if (!confirmingDelete) {
-      setConfirmingDelete(true);
-      return;
-    }
     setError(null);
     setBusy(true);
     try {
@@ -103,7 +98,6 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
     } catch (err) {
       setError(String(err));
       setBusy(false);
-      setConfirmingDelete(false);
     }
   }
 
@@ -237,9 +231,8 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
               className="btn btn-danger editor-delete"
               disabled={busy}
               onClick={() => void remove()}
-              onBlur={() => setConfirmingDelete(false)}
             >
-              {confirmingDelete ? t("editor.confirmDelete") : t("settings.delete")}
+              {t("settings.delete")}
             </button>
           )}
         </div>

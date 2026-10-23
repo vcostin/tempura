@@ -37,18 +37,6 @@ export function techniqueGuideEntries(): TechniqueGuideEntry[] {
   );
 }
 
-export function customGuide(): TechniqueGuideEntry {
-  return (
-    readTechnique("custom") ?? {
-      id: "custom",
-      name: i18n.t("settings.defaultCustomName"),
-      workBreak: i18n.t("guide.customIntervalWorkBreak"),
-      bestFor: i18n.t("guide.customIntervalBestFor"),
-      blurb: i18n.t("guide.customIntervalBlurb"),
-    }
-  );
-}
-
 export function techniqueDisplayName(
   t: Pick<Technique, "id" | "kind" | "name">,
 ): string {

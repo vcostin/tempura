@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import { SessionAnnouncer } from "../components/SessionAnnouncer";
+import { Toast, type ToastMessage } from "../components/Toast";
 import { TimerView } from "../components/TimerView";
 import { useUpdater } from "../hooks/useUpdater";
 import { api } from "../lib/api";
@@ -10,12 +11,12 @@ import { isDebugAccessEnabled } from "../lib/debugAccess";
 import { isDesktopShell, isTauri } from "../lib/platform";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 
-export type Panel = "settings" | "stats" | "guide" | "debug" | "about";
+export type Panel = "settings" | "stats" | "techniques" | "debug" | "about";
 
 const PANEL_OPENER: Record<Panel, string> = {
   settings: '[data-open-panel="settings"]',
   stats: '[data-open-panel="stats"]',
-  guide: '[data-open-panel="guide"]',
+  techniques: '[data-open-panel="techniques"]',
   debug: '[data-open-panel="debug"]',
   about: '[data-open-panel="about"]',
 };
@@ -27,12 +28,14 @@ export interface Shell {
   updater: ReturnType<typeof useUpdater>;
   debugEnabled: boolean;
   setDebugEnabled: (enabled: boolean) => void;
-  openPanel: (panel: Panel) => void;
+  openPanel: (panel: Panel, search?: string) => void;
   closePanel: () => void;
   /** Open the technique editor: `id` edits, `from` starts a new one from that technique. */
   openTechniqueEditor: (target?: { id?: string; from?: string }) => void;
   /** Return to wherever the current route was opened from. */
   goBack: () => void;
+  /** Show a short note at the bottom, optionally with an action (Undo; also Ctrl/Cmd+Z). */
+  showToast: (toast: Omit<ToastMessage, "id">) => void;
 }
 
 export function useShell(): Shell {
@@ -71,6 +74,8 @@ export function TimerLayout() {
   const [debugEnabled, setDebugEnabled] = useState(() =>
     isDebugAccessEnabled(settingsApi.info?.debug),
   );
+  const [toast, setToast] = useState<ToastMessage | null>(null);
+  const toastIdRef = useRef(0);
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const updateOfferedRef = useRef(false);
   const onTimer = location.pathname === "/";
@@ -107,9 +112,9 @@ export function TimerLayout() {
   );
 
   const openPanel = useCallback(
-    (panel: Panel) => {
+    (panel: Panel, search = "") => {
       rememberOpener(PANEL_OPENER[panel]);
-      navigate(`/${panel}`);
+      navigate({ pathname: `/${panel}`, search });
     },
     [navigate, rememberOpener],
   );
@@ -133,6 +138,13 @@ export function TimerLayout() {
     if (onAbout && updater.hasOffer) updater.skip();
     navigate("/");
   }, [navigate, onAbout, updater.hasOffer, updater.skip]);
+
+  const showToast = useCallback((next: Omit<ToastMessage, "id">) => {
+    toastIdRef.current += 1;
+    setToast({ ...next, id: toastIdRef.current });
+  }, []);
+
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const goBack = useCallback(() => {
     if (location.key !== "default") navigate(-1);
@@ -211,6 +223,13 @@ export function TimerLayout() {
 
       if (isTypingTarget(e.target)) return;
 
+      if ((e.ctrlKey || e.metaKey) && (e.key === "z" || e.key === "Z") && toast?.onAction) {
+        e.preventDefault();
+        toast.onAction();
+        dismissToast();
+        return;
+      }
+
       if (e.code === "Space") {
         if (!onTimer || isButtonish(e.target)) return;
         e.preventDefault();
@@ -227,7 +246,7 @@ export function TimerLayout() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, onTimer, inEditor, hideToTray, openPanel, closePanel, goBack]);
+  }, [session, onTimer, inEditor, hideToTray, openPanel, closePanel, goBack, toast, dismissToast]);
 
   if (!session.ready) {
     return (
@@ -241,6 +260,7 @@ export function TimerLayout() {
   }
 
   const shell: Shell = {
+    showToast,
     updater,
     debugEnabled,
     setDebugEnabled,
@@ -282,13 +302,16 @@ export function TimerLayout() {
           onNewTechnique={() => openTechniqueEditor()}
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
-          onOpenGuide={() => openPanel("guide")}
+          onOpenTechniques={(focusId) =>
+            openPanel("techniques", focusId ? `?focus=${encodeURIComponent(focusId)}` : "")
+          }
           onOpenAbout={() => openPanel("about")}
           onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />
       </div>
 
       <Outlet context={shell} />
+      <Toast toast={toast} onDismiss={dismissToast} />
     </div>
   );
 }
