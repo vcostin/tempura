@@ -72,6 +72,9 @@ pub struct AppSettings {
     /// Quiet GitHub Releases check when the app starts. Default on.
     #[serde(default = "default_true")]
     pub check_updates_on_launch: bool,
+    /// Techniques left off the timer's picker. Empty: everything shows.
+    #[serde(default)]
+    pub hidden_technique_ids: Vec<String>,
 }
 
 fn default_true() -> bool {
@@ -90,6 +93,7 @@ impl Default for AppSettings {
             working_on: String::new(),
             locale: String::new(),
             check_updates_on_launch: true,
+            hidden_technique_ids: Vec::new(),
         }
     }
 }
@@ -100,6 +104,7 @@ const NAME_MAX: usize = 80;
 const ID_MAX: usize = 64;
 const WORKING_ON_MAX: usize = 200;
 const LOCALE_MAX: usize = 16;
+const HIDDEN_MAX: usize = 256;
 const ACCENT_MAX: usize = 16;
 const SECS_MAX: i64 = 8 * 60 * 60;
 const CYCLES_MIN: i64 = 1;
@@ -232,6 +237,20 @@ impl AppSettings {
         {
             return Err("invalid locale".into());
         }
+
+        let mut hidden: Vec<String> = Vec::new();
+        for id in &self.hidden_technique_ids {
+            let id = id.trim();
+            validate_id(id)?;
+            // The default technique is what the timer opens on, so it stays visible.
+            if id != self.default_technique_id && !hidden.iter().any(|h| h == id) {
+                hidden.push(id.to_string());
+            }
+        }
+        if hidden.len() > HIDDEN_MAX {
+            return Err("too many hidden techniques".into());
+        }
+        self.hidden_technique_ids = hidden;
 
         Ok(self)
     }
@@ -389,6 +408,29 @@ mod tests {
     #[test]
     fn settings_default_checks_updates_on_launch() {
         assert!(AppSettings::default().check_updates_on_launch);
+    }
+
+    #[test]
+    fn settings_hidden_ids_are_deduped_and_keep_default_visible() {
+        let mut s = AppSettings::default();
+        s.hidden_technique_ids = vec!["deep".into(), " deep ".into(), "classic".into()];
+        let v = s.validated().unwrap();
+        assert_eq!(v.hidden_technique_ids, vec!["deep".to_string()]);
+    }
+
+    #[test]
+    fn settings_hidden_ids_reject_bad_id() {
+        let mut s = AppSettings::default();
+        s.hidden_technique_ids = vec!["a,b".into()];
+        assert!(s.validated().is_err());
+    }
+
+    #[test]
+    fn settings_hidden_ids_default_when_missing() {
+        let mut json = serde_json::to_value(AppSettings::default()).unwrap();
+        json.as_object_mut().unwrap().remove("hiddenTechniqueIds");
+        let s: AppSettings = serde_json::from_value(json).unwrap();
+        assert!(s.hidden_technique_ids.is_empty());
     }
 
     #[test]

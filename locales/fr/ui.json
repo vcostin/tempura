@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Technique de focus",
-    "newTechnique": "Nouvelle technique"
+    "newTechnique": "Nouvelle technique",
+    "hidden": "Masquées : {{n}}",
+    "hiddenAria": "Techniques masquées : {{n}}",
+    "hide": "Masquer du minuteur",
+    "keepSelected": "La technique choisie reste sur le minuteur.",
+    "keepOne": "Gardez au moins une technique sur le minuteur."
   },
   "scroll": {
     "more": "Faire défiler pour voir plus"
@@ -155,7 +160,9 @@
     "customize": "Personnaliser",
     "emptyMine": "Pas encore de technique à vous. Créez-en une ou personnalisez une technique intégrée.",
     "emptyHint": "Parcourir les intégrées",
-    "runningHint": "Arrêtez la session pour changer de technique."
+    "runningHint": "Arrêtez la session pour changer de technique.",
+    "showOnTimer": "Afficher sur le minuteur",
+    "hidden": "Masquée"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Focus en compte croissant · pause proportionnelle",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} supprimée",
-    "undo": "Annuler"
+    "undo": "Annuler",
+    "hidden": "{{name}} masquée du minuteur"
   },
   "themes": {
     "batter": "Pâte",

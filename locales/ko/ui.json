@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "집중 기법",
-    "newTechnique": "새 기법"
+    "newTechnique": "새 기법",
+    "hidden": "숨김: {{n}}",
+    "hiddenAria": "숨긴 기법: {{n}}",
+    "hide": "타이머에서 숨기기",
+    "keepSelected": "선택한 기법은 타이머에 남습니다.",
+    "keepOne": "타이머에 기법을 하나 이상 남겨 두세요."
   },
   "scroll": {
     "more": "더 보려면 스크롤"
@@ -155,7 +160,9 @@
     "customize": "맞춤 설정",
     "emptyMine": "아직 나만의 기법이 없습니다. 새로 만들거나 기본 기법을 맞춤 설정하세요.",
     "emptyHint": "기본 기법 보기",
-    "runningHint": "기법을 바꾸려면 세션을 중지하세요."
+    "runningHint": "기법을 바꾸려면 세션을 중지하세요.",
+    "showOnTimer": "타이머에 표시",
+    "hidden": "숨김"
   },
   "guide": {
     "customFlowtimeWorkBreak": "카운트업 · 비례 휴식",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} 삭제됨",
-    "undo": "실행 취소"
+    "undo": "실행 취소",
+    "hidden": "{{name}}을(를) 타이머에서 숨겼습니다"
   },
   "themes": {
     "batter": "반죽",

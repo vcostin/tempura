@@ -50,6 +50,7 @@ export async function installTauriMock(page: Page) {
       workingOn: "",
       locale: "en",
       checkUpdatesOnLaunch: false,
+      hiddenTechniqueIds: [] as string[],
     };
     const snapshot = {
       phase: "idle",
@@ -83,7 +84,13 @@ export async function installTauriMock(page: Page) {
       list_techniques: () => techniques.map((t) => ({ ...t })),
       get_settings: () => settings,
       update_settings: (a) => {
-        settings = a.settings;
+        // Like `AppSettings::validated`: the default technique is never hidden.
+        settings = {
+          ...a.settings,
+          hiddenTechniqueIds: a.settings.hiddenTechniqueIds.filter(
+            (id: string) => id !== a.settings.defaultTechniqueId,
+          ),
+        };
         return settings;
       },
       get_system_locale: () => "en",

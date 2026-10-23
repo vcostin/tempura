@@ -554,6 +554,59 @@ button {
   background: var(--accent-soft);
 }
 
+.chip-hidden {
+  color: var(--ink-muted);
+  border: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent);
+  background: transparent;
+}
+
+.chip-hidden:hover {
+  background: var(--surface);
+}
+
+.picker {
+  position: relative;
+}
+
+.chip-menu {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  max-width: 16rem;
+  padding: 0.3rem;
+  border-radius: 12px;
+  background: var(--surface-solid);
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 20%, transparent);
+}
+
+.chip-menu [role="menuitem"] {
+  min-height: 36px;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  text-align: start;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.chip-menu [role="menuitem"]:hover:not([aria-disabled="true"]),
+.chip-menu [role="menuitem"]:focus-visible {
+  background: var(--accent-soft);
+}
+
+.chip-menu [role="menuitem"][aria-disabled="true"] {
+  color: var(--ink-muted);
+  cursor: not-allowed;
+}
+
+.chip-menu-hint {
+  margin: 0.2rem 0.7rem 0.4rem;
+  font-size: 0.75rem;
+  line-height: 1.35;
+  color: var(--ink-muted);
+}
+
 .chip[aria-pressed="true"] {
   background: var(--accent-soft);
   color: var(--accent);
@@ -687,12 +740,18 @@ button {
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
+.library-row-line {
+  display: flex;
+  align-items: stretch;
+}
+
 .library-row-head {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.15rem;
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
   min-height: 52px;
   padding: 0.7rem 0.85rem;
   text-align: start;
@@ -718,6 +777,39 @@ button {
   color: var(--accent);
   font-size: 0.7rem;
   font-weight: 600;
+}
+
+.library-badge--muted {
+  background: color-mix(in srgb, var(--ink) 8%, transparent);
+  color: var(--ink-muted);
+}
+
+.library-row.is-hidden .library-row-title strong,
+.library-row.is-hidden .library-row-meta {
+  opacity: 0.6;
+}
+
+.library-eye {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  margin: 0.35rem;
+  border-radius: 10px;
+  color: var(--accent);
+}
+
+.library-eye[aria-pressed="false"] {
+  color: var(--ink-muted);
+}
+
+.library-eye:hover:not([aria-disabled="true"]) {
+  background: var(--accent-soft);
+}
+
+.library-eye[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .library-row-more {

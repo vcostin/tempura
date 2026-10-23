@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Técnica de foco",
-    "newTechnique": "Nova técnica"
+    "newTechnique": "Nova técnica",
+    "hidden": "Ocultas: {{n}}",
+    "hiddenAria": "Técnicas ocultas: {{n}}",
+    "hide": "Ocultar do timer",
+    "keepSelected": "A técnica selecionada fica no timer.",
+    "keepOne": "Mantenha pelo menos uma técnica no timer."
   },
   "scroll": {
     "more": "Role para ver mais"
@@ -155,7 +160,9 @@
     "customize": "Personalizar",
     "emptyMine": "Você ainda não tem técnicas próprias. Crie uma do zero ou personalize uma integrada.",
     "emptyHint": "Ver as integradas",
-    "runningHint": "Pare a sessão para trocar de técnica."
+    "runningHint": "Pare a sessão para trocar de técnica.",
+    "showOnTimer": "Mostrar no timer",
+    "hidden": "Oculta"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Foco em contagem crescente · pausa proporcional",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} excluída",
-    "undo": "Desfazer"
+    "undo": "Desfazer",
+    "hidden": "{{name}} oculta do timer"
   },
   "themes": {
     "batter": "Massa",

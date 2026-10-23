@@ -44,7 +44,12 @@
   },
   "picker": {
     "aria": "Technika skupienia",
-    "newTechnique": "Nowa technika"
+    "newTechnique": "Nowa technika",
+    "hidden": "Ukryte: {{n}}",
+    "hiddenAria": "Ukryte techniki: {{n}}",
+    "hide": "Ukryj na minutniku",
+    "keepSelected": "Wybrana technika zostaje na minutniku.",
+    "keepOne": "Zostaw na minutniku co najmniej jedną technikę."
   },
   "scroll": {
     "more": "Przewiń po więcej"
@@ -157,7 +162,9 @@
     "customize": "Dostosuj",
     "emptyMine": "Nie masz jeszcze własnych technik. Utwórz nową albo dostosuj wbudowaną.",
     "emptyHint": "Przeglądaj wbudowane",
-    "runningHint": "Zatrzymaj sesję, aby zmienić technikę."
+    "runningHint": "Zatrzymaj sesję, aby zmienić technikę.",
+    "showOnTimer": "Pokaż na minutniku",
+    "hidden": "Ukryta"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Odliczanie w górę · proporcjonalna przerwa",
@@ -180,7 +187,8 @@
   },
   "toast": {
     "deleted": "Usunięto: {{name}}",
-    "undo": "Cofnij"
+    "undo": "Cofnij",
+    "hidden": "{{name}} ukryta na minutniku"
   },
   "themes": {
     "batter": "Panierka",

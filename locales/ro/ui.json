@@ -43,7 +43,12 @@
   },
   "picker": {
     "aria": "Tehnică de focus",
-    "newTechnique": "Tehnică nouă"
+    "newTechnique": "Tehnică nouă",
+    "hidden": "Ascunse: {{n}}",
+    "hiddenAria": "Tehnici ascunse: {{n}}",
+    "hide": "Ascunde din cronometru",
+    "keepSelected": "Tehnica selectată rămâne pe cronometru.",
+    "keepOne": "Păstrează cel puțin o tehnică pe cronometru."
   },
   "scroll": {
     "more": "Derulează pentru mai mult"
@@ -156,7 +161,9 @@
     "customize": "Personalizează",
     "emptyMine": "Nu ai încă tehnici proprii. Creează una de la zero sau personalizează una integrată.",
     "emptyHint": "Vezi tehnicile integrate",
-    "runningHint": "Oprește sesiunea ca să schimbi tehnica."
+    "runningHint": "Oprește sesiunea ca să schimbi tehnica.",
+    "showOnTimer": "Arată pe cronometru",
+    "hidden": "Ascunsă"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Focus cu numărare · pauză proporțională",
@@ -179,7 +186,8 @@
   },
   "toast": {
     "deleted": "{{name}} a fost ștearsă",
-    "undo": "Anulează"
+    "undo": "Anulează",
+    "hidden": "{{name}} ascunsă din cronometru"
   },
   "themes": {
     "batter": "Aluat",

@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "フォーカスタクニック",
-    "newTechnique": "新しいテクニック"
+    "newTechnique": "新しいテクニック",
+    "hidden": "非表示: {{n}}",
+    "hiddenAria": "非表示のテクニック: {{n}}",
+    "hide": "タイマーから非表示",
+    "keepSelected": "選択中のテクニックはタイマーに残ります。",
+    "keepOne": "タイマーには少なくとも1つのテクニックを残してください。"
   },
   "scroll": {
     "more": "スクロールして続き"
@@ -155,7 +160,9 @@
     "customize": "カスタマイズ",
     "emptyMine": "まだ自分のテクニックはありません。新しく作るか、組み込みをカスタマイズしましょう。",
     "emptyHint": "組み込みを見る",
-    "runningHint": "テクニックを切り替えるにはセッションを停止してください。"
+    "runningHint": "テクニックを切り替えるにはセッションを停止してください。",
+    "showOnTimer": "タイマーに表示",
+    "hidden": "非表示"
   },
   "guide": {
     "customFlowtimeWorkBreak": "カウントアップ · 比例休憩",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} を削除しました",
-    "undo": "元に戻す"
+    "undo": "元に戻す",
+    "hidden": "{{name}} をタイマーから非表示にしました"
   },
   "themes": {
     "batter": "衣",

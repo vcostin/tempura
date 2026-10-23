@@ -11,6 +11,7 @@ import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
 import type { Technique, TechniqueInput } from "../lib/types";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
+import { useTechniqueVisibility } from "../state/techniqueVisibility";
 import { useShell } from "./TimerLayout";
 
 /** Make a technique the current and default one; a no-op while a session runs. */
@@ -20,8 +21,13 @@ function useSelectTechnique() {
   return (id: string) => {
     if (session.snapshot.running) return;
     session.setSelectedId(id);
-    if (id !== settingsApi.settings.defaultTechniqueId) {
-      void settingsApi.patch({ defaultTechniqueId: id });
+    const { defaultTechniqueId, hiddenTechniqueIds } = settingsApi.settings;
+    if (id !== defaultTechniqueId || hiddenTechniqueIds.includes(id)) {
+      // Picking a hidden technique brings it back to the timer.
+      void settingsApi.patch({
+        defaultTechniqueId: id,
+        hiddenTechniqueIds: hiddenTechniqueIds.filter((h) => h !== id),
+      });
     }
   };
 }
@@ -98,10 +104,15 @@ export function TechniquesRoute() {
   const session = useSessionContext();
   const select = useSelectTechnique();
   const deleteTechnique = useDeleteTechnique();
-  const { closePanel, openTechniqueEditor } = useShell();
+  const { closePanel, openTechniqueEditor, showToast } = useShell();
+  const visibility = useTechniqueVisibility(showToast);
   const [params] = useSearchParams();
   return (
     <TechniquesLibrary
+      showHidden={params.get("hidden") === "1"}
+      isHidden={visibility.isHidden}
+      hideBlock={visibility.hideBlock}
+      onSetHidden={(tech, hidden) => visibility.setHidden(tech, hidden, false)}
       techniques={session.techniques}
       selectedId={session.selectedId}
       running={session.snapshot.running}

@@ -10,6 +10,7 @@ import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
 import { isDesktopShell, isTauri } from "../lib/platform";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
+import { useTechniqueVisibility } from "../state/techniqueVisibility";
 
 export type Panel = "settings" | "stats" | "techniques" | "debug" | "about";
 
@@ -145,6 +146,7 @@ export function TimerLayout() {
   }, []);
 
   const dismissToast = useCallback(() => setToast(null), []);
+  const visibility = useTechniqueVisibility(showToast);
 
   const goBack = useCallback(() => {
     if (location.key !== "default") navigate(-1);
@@ -281,6 +283,7 @@ export function TimerLayout() {
         <TimerView
           snapshot={session.snapshot}
           techniques={session.techniques}
+          visibleTechniques={visibility.visible}
           selectedId={session.selectedId}
           onSelectTechnique={(id) => {
             session.setSelectedId(id);
@@ -300,6 +303,10 @@ export function TimerLayout() {
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
           onNewTechnique={() => openTechniqueEditor()}
+          onShowHiddenTechniques={() => openPanel("techniques", "?hidden=1")}
+          hideBlock={visibility.hideBlock}
+          onHideTechnique={(tech) => visibility.setHidden(tech, true)}
+          onEditTechnique={(id) => openTechniqueEditor({ id })}
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
           onOpenTechniques={(focusId) =>

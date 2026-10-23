@@ -42,7 +42,12 @@
   },
   "picker": {
     "aria": "Tecnica di focus",
-    "newTechnique": "Nuova tecnica"
+    "newTechnique": "Nuova tecnica",
+    "hidden": "Nascoste: {{n}}",
+    "hiddenAria": "Tecniche nascoste: {{n}}",
+    "hide": "Nascondi dal timer",
+    "keepSelected": "La tecnica selezionata resta sul timer.",
+    "keepOne": "Tieni almeno una tecnica sul timer."
   },
   "scroll": {
     "more": "Scorri per vedere altro"
@@ -155,7 +160,9 @@
     "customize": "Personalizza",
     "emptyMine": "Non hai ancora tecniche tue. Creane una da zero o personalizza una integrata.",
     "emptyHint": "Sfoglia le integrate",
-    "runningHint": "Ferma la sessione per cambiare tecnica."
+    "runningHint": "Ferma la sessione per cambiare tecnica.",
+    "showOnTimer": "Mostra sul timer",
+    "hidden": "Nascosta"
   },
   "guide": {
     "customFlowtimeWorkBreak": "Focus in conteggio crescente · pausa proporzionale",
@@ -178,7 +185,8 @@
   },
   "toast": {
     "deleted": "{{name}} eliminata",
-    "undo": "Annulla"
+    "undo": "Annulla",
+    "hidden": "{{name}} nascosta dal timer"
   },
   "themes": {
     "batter": "Pastella",
