@@ -11,7 +11,7 @@
     "paused": "一時停止"
   },
   "timer": {
-    "guideAria": "テクニックガイド",
+    "guideAria": "テクニック",
     "guideTitle": "各テクニックの向き",
     "statsAria": "今日の統計",
     "statsTitle": "統計",
@@ -65,9 +65,6 @@
     "launchAtLogin": "ログイン時に起動",
     "startMinimized": "トレイに最小化して起動",
     "quit": "Tempura を終了",
-    "customTechniques": "カスタムテクニック",
-    "recipesEmpty": "まだありません。組み込みはタイマーにあります。",
-    "edit": "編集",
     "delete": "削除",
     "editTechnique": "テクニックを編集",
     "newTechnique": "新しいテクニック",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "データはこのマシンに残ります。アカウントなし、クラウドなし、同期なし。",
     "aboutBody": "アプリデータフォルダ内のローカル SQLite が真実の源です。ウィンドウを閉じるとトレイに隠れます。終了はここかトレイメニューから。",
-    "techniquesGuide": "テクニックガイド",
     "sendFeedback": "フィードバックを送る",
-    "openAbout": "このアプリについて…"
+    "openAbout": "このアプリについて…",
+    "techniques": "テクニック",
+    "manageTechniques": "テクニックを管理",
+    "techniquesMeta": "自分: {{mine}} · 組み込み: {{builtIn}}"
   },
   "about": {
     "panel": "このアプリについて",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "日別フォーカス",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "テクニックガイド",
-    "line": "テクニック · 合うリズムを選ぶ。",
+  "library": {
+    "panel": "テクニック",
+    "line": "自分のリズムと定番。",
     "close": "閉じる",
-    "makeCustom": "テクニックを作る",
+    "new": "新規",
+    "tabMine": "マイテクニック",
+    "tabBuiltIn": "組み込み",
+    "selected": "選択中",
+    "use": "使う",
+    "edit": "編集",
+    "customize": "カスタマイズ",
+    "emptyMine": "まだ自分のテクニックはありません。新しく作るか、組み込みをカスタマイズしましょう。",
+    "emptyHint": "組み込みを見る",
+    "runningHint": "テクニックを切り替えるにはセッションを停止してください。"
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "カウントアップ · 比例休憩",
     "customFlowtimeBestFor": "フロー寄りの創作",
     "customFlowtimeBlurb": "あなたのフロータイム — フォーカスが薄れるまで働き、その分休む。",

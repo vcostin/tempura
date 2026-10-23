@@ -11,7 +11,7 @@
     "paused": "Gepauzeerd"
   },
   "timer": {
-    "guideAria": "Techniekengids",
+    "guideAria": "Technieken",
     "guideTitle": "Waar elke techniek goed voor is",
     "statsAria": "Statistieken van vandaag",
     "statsTitle": "Statistieken",
@@ -65,9 +65,6 @@
     "launchAtLogin": "Starten bij aanmelden",
     "startMinimized": "Start geminimaliseerd naar het vak",
     "quit": "Tempura afsluiten",
-    "customTechniques": "Eigen technieken",
-    "recipesEmpty": "Nog geen — de ingebouwde staan op de timer.",
-    "edit": "Bewerken",
     "delete": "Verwijderen",
     "editTechnique": "Techniek bewerken",
     "newTechnique": "Nieuwe techniek",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "Je gegevens blijven op deze machine. Geen accounts, geen cloud, geen sync.",
     "aboutBody": "Lokale SQLite onder je app-datamap is de bron van waarheid. Het venster sluiten verbergt naar het vak — sluit hier of via het vakmenu af.",
-    "techniquesGuide": "Techniekengids",
     "sendFeedback": "Feedback versturen",
-    "openAbout": "Over…"
+    "openAbout": "Over…",
+    "techniques": "Technieken",
+    "manageTechniques": "Technieken beheren",
+    "techniquesMeta": "Eigen: {{mine}} · Ingebouwd: {{builtIn}}"
   },
   "about": {
     "panel": "Over",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "Dagelijkse focus",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Techniekengids",
-    "line": "Technieken · kies een ritme dat past.",
+  "library": {
+    "panel": "Technieken",
+    "line": "Je eigen ritmes en de klassiekers.",
     "close": "Sluiten",
-    "makeCustom": "Techniek maken",
+    "new": "Nieuw",
+    "tabMine": "Mijn",
+    "tabBuiltIn": "Ingebouwd",
+    "selected": "Geselecteerd",
+    "use": "Gebruiken",
+    "edit": "Bewerken",
+    "customize": "Aanpassen",
+    "emptyMine": "Nog geen eigen technieken. Maak er een vanaf nul of pas een ingebouwde aan.",
+    "emptyHint": "Ingebouwde bekijken",
+    "runningHint": "Stop de sessie om van techniek te wisselen."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Omhoog tellen · evenredige pauze",
     "customFlowtimeBestFor": "Creatief werk in flow",
     "customFlowtimeBlurb": "Jouw Flowtime-ritme — werk tot de focus wegebt, rust dan evenredig.",

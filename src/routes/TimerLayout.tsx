@@ -10,12 +10,12 @@ import { isDebugAccessEnabled } from "../lib/debugAccess";
 import { isDesktopShell, isTauri } from "../lib/platform";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 
-export type Panel = "settings" | "stats" | "guide" | "debug" | "about";
+export type Panel = "settings" | "stats" | "techniques" | "debug" | "about";
 
 const PANEL_OPENER: Record<Panel, string> = {
   settings: '[data-open-panel="settings"]',
   stats: '[data-open-panel="stats"]',
-  guide: '[data-open-panel="guide"]',
+  techniques: '[data-open-panel="techniques"]',
   debug: '[data-open-panel="debug"]',
   about: '[data-open-panel="about"]',
 };
@@ -27,7 +27,7 @@ export interface Shell {
   updater: ReturnType<typeof useUpdater>;
   debugEnabled: boolean;
   setDebugEnabled: (enabled: boolean) => void;
-  openPanel: (panel: Panel) => void;
+  openPanel: (panel: Panel, search?: string) => void;
   closePanel: () => void;
   /** Open the technique editor: `id` edits, `from` starts a new one from that technique. */
   openTechniqueEditor: (target?: { id?: string; from?: string }) => void;
@@ -107,9 +107,9 @@ export function TimerLayout() {
   );
 
   const openPanel = useCallback(
-    (panel: Panel) => {
+    (panel: Panel, search = "") => {
       rememberOpener(PANEL_OPENER[panel]);
-      navigate(`/${panel}`);
+      navigate({ pathname: `/${panel}`, search });
     },
     [navigate, rememberOpener],
   );
@@ -282,7 +282,9 @@ export function TimerLayout() {
           onNewTechnique={() => openTechniqueEditor()}
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
-          onOpenGuide={() => openPanel("guide")}
+          onOpenTechniques={(focusId) =>
+            openPanel("techniques", focusId ? `?focus=${encodeURIComponent(focusId)}` : "")
+          }
           onOpenAbout={() => openPanel("about")}
           onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />

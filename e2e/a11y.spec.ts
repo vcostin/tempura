@@ -90,7 +90,7 @@ test.describe("a11y dialogs and landmarks", () => {
     expect(restored.inert).toBe(false);
   });
 
-  test("stats and guide dialogs open with close focused", async ({ page }) => {
+  test("stats and techniques dialogs open with close focused", async ({ page }) => {
     await page.locator('[data-open-panel="stats"]').click();
     await page.waitForSelector('[role="dialog"]');
     const stats = await page.evaluate(() => {
@@ -110,12 +110,12 @@ test.describe("a11y dialogs and landmarks", () => {
     );
     expect(restoredStats).toBe("stats");
 
-    await page.locator('[data-open-panel="guide"]').click();
+    await page.locator('[data-open-panel="techniques"]').click();
     await page.waitForSelector('[role="dialog"]');
-    const guide = await page.evaluate(
+    const library = await page.evaluate(
       () => document.querySelector('[role="dialog"]')?.getAttribute("aria-label"),
     );
-    expect(guide).toBe("Techniques guide");
+    expect(library).toBe("Techniques");
     await page.keyboard.press("Escape");
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });

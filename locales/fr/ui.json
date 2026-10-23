@@ -11,7 +11,7 @@
     "paused": "En pause"
   },
   "timer": {
-    "guideAria": "Guide des techniques",
+    "guideAria": "Techniques",
     "guideTitle": "À quoi sert chaque technique",
     "statsAria": "Stats du jour",
     "statsTitle": "Stats",
@@ -65,9 +65,6 @@
     "launchAtLogin": "Lancer à la connexion",
     "startMinimized": "Démarrer réduit dans la zone de notification",
     "quit": "Quitter Tempura",
-    "customTechniques": "Techniques perso",
-    "recipesEmpty": "Aucune pour l’instant — les intégrées sont sur le minuteur.",
-    "edit": "Modifier",
     "delete": "Supprimer",
     "editTechnique": "Modifier la technique",
     "newTechnique": "Nouvelle technique",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "Vos données restent sur cette machine. Pas de comptes, pas de cloud, pas de sync.",
     "aboutBody": "Le SQLite local sous le dossier de données de l’app est la source de vérité. Fermer la fenêtre masque dans la zone de notification — quittez d’ici ou depuis le menu.",
-    "techniquesGuide": "Guide des techniques",
     "sendFeedback": "Envoyer un retour",
-    "openAbout": "À propos…"
+    "openAbout": "À propos…",
+    "techniques": "Techniques",
+    "manageTechniques": "Gérer les techniques",
+    "techniquesMeta": "Les vôtres : {{mine}} · Intégrées : {{builtIn}}"
   },
   "about": {
     "panel": "À propos",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "Focus quotidien",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Guide des techniques",
-    "line": "Techniques · choisissez un rythme qui convient.",
+  "library": {
+    "panel": "Techniques",
+    "line": "Vos rythmes et les classiques.",
     "close": "Fermer",
-    "makeCustom": "Créer une technique",
+    "new": "Nouvelle",
+    "tabMine": "Les miennes",
+    "tabBuiltIn": "Intégrées",
+    "selected": "Sélectionnée",
+    "use": "Utiliser",
+    "edit": "Modifier",
+    "customize": "Personnaliser",
+    "emptyMine": "Pas encore de technique à vous. Créez-en une ou personnalisez une technique intégrée.",
+    "emptyHint": "Parcourir les intégrées",
+    "runningHint": "Arrêtez la session pour changer de technique."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Focus en compte croissant · pause proportionnelle",
     "customFlowtimeBestFor": "Création très flow",
     "customFlowtimeBlurb": "Votre rythme Flowtime — travaillez jusqu’à ce que le focus s’estompe, puis reposez-vous en proportion.",

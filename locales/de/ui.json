@@ -11,7 +11,7 @@
     "paused": "Pausiert"
   },
   "timer": {
-    "guideAria": "Technikführer",
+    "guideAria": "Techniken",
     "guideTitle": "Wofür jede Technik gut ist",
     "statsAria": "Heutige Statistik",
     "statsTitle": "Statistik",
@@ -65,9 +65,6 @@
     "launchAtLogin": "Beim Anmelden starten",
     "startMinimized": "Minimiert im Tray starten",
     "quit": "Tempura beenden",
-    "customTechniques": "Eigene Techniken",
-    "recipesEmpty": "Noch keine — die eingebauten liegen am Timer.",
-    "edit": "Bearbeiten",
     "delete": "Löschen",
     "editTechnique": "Technik bearbeiten",
     "newTechnique": "Neue Technik",
@@ -88,9 +85,11 @@
     "version": " · v{{version}}",
     "privacy": "Deine Daten bleiben auf diesem Rechner. Keine Konten, keine Cloud, kein Sync.",
     "aboutBody": "Lokales SQLite unter deinem App-Datenordner ist die Quelle der Wahrheit. Das Fenster schließen versteckt in den Tray — beenden hier oder im Tray-Menü.",
-    "techniquesGuide": "Technikführer",
     "sendFeedback": "Feedback senden",
-    "openAbout": "Über…"
+    "openAbout": "Über…",
+    "techniques": "Techniken",
+    "manageTechniques": "Techniken verwalten",
+    "techniquesMeta": "Eigene: {{mine}} · Integriert: {{builtIn}}"
   },
   "about": {
     "panel": "Über",
@@ -143,11 +142,22 @@
     "dailyBreakdown": "Täglicher Fokus",
     "noFocusDay": "—"
   },
-  "guide": {
-    "panel": "Technikführer",
-    "line": "Techniken · wähle einen Rhythmus, der passt.",
+  "library": {
+    "panel": "Techniken",
+    "line": "Deine Rhythmen und die Klassiker.",
     "close": "Schließen",
-    "makeCustom": "Technik anlegen",
+    "new": "Neu",
+    "tabMine": "Meine",
+    "tabBuiltIn": "Integriert",
+    "selected": "Ausgewählt",
+    "use": "Verwenden",
+    "edit": "Bearbeiten",
+    "customize": "Anpassen",
+    "emptyMine": "Noch keine eigenen Techniken. Erstelle eine neue oder passe eine integrierte an.",
+    "emptyHint": "Integrierte ansehen",
+    "runningHint": "Beende die Sitzung, um die Technik zu wechseln."
+  },
+  "guide": {
     "customFlowtimeWorkBreak": "Hochzählen · proportionale Pause",
     "customFlowtimeBestFor": "Flow-lastige Kreativarbeit",
     "customFlowtimeBlurb": "Dein eigenes Flowtime — arbeiten, bis der Fokus nachlässt, dann anteilig ruhen.",

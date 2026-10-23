@@ -5,28 +5,43 @@ import { DebugView } from "../components/DebugView";
 import { SettingsView } from "../components/SettingsView";
 import { StatsView } from "../components/StatsView";
 import { TechniqueEditor } from "../components/TechniqueEditor";
-import { TechniquesGuide } from "../components/TechniquesGuide";
+import { TechniquesLibrary, type LibraryTab } from "../components/TechniquesLibrary";
 import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 import { useShell } from "./TimerLayout";
 
+/** Make a technique the current and default one; a no-op while a session runs. */
+function useSelectTechnique() {
+  const session = useSessionContext();
+  const settingsApi = useSettingsContext();
+  return (id: string) => {
+    if (session.snapshot.running) return;
+    session.setSelectedId(id);
+    if (id !== settingsApi.settings.defaultTechniqueId) {
+      void settingsApi.patch({ defaultTechniqueId: id });
+    }
+  };
+}
+
 export function SettingsRoute() {
   const session = useSessionContext();
   const settingsApi = useSettingsContext();
-  const { openPanel, closePanel, openTechniqueEditor } = useShell();
+  const { openPanel, closePanel } = useShell();
   return (
     <SettingsView
       settings={settingsApi.settings}
       onPatch={settingsApi.patch}
-      techniques={session.techniques}
+      techniqueCounts={{
+        mine: session.techniques.filter((tech) => tech.kind === "custom").length,
+        builtIn: session.techniques.filter((tech) => tech.kind === "system").length,
+      }}
       onClose={closePanel}
       desktop={settingsApi.desktop}
       autostart={settingsApi.autostart}
       autostartAvailable={settingsApi.autostartAvailable}
       onToggleAutostart={settingsApi.toggleAutostart}
-      onNewTechnique={() => openTechniqueEditor()}
-      onEditTechnique={(id) => openTechniqueEditor({ id })}
+      onOpenTechniques={() => openPanel("techniques")}
       onOpenAbout={() => openPanel("about")}
       onQuit={
         settingsApi.desktop
@@ -74,9 +89,40 @@ export function StatsRoute() {
   return <StatsView streakFallback={session.stats?.streakDays ?? 0} onClose={closePanel} />;
 }
 
-export function GuideRoute() {
+/** Tab the library reopens on for the rest of this app session. */
+let lastLibraryTab: LibraryTab | undefined;
+
+export function TechniquesRoute() {
+  const session = useSessionContext();
+  const select = useSelectTechnique();
   const { closePanel, openTechniqueEditor } = useShell();
-  return <TechniquesGuide onClose={closePanel} onNewTechnique={() => openTechniqueEditor()} />;
+  const [params] = useSearchParams();
+  return (
+    <TechniquesLibrary
+      techniques={session.techniques}
+      selectedId={session.selectedId}
+      running={session.snapshot.running}
+      focusId={params.get("focus") ?? undefined}
+      tab={lastLibraryTab}
+      onTabChange={(tab) => {
+        lastLibraryTab = tab;
+      }}
+      onUse={(id) => {
+        select(id);
+        closePanel();
+      }}
+      onNew={() => {
+        lastLibraryTab = "mine";
+        openTechniqueEditor();
+      }}
+      onEdit={(id) => openTechniqueEditor({ id })}
+      onCustomize={(id) => {
+        lastLibraryTab = "mine";
+        openTechniqueEditor({ from: id });
+      }}
+      onClose={closePanel}
+    />
+  );
 }
 
 /** `/techniques/new` (optionally `?from=<id>`) and `/techniques/:id/edit`. */
@@ -90,20 +136,13 @@ export function TechniqueEditorRoute() {
   const fromId = params.get("from");
   const source = fromId ? session.techniques.find((tech) => tech.id === fromId) : undefined;
   const deletedRef = useRef(false);
+  const select = useSelectTechnique();
 
   if (id && (!editing || editing.kind !== "custom")) {
     // Just deleted: the list can refresh before history pops, so don't redirect over it.
     if (deletedRef.current) return null;
     // Unknown or built-in technique: nothing to edit here.
     return <Navigate to="/" replace />;
-  }
-
-  function select(techId: string) {
-    if (session.snapshot.running) return;
-    session.setSelectedId(techId);
-    if (techId !== settingsApi.settings.defaultTechniqueId) {
-      void settingsApi.patch({ defaultTechniqueId: techId });
-    }
   }
 
   return (
