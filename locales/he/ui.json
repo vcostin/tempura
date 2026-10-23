@@ -175,8 +175,11 @@
     "line": "טכניקות · עצבו קצב משלכם.",
     "back": "חזרה",
     "preview": "קצב",
-    "copyName": "{{name}} (עותק)",
-    "confirmDelete": "למחוק לצמיתות?"
+    "copyName": "{{name}} (עותק)"
+  },
+  "toast": {
+    "deleted": "{{name}} נמחקה",
+    "undo": "ביטול"
   },
   "themes": {
     "batter": "בלילה",

@@ -174,8 +174,11 @@
     "line": "技巧 · 打造你自己的节奏。",
     "back": "返回",
     "preview": "节奏",
-    "copyName": "{{name}}（副本）",
-    "confirmDelete": "确定永久删除？"
+    "copyName": "{{name}}（副本）"
+  },
+  "toast": {
+    "deleted": "已删除 {{name}}",
+    "undo": "撤销"
   },
   "themes": {
     "batter": "面糊",

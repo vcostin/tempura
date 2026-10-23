@@ -48,7 +48,7 @@ test.describe("techniques library and editor", () => {
     );
   });
 
-  test("edit and delete from the library; selection falls back to Classic", async ({ page }) => {
+  test("edit and delete from the library; selection falls back, Undo restores it", async ({ page }) => {
     await page.locator('[data-open-panel="technique-new"]').click();
     await page.fill("#c-name", "Writing");
     await page.getByRole("button", { name: "Add technique" }).click();
@@ -63,19 +63,36 @@ test.describe("techniques library and editor", () => {
     await page.getByRole("button", { name: "Edit: Writing" }).click();
     await expect(page).toHaveURL(/#\/techniques\/custom-1\/edit$/);
 
-    const del = page.getByRole("button", { name: "Delete" });
-    await del.click();
-    await expect(page.getByRole("button", { name: "Delete for good?" })).toBeVisible();
-    await page.getByRole("button", { name: "Delete for good?" }).click();
+    await page.getByRole("button", { name: "Delete" }).click();
 
     await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
     await expect(page.locator(".library-empty")).toBeVisible();
+    await expect(page.locator(".toast")).toContainText("Writing deleted");
     await page.keyboard.press("Escape");
     await expect(page.locator(".picker .chip", { hasText: "Writing" })).toHaveCount(0);
     await expect(page.locator(".picker .chip", { hasText: "Classic" }).first()).toHaveAttribute(
       "aria-pressed",
       "true",
     );
+
+    // Undo brings it back, selected again.
+    await page.locator(".toast").getByRole("button", { name: "Undo" }).click();
+    await expect(page.locator(".toast")).toHaveCount(0);
+    await expect(page.locator(".picker .chip", { hasText: "Writing" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
+  });
+
+  test("Ctrl+Z undoes a delete", async ({ page }) => {
+    await page.locator('[data-open-panel="technique-new"]').click();
+    await page.fill("#c-name", "Reading");
+    await page.getByRole("button", { name: "Add technique" }).click();
+    await page.goto("/#/techniques/custom-1/edit");
+    await page.getByRole("button", { name: "Delete" }).click();
+    await expect(page.locator(".toast")).toContainText("Reading deleted");
+    await page.keyboard.press("Control+z");
+    await expect(page.locator(".picker .chip", { hasText: "Reading" })).toHaveCount(1);
   });
 
   test("Learn more opens the library at the selected technique", async ({ page }) => {

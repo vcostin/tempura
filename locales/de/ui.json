@@ -174,8 +174,11 @@
     "line": "Techniken · gestalte deinen eigenen Rhythmus.",
     "back": "Zurück",
     "preview": "Rhythmus",
-    "copyName": "{{name}} (Kopie)",
-    "confirmDelete": "Endgültig löschen?"
+    "copyName": "{{name}} (Kopie)"
+  },
+  "toast": {
+    "deleted": "{{name}} gelöscht",
+    "undo": "Rückgängig"
   },
   "themes": {
     "batter": "Teig",

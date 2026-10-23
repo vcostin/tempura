@@ -176,8 +176,11 @@
     "line": "Техніки · створіть власний ритм.",
     "back": "Назад",
     "preview": "Ритм",
-    "copyName": "{{name}} (копія)",
-    "confirmDelete": "Видалити назавжди?"
+    "copyName": "{{name}} (копія)"
+  },
+  "toast": {
+    "deleted": "{{name}} видалено",
+    "undo": "Скасувати"
   },
   "themes": {
     "batter": "Кляр",

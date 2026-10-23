@@ -178,8 +178,11 @@
     "line": "التقنيات · اصنع إيقاعك الخاص.",
     "back": "رجوع",
     "preview": "الإيقاع",
-    "copyName": "{{name}} (نسخة)",
-    "confirmDelete": "حذف نهائيًا؟"
+    "copyName": "{{name}} (نسخة)"
+  },
+  "toast": {
+    "deleted": "تم حذف {{name}}",
+    "undo": "تراجع"
   },
   "themes": {
     "batter": "عجينة",

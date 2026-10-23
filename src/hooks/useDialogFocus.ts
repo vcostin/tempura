@@ -44,7 +44,11 @@ export function useDialogFocus(containerRef: RefObject<HTMLElement | null>, acti
 
     function onKeyDown(e: KeyboardEvent) {
       if (e.key !== "Tab") return;
-      const focusable = getFocusable(root);
+      // A toast's action (e.g. Undo) sits outside the dialog but stays reachable.
+      const toastActions = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-toast-action]"),
+      ).filter((el) => !root.contains(el));
+      const focusable = [...getFocusable(root), ...toastActions];
       if (focusable.length === 0) {
         e.preventDefault();
         root.focus();
@@ -53,7 +57,8 @@ export function useDialogFocus(containerRef: RefObject<HTMLElement | null>, acti
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       const activeEl = document.activeElement;
-      const inside = activeEl instanceof Node && root.contains(activeEl);
+      const inside =
+        activeEl instanceof HTMLElement && (root.contains(activeEl) || toastActions.includes(activeEl));
 
       if (e.shiftKey) {
         if (!inside || activeEl === first) {

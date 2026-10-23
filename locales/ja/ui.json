@@ -174,8 +174,11 @@
     "line": "テクニック · 自分だけのリズムを。",
     "back": "戻る",
     "preview": "リズム",
-    "copyName": "{{name}}（コピー）",
-    "confirmDelete": "完全に削除しますか？"
+    "copyName": "{{name}}（コピー）"
+  },
+  "toast": {
+    "deleted": "{{name}} を削除しました",
+    "undo": "元に戻す"
   },
   "themes": {
     "batter": "衣",

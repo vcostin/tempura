@@ -175,8 +175,11 @@
     "line": "Tehnici · creează-ți propriul ritm.",
     "back": "Înapoi",
     "preview": "Ritm",
-    "copyName": "{{name}} (copie)",
-    "confirmDelete": "Ștergi definitiv?"
+    "copyName": "{{name}} (copie)"
+  },
+  "toast": {
+    "deleted": "{{name}} a fost ștearsă",
+    "undo": "Anulează"
   },
   "themes": {
     "batter": "Aluat",

@@ -174,8 +174,11 @@
     "line": "Técnicas · crie seu próprio ritmo.",
     "back": "Voltar",
     "preview": "Ritmo",
-    "copyName": "{{name}} (cópia)",
-    "confirmDelete": "Excluir de vez?"
+    "copyName": "{{name}} (cópia)"
+  },
+  "toast": {
+    "deleted": "{{name}} excluída",
+    "undo": "Desfazer"
   },
   "themes": {
     "batter": "Massa",

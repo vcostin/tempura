@@ -182,8 +182,11 @@
     "line": "Techniques · shape your own rhythm.",
     "back": "Back",
     "preview": "Rhythm",
-    "copyName": "{{name}} (copy)",
-    "confirmDelete": "Delete for good?"
+    "copyName": "{{name}} (copy)"
+  },
+  "toast": {
+    "deleted": "{{name}} deleted",
+    "undo": "Undo"
   },
   "themes": {
     "batter": "Batter",

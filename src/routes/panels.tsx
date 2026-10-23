@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Navigate, useParams, useSearchParams } from "react-router";
 import { AboutView } from "../components/AboutView";
 import { DebugView } from "../components/DebugView";
@@ -8,6 +9,7 @@ import { TechniqueEditor } from "../components/TechniqueEditor";
 import { TechniquesLibrary, type LibraryTab } from "../components/TechniquesLibrary";
 import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
+import type { Technique, TechniqueInput } from "../lib/types";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 import { useShell } from "./TimerLayout";
 
@@ -125,11 +127,25 @@ export function TechniquesRoute() {
   );
 }
 
+function toInput(tech: Technique): TechniqueInput {
+  return {
+    name: tech.name,
+    focusSecs: tech.focusSecs,
+    shortBreakSecs: tech.shortBreakSecs,
+    longBreakSecs: tech.longBreakSecs,
+    cyclesBeforeLong: tech.cyclesBeforeLong,
+    flowRatio: tech.flowRatio,
+    accent: tech.accent,
+    mode: tech.mode,
+  };
+}
+
 /** `/techniques/new` (optionally `?from=<id>`) and `/techniques/:id/edit`. */
 export function TechniqueEditorRoute() {
+  const { t } = useTranslation();
   const session = useSessionContext();
   const settingsApi = useSettingsContext();
-  const { goBack } = useShell();
+  const { goBack, showToast } = useShell();
   const { id } = useParams();
   const [params] = useSearchParams();
   const editing = id ? session.techniques.find((tech) => tech.id === id) : undefined;
@@ -164,6 +180,7 @@ export function TechniqueEditorRoute() {
       onDelete={
         editing
           ? async () => {
+              const wasSelected = session.selectedId === editing.id;
               deletedRef.current = true;
               try {
                 await settingsApi.deleteTechnique(editing.id);
@@ -171,9 +188,20 @@ export function TechniqueEditorRoute() {
                 deletedRef.current = false;
                 throw err;
               }
-              if (session.selectedId === editing.id) select("classic");
+              if (wasSelected) select("classic");
               await session.reloadTechniques();
               goBack();
+              showToast({
+                message: t("toast.deleted", { name: editing.name }),
+                actionLabel: t("toast.undo"),
+                onAction: () => {
+                  // Recreated under a new id; past sessions keep their totals either way.
+                  void settingsApi.createTechnique(toInput(editing)).then(async (restored) => {
+                    if (wasSelected) select(restored.id);
+                    await session.reloadTechniques();
+                  });
+                },
+              });
             }
           : undefined
       }

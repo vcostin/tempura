@@ -174,8 +174,11 @@
     "line": "Technieken · vorm je eigen ritme.",
     "back": "Terug",
     "preview": "Ritme",
-    "copyName": "{{name}} (kopie)",
-    "confirmDelete": "Definitief verwijderen?"
+    "copyName": "{{name}} (kopie)"
+  },
+  "toast": {
+    "deleted": "{{name}} verwijderd",
+    "undo": "Ongedaan maken"
   },
   "themes": {
     "batter": "Beslag",

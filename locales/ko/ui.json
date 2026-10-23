@@ -174,8 +174,11 @@
     "line": "기법 · 나만의 리듬을 만드세요.",
     "back": "뒤로",
     "preview": "리듬",
-    "copyName": "{{name}} (사본)",
-    "confirmDelete": "영구적으로 삭제할까요?"
+    "copyName": "{{name}} (사본)"
+  },
+  "toast": {
+    "deleted": "{{name}} 삭제됨",
+    "undo": "실행 취소"
   },
   "themes": {
     "batter": "반죽",

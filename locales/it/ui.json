@@ -174,8 +174,11 @@
     "line": "Tecniche · crea il tuo ritmo.",
     "back": "Indietro",
     "preview": "Ritmo",
-    "copyName": "{{name}} (copia)",
-    "confirmDelete": "Eliminare definitivamente?"
+    "copyName": "{{name}} (copia)"
+  },
+  "toast": {
+    "deleted": "{{name}} eliminata",
+    "undo": "Annulla"
   },
   "themes": {
     "batter": "Pastella",

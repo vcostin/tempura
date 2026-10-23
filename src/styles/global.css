@@ -1807,3 +1807,57 @@ button {
     padding-top: 2rem;
   }
 }
+
+.toast-region {
+  position: fixed;
+  inset-inline: 0;
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  justify-content: center;
+  padding-inline: 1rem;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  min-height: 48px;
+  padding: 0.4rem 0.5rem 0.4rem 1rem;
+  border-radius: 14px;
+  background: var(--ink);
+  color: var(--surface-solid);
+  font-size: 0.9rem;
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 25%, transparent);
+  pointer-events: auto;
+  animation: toast-in 0.2s ease-out;
+}
+
+.toast-action {
+  min-height: 40px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 10px;
+  color: var(--surface-solid);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.toast-action:hover {
+  background: color-mix(in srgb, var(--surface-solid) 15%, transparent);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

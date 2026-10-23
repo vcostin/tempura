@@ -174,8 +174,11 @@
     "line": "Techniques · façonnez votre propre rythme.",
     "back": "Retour",
     "preview": "Rythme",
-    "copyName": "{{name}} (copie)",
-    "confirmDelete": "Supprimer définitivement ?"
+    "copyName": "{{name}} (copie)"
+  },
+  "toast": {
+    "deleted": "{{name}} supprimée",
+    "undo": "Annuler"
   },
   "themes": {
     "batter": "Pâte",

@@ -176,8 +176,11 @@
     "line": "Techniki · ułóż własny rytm.",
     "back": "Wstecz",
     "preview": "Rytm",
-    "copyName": "{{name}} (kopia)",
-    "confirmDelete": "Usunąć na dobre?"
+    "copyName": "{{name}} (kopia)"
+  },
+  "toast": {
+    "deleted": "Usunięto: {{name}}",
+    "undo": "Cofnij"
   },
   "themes": {
     "batter": "Panierka",
