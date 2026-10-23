@@ -239,6 +239,12 @@ button {
   z-index: 40;
   background: var(--glow);
   animation: slideUp 0.35s ease both;
+  /*
+   * Keep the layer composited for as long as it is shown. Without this,
+   * WebKitGTK drops the layer when the slide-up ends and repaints it a frame
+   * or two later, so the timer flashed through (seen ~350 ms after opening).
+   */
+  will-change: transform, opacity;
 }
 
 .panel-host[hidden] {
