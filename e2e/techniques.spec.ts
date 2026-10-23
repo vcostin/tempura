@@ -115,4 +115,16 @@ test.describe("techniques library and editor", () => {
     await expect(page).toHaveURL(/#\/techniques\?focus=classic$/);
     await expect(page.locator(".library-row.is-open")).toContainText("Classic");
   });
+
+  test("panel to panel swaps without fading in over the timer", async ({ page }) => {
+    await page.keyboard.press(",");
+    // Opening from the timer still slides in.
+    await expect(page.locator(".panel")).toHaveCSS("animation-name", "slideUp");
+    await page.locator(".link-row").click();
+    await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
+    await expect(page.locator(".panel")).toHaveCSS("animation-name", "none");
+    await page.locator(".library-new").click();
+    await expect(page.locator("#c-name")).toBeVisible();
+    await expect(page.locator(".panel")).toHaveCSS("animation-name", "none");
+  });
 });

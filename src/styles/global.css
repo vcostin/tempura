@@ -228,6 +228,10 @@ button {
   overflow: hidden;
 }
 
+.app-shell[data-panel-swap="true"] .panel {
+  animation: none;
+}
+
 .timer-root {
   display: flex;
   flex-direction: column;

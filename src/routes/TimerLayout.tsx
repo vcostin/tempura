@@ -80,6 +80,15 @@ export function TimerLayout() {
   const returnFocusRef = useRef<HTMLElement | null>(null);
   const updateOfferedRef = useRef(false);
   const onTimer = location.pathname === "/";
+  // Panel to panel (e.g. library → editor), the new panel replaces the old one
+  // at once; only opening from the timer slides in. Fading in over the timer
+  // flashed the timer between two panels.
+  const lastPathRef = useRef(location.pathname);
+  const panelSwapRef = useRef(false);
+  if (lastPathRef.current !== location.pathname) {
+    panelSwapRef.current = lastPathRef.current !== "/" && !onTimer;
+    lastPathRef.current = location.pathname;
+  }
   const onAbout = location.pathname === "/about";
 
   useEffect(() => {
@@ -277,6 +286,7 @@ export function TimerLayout() {
       className="app-shell"
       data-hidden={windowHidden ? "true" : "false"}
       data-panel={onTimer ? "closed" : "open"}
+      data-panel-swap={panelSwapRef.current ? "true" : undefined}
     >
       <SessionAnnouncer snapshot={session.snapshot} />
       <div className="timer-root" inert={!onTimer || undefined}>
