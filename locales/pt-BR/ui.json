@@ -40,7 +40,7 @@
     "cycles_other": "ciclos",
     "dayStreak": "dias seguidos",
     "autoContinue": "Continuar automaticamente",
-    "autoContinueHint": "Inicia a próxima pausa ou foco automaticamente. Desative para iniciar cada fase você mesmo.",
+    "autoContinueHint": "Inicia a próxima pausa ou foco automaticamente. Desative para iniciar cada fase manualmente.",
     "startFocus": "Iniciar foco",
     "startShortBreak": "Iniciar pausa curta",
     "startLongBreak": "Iniciar pausa longa"
@@ -231,8 +231,8 @@
     "startFocus": "Iniciar foco",
     "startShortBreak": "Iniciar pausa curta",
     "startLongBreak": "Iniciar pausa longa",
-    "statusWaiting": "Status · {{phase}} · Pronto para começar",
-    "tooltipWaiting": "Tempura · {{phase}} · Pronto"
+    "statusWaiting": "Status · {{phase}} · Aguardando",
+    "tooltipWaiting": "Tempura · {{phase}} · Aguardando"
   },
   "notifications": {
     "focusComplete": "Foco concluído",

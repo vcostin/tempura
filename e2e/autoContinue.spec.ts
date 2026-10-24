@@ -16,7 +16,7 @@ test.describe("auto-continue switch", () => {
       "Start the next break or focus automatically. Turn off to start each phase yourself.",
     );
 
-    const hint = page.locator("#auto-continue-hint");
+    const hint = page.locator(".auto-continue .hint-tooltip");
     await expect(hint).toBeHidden();
     await toggle.focus();
     await page.keyboard.press("Tab");

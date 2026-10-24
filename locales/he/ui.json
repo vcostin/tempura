@@ -232,8 +232,8 @@
     "startFocus": "התחלת מיקוד",
     "startShortBreak": "התחלת הפסקה קצרה",
     "startLongBreak": "התחלת הפסקה ארוכה",
-    "statusWaiting": "סטטוס · {{phase}} · מוכן להתחלה",
-    "tooltipWaiting": "Tempura · {{phase}} · מוכן"
+    "statusWaiting": "סטטוס · {{phase}} · ממתין להתחלה",
+    "tooltipWaiting": "Tempura · {{phase}} · ממתין להתחלה"
   },
   "notifications": {
     "focusComplete": "המיקוד הסתיים",

@@ -231,8 +231,8 @@
     "startFocus": "Lancer le focus",
     "startShortBreak": "Lancer la pause courte",
     "startLongBreak": "Lancer la pause longue",
-    "statusWaiting": "Statut · {{phase}} · Prêt à démarrer",
-    "tooltipWaiting": "Tempura · {{phase}} · Prêt"
+    "statusWaiting": "Statut · {{phase}} · En attente",
+    "tooltipWaiting": "Tempura · {{phase}} · En attente"
   },
   "notifications": {
     "focusComplete": "Focus terminé",

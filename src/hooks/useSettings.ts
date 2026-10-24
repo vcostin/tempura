@@ -85,6 +85,7 @@ export function useSettings() {
     let unlisten: (() => void) | undefined;
     let cancelled = false;
     void listen<AppSettings>("settings-updated", (e) => {
+      latest.current = { ...latest.current, autoContinue: e.payload.autoContinue };
       setSettings((prev) => ({ ...prev, autoContinue: e.payload.autoContinue }));
     }).then((u) => {
       if (cancelled) u();
@@ -105,11 +106,15 @@ export function useSettings() {
     }
   }, []);
 
+  // Merge into the latest settings, not a render's copy: a debounced or tray-driven
+  // change in between must not be overwritten.
   const patch = useCallback(
     async (partial: Partial<AppSettings>) => {
-      await save({ ...settings, ...partial });
+      const next = { ...latest.current, ...partial };
+      latest.current = next;
+      await save(next);
     },
-    [save, settings],
+    [save],
   );
 
   /** Show or hide a technique on the timer, against the latest settings. */

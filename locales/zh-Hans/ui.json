@@ -314,8 +314,8 @@
     "paused": "计时器已暂停。",
     "resumed": "计时器已继续。",
     "stopped": "计时器已停止。",
-    "ready_focus": "专注已可开始。",
-    "ready_short_break": "短休息已可开始。",
-    "ready_long_break": "长休息已可开始。"
+    "ready_focus": "可以开始专注了。",
+    "ready_short_break": "可以开始短休息了。",
+    "ready_long_break": "可以开始长休息了。"
   }
 }

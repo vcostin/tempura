@@ -315,6 +315,7 @@ impl EngineHandle {
         eng.phase_deadline = None;
         eng.paused_remaining = None;
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.snapshot.duration_secs = 0;
         eng.snapshot.remaining_secs = 0;
         eng.snapshot.elapsed_secs = already;

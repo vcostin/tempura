@@ -41,7 +41,7 @@
     "cycles_other": "de cicluri",
     "dayStreak": "zile la rând",
     "autoContinue": "Continuare automată",
-    "autoContinueHint": "Pornește automat următoarea pauză sau sesiune de focus. Dezactivează ca să pornești singur fiecare fază.",
+    "autoContinueHint": "Pornește automat următoarea pauză sau sesiune de focus. Dezactivează ca să pornești manual fiecare fază.",
     "startFocus": "Pornește focusul",
     "startShortBreak": "Pornește pauza scurtă",
     "startLongBreak": "Pornește pauza lungă"
@@ -233,7 +233,7 @@
     "startShortBreak": "Pornește pauza scurtă",
     "startLongBreak": "Pornește pauza lungă",
     "statusWaiting": "Stare · {{phase}} · Gata de pornire",
-    "tooltipWaiting": "Tempura · {{phase}} · Pregătit"
+    "tooltipWaiting": "Tempura · {{phase}} · Gata"
   },
   "notifications": {
     "focusComplete": "Focus terminat",

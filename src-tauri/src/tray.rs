@@ -289,18 +289,19 @@ fn handle_menu(app: &AppHandle, id: &str) {
 /// Flip auto-continue from the tray and tell the window, which owns the toggle too.
 fn toggle_auto_continue(app: &AppHandle) {
     let state = app.state::<crate::AppState>();
-    let settings = {
-        let db = state.db.lock();
-        let Ok(mut settings) = db.get_settings() else {
-            return;
-        };
-        settings.auto_continue = !settings.auto_continue;
-        if db.update_settings(&settings).is_err() {
-            return;
-        }
-        settings
-    };
     let engine = app.state::<EngineHandle>();
+    let saved = {
+        let db = state.db.lock();
+        db.get_settings().ok().and_then(|mut settings| {
+            settings.auto_continue = !settings.auto_continue;
+            db.update_settings(&settings).ok().map(|_| settings)
+        })
+    };
+    let Some(settings) = saved else {
+        // The native item already flipped its own check; put it back.
+        engine.update_tray(app);
+        return;
+    };
     engine.load_settings(settings.clone());
     engine.update_tray(app);
     let _ = app.emit("settings-updated", &settings);

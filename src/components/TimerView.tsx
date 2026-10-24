@@ -1,6 +1,8 @@
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { formatClock, formatTechniqueRhythm, phaseLabel } from "../lib/api";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
+import { showsPaused, startPhaseKey } from "../lib/timerLabels";
 import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
@@ -43,6 +45,7 @@ interface Props {
 export function TimerView(props: Props) {
   const { t } = useTranslation();
   const { snapshot: s } = props;
+  const autoContinueId = useId();
   const displaySecs =
     s.isFlow && s.phase === "focus" ? s.elapsedSecs : s.running ? s.remainingSecs : 0;
   const showClock = s.running || s.phase !== "idle";
@@ -62,14 +65,7 @@ export function TimerView(props: Props) {
         })
       : s.techniqueName;
 
-  const phaseText =
-    s.paused && s.running && !s.awaitingStart ? t("phase.paused") : phaseLabel(s.phase, t);
-  const startPhaseText =
-    s.phase === "short_break"
-      ? t("timer.startShortBreak")
-      : s.phase === "long_break"
-        ? t("timer.startLongBreak")
-        : t("timer.startFocus");
+  const phaseText = showsPaused(s) ? t("phase.paused") : phaseLabel(s.phase, t);
 
   return (
     <>
@@ -227,7 +223,7 @@ export function TimerView(props: Props) {
           <>
             {s.paused ? (
               <button type="button" className="btn btn-primary" onClick={props.onResume}>
-                {s.awaitingStart ? startPhaseText : t("timer.resume")}
+                {s.awaitingStart ? t(startPhaseKey(s.phase)) : t("timer.resume")}
               </button>
             ) : (
               <button type="button" className="btn btn-primary" onClick={props.onPause}>
@@ -237,9 +233,11 @@ export function TimerView(props: Props) {
             <button type="button" className="btn btn-ghost" onClick={props.onSkip}>
               {t("timer.skip")}
             </button>
-            <button type="button" className="btn btn-ghost" onClick={props.onReset}>
-              {t("timer.reset")}
-            </button>
+            {!s.awaitingStart && (
+              <button type="button" className="btn btn-ghost" onClick={props.onReset}>
+                {t("timer.reset")}
+              </button>
+            )}
             <button type="button" className="btn btn-danger" onClick={props.onStop}>
               {t("timer.stop")}
             </button>
@@ -253,12 +251,12 @@ export function TimerView(props: Props) {
           className="toggle toggle--small"
           role="switch"
           aria-checked={props.autoContinue}
-          aria-labelledby="auto-continue-label"
-          aria-describedby="auto-continue-hint"
+          aria-labelledby={`${autoContinueId}-label`}
+          aria-describedby={`${autoContinueId}-hint`}
           onClick={() => props.onAutoContinue(!props.autoContinue)}
         />
-        <span id="auto-continue-label">{t("timer.autoContinue")}</span>
-        <span id="auto-continue-hint" role="tooltip" className="hint-tooltip">
+        <span id={`${autoContinueId}-label`}>{t("timer.autoContinue")}</span>
+        <span id={`${autoContinueId}-hint`} role="tooltip" className="hint-tooltip">
           {t("timer.autoContinueHint")}
         </span>
       </label>

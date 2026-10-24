@@ -235,8 +235,8 @@
     "startFocus": "ابدأ التركيز",
     "startShortBreak": "ابدأ الاستراحة القصيرة",
     "startLongBreak": "ابدأ الاستراحة الطويلة",
-    "statusWaiting": "الحالة · {{phase}} · جاهز للبدء",
-    "tooltipWaiting": "Tempura · {{phase}} · جاهز"
+    "statusWaiting": "الحالة · {{phase}} · بانتظار البدء",
+    "tooltipWaiting": "Tempura · {{phase}} · بانتظار البدء"
   },
   "notifications": {
     "focusComplete": "انتهى التركيز",
