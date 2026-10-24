@@ -9,6 +9,9 @@ use std::path::Path;
 use thiserror::Error;
 use uuid::Uuid;
 
+/// id, name, focus, short break, long break, cycles before long, flow ratio, accent, mode
+type SystemSeed<'a> = (&'a str, &'a str, i64, i64, i64, i64, Option<f64>, &'a str, &'a str);
+
 #[derive(Debug, Error)]
 pub enum DbError {
     #[error("sqlite: {0}")]
@@ -156,7 +159,7 @@ impl Database {
 
     fn seed_system_techniques(&self) -> DbResult<()> {
         let now = Utc::now().to_rfc3339();
-        let seeds: &[(&str, &str, i64, i64, i64, i64, Option<f64>, &str, &str)] = &[
+        let seeds: &[SystemSeed] = &[
             (
                 "classic",
                 "Classic",
