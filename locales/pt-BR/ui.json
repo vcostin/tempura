@@ -153,7 +153,11 @@
     "period30": "30 dias",
     "periodAria": "Intervalo das estatísticas",
     "dailyBreakdown": "Foco diário",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "Em quê",
+    "byTechnique": "Por técnica",
+    "other": "Outros",
+    "noLabel": "Sem rótulo"
   },
   "library": {
     "panel": "Técnicas",

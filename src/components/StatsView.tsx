@@ -1,7 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 import { api, formatMinutes } from "../lib/api";
-import type { StatsPeriod, StatsRange } from "../lib/types";
+import { barPercent } from "../lib/statsBars";
+import { techniqueDisplayName } from "../lib/techniqueGuide";
+import type { FocusShare, StatsPeriod, StatsRange } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 
@@ -126,7 +129,7 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
                 <p className="stats-bars__label">{t("stats.dailyBreakdown")}</p>
                 <ul className="stats-bars__list">
                   {range!.buckets.map((b) => {
-                    const pct = Math.round((b.focusSecs / maxFocus) * 100);
+                    const pct = barPercent(b.focusSecs, maxFocus);
                     const label = shortDayLabel(b.date, period, dateLocale);
                     const value =
                       b.focusSecs > 0 ? formatMinutes(b.focusSecs) : t("stats.noFocusDay");
@@ -136,7 +139,7 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
                         <span className="stats-bars__track" aria-hidden="true">
                           <span
                             className="stats-bars__fill"
-                            style={{ width: `${b.focusSecs > 0 ? Math.max(pct, 4) : 0}%` }}
+                            style={{ width: `${pct}%` }}
                           />
                         </span>
                         <span className="stats-bars__value">{value}</span>
@@ -146,9 +149,52 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
                 </ul>
               </div>
             )}
+
+            <ShareBars title={t("stats.byLabel")} shares={range!.byLabel} t={t} />
+            <ShareBars title={t("stats.byTechnique")} shares={range!.byTechnique} t={t} />
           </>
         )}
       </div>
     </ScrollPanel>
+  );
+}
+
+/** A row's title: a label, a technique (built-ins in the user's language), "Other" or "No label". */
+function shareName(share: FocusShare, t: TFunction): string {
+  if (share.kind === "other") return t("stats.other");
+  if (share.kind === "none") return t("stats.noLabel");
+  if (share.techniqueId) {
+    return techniqueDisplayName({ id: share.techniqueId, kind: "system", name: share.name });
+  }
+  return share.name;
+}
+
+/** Focus time split by what it was spent on, in the same bars as the daily breakdown. */
+function ShareBars({ title, shares, t }: { title: string; shares: FocusShare[]; t: TFunction }) {
+  if (!shares.length) return null;
+  const max = Math.max(...shares.map((s) => s.focusSecs), 1);
+  return (
+    <section className="stats-bars stats-bars--shares" aria-label={title}>
+      <p className="stats-bars__label">{title}</p>
+      <ul className="stats-bars__list">
+        {shares.map((share) => {
+          const name = shareName(share, t);
+          return (
+            <li key={`${share.kind}:${share.techniqueId ?? share.name}`} className="stats-bars__row">
+              <span className="stats-bars__day" title={name}>
+                {name}
+              </span>
+              <span className="stats-bars__track" aria-hidden="true">
+                <span
+                  className="stats-bars__fill"
+                  style={{ width: `${barPercent(share.focusSecs, max)}%` }}
+                />
+              </span>
+              <span className="stats-bars__value">{formatMinutes(share.focusSecs, t)}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

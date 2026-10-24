@@ -2039,3 +2039,14 @@ button {
 .away-banner {
   margin-bottom: 0.25rem;
 }
+
+/* Label and technique breakdowns: names can be long, so give them a fixed share and truncate. */
+.stats-bars--shares .stats-bars__row {
+  grid-template-columns: minmax(0, 9rem) 1fr auto;
+}
+
+.stats-bars--shares .stats-bars__day {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

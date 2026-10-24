@@ -153,7 +153,11 @@
     "period30": "30 Tage",
     "periodAria": "Statistikzeitraum",
     "dailyBreakdown": "Täglicher Fokus",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "Woran",
+    "byTechnique": "Nach Technik",
+    "other": "Sonstiges",
+    "noLabel": "Ohne Bezeichnung"
   },
   "library": {
     "panel": "Techniken",

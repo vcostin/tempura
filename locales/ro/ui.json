@@ -154,7 +154,11 @@
     "period30": "30 zile",
     "periodAria": "Interval statistici",
     "dailyBreakdown": "Focus zilnic",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "La ce",
+    "byTechnique": "După tehnică",
+    "other": "Altele",
+    "noLabel": "Fără etichetă"
   },
   "library": {
     "panel": "Tehnici",

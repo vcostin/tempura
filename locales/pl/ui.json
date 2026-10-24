@@ -155,7 +155,11 @@
     "period30": "30 dni",
     "periodAria": "Zakres statystyk",
     "dailyBreakdown": "Dzienne skupienie",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "Nad czym",
+    "byTechnique": "Według techniki",
+    "other": "Inne",
+    "noLabel": "Bez etykiety"
   },
   "library": {
     "panel": "Techniki",

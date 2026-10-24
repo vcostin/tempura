@@ -153,7 +153,11 @@
     "period30": "30일",
     "periodAria": "통계 기간",
     "dailyBreakdown": "일별 집중",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "무엇에",
+    "byTechnique": "기법별",
+    "other": "기타",
+    "noLabel": "라벨 없음"
   },
   "library": {
     "panel": "기법",

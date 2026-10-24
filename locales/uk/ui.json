@@ -155,7 +155,11 @@
     "period30": "30 днів",
     "periodAria": "Період статистики",
     "dailyBreakdown": "Щоденний фокус",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "Над чим",
+    "byTechnique": "За технікою",
+    "other": "Інше",
+    "noLabel": "Без мітки"
   },
   "library": {
     "panel": "Техніки",

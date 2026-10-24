@@ -153,7 +153,11 @@
     "period30": "30日間",
     "periodAria": "統計の期間",
     "dailyBreakdown": "日別フォーカス",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "取り組んだこと",
+    "byTechnique": "テクニック別",
+    "other": "その他",
+    "noLabel": "ラベルなし"
   },
   "library": {
     "panel": "テクニック",

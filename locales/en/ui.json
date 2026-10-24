@@ -164,7 +164,11 @@
     "period30": "30 days",
     "periodAria": "Stats range",
     "dailyBreakdown": "Daily focus",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "On what",
+    "byTechnique": "By technique",
+    "other": "Other",
+    "noLabel": "No label"
   },
   "library": {
     "panel": "Techniques",

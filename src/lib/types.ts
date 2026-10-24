@@ -84,6 +84,19 @@ export interface StatsRange {
   sessions: number;
   streakDays: number;
   buckets: DayBucket[];
+  /** Focus time per "Working on" label, largest first. */
+  byLabel: FocusShare[];
+  /** Focus time per technique, largest first. */
+  byTechnique: FocusShare[];
+}
+
+export interface FocusShare {
+  /** The label or technique name; empty for "other" and "none". */
+  name: string;
+  /** Set on by-technique rows, so built-ins show in the user's language. */
+  techniqueId: string | null;
+  focusSecs: number;
+  kind: "named" | "other" | "none";
 }
 
 export type StatsPeriod = 1 | 7 | 30;

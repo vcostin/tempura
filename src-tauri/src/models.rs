@@ -333,6 +333,33 @@ pub struct StatsRange {
     pub sessions: i64,
     pub streak_days: i64,
     pub buckets: Vec<DayBucket>,
+    /// Focus time per "Working on" label, largest first.
+    pub by_label: Vec<FocusShare>,
+    /// Focus time per technique, largest first.
+    pub by_technique: Vec<FocusShare>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ShareKind {
+    /// A label or technique.
+    Named,
+    /// Everything past the top rows, folded together.
+    Other,
+    /// Sessions with no label.
+    None,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct FocusShare {
+    /// The label or technique name; empty for "other" and "none".
+    pub name: String,
+    /// The technique's id on by-technique rows, so the UI can name built-ins
+    /// in the user's language.
+    pub technique_id: Option<String>,
+    pub focus_secs: i64,
+    pub kind: ShareKind,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

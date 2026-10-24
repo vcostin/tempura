@@ -153,7 +153,11 @@
     "period30": "30 天",
     "periodAria": "统计范围",
     "dailyBreakdown": "每日专注",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "专注内容",
+    "byTechnique": "按方法",
+    "other": "其他",
+    "noLabel": "无标签"
   },
   "library": {
     "panel": "技巧",
