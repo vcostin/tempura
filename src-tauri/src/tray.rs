@@ -61,19 +61,19 @@ pub fn restore_window(win: &WebviewWindow) {
         LINUX_CSD_NEEDS_HEAL.store(true, Ordering::Relaxed);
         schedule_linux_csd_heal(win);
     }
-    set_window_shown(&win.app_handle(), true);
+    set_window_shown(win.app_handle(), true);
 }
 
 pub fn hide_window(win: &WebviewWindow) {
     let _ = win.hide();
     mark_linux_csd_stale();
-    set_window_shown(&win.app_handle(), false);
+    set_window_shown(win.app_handle(), false);
 }
 
 pub fn hide_native_window(window: &Window) {
     let _ = window.hide();
     mark_linux_csd_stale();
-    set_window_shown(&window.app_handle(), false);
+    set_window_shown(window.app_handle(), false);
 }
 
 fn set_window_shown(app: &AppHandle, shown: bool) {

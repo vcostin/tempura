@@ -122,6 +122,7 @@ pub fn run() {
                     #[cfg(target_os = "linux")]
                     tray::heal_linux_csd_if_needed(window);
                 }
+                #[allow(clippy::collapsible_match)] // the inner `if` is Linux-only
                 WindowEvent::Focused(false) => {
                     // JS hide() does not go through tray helpers; catch it here.
                     #[cfg(target_os = "linux")]

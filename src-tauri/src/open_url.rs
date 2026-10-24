@@ -31,6 +31,7 @@ pub fn open_feedback_url() -> Result<(), String> {
     open_in_host_browser(FEEDBACK_URL)
 }
 
+#[allow(clippy::needless_return)] // each platform's block is cfg-gated
 fn open_in_host_browser(url: &str) -> Result<(), String> {
     #[cfg(target_os = "linux")]
     {

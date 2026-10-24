@@ -331,26 +331,7 @@ impl EngineHandle {
                 return;
             }
 
-            // Detect OS sleep / clock skew via wall clock
-            let now_wall = SystemTime::now();
-            if let Ok(delta) = now_wall.duration_since(eng.last_wall) {
-                if delta > Duration::from_secs(3) {
-                    // Slept: advance deadline relative to Instant is automatic;
-                    // Instant does not advance during sleep on most platforms.
-                    // Compensate countdown by subtracting wall delta from remaining.
-                    if let Some(deadline) = eng.phase_deadline {
-                        let slept = delta - Duration::from_millis(250);
-                        eng.phase_deadline = Some(deadline.checked_sub(slept).unwrap_or(Instant::now()));
-                    }
-                    if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
-                        if let Some(started) = eng.phase_started {
-                            // For count-up, add wall sleep time to elapsed base
-                            eng.phase_started = Some(started - (delta - Duration::from_millis(250)));
-                        }
-                    }
-                }
-            }
-            eng.last_wall = now_wall;
+            Self::compensate_wall_jump(&mut eng, SystemTime::now());
 
             if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
                 let elapsed = eng
@@ -461,6 +442,28 @@ impl EngineHandle {
         }
     }
 
+    /// Detect OS sleep / clock skew via wall clock.
+    fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime) {
+        if let Ok(delta) = now_wall.duration_since(eng.last_wall) {
+            if delta > Duration::from_secs(3) {
+                // Slept: advance deadline relative to Instant is automatic;
+                // Instant does not advance during sleep on most platforms.
+                // Compensate countdown by subtracting wall delta from remaining.
+                if let Some(deadline) = eng.phase_deadline {
+                    let slept = delta - Duration::from_millis(250);
+                    eng.phase_deadline = Some(deadline.checked_sub(slept).unwrap_or(Instant::now()));
+                }
+                if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
+                    if let Some(started) = eng.phase_started {
+                        // For count-up, add wall sleep time to elapsed base
+                        eng.phase_started = Some(started - (delta - Duration::from_millis(250)));
+                    }
+                }
+            }
+        }
+        eng.last_wall = now_wall;
+    }
+
     fn enter_focus(eng: &mut Engine) {
         let tech = eng.technique.clone();
         let Some(tech) = tech else { return };
@@ -508,9 +511,7 @@ impl EngineHandle {
 
         match phase {
             Phase::Focus => {
-                let focus_done = if eng.snapshot.is_flow {
-                    eng.snapshot.elapsed_secs
-                } else if skipped {
+                let focus_done = if eng.snapshot.is_flow || skipped {
                     eng.snapshot.elapsed_secs
                 } else {
                     tech.focus_secs.max(eng.snapshot.elapsed_secs)
@@ -624,5 +625,230 @@ impl EngineHandle {
             "tray.tooltipRunning",
             &[("phase", &phase), ("time", &time)],
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::TechniqueKind;
+
+    fn technique(mode: &str) -> Technique {
+        Technique {
+            id: "t".into(),
+            name: "Test".into(),
+            kind: TechniqueKind::Custom,
+            focus_secs: 25 * 60,
+            short_break_secs: 5 * 60,
+            long_break_secs: 15 * 60,
+            cycles_before_long: 4,
+            flow_ratio: None,
+            accent: None,
+            mode: mode.into(),
+            created_at: String::new(),
+            updated_at: String::new(),
+        }
+    }
+
+    /// Engine as `start()` leaves it, without the database and events.
+    fn started(tech: Technique) -> Engine {
+        let mut eng = Engine::default();
+        eng.snapshot.running = true;
+        eng.snapshot.mode = tech.mode.clone();
+        eng.snapshot.is_flow = tech.mode == "flowtime";
+        eng.technique = Some(tech);
+        EngineHandle::enter_focus(&mut eng);
+        eng
+    }
+
+    #[test]
+    fn classic_focus_is_a_countdown() {
+        let eng = started(technique("classic"));
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(!eng.snapshot.is_flow);
+        assert_eq!(eng.snapshot.duration_secs, 25 * 60);
+        assert_eq!(eng.snapshot.remaining_secs, 25 * 60);
+        assert!(eng.phase_deadline.is_some());
+    }
+
+    #[test]
+    fn finished_focus_credits_full_block_and_enters_short_break() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert_eq!(eng.snapshot.duration_secs, 5 * 60);
+        assert_eq!(eng.snapshot.cycle, 1);
+        assert_eq!(eng.focus_secs_completed, 25 * 60);
+    }
+
+    #[test]
+    fn skipped_focus_credits_only_elapsed() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.elapsed_secs = 600;
+        EngineHandle::complete_phase(&mut eng, true);
+        assert_eq!(eng.focus_secs_completed, 600);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+    }
+
+    #[test]
+    fn break_returns_to_focus() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert_eq!(eng.snapshot.remaining_secs, 25 * 60);
+    }
+
+    #[test]
+    fn long_break_every_n_cycles() {
+        let mut eng = started(technique("classic"));
+        let mut breaks = Vec::new();
+        for _ in 0..8 {
+            EngineHandle::complete_phase(&mut eng, false); // focus -> break
+            breaks.push(eng.snapshot.phase);
+            EngineHandle::complete_phase(&mut eng, false); // break -> focus
+        }
+        use Phase::{LongBreak as L, ShortBreak as S};
+        assert_eq!(breaks, vec![S, S, S, L, S, S, S, L]);
+        assert_eq!(eng.snapshot.cycle, 8);
+        assert_eq!(eng.focus_secs_completed, 8 * 25 * 60);
+    }
+
+    #[test]
+    fn one_cycle_before_long_means_every_break_is_long() {
+        let mut tech = technique("classic");
+        tech.cycles_before_long = 1;
+        let mut eng = started(tech);
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::LongBreak);
+        assert_eq!(eng.snapshot.duration_secs, 15 * 60);
+    }
+
+    #[test]
+    fn flowtime_focus_counts_up() {
+        let eng = started(technique("flowtime"));
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(eng.snapshot.is_flow);
+        assert_eq!(eng.snapshot.duration_secs, 0);
+        assert!(eng.phase_deadline.is_none());
+        assert!(eng.phase_started.is_some());
+    }
+
+    #[test]
+    fn flowtime_break_follows_default_ratio() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 50 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert_eq!(eng.snapshot.duration_secs, 10 * 60);
+        assert_eq!(eng.focus_secs_completed, 50 * 60);
+        assert!(!eng.snapshot.is_flow);
+    }
+
+    #[test]
+    fn flowtime_ratio_is_clamped() {
+        let mut tech = technique("flowtime");
+        tech.flow_ratio = Some(0.9);
+        let mut eng = started(tech);
+        eng.snapshot.elapsed_secs = 60 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.duration_secs, 20 * 60);
+    }
+
+    #[test]
+    fn flowtime_break_is_at_least_a_minute() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 30;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.duration_secs, 60);
+    }
+
+    #[test]
+    fn flowtime_break_returns_to_count_up_focus() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 25 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(eng.snapshot.is_flow);
+    }
+
+    #[test]
+    fn hybrid_switched_focus_takes_a_flow_break_then_resets() {
+        let mut eng = started(technique("hybrid"));
+        assert!(!eng.snapshot.is_flow);
+        eng.snapshot.hybrid_switched = true;
+        eng.snapshot.is_flow = true;
+        eng.snapshot.elapsed_secs = 40 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert_eq!(eng.snapshot.duration_secs, 8 * 60);
+        assert!(!eng.snapshot.hybrid_switched);
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(!eng.snapshot.is_flow, "next hybrid focus starts as a countdown");
+    }
+
+    #[test]
+    fn completing_without_technique_goes_idle() {
+        let mut eng = Engine::default();
+        eng.snapshot.running = true;
+        eng.snapshot.phase = Phase::Focus;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::Idle);
+        assert!(!eng.snapshot.running);
+    }
+
+    #[test]
+    fn small_wall_gap_is_ignored() {
+        let mut eng = started(technique("classic"));
+        let deadline = eng.phase_deadline;
+        let now = eng.last_wall + Duration::from_secs(2);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        assert_eq!(eng.phase_deadline, deadline);
+        assert_eq!(eng.last_wall, now);
+    }
+
+    #[test]
+    fn countdown_sleep_pulls_deadline_forward() {
+        let mut eng = started(technique("classic"));
+        let deadline = eng.phase_deadline.unwrap();
+        let now = eng.last_wall + Duration::from_secs(600);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let moved = deadline - eng.phase_deadline.unwrap();
+        assert_eq!(moved, Duration::from_secs(600) - Duration::from_millis(250));
+    }
+
+    /// Current behavior: sleep during Flowtime focus is counted as focus.
+    /// The review flagged this; update the test when that changes.
+    #[test]
+    fn flowtime_sleep_currently_adds_to_elapsed() {
+        let mut eng = started(technique("flowtime"));
+        let started_at = eng.phase_started.unwrap();
+        let now = eng.last_wall + Duration::from_secs(600);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let moved = started_at - eng.phase_started.unwrap();
+        assert_eq!(moved, Duration::from_secs(600) - Duration::from_millis(250));
+    }
+
+    #[test]
+    fn tooltip_formats_each_state() {
+        let mut snap = TimerSnapshot::default();
+        assert_eq!(EngineHandle::format_tooltip(&snap, "en"), "Tempura · Ready");
+
+        snap.running = true;
+        snap.phase = Phase::Focus;
+        snap.remaining_secs = 24 * 60 + 5;
+        let running = EngineHandle::format_tooltip(&snap, "en");
+        assert!(running.ends_with("· 24:05"), "{running}");
+
+        snap.is_flow = true;
+        snap.elapsed_secs = 61;
+        let flow = EngineHandle::format_tooltip(&snap, "en");
+        assert!(flow.ends_with("· 01:01"), "{flow}");
+
+        snap.paused = true;
+        let paused = EngineHandle::format_tooltip(&snap, "en");
+        assert!(paused.ends_with("· Paused"), "{paused}");
     }
 }

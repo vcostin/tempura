@@ -138,7 +138,7 @@ fn clamp_flow_ratio(ratio: f64) -> Result<f64, String> {
     if !ratio.is_finite() {
         return Err("flow ratio must be a finite number".into());
     }
-    if ratio < FLOW_RATIO_MIN || ratio > FLOW_RATIO_MAX {
+    if !(FLOW_RATIO_MIN..=FLOW_RATIO_MAX).contains(&ratio) {
         return Err("flow ratio must be between 1/9 and 1/3".into());
     }
     Ok(ratio)
@@ -392,15 +392,19 @@ mod tests {
 
     #[test]
     fn settings_rejects_unknown_theme() {
-        let mut s = AppSettings::default();
-        s.theme = "not-a-theme".into();
+        let s = AppSettings {
+            theme: "not-a-theme".into(),
+            ..Default::default()
+        };
         assert!(s.validated().is_err());
     }
 
     #[test]
     fn settings_truncates_working_on() {
-        let mut s = AppSettings::default();
-        s.working_on = "x".repeat(500);
+        let s = AppSettings {
+            working_on: "x".repeat(500),
+            ..Default::default()
+        };
         let v = s.validated().unwrap();
         assert_eq!(v.working_on.chars().count(), 200);
     }
@@ -412,16 +416,20 @@ mod tests {
 
     #[test]
     fn settings_hidden_ids_are_deduped_and_keep_default_visible() {
-        let mut s = AppSettings::default();
-        s.hidden_technique_ids = vec!["deep".into(), " deep ".into(), "classic".into()];
+        let s = AppSettings {
+            hidden_technique_ids: vec!["deep".into(), " deep ".into(), "classic".into()],
+            ..Default::default()
+        };
         let v = s.validated().unwrap();
         assert_eq!(v.hidden_technique_ids, vec!["deep".to_string()]);
     }
 
     #[test]
     fn settings_hidden_ids_reject_bad_id() {
-        let mut s = AppSettings::default();
-        s.hidden_technique_ids = vec!["a,b".into()];
+        let s = AppSettings {
+            hidden_technique_ids: vec!["a,b".into()],
+            ..Default::default()
+        };
         assert!(s.validated().is_err());
     }
 
