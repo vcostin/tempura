@@ -39,7 +39,12 @@
     "cycles_one": "מחזור",
     "cycles_two": "מחזורים",
     "cycles_other": "מחזורים",
-    "dayStreak": "ימים ברצף"
+    "dayStreak": "ימים ברצף",
+    "autoContinue": "המשך אוטומטי",
+    "autoContinueHint": "מתחיל אוטומטית את ההפסקה או המיקוד הבאים. כבו כדי להתחיל כל שלב בעצמכם.",
+    "startFocus": "התחלת מיקוד",
+    "startShortBreak": "התחלת הפסקה קצרה",
+    "startLongBreak": "התחלת הפסקה ארוכה"
   },
   "picker": {
     "aria": "טכניקת מיקוד",
@@ -222,7 +227,13 @@
     "quit": "יציאה",
     "tooltipReady": "Tempura · מוכן",
     "tooltipPaused": "Tempura · {{phase}} · מושהה",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "המשך אוטומטי",
+    "startFocus": "התחלת מיקוד",
+    "startShortBreak": "התחלת הפסקה קצרה",
+    "startLongBreak": "התחלת הפסקה ארוכה",
+    "statusWaiting": "סטטוס · {{phase}} · ממתין להתחלה",
+    "tooltipWaiting": "Tempura · {{phase}} · ממתין להתחלה"
   },
   "notifications": {
     "focusComplete": "המיקוד הסתיים",
@@ -235,7 +246,10 @@
     "earnedLongBreak": "הרווחתם הפסקה ארוכה יותר.",
     "sessionFinished": "הסשן הסתיים.",
     "halfwayTitle": "באמצע הדרך",
-    "halfwayBody": "אתם בנקודת האמצע."
+    "halfwayBody": "אתם בנקודת האמצע.",
+    "focusReady": "המיקוד מוכן. התחילו כשתרצו.",
+    "shortBreakReady": "ההפסקה הקצרה מוכנה. התחילו כשתרצו.",
+    "longBreakReady": "ההפסקה הארוכה מוכנה. התחילו כשתרצו."
   },
   "site": {
     "title": "Tempura — תזמון שמתפצפץ.",
@@ -300,6 +314,9 @@
     "long_break": "הפסקה ארוכה התחילה.",
     "paused": "הטיימר הושהה.",
     "resumed": "הטיימר חודש.",
-    "stopped": "הטיימר נעצר."
+    "stopped": "הטיימר נעצר.",
+    "ready_focus": "המיקוד מוכן להתחלה.",
+    "ready_short_break": "ההפסקה הקצרה מוכנה להתחלה.",
+    "ready_long_break": "ההפסקה הארוכה מוכנה להתחלה."
   }
 }

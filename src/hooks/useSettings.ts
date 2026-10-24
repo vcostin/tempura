@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import { i18n, resolveLocale } from "../lib/i18n";
 import {
@@ -21,6 +22,7 @@ const defaultSettings: AppSettings = {
   locale: "",
   checkUpdatesOnLaunch: true,
   hiddenTechniqueIds: [],
+  autoContinue: true,
 };
 
 async function systemLocale(): Promise<string> {
@@ -42,9 +44,13 @@ async function applyLocale(code: string) {
 
 export function useSettings() {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
-  // Latest settings for callbacks that outlive a render, such as a toast's Undo.
+  // Latest settings for callbacks that outlive a render (a toast's Undo, a debounced
+  // save). Only `commit` writes it, always together with the state.
   const latest = useRef(settings);
-  latest.current = settings;
+  const commit = useCallback((next: AppSettings) => {
+    latest.current = next;
+    setSettings(next);
+  }, []);
   const [autostart, setAutostartState] = useState(false);
   const [autostartAvailable, setAutostartAvailable] = useState(false);
   const [info, setInfo] = useState<AppInfo | null>(null);
@@ -59,7 +65,8 @@ export function useSettings() {
       }
       const s = await api.getSettings();
       s.hiddenTechniqueIds ??= [];
-      setSettings(s);
+      s.autoContinue ??= true;
+      commit(s);
       document.documentElement.setAttribute("data-theme", s.theme);
       await applyLocale(s.locale);
       setInfo(await api.getAppInfo());
@@ -74,22 +81,41 @@ export function useSettings() {
       }
     }
     void load();
-  }, [desktop]);
+  }, [desktop, commit]);
+
+  // The tray can change settings too (auto-continue); keep the window in step.
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    void listen<AppSettings>("settings-updated", (e) => {
+      commit({ ...latest.current, autoContinue: e.payload.autoContinue });
+    }).then((u) => {
+      if (cancelled) u();
+      else unlisten = u;
+    });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, [commit]);
 
   const save = useCallback(async (next: AppSettings) => {
-    setSettings(next);
+    commit(next);
     document.documentElement.setAttribute("data-theme", next.theme);
     await applyLocale(next.locale);
     if (isTauri()) {
       await api.updateSettings(next);
     }
-  }, []);
+  }, [commit]);
 
+  // Merge into the latest settings, not a render's copy: a debounced or tray-driven
+  // change in between must not be overwritten.
   const patch = useCallback(
     async (partial: Partial<AppSettings>) => {
-      await save({ ...settings, ...partial });
+      await save({ ...latest.current, ...partial });
     },
-    [save, settings],
+    [save],
   );
 
   /** Show or hide a technique on the timer, against the latest settings. */
@@ -97,9 +123,7 @@ export function useSettings() {
     async (id: string, hidden: boolean) => {
       const current = latest.current;
       const others = current.hiddenTechniqueIds.filter((h) => h !== id);
-      const next = { ...current, hiddenTechniqueIds: hidden ? [...others, id] : others };
-      latest.current = next;
-      await save(next);
+      await save({ ...current, hiddenTechniqueIds: hidden ? [...others, id] : others });
     },
     [save],
   );

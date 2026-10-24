@@ -18,6 +18,7 @@ const idleSnap: TimerSnapshot = {
   isFlow: false,
   hybridSwitched: false,
   workingOn: "",
+  awaitingStart: false,
 };
 
 export function useSession() {

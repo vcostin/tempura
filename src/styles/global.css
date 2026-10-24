@@ -1974,3 +1974,64 @@ button {
 .library-delete {
   margin-inline-start: auto;
 }
+
+/* Auto-continue switch under the timer controls */
+.auto-continue {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  align-self: center;
+  gap: 0.5rem;
+  min-height: 32px;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.toggle--small {
+  width: 36px;
+  height: 22px;
+}
+
+.toggle--small::after {
+  top: 3px;
+  width: 16px;
+  height: 16px;
+}
+
+.toggle--small[aria-checked="true"]::after {
+  transform: translateX(14px);
+}
+
+[dir="rtl"] .toggle--small[aria-checked="true"]::after {
+  transform: translateX(-14px);
+}
+
+/* Shown on hover and on keyboard focus; always read via aria-describedby. */
+.hint-tooltip {
+  position: absolute;
+  bottom: calc(100% + 0.4rem);
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 0.45rem 0.65rem;
+  border-radius: 8px;
+  background: var(--surface-solid);
+  color: var(--ink);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  font-size: 0.75rem;
+  line-height: 1.35;
+  text-align: center;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  z-index: 5;
+}
+
+.auto-continue:hover .hint-tooltip,
+.auto-continue:has(:focus-visible) .hint-tooltip {
+  visibility: visible;
+  opacity: 1;
+}

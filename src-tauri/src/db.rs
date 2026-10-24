@@ -282,6 +282,7 @@ impl Database {
                 defaults.check_updates_on_launch.to_string(),
             ),
             ("hidden_technique_ids", String::new()),
+            ("auto_continue", defaults.auto_continue.to_string()),
         ];
         for (key, value) in pairs {
             self.conn.execute(
@@ -358,6 +359,11 @@ impl Database {
                         .collect()
                 })
                 .unwrap_or(defaults.hidden_technique_ids),
+            auto_continue: self
+                .get_setting("auto_continue")?
+                .as_deref()
+                .map(|v| v == "true")
+                .unwrap_or(defaults.auto_continue),
         })
     }
 
@@ -381,6 +387,7 @@ impl Database {
             "hidden_technique_ids",
             &settings.hidden_technique_ids.join(","),
         )?;
+        self.set_setting("auto_continue", &settings.auto_continue.to_string())?;
         Ok(())
     }
 

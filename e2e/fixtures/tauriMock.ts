@@ -4,6 +4,7 @@ import type { Page } from "@playwright/test";
  * A tiny in-page stand-in for the Rust backend so flows that save techniques
  * can run in the Vite shell. It answers the commands the UI calls, keeps
  * techniques in memory, and emits `techniques-updated` like `commands.rs`.
+ * `window.__tempuraMock` lets a test push timer states and backend events.
  */
 export async function installTauriMock(page: Page) {
   await page.addInitScript(() => {
@@ -51,8 +52,9 @@ export async function installTauriMock(page: Page) {
       locale: "en",
       checkUpdatesOnLaunch: false,
       hiddenTechniqueIds: [] as string[],
+      autoContinue: true,
     };
-    const snapshot = {
+    let snapshot = {
       phase: "idle",
       remainingSecs: 0,
       elapsedSecs: 0,
@@ -66,6 +68,7 @@ export async function installTauriMock(page: Page) {
       isFlow: false,
       hybridSwitched: false,
       workingOn: "",
+      awaitingStart: false,
     };
     let nextId = 1;
     let nextCallback = 1;
@@ -81,6 +84,10 @@ export async function installTauriMock(page: Page) {
     type Args = Record<string, any>;
     const commands: Record<string, (args: Args) => unknown> = {
       get_timer_state: () => snapshot,
+      timer_resume: () => {
+        snapshot = { ...snapshot, paused: false, awaitingStart: false };
+        return snapshot;
+      },
       list_techniques: () => techniques.map((t) => ({ ...t })),
       get_settings: () => settings,
       update_settings: (a) => {
@@ -134,6 +141,17 @@ export async function installTauriMock(page: Page) {
       "plugin:autostart|is_enabled": () => false,
     };
 
+    // Test hooks: push a timer state or a backend event, and see which commands ran.
+    const calls: string[] = [];
+    (window as any).__tempuraMock = {
+      calls,
+      emit,
+      setSnapshot(partial: Record<string, unknown>) {
+        snapshot = { ...snapshot, ...partial } as typeof snapshot;
+        emit("timer-tick", snapshot);
+      },
+    };
+
     (window as any).__TAURI_EVENT_PLUGIN_INTERNALS__ = { unregisterListener: () => {} };
     (window as any).__TAURI_INTERNALS__ = {
       metadata: { currentWindow: { label: "main" }, currentWebview: { label: "main" } },
@@ -146,6 +164,7 @@ export async function installTauriMock(page: Page) {
         callbacks.delete(id);
       },
       async invoke(cmd: string, args: Args = {}) {
+        calls.push(cmd);
         const handler = commands[cmd];
         return handler ? structuredClone(handler(args)) : null;
       },

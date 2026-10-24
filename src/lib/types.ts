@@ -39,6 +39,8 @@ export interface AppSettings {
   checkUpdatesOnLaunch: boolean;
   /** Techniques left off the timer's picker; empty means all show. */
   hiddenTechniqueIds: string[];
+  /** Start the next break or focus on its own; off waits for the user. */
+  autoContinue: boolean;
 }
 
 export interface TimerSnapshot {
@@ -55,6 +57,8 @@ export interface TimerSnapshot {
   isFlow: boolean;
   hybridSwitched: boolean;
   workingOn: string;
+  /** The next phase is set up but waits for the user (auto-continue off). */
+  awaitingStart: boolean;
 }
 
 export interface DayStats {

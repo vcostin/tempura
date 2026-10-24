@@ -56,6 +56,33 @@ pub struct PhaseEvent {
     pub reason: String,
 }
 
+/// What `tick` does when the running phase reaches zero.
+#[derive(Debug, PartialEq)]
+enum Expiry {
+    HybridBell,
+    Advanced { previous: Phase, next: Phase, hold: bool },
+}
+
+/// Notification title and body keys for a phase that ran out.
+fn expiry_message_keys(previous: Phase, next: Phase, hold: bool) -> (&'static str, &'static str) {
+    let title = match previous {
+        Phase::Focus => "notifications.focusComplete",
+        Phase::ShortBreak => "notifications.breakComplete",
+        Phase::LongBreak => "notifications.longBreakComplete",
+        Phase::Idle => "notifications.appName",
+    };
+    let body = match next {
+        Phase::Focus if hold => "notifications.focusReady",
+        Phase::ShortBreak if hold => "notifications.shortBreakReady",
+        Phase::LongBreak if hold => "notifications.longBreakReady",
+        Phase::Focus => "notifications.timeToFocus",
+        Phase::ShortBreak => "notifications.enjoyShortBreak",
+        Phase::LongBreak => "notifications.earnedLongBreak",
+        Phase::Idle => "notifications.sessionFinished",
+    };
+    (title, body)
+}
+
 impl EngineHandle {
     pub fn new() -> Self {
         Self {
@@ -85,6 +112,10 @@ impl EngineHandle {
         let mut eng = self.inner.lock();
         eng.settings = settings.clone();
         eng.snapshot.working_on = settings.working_on;
+    }
+
+    pub fn auto_continue(&self) -> bool {
+        self.inner.lock().settings.auto_continue
     }
 
     pub fn locale(&self) -> String {
@@ -138,6 +169,7 @@ impl EngineHandle {
             is_flow: technique.mode == "flowtime",
             hybrid_switched: false,
             working_on: eng.settings.working_on.clone(),
+            awaiting_start: false,
         };
         eng.halfway_sent = false;
         eng.flow_break_secs = 0;
@@ -189,6 +221,7 @@ impl EngineHandle {
         }
         let paused = eng.paused_remaining.take().unwrap_or_default();
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.last_wall = SystemTime::now();
 
         if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
@@ -271,6 +304,7 @@ impl EngineHandle {
             eng.snapshot.duration_secs = 0;
             eng.snapshot.is_flow = false;
             eng.snapshot.hybrid_switched = false;
+            eng.snapshot.awaiting_start = false;
             eng.phase_deadline = None;
             eng.phase_started = None;
             eng.paused_remaining = None;
@@ -308,6 +342,7 @@ impl EngineHandle {
         eng.phase_deadline = None;
         eng.paused_remaining = None;
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.snapshot.duration_secs = 0;
         eng.snapshot.remaining_secs = 0;
         eng.snapshot.elapsed_secs = already;
@@ -360,53 +395,26 @@ impl EngineHandle {
                 }
 
                 if rem_secs <= 0 {
-                    let previous = eng.snapshot.phase;
-
-                    // Hybrid: at focus bell, emit event and wait briefly — auto-advance to break
-                    // unless UI calls continue_as_flow. Default: complete to break.
-                    if previous == Phase::Focus
-                        && eng.snapshot.mode == "hybrid"
-                        && !eng.snapshot.hybrid_switched
-                    {
-                        // Auto-complete to break (classic path). UI can call continue_as_flow
-                        // before this if user keeps working — but timer already hit zero.
-                        // Spec: "continuing past the focus bell switches to Flowtime"
-                        // So at bell we notify; if user doesn't skip/stop and instead continues,
-                        // they press a "Keep flowing" action. Until then, we pause at 0.
-                        eng.snapshot.remaining_secs = 0;
-                        eng.phase_deadline = None;
-                        eng.snapshot.paused = true;
-                        let loc = crate::i18n::resolve_locale(&eng.settings.locale);
-                        notifications.push((
-                            crate::i18n::t(&loc, "notifications.focusComplete"),
-                            crate::i18n::t(&loc, "notifications.hybridBody"),
-                        ));
-                        drop(eng);
-                        self.notify(app, &notifications);
-                        self.emit_tick(app);
-                        let _ = app.emit("hybrid-bell", ());
-                        self.update_tray(app);
-                        return;
-                    }
-
-                    Self::complete_phase(&mut eng, false);
-                    let next = eng.snapshot.phase;
-                    phase_change = Some((previous, next));
-
                     let loc = crate::i18n::resolve_locale(&eng.settings.locale);
-                    let title = match previous {
-                        Phase::Focus => crate::i18n::t(&loc, "notifications.focusComplete"),
-                        Phase::ShortBreak => crate::i18n::t(&loc, "notifications.breakComplete"),
-                        Phase::LongBreak => crate::i18n::t(&loc, "notifications.longBreakComplete"),
-                        Phase::Idle => crate::i18n::t(&loc, "notifications.appName"),
-                    };
-                    let body = match next {
-                        Phase::Focus => crate::i18n::t(&loc, "notifications.timeToFocus"),
-                        Phase::ShortBreak => crate::i18n::t(&loc, "notifications.enjoyShortBreak"),
-                        Phase::LongBreak => crate::i18n::t(&loc, "notifications.earnedLongBreak"),
-                        Phase::Idle => crate::i18n::t(&loc, "notifications.sessionFinished"),
-                    };
-                    notifications.push((title, body));
+                    match Self::expire_phase(&mut eng) {
+                        Expiry::HybridBell => {
+                            notifications.push((
+                                crate::i18n::t(&loc, "notifications.focusComplete"),
+                                crate::i18n::t(&loc, "notifications.hybridBody"),
+                            ));
+                            drop(eng);
+                            self.notify(app, &notifications);
+                            self.emit_tick(app);
+                            let _ = app.emit("hybrid-bell", ());
+                            self.update_tray(app);
+                            return;
+                        }
+                        Expiry::Advanced { previous, next, hold } => {
+                            phase_change = Some((previous, next));
+                            let (title, body) = expiry_message_keys(previous, next, hold);
+                            notifications.push((crate::i18n::t(&loc, title), crate::i18n::t(&loc, body)));
+                        }
+                    }
                 }
             }
         }
@@ -440,6 +448,43 @@ impl EngineHandle {
         if now_secs != prev {
             self.update_tray(app);
         }
+    }
+
+    /// The running phase hit zero: ring the Hybrid bell, or move to the next phase
+    /// (held at its start when auto-continue is off).
+    fn expire_phase(eng: &mut Engine) -> Expiry {
+        let previous = eng.snapshot.phase;
+        // Hybrid: at the focus bell, pause at zero. "Keep flowing" switches to
+        // Flowtime (continue_as_flow); "Take a break" skips to the break.
+        if previous == Phase::Focus && eng.snapshot.mode == "hybrid" && !eng.snapshot.hybrid_switched {
+            eng.snapshot.remaining_secs = 0;
+            eng.phase_deadline = None;
+            eng.snapshot.paused = true;
+            return Expiry::HybridBell;
+        }
+        Self::complete_phase(eng, false);
+        let hold = !eng.settings.auto_continue && eng.snapshot.running;
+        if hold {
+            Self::hold_at_start(eng);
+        }
+        Expiry::Advanced {
+            previous,
+            next: eng.snapshot.phase,
+            hold,
+        }
+    }
+
+    /// Auto-continue off: keep the phase that was just entered at its start,
+    /// paused, until the user starts it (resume).
+    fn hold_at_start(eng: &mut Engine) {
+        eng.paused_remaining = Some(if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
+            Duration::ZERO
+        } else {
+            Duration::from_secs(eng.snapshot.duration_secs.max(0) as u64)
+        });
+        eng.phase_deadline = None;
+        eng.snapshot.paused = true;
+        eng.snapshot.awaiting_start = true;
     }
 
     /// Detect OS sleep / clock skew via wall clock.
@@ -480,6 +525,7 @@ impl EngineHandle {
             eng.phase_started = Some(Instant::now());
             eng.phase_deadline = None;
             eng.snapshot.paused = false;
+            eng.snapshot.awaiting_start = false;
             return;
         }
 
@@ -494,6 +540,7 @@ impl EngineHandle {
         eng.snapshot.remaining_secs = secs;
         eng.snapshot.elapsed_secs = 0;
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.halfway_sent = false;
         eng.phase_started = Some(Instant::now());
         eng.phase_deadline = Some(Instant::now() + Duration::from_secs(secs.max(0) as u64));
@@ -604,6 +651,9 @@ impl EngineHandle {
             return crate::i18n::t(locale, "tray.tooltipReady");
         }
         let phase = crate::i18n::phase_label(locale, snap.phase.as_str());
+        if snap.awaiting_start {
+            return crate::i18n::t_vars(locale, "tray.tooltipWaiting", &[("phase", &phase)]);
+        }
         if snap.paused {
             return crate::i18n::t_vars(locale, "tray.tooltipPaused", &[("phase", &phase)]);
         }
@@ -800,6 +850,126 @@ mod tests {
     }
 
     #[test]
+    fn hold_keeps_next_break_at_its_start() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert!(eng.snapshot.paused && eng.snapshot.awaiting_start);
+        assert!(eng.phase_deadline.is_none());
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(5 * 60)));
+        assert_eq!(eng.snapshot.remaining_secs, 5 * 60);
+    }
+
+    #[test]
+    fn hold_keeps_flowtime_focus_at_zero() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 25 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        assert!(eng.snapshot.is_flow && eng.snapshot.awaiting_start);
+        assert_eq!(eng.paused_remaining, Some(Duration::ZERO));
+    }
+
+    #[test]
+    fn skipping_a_waiting_phase_starts_the_next_one() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        EngineHandle::complete_phase(&mut eng, true);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(!eng.snapshot.paused && !eng.snapshot.awaiting_start);
+        assert!(eng.phase_deadline.is_some());
+    }
+
+    #[test]
+    fn auto_continue_defaults_on() {
+        assert!(AppSettings::default().auto_continue);
+        assert!(EngineHandle::new().auto_continue());
+    }
+
+    #[test]
+    fn expiry_with_auto_continue_runs_the_break() {
+        let mut eng = started(technique("classic"));
+        let expiry = EngineHandle::expire_phase(&mut eng);
+        assert_eq!(
+            expiry,
+            Expiry::Advanced { previous: Phase::Focus, next: Phase::ShortBreak, hold: false }
+        );
+        assert!(!eng.snapshot.paused && !eng.snapshot.awaiting_start);
+        assert!(eng.phase_deadline.is_some());
+    }
+
+    #[test]
+    fn expiry_without_auto_continue_holds_the_break() {
+        let mut eng = started(technique("classic"));
+        eng.settings.auto_continue = false;
+        let expiry = EngineHandle::expire_phase(&mut eng);
+        assert_eq!(
+            expiry,
+            Expiry::Advanced { previous: Phase::Focus, next: Phase::ShortBreak, hold: true }
+        );
+        assert!(eng.snapshot.paused && eng.snapshot.awaiting_start);
+        assert_eq!(eng.snapshot.remaining_secs, 5 * 60);
+    }
+
+    #[test]
+    fn expiry_without_auto_continue_holds_focus_after_a_break() {
+        let mut eng = started(technique("classic"));
+        eng.settings.auto_continue = false;
+        EngineHandle::expire_phase(&mut eng);
+        // What resume() does to a held phase, minus the clock.
+        eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
+        let expiry = EngineHandle::expire_phase(&mut eng);
+        assert_eq!(
+            expiry,
+            Expiry::Advanced { previous: Phase::ShortBreak, next: Phase::Focus, hold: true }
+        );
+        assert_eq!(eng.snapshot.remaining_secs, 25 * 60);
+    }
+
+    #[test]
+    fn hybrid_bell_rings_whatever_auto_continue_says() {
+        for auto in [true, false] {
+            let mut eng = started(technique("hybrid"));
+            eng.settings.auto_continue = auto;
+            assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
+            assert_eq!(eng.snapshot.phase, Phase::Focus);
+            assert!(eng.snapshot.paused && !eng.snapshot.awaiting_start);
+            assert_eq!(eng.snapshot.remaining_secs, 0);
+        }
+    }
+
+    #[test]
+    fn expiry_messages_say_ready_only_when_held() {
+        use Phase::*;
+        assert_eq!(
+            expiry_message_keys(Focus, ShortBreak, false),
+            ("notifications.focusComplete", "notifications.enjoyShortBreak")
+        );
+        assert_eq!(
+            expiry_message_keys(Focus, ShortBreak, true),
+            ("notifications.focusComplete", "notifications.shortBreakReady")
+        );
+        assert_eq!(
+            expiry_message_keys(Focus, LongBreak, true),
+            ("notifications.focusComplete", "notifications.longBreakReady")
+        );
+        assert_eq!(
+            expiry_message_keys(LongBreak, Focus, true),
+            ("notifications.longBreakComplete", "notifications.focusReady")
+        );
+        // Every key exists in the English catalog.
+        for (prev, next, hold) in [(Focus, ShortBreak, true), (ShortBreak, Focus, false)] {
+            let (title, body) = expiry_message_keys(prev, next, hold);
+            assert_ne!(crate::i18n::t("en", title), title);
+            assert_ne!(crate::i18n::t("en", body), body);
+        }
+    }
+
+    #[test]
     fn small_wall_gap_is_ignored() {
         let mut eng = started(technique("classic"));
         let deadline = eng.phase_deadline;
@@ -850,5 +1020,9 @@ mod tests {
         snap.paused = true;
         let paused = EngineHandle::format_tooltip(&snap, "en");
         assert!(paused.ends_with("· Paused"), "{paused}");
+
+        snap.awaiting_start = true;
+        let waiting = EngineHandle::format_tooltip(&snap, "en");
+        assert!(waiting.ends_with("· Ready"), "{waiting}");
     }
 }

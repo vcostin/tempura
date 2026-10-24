@@ -38,7 +38,12 @@
     "focusedToday": "今日のフォーカス",
     "cycles_one": "サイクル",
     "cycles_other": "サイクル",
-    "dayStreak": "日連続"
+    "dayStreak": "日連続",
+    "autoContinue": "自動で続ける",
+    "autoContinueHint": "次の休憩やフォーカスを自動で開始します。オフにすると各フェーズを自分で開始します。",
+    "startFocus": "フォーカスを開始",
+    "startShortBreak": "短い休憩を開始",
+    "startLongBreak": "長い休憩を開始"
   },
   "picker": {
     "aria": "フォーカスタクニック",
@@ -221,7 +226,13 @@
     "quit": "終了",
     "tooltipReady": "Tempura · 準備完了",
     "tooltipPaused": "Tempura · {{phase}} · 一時停止",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "自動で続ける",
+    "startFocus": "フォーカスを開始",
+    "startShortBreak": "短い休憩を開始",
+    "startLongBreak": "長い休憩を開始",
+    "statusWaiting": "状態 · {{phase}} · 開始待ち",
+    "tooltipWaiting": "Tempura · {{phase}} · 準備完了"
   },
   "notifications": {
     "focusComplete": "フォーカス完了",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "長い休憩を勝ち取りました。",
     "sessionFinished": "セッション終了。",
     "halfwayTitle": "折り返し",
-    "halfwayBody": "中間です。"
+    "halfwayBody": "中間です。",
+    "focusReady": "フォーカスの準備ができました。好きなときに開始してください。",
+    "shortBreakReady": "短い休憩の準備ができました。好きなときに開始してください。",
+    "longBreakReady": "長い休憩の準備ができました。好きなときに開始してください。"
   },
   "site": {
     "title": "Tempura — カリッと揚がるタイミング。",
@@ -299,6 +313,9 @@
     "long_break": "長い休憩を開始しました。",
     "paused": "タイマーを一時停止しました。",
     "resumed": "タイマーを再開しました。",
-    "stopped": "タイマーを停止しました。"
+    "stopped": "タイマーを停止しました。",
+    "ready_focus": "フォーカスを開始できます。",
+    "ready_short_break": "短い休憩を開始できます。",
+    "ready_long_break": "長い休憩を開始できます。"
   }
 }

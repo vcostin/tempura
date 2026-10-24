@@ -16,6 +16,7 @@ const idle: TimerSnapshot = {
   isFlow: false,
   hybridSwitched: false,
   workingOn: "",
+  awaitingStart: false,
 };
 
 function snap(partial: Partial<TimerSnapshot>): TimerSnapshot {
@@ -63,5 +64,20 @@ Deno.test("sessionAnnounceKind: boot / start / pause / resume / skip / stop / ti
     ) !== null
   ) {
     throw new Error("tick: expected null");
+  }
+});
+
+Deno.test("sessionAnnounceKind: auto-continue off announces ready, then the phase", () => {
+  const focus = snap({ phase: "focus", running: true });
+  const waiting = snap({ phase: "short_break", running: true, paused: true, awaitingStart: true });
+  if (sessionAnnounceKind(focus, waiting) !== "ready_short_break") {
+    throw new Error("hold: expected ready_short_break");
+  }
+  if (sessionAnnounceKind(waiting, waiting) !== null) {
+    throw new Error("still waiting: expected null");
+  }
+  const started = snap({ phase: "short_break", running: true });
+  if (sessionAnnounceKind(waiting, started) !== "short_break") {
+    throw new Error("start from hold: expected short_break");
   }
 });

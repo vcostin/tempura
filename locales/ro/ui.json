@@ -39,7 +39,12 @@
     "cycles_one": "ciclu",
     "cycles_few": "cicluri",
     "cycles_other": "de cicluri",
-    "dayStreak": "zile la rând"
+    "dayStreak": "zile la rând",
+    "autoContinue": "Continuare automată",
+    "autoContinueHint": "Pornește automat următoarea pauză sau sesiune de focus. Dezactivează ca să pornești manual fiecare fază.",
+    "startFocus": "Pornește focusul",
+    "startShortBreak": "Pornește pauza scurtă",
+    "startLongBreak": "Pornește pauza lungă"
   },
   "picker": {
     "aria": "Tehnică de focus",
@@ -222,7 +227,13 @@
     "quit": "Ieșire",
     "tooltipReady": "Tempura · Pregătit",
     "tooltipPaused": "Tempura · {{phase}} · Pauză",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Continuare automată",
+    "startFocus": "Pornește focusul",
+    "startShortBreak": "Pornește pauza scurtă",
+    "startLongBreak": "Pornește pauza lungă",
+    "statusWaiting": "Stare · {{phase}} · Gata de pornire",
+    "tooltipWaiting": "Tempura · {{phase}} · Gata"
   },
   "notifications": {
     "focusComplete": "Focus terminat",
@@ -235,7 +246,10 @@
     "earnedLongBreak": "Ai meritat o pauză mai lungă.",
     "sessionFinished": "Sesiune încheiată.",
     "halfwayTitle": "La jumătate",
-    "halfwayBody": "Ești la mijloc."
+    "halfwayBody": "Ești la mijloc.",
+    "focusReady": "Focusul e pregătit. Pornește-l când ești gata.",
+    "shortBreakReady": "Pauza scurtă e pregătită. Pornește-o când ești gata.",
+    "longBreakReady": "Pauza lungă e pregătită. Pornește-o când ești gata."
   },
   "site": {
     "title": "Tempura — Timing care trosnește.",
@@ -300,6 +314,9 @@
     "long_break": "Pauză lungă începută.",
     "paused": "Cronometru în pauză.",
     "resumed": "Cronometru reluat.",
-    "stopped": "Cronometru oprit."
+    "stopped": "Cronometru oprit.",
+    "ready_focus": "Focusul e gata de pornire.",
+    "ready_short_break": "Pauza scurtă e gata de pornire.",
+    "ready_long_break": "Pauza lungă e gata de pornire."
   }
 }

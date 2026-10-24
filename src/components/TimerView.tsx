@@ -1,6 +1,8 @@
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { formatClock, formatTechniqueRhythm, phaseLabel } from "../lib/api";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
+import { showsPaused, startPhaseKey } from "../lib/timerLabels";
 import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
@@ -25,6 +27,8 @@ interface Props {
   onReset: () => void;
   onStop: () => void;
   onContinueFlow: () => void;
+  autoContinue: boolean;
+  onAutoContinue: (enabled: boolean) => void;
   onNewTechnique: () => void;
   onShowHiddenTechniques: () => void;
   hideBlock: (id: string) => HideBlock;
@@ -41,6 +45,7 @@ interface Props {
 export function TimerView(props: Props) {
   const { t } = useTranslation();
   const { snapshot: s } = props;
+  const autoContinueId = useId();
   const displaySecs =
     s.isFlow && s.phase === "focus" ? s.elapsedSecs : s.running ? s.remainingSecs : 0;
   const showClock = s.running || s.phase !== "idle";
@@ -60,7 +65,7 @@ export function TimerView(props: Props) {
         })
       : s.techniqueName;
 
-  const phaseText = s.paused && s.running ? t("phase.paused") : phaseLabel(s.phase, t);
+  const phaseText = showsPaused(s) ? t("phase.paused") : phaseLabel(s.phase, t);
 
   return (
     <>
@@ -218,7 +223,7 @@ export function TimerView(props: Props) {
           <>
             {s.paused ? (
               <button type="button" className="btn btn-primary" onClick={props.onResume}>
-                {t("timer.resume")}
+                {s.awaitingStart ? t(startPhaseKey(s.phase)) : t("timer.resume")}
               </button>
             ) : (
               <button type="button" className="btn btn-primary" onClick={props.onPause}>
@@ -228,15 +233,33 @@ export function TimerView(props: Props) {
             <button type="button" className="btn btn-ghost" onClick={props.onSkip}>
               {t("timer.skip")}
             </button>
-            <button type="button" className="btn btn-ghost" onClick={props.onReset}>
-              {t("timer.reset")}
-            </button>
+            {!s.awaitingStart && (
+              <button type="button" className="btn btn-ghost" onClick={props.onReset}>
+                {t("timer.reset")}
+              </button>
+            )}
             <button type="button" className="btn btn-danger" onClick={props.onStop}>
               {t("timer.stop")}
             </button>
           </>
         )}
       </div>
+
+      <label className="auto-continue">
+        <button
+          type="button"
+          className="toggle toggle--small"
+          role="switch"
+          aria-checked={props.autoContinue}
+          aria-labelledby={`${autoContinueId}-label`}
+          aria-describedby={`${autoContinueId}-hint`}
+          onClick={() => props.onAutoContinue(!props.autoContinue)}
+        />
+        <span id={`${autoContinueId}-label`}>{t("timer.autoContinue")}</span>
+        <span id={`${autoContinueId}-hint`} role="tooltip" className="hint-tooltip">
+          {t("timer.autoContinueHint")}
+        </span>
+      </label>
 
       {props.stats && (
         <aside className="stats-strip" aria-label={t("timer.todayGlance")}>

@@ -38,7 +38,12 @@
     "focusedToday": "de focus aujourd’hui",
     "cycles_one": "cycle",
     "cycles_other": "cycles",
-    "dayStreak": "jours d’affilée"
+    "dayStreak": "jours d’affilée",
+    "autoContinue": "Enchaîner automatiquement",
+    "autoContinueHint": "Lance automatiquement la pause ou le focus suivant. Désactivez pour lancer chaque phase vous-même.",
+    "startFocus": "Lancer le focus",
+    "startShortBreak": "Lancer la pause courte",
+    "startLongBreak": "Lancer la pause longue"
   },
   "picker": {
     "aria": "Technique de focus",
@@ -221,7 +226,13 @@
     "quit": "Quitter",
     "tooltipReady": "Tempura · Prêt",
     "tooltipPaused": "Tempura · {{phase}} · En pause",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Enchaîner automatiquement",
+    "startFocus": "Lancer le focus",
+    "startShortBreak": "Lancer la pause courte",
+    "startLongBreak": "Lancer la pause longue",
+    "statusWaiting": "Statut · {{phase}} · En attente",
+    "tooltipWaiting": "Tempura · {{phase}} · En attente"
   },
   "notifications": {
     "focusComplete": "Focus terminé",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "Vous avez mérité une pause plus longue.",
     "sessionFinished": "Session terminée.",
     "halfwayTitle": "À mi-chemin",
-    "halfwayBody": "Vous êtes au milieu."
+    "halfwayBody": "Vous êtes au milieu.",
+    "focusReady": "Le focus est prêt. Lancez-le quand vous voulez.",
+    "shortBreakReady": "Votre pause courte est prête. Lancez-la quand vous voulez.",
+    "longBreakReady": "Votre pause longue est prête. Lancez-la quand vous voulez."
   },
   "site": {
     "title": "Tempura — Un timing qui croustille.",
@@ -299,6 +313,9 @@
     "long_break": "Pause longue démarrée.",
     "paused": "Minuteur en pause.",
     "resumed": "Minuteur repris.",
-    "stopped": "Minuteur arrêté."
+    "stopped": "Minuteur arrêté.",
+    "ready_focus": "Focus prêt à démarrer.",
+    "ready_short_break": "Pause courte prête à démarrer.",
+    "ready_long_break": "Pause longue prête à démarrer."
   }
 }

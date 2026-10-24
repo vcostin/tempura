@@ -7,7 +7,7 @@ use crate::models::{Phase, TimerSnapshot};
 use tauri::{
     image::Image,
     include_image,
-    menu::{Menu, MenuItem, PredefinedMenuItem},
+    menu::{CheckMenuItem, Menu, MenuItem, PredefinedMenuItem},
     tray::{MouseButton, TrayIconBuilder, TrayIconEvent},
     AppHandle, Emitter, Manager, WebviewWindow, Window,
 };
@@ -33,6 +33,7 @@ struct TrayMenuItems {
     status: MenuItem<tauri::Wry>,
     toggle: MenuItem<tauri::Wry>,
     skip: MenuItem<tauri::Wry>,
+    auto_continue: CheckMenuItem<tauri::Wry>,
     settings: MenuItem<tauri::Wry>,
     about: MenuItem<tauri::Wry>,
     quit: MenuItem<tauri::Wry>,
@@ -153,6 +154,14 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         false,
         None::<&str>,
     )?;
+    let auto_continue = CheckMenuItem::with_id(
+        app,
+        "auto_continue",
+        crate::i18n::t(&locale, "tray.autoContinue"),
+        true,
+        app.state::<EngineHandle>().auto_continue(),
+        None::<&str>,
+    )?;
     let status = MenuItem::with_id(
         app,
         "status",
@@ -192,6 +201,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
             &status,
             &toggle,
             &skip,
+            &auto_continue,
             &sep2,
             &settings,
             &about,
@@ -205,6 +215,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         status,
         toggle,
         skip,
+        auto_continue,
         settings,
         about,
         quit,
@@ -256,6 +267,7 @@ fn handle_menu(app: &AppHandle, id: &str) {
             let engine = app.state::<EngineHandle>();
             let _ = engine.skip(app);
         }
+        "auto_continue" => toggle_auto_continue(app),
         "settings" => {
             restore_main(app);
             let _ = app.emit("open-settings", ());
@@ -274,6 +286,27 @@ fn handle_menu(app: &AppHandle, id: &str) {
     }
 }
 
+/// Flip auto-continue from the tray and tell the window, which owns the toggle too.
+fn toggle_auto_continue(app: &AppHandle) {
+    let state = app.state::<crate::AppState>();
+    let engine = app.state::<EngineHandle>();
+    let saved = {
+        let db = state.db.lock();
+        db.get_settings().ok().and_then(|mut settings| {
+            settings.auto_continue = !settings.auto_continue;
+            db.update_settings(&settings).ok().map(|_| settings)
+        })
+    };
+    let Some(settings) = saved else {
+        // The native item already flipped its own check; put it back.
+        engine.update_tray(app);
+        return;
+    };
+    engine.load_settings(settings.clone());
+    engine.update_tray(app);
+    let _ = app.emit("settings-updated", &settings);
+}
+
 pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     let locale = app.state::<EngineHandle>().locale();
     let tooltip = EngineHandle::format_tooltip(snap, &locale);
@@ -287,6 +320,12 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
 
     let toggle_label = if !snap.running {
         crate::i18n::t(&locale, "tray.start")
+    } else if snap.awaiting_start {
+        match snap.phase {
+            Phase::ShortBreak => crate::i18n::t(&locale, "tray.startShortBreak"),
+            Phase::LongBreak => crate::i18n::t(&locale, "tray.startLongBreak"),
+            _ => crate::i18n::t(&locale, "tray.startFocus"),
+        }
     } else if snap.paused {
         crate::i18n::t(&locale, "tray.resume")
     } else {
@@ -297,6 +336,12 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
         .skip
         .set_enabled(snap.running && snap.phase != Phase::Idle);
     let _ = items.status.set_text(status_text(snap, &locale));
+    let _ = items
+        .auto_continue
+        .set_checked(app.state::<EngineHandle>().auto_continue());
+    let _ = items
+        .auto_continue
+        .set_text(crate::i18n::t(&locale, "tray.autoContinue"));
     let _ = items
         .visibility
         .set_text(visibility_label(&locale, WINDOW_SHOWN.load(Ordering::Relaxed)));
@@ -312,6 +357,9 @@ fn status_text(snap: &TimerSnapshot, locale: &str) -> String {
         return crate::i18n::t(locale, "tray.statusReady");
     }
     let phase = crate::i18n::phase_label(locale, snap.phase.as_str());
+    if snap.awaiting_start {
+        return crate::i18n::t_vars(locale, "tray.statusWaiting", &[("phase", &phase)]);
+    }
     let (m, s) = if snap.is_flow && snap.phase == Phase::Focus {
         (snap.elapsed_secs / 60, snap.elapsed_secs % 60)
     } else {
