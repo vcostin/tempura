@@ -2035,3 +2035,7 @@ button {
   visibility: visible;
   opacity: 1;
 }
+
+.away-banner {
+  margin-bottom: 0.25rem;
+}

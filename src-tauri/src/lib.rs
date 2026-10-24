@@ -45,6 +45,8 @@ pub fn run() {
                 commands::timer_reset,
                 commands::timer_stop,
                 commands::timer_continue_flow,
+                commands::timer_count_away,
+                commands::timer_dismiss_away,
                 commands::list_techniques,
                 commands::get_technique,
                 commands::create_technique,

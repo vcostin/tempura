@@ -43,7 +43,10 @@
     "autoContinueHint": "다음 휴식이나 집중을 자동으로 시작합니다. 끄면 각 단계를 직접 시작합니다.",
     "startFocus": "집중 시작",
     "startShortBreak": "짧은 휴식 시작",
-    "startLongBreak": "긴 휴식 시작"
+    "startLongBreak": "긴 휴식 시작",
+    "awayPaused": "자리를 비운 동안 일시정지했어요 ({{time}}).",
+    "countAway": "집중 시간으로 계산",
+    "dontCountAway": "계산하지 않기"
   },
   "picker": {
     "aria": "집중 기법",

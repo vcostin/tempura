@@ -54,7 +54,10 @@
     "autoContinueHint": "Start the next break or focus automatically. Turn off to start each phase yourself.",
     "startFocus": "Start focus",
     "startShortBreak": "Start short break",
-    "startLongBreak": "Start long break"
+    "startLongBreak": "Start long break",
+    "awayPaused": "Paused while you were away ({{time}}).",
+    "countAway": "Count it as focus",
+    "dontCountAway": "Don't count it"
   },
   "picker": {
     "aria": "Focus technique",

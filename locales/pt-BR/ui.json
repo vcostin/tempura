@@ -43,7 +43,10 @@
     "autoContinueHint": "Inicia a próxima pausa ou foco automaticamente. Desative para iniciar cada fase manualmente.",
     "startFocus": "Iniciar foco",
     "startShortBreak": "Iniciar pausa curta",
-    "startLongBreak": "Iniciar pausa longa"
+    "startLongBreak": "Iniciar pausa longa",
+    "awayPaused": "Pausado enquanto você estava fora ({{time}}).",
+    "countAway": "Contar como foco",
+    "dontCountAway": "Não contar"
   },
   "picker": {
     "aria": "Técnica de foco",

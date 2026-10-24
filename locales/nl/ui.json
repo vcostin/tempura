@@ -43,7 +43,10 @@
     "autoContinueHint": "Start de volgende pauze of focus automatisch. Zet uit om elke fase zelf te starten.",
     "startFocus": "Focus starten",
     "startShortBreak": "Korte pauze starten",
-    "startLongBreak": "Lange pauze starten"
+    "startLongBreak": "Lange pauze starten",
+    "awayPaused": "Gepauzeerd terwijl je weg was ({{time}}).",
+    "countAway": "Als focus tellen",
+    "dontCountAway": "Niet tellen"
   },
   "picker": {
     "aria": "Focustechniek",

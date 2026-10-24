@@ -22,6 +22,8 @@ export const api = {
   reset: () => invoke<TimerSnapshot>("timer_reset"),
   stop: () => invoke<TimerSnapshot>("timer_stop"),
   continueFlow: () => invoke<TimerSnapshot>("timer_continue_flow"),
+  countAway: () => invoke<TimerSnapshot>("timer_count_away"),
+  dismissAway: () => invoke<TimerSnapshot>("timer_dismiss_away"),
 
   listTechniques: () => invoke<Technique[]>("list_techniques"),
   createTechnique: (input: TechniqueInput) =>

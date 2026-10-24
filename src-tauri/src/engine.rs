@@ -7,6 +7,10 @@ use std::thread;
 use std::time::{Duration, Instant, SystemTime};
 use tauri::{AppHandle, Emitter, Manager};
 
+/// A wall-clock gap this long during focus means the machine slept: focus pauses
+/// where it stood and the gap is not counted. Shorter gaps count as usual.
+const AWAY_PAUSE: Duration = Duration::from_secs(2 * 60);
+
 #[derive(Clone)]
 pub struct EngineHandle {
     inner: Arc<Mutex<Engine>>,
@@ -170,6 +174,7 @@ impl EngineHandle {
             hybrid_switched: false,
             working_on: eng.settings.working_on.clone(),
             awaiting_start: false,
+            away_secs: 0,
         };
         eng.halfway_sent = false;
         eng.flow_break_secs = 0;
@@ -222,6 +227,7 @@ impl EngineHandle {
         let paused = eng.paused_remaining.take().unwrap_or_default();
         eng.snapshot.paused = false;
         eng.snapshot.awaiting_start = false;
+        eng.snapshot.away_secs = 0;
         eng.last_wall = SystemTime::now();
 
         if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
@@ -305,6 +311,7 @@ impl EngineHandle {
             eng.snapshot.is_flow = false;
             eng.snapshot.hybrid_switched = false;
             eng.snapshot.awaiting_start = false;
+            eng.snapshot.away_secs = 0;
             eng.phase_deadline = None;
             eng.phase_started = None;
             eng.paused_remaining = None;
@@ -355,6 +362,42 @@ impl EngineHandle {
         Ok(snap)
     }
 
+    /// Count the time away as focus, then carry on.
+    pub fn count_away(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
+        let expiry = {
+            let mut eng = self.inner.lock();
+            if eng.snapshot.away_secs <= 0 {
+                return Ok(eng.snapshot.clone());
+            }
+            Self::credit_away(&mut eng)
+        };
+        match expiry {
+            None => self.resume(app),
+            Some(Expiry::HybridBell) => {
+                self.emit_tick(app);
+                let _ = app.emit("hybrid-bell", ());
+                self.update_tray(app);
+                Ok(self.snapshot())
+            }
+            Some(Expiry::Advanced { previous, next, .. }) => {
+                self.emit_phase(app, previous, next, "complete");
+                self.persist_progress(app);
+                let _ = app.emit("stats-updated", ());
+                self.emit_tick(app);
+                self.update_tray(app);
+                Ok(self.snapshot())
+            }
+        }
+    }
+
+    /// Keep the time away uncounted; the timer stays paused.
+    pub fn dismiss_away(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
+        self.inner.lock().snapshot.away_secs = 0;
+        self.emit_tick(app);
+        self.update_tray(app);
+        Ok(self.snapshot())
+    }
+
     fn tick(&self, app: &AppHandle) {
         let mut notifications: Vec<(String, String)> = Vec::new();
         let mut phase_change: Option<(Phase, Phase)> = None;
@@ -366,7 +409,12 @@ impl EngineHandle {
                 return;
             }
 
-            Self::compensate_wall_jump(&mut eng, SystemTime::now());
+            if Self::compensate_wall_jump(&mut eng, SystemTime::now()) {
+                drop(eng);
+                self.emit_tick(app);
+                self.update_tray(app);
+                return;
+            }
 
             if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
                 let elapsed = eng
@@ -487,10 +535,15 @@ impl EngineHandle {
         eng.snapshot.awaiting_start = true;
     }
 
-    /// Detect OS sleep / clock skew via wall clock.
-    fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime) {
+    /// Detect OS sleep / clock skew via wall clock. Returns true when focus was
+    /// paused because the machine was away.
+    fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime) -> bool {
+        let mut paused = false;
         if let Ok(delta) = now_wall.duration_since(eng.last_wall) {
-            if delta > Duration::from_secs(3) {
+            if delta >= AWAY_PAUSE && eng.snapshot.phase == Phase::Focus {
+                Self::pause_for_away(eng, delta);
+                paused = true;
+            } else if delta > Duration::from_secs(3) {
                 // Slept: advance deadline relative to Instant is automatic;
                 // Instant does not advance during sleep on most platforms.
                 // Compensate countdown by subtracting wall delta from remaining.
@@ -507,6 +560,50 @@ impl EngineHandle {
             }
         }
         eng.last_wall = now_wall;
+        paused
+    }
+
+    /// Freeze focus where the last tick left it, before the sleep, whatever
+    /// `Instant` did meanwhile (it stops during sleep on some platforms only).
+    fn pause_for_away(eng: &mut Engine, gap: Duration) {
+        let kept = if eng.snapshot.is_flow {
+            eng.snapshot.elapsed_secs
+        } else {
+            eng.snapshot.remaining_secs
+        };
+        eng.paused_remaining = Some(Duration::from_secs(kept.max(0) as u64));
+        eng.phase_deadline = None;
+        eng.snapshot.paused = true;
+        eng.snapshot.away_secs = gap.as_secs() as i64;
+    }
+
+    /// "Count it as focus": add the away time back. Flowtime grows; a countdown
+    /// shrinks and, if the time is used up, its focus ends as finished.
+    /// Returns the expiry when the phase ended; otherwise the caller resumes.
+    fn credit_away(eng: &mut Engine) -> Option<Expiry> {
+        let away = eng.snapshot.away_secs;
+        if away <= 0 || !eng.snapshot.paused || eng.snapshot.phase != Phase::Focus {
+            return None;
+        }
+        eng.snapshot.away_secs = 0;
+        let kept = eng.paused_remaining.unwrap_or_default();
+        let away = Duration::from_secs(away as u64);
+        if eng.snapshot.is_flow {
+            let elapsed = kept + away;
+            eng.paused_remaining = Some(elapsed);
+            eng.snapshot.elapsed_secs = elapsed.as_secs() as i64;
+            return None;
+        }
+        let left = kept.saturating_sub(away);
+        eng.snapshot.remaining_secs = left.as_secs() as i64;
+        eng.snapshot.elapsed_secs = eng.snapshot.duration_secs - eng.snapshot.remaining_secs;
+        if !left.is_zero() {
+            eng.paused_remaining = Some(left);
+            return None;
+        }
+        eng.paused_remaining = None;
+        eng.snapshot.paused = false;
+        Some(Self::expire_phase(eng))
     }
 
     fn enter_focus(eng: &mut Engine) {
@@ -526,6 +623,7 @@ impl EngineHandle {
             eng.phase_deadline = None;
             eng.snapshot.paused = false;
             eng.snapshot.awaiting_start = false;
+            eng.snapshot.away_secs = 0;
             return;
         }
 
@@ -541,6 +639,7 @@ impl EngineHandle {
         eng.snapshot.elapsed_secs = 0;
         eng.snapshot.paused = false;
         eng.snapshot.awaiting_start = false;
+        eng.snapshot.away_secs = 0;
         eng.halfway_sent = false;
         eng.phase_started = Some(Instant::now());
         eng.phase_deadline = Some(Instant::now() + Duration::from_secs(secs.max(0) as u64));
@@ -980,25 +1079,105 @@ mod tests {
     }
 
     #[test]
-    fn countdown_sleep_pulls_deadline_forward() {
+    fn short_focus_gap_pulls_deadline_forward() {
         let mut eng = started(technique("classic"));
         let deadline = eng.phase_deadline.unwrap();
-        let now = eng.last_wall + Duration::from_secs(600);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let now = eng.last_wall + Duration::from_secs(60);
+        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now));
         let moved = deadline - eng.phase_deadline.unwrap();
-        assert_eq!(moved, Duration::from_secs(600) - Duration::from_millis(250));
+        assert_eq!(moved, Duration::from_secs(60) - Duration::from_millis(250));
     }
 
-    /// Current behavior: sleep during Flowtime focus is counted as focus.
-    /// The review flagged this; update the test when that changes.
     #[test]
-    fn flowtime_sleep_currently_adds_to_elapsed() {
+    fn sleep_during_a_break_lets_the_break_run() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        let deadline = eng.phase_deadline.unwrap();
+        let now = eng.last_wall + Duration::from_secs(600);
+        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now));
+        assert!(!eng.snapshot.paused);
+        assert_eq!(eng.snapshot.away_secs, 0);
+        assert_eq!(deadline - eng.phase_deadline.unwrap(), Duration::from_secs(600) - Duration::from_millis(250));
+    }
+
+    #[test]
+    fn sleep_during_countdown_focus_pauses_where_it_stood() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.remaining_secs = 20 * 60;
+        let now = eng.last_wall + Duration::from_secs(42 * 60);
+        assert!(EngineHandle::compensate_wall_jump(&mut eng, now));
+        assert!(eng.snapshot.paused);
+        assert_eq!(eng.phase_deadline, None);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(20 * 60)));
+        assert_eq!(eng.snapshot.away_secs, 42 * 60);
+        assert_eq!(eng.last_wall, now);
+    }
+
+    #[test]
+    fn sleep_during_flowtime_is_not_counted() {
         let mut eng = started(technique("flowtime"));
-        let started_at = eng.phase_started.unwrap();
+        eng.snapshot.elapsed_secs = 300;
+        let now = eng.last_wall + Duration::from_secs(2 * 60);
+        assert!(EngineHandle::compensate_wall_jump(&mut eng, now));
+        assert!(eng.snapshot.paused);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(300)));
+        assert_eq!(eng.snapshot.away_secs, 120);
+    }
+
+    #[test]
+    fn counting_away_time_grows_flowtime() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 300;
         let now = eng.last_wall + Duration::from_secs(600);
         EngineHandle::compensate_wall_jump(&mut eng, now);
-        let moved = started_at - eng.phase_started.unwrap();
-        assert_eq!(moved, Duration::from_secs(600) - Duration::from_millis(250));
+        assert_eq!(EngineHandle::credit_away(&mut eng), None);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(900)));
+        assert_eq!(eng.snapshot.elapsed_secs, 900);
+        assert_eq!(eng.snapshot.away_secs, 0);
+    }
+
+    #[test]
+    fn counting_away_time_shrinks_a_countdown() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.remaining_secs = 20 * 60;
+        let now = eng.last_wall + Duration::from_secs(15 * 60);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        assert_eq!(EngineHandle::credit_away(&mut eng), None);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(5 * 60)));
+        assert_eq!(eng.snapshot.remaining_secs, 5 * 60);
+        assert!(eng.snapshot.paused);
+    }
+
+    #[test]
+    fn counting_away_time_past_the_end_finishes_focus() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.remaining_secs = 10 * 60;
+        let now = eng.last_wall + Duration::from_secs(42 * 60);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let expiry = EngineHandle::credit_away(&mut eng);
+        assert!(
+            matches!(expiry, Some(Expiry::Advanced { previous: Phase::Focus, next: Phase::ShortBreak, .. })),
+            "{expiry:?}"
+        );
+        assert_eq!(eng.focus_secs_completed, 25 * 60);
+    }
+
+    #[test]
+    fn nothing_to_count_without_an_away_gap() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.paused = true;
+        assert_eq!(EngineHandle::credit_away(&mut eng), None);
+        assert_eq!(eng.snapshot.away_secs, 0);
+    }
+
+    #[test]
+    fn resuming_clears_the_away_gap() {
+        let mut eng = started(technique("classic"));
+        let now = eng.last_wall + Duration::from_secs(600);
+        EngineHandle::compensate_wall_jump(&mut eng, now);
+        EngineHandle::enter_focus(&mut eng);
+        assert_eq!(eng.snapshot.away_secs, 0);
     }
 
     #[test]

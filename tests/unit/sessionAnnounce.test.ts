@@ -17,6 +17,7 @@ const idle: TimerSnapshot = {
   hybridSwitched: false,
   workingOn: "",
   awaitingStart: false,
+  awaySecs: 0,
 };
 
 function snap(partial: Partial<TimerSnapshot>): TimerSnapshot {

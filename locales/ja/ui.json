@@ -43,7 +43,10 @@
     "autoContinueHint": "次の休憩やフォーカスを自動で開始します。オフにすると各フェーズを自分で開始します。",
     "startFocus": "フォーカスを開始",
     "startShortBreak": "短い休憩を開始",
-    "startLongBreak": "長い休憩を開始"
+    "startLongBreak": "長い休憩を開始",
+    "awayPaused": "離席中は一時停止していました（{{time}}）。",
+    "countAway": "集中時間に含める",
+    "dontCountAway": "含めない"
   },
   "picker": {
     "aria": "フォーカスタクニック",

@@ -69,6 +69,7 @@ export async function installTauriMock(page: Page) {
       hybridSwitched: false,
       workingOn: "",
       awaitingStart: false,
+      awaySecs: 0,
     };
     let nextId = 1;
     let nextCallback = 1;
@@ -85,7 +86,15 @@ export async function installTauriMock(page: Page) {
     const commands: Record<string, (args: Args) => unknown> = {
       get_timer_state: () => snapshot,
       timer_resume: () => {
-        snapshot = { ...snapshot, paused: false, awaitingStart: false };
+        snapshot = { ...snapshot, paused: false, awaitingStart: false, awaySecs: 0 };
+        return snapshot;
+      },
+      timer_count_away: () => {
+        snapshot = { ...snapshot, paused: false, awaySecs: 0 };
+        return snapshot;
+      },
+      timer_dismiss_away: () => {
+        snapshot = { ...snapshot, awaySecs: 0 };
         return snapshot;
       },
       list_techniques: () => techniques.map((t) => ({ ...t })),

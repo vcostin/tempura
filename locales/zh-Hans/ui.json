@@ -43,7 +43,10 @@
     "autoContinueHint": "自动开始下一段休息或专注。关闭后，每个阶段都由你手动开始。",
     "startFocus": "开始专注",
     "startShortBreak": "开始短休息",
-    "startLongBreak": "开始长休息"
+    "startLongBreak": "开始长休息",
+    "awayPaused": "你离开期间已暂停（{{time}}）。",
+    "countAway": "计入专注时间",
+    "dontCountAway": "不计入"
   },
   "picker": {
     "aria": "专注技法",
