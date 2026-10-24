@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import { i18n, resolveLocale } from "../lib/i18n";
 import {
@@ -21,6 +22,7 @@ const defaultSettings: AppSettings = {
   locale: "",
   checkUpdatesOnLaunch: true,
   hiddenTechniqueIds: [],
+  autoContinue: true,
 };
 
 async function systemLocale(): Promise<string> {
@@ -59,6 +61,7 @@ export function useSettings() {
       }
       const s = await api.getSettings();
       s.hiddenTechniqueIds ??= [];
+      s.autoContinue ??= true;
       setSettings(s);
       document.documentElement.setAttribute("data-theme", s.theme);
       await applyLocale(s.locale);
@@ -75,6 +78,23 @@ export function useSettings() {
     }
     void load();
   }, [desktop]);
+
+  // The tray can change settings too (auto-continue); keep the window in step.
+  useEffect(() => {
+    if (!isTauri()) return;
+    let unlisten: (() => void) | undefined;
+    let cancelled = false;
+    void listen<AppSettings>("settings-updated", (e) => {
+      setSettings((prev) => ({ ...prev, autoContinue: e.payload.autoContinue }));
+    }).then((u) => {
+      if (cancelled) u();
+      else unlisten = u;
+    });
+    return () => {
+      cancelled = true;
+      unlisten?.();
+    };
+  }, []);
 
   const save = useCallback(async (next: AppSettings) => {
     setSettings(next);

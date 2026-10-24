@@ -38,7 +38,12 @@
     "focusedToday": "de foco hoje",
     "cycles_one": "ciclo",
     "cycles_other": "ciclos",
-    "dayStreak": "dias seguidos"
+    "dayStreak": "dias seguidos",
+    "autoContinue": "Continuar automaticamente",
+    "autoContinueHint": "Inicia a próxima pausa ou foco automaticamente. Desative para iniciar cada fase você mesmo.",
+    "startFocus": "Iniciar foco",
+    "startShortBreak": "Iniciar pausa curta",
+    "startLongBreak": "Iniciar pausa longa"
   },
   "picker": {
     "aria": "Técnica de foco",
@@ -221,7 +226,13 @@
     "quit": "Sair",
     "tooltipReady": "Tempura · Pronto",
     "tooltipPaused": "Tempura · {{phase}} · Pausado",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Continuar automaticamente",
+    "startFocus": "Iniciar foco",
+    "startShortBreak": "Iniciar pausa curta",
+    "startLongBreak": "Iniciar pausa longa",
+    "statusWaiting": "Status · {{phase}} · Pronto para começar",
+    "tooltipWaiting": "Tempura · {{phase}} · Pronto"
   },
   "notifications": {
     "focusComplete": "Foco concluído",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "Você mereceu uma pausa mais longa.",
     "sessionFinished": "Sessão encerrada.",
     "halfwayTitle": "Na metade do caminho",
-    "halfwayBody": "Você está no ponto médio."
+    "halfwayBody": "Você está no ponto médio.",
+    "focusReady": "O foco está pronto. Comece quando quiser.",
+    "shortBreakReady": "Sua pausa curta está pronta. Comece quando quiser.",
+    "longBreakReady": "Sua pausa longa está pronta. Comece quando quiser."
   },
   "site": {
     "title": "Tempura — Timing que fica crocante.",
@@ -299,6 +313,9 @@
     "long_break": "Pausa longa iniciada.",
     "paused": "Temporizador pausado.",
     "resumed": "Temporizador retomado.",
-    "stopped": "Temporizador parado."
+    "stopped": "Temporizador parado.",
+    "ready_focus": "Foco pronto para começar.",
+    "ready_short_break": "Pausa curta pronta para começar.",
+    "ready_long_break": "Pausa longa pronta para começar."
   }
 }

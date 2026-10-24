@@ -25,6 +25,8 @@ interface Props {
   onReset: () => void;
   onStop: () => void;
   onContinueFlow: () => void;
+  autoContinue: boolean;
+  onAutoContinue: (enabled: boolean) => void;
   onNewTechnique: () => void;
   onShowHiddenTechniques: () => void;
   hideBlock: (id: string) => HideBlock;
@@ -60,7 +62,14 @@ export function TimerView(props: Props) {
         })
       : s.techniqueName;
 
-  const phaseText = s.paused && s.running ? t("phase.paused") : phaseLabel(s.phase, t);
+  const phaseText =
+    s.paused && s.running && !s.awaitingStart ? t("phase.paused") : phaseLabel(s.phase, t);
+  const startPhaseText =
+    s.phase === "short_break"
+      ? t("timer.startShortBreak")
+      : s.phase === "long_break"
+        ? t("timer.startLongBreak")
+        : t("timer.startFocus");
 
   return (
     <>
@@ -218,7 +227,7 @@ export function TimerView(props: Props) {
           <>
             {s.paused ? (
               <button type="button" className="btn btn-primary" onClick={props.onResume}>
-                {t("timer.resume")}
+                {s.awaitingStart ? startPhaseText : t("timer.resume")}
               </button>
             ) : (
               <button type="button" className="btn btn-primary" onClick={props.onPause}>
@@ -237,6 +246,22 @@ export function TimerView(props: Props) {
           </>
         )}
       </div>
+
+      <label className="auto-continue">
+        <button
+          type="button"
+          className="toggle toggle--small"
+          role="switch"
+          aria-checked={props.autoContinue}
+          aria-labelledby="auto-continue-label"
+          aria-describedby="auto-continue-hint"
+          onClick={() => props.onAutoContinue(!props.autoContinue)}
+        />
+        <span id="auto-continue-label">{t("timer.autoContinue")}</span>
+        <span id="auto-continue-hint" role="tooltip" className="hint-tooltip">
+          {t("timer.autoContinueHint")}
+        </span>
+      </label>
 
       {props.stats && (
         <aside className="stats-strip" aria-label={t("timer.todayGlance")}>

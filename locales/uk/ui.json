@@ -40,7 +40,12 @@
     "cycles_few": "цикли",
     "cycles_many": "циклів",
     "cycles_other": "циклів",
-    "dayStreak": "днів поспіль"
+    "dayStreak": "днів поспіль",
+    "autoContinue": "Продовжувати автоматично",
+    "autoContinueHint": "Автоматично запускає наступну перерву чи фокус. Вимкніть, щоб запускати кожну фазу самостійно.",
+    "startFocus": "Почати фокус",
+    "startShortBreak": "Почати коротку перерву",
+    "startLongBreak": "Почати довгу перерву"
   },
   "picker": {
     "aria": "Техніка фокусу",
@@ -223,7 +228,13 @@
     "quit": "Вийти",
     "tooltipReady": "Tempura · Готово",
     "tooltipPaused": "Tempura · {{phase}} · Пауза",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Продовжувати автоматично",
+    "startFocus": "Почати фокус",
+    "startShortBreak": "Почати коротку перерву",
+    "startLongBreak": "Почати довгу перерву",
+    "statusWaiting": "Статус · {{phase}} · Готово до старту",
+    "tooltipWaiting": "Tempura · {{phase}} · Готово"
   },
   "notifications": {
     "focusComplete": "Фокус завершено",
@@ -236,7 +247,10 @@
     "earnedLongBreak": "Ти заслужив довшу перерву.",
     "sessionFinished": "Сесію завершено.",
     "halfwayTitle": "На півдорозі",
-    "halfwayBody": "Ти на середині."
+    "halfwayBody": "Ти на середині.",
+    "focusReady": "Фокус готовий. Почніть, коли будете готові.",
+    "shortBreakReady": "Коротка перерва готова. Почніть, коли будете готові.",
+    "longBreakReady": "Довга перерва готова. Почніть, коли будете готові."
   },
   "site": {
     "title": "Tempura — Час, що хрумтить.",
@@ -301,6 +315,9 @@
     "long_break": "Довгу перерву розпочато.",
     "paused": "Таймер на паузі.",
     "resumed": "Таймер продовжено.",
-    "stopped": "Таймер зупинено."
+    "stopped": "Таймер зупинено.",
+    "ready_focus": "Фокус готовий до старту.",
+    "ready_short_break": "Коротка перерва готова до старту.",
+    "ready_long_break": "Довга перерва готова до старту."
   }
 }

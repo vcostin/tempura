@@ -16,7 +16,10 @@
     "long_break": "Long break started.",
     "paused": "Timer paused.",
     "resumed": "Timer resumed.",
-    "stopped": "Timer stopped."
+    "stopped": "Timer stopped.",
+    "ready_focus": "Focus is ready to start.",
+    "ready_short_break": "Short break is ready to start.",
+    "ready_long_break": "Long break is ready to start."
   },
   "timer": {
     "guideAria": "Techniques",
@@ -46,7 +49,12 @@
     "focusedToday": "focused today",
     "cycles_one": "cycle",
     "cycles_other": "cycles",
-    "dayStreak": "day streak"
+    "dayStreak": "day streak",
+    "autoContinue": "Auto-continue",
+    "autoContinueHint": "Start the next break or focus automatically. Turn off to start each phase yourself.",
+    "startFocus": "Start focus",
+    "startShortBreak": "Start short break",
+    "startLongBreak": "Start long break"
   },
   "picker": {
     "aria": "Focus technique",
@@ -229,7 +237,13 @@
     "quit": "Quit",
     "tooltipReady": "Tempura · Ready",
     "tooltipPaused": "Tempura · {{phase}} · Paused",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Auto-continue",
+    "startFocus": "Start focus",
+    "startShortBreak": "Start short break",
+    "startLongBreak": "Start long break",
+    "statusWaiting": "Status · {{phase}} · Ready to start",
+    "tooltipWaiting": "Tempura · {{phase}} · Ready"
   },
   "notifications": {
     "focusComplete": "Focus complete",
@@ -242,7 +256,10 @@
     "earnedLongBreak": "You've earned a longer break.",
     "sessionFinished": "Session finished.",
     "halfwayTitle": "Halfway there",
-    "halfwayBody": "You're at the midpoint."
+    "halfwayBody": "You're at the midpoint.",
+    "focusReady": "Focus is ready. Start it when you are.",
+    "shortBreakReady": "Your short break is ready. Start it when you are.",
+    "longBreakReady": "Your long break is ready. Start it when you are."
   },
   "site": {
     "title": "Tempura — Timing that crisps.",

@@ -42,7 +42,12 @@
     "cycles_few": "دورات",
     "cycles_many": "دورة",
     "cycles_other": "دورة",
-    "dayStreak": "أيام متتالية"
+    "dayStreak": "أيام متتالية",
+    "autoContinue": "المتابعة تلقائيًا",
+    "autoContinueHint": "يبدأ الاستراحة أو التركيز التالي تلقائيًا. أوقفه لتبدأ كل مرحلة بنفسك.",
+    "startFocus": "ابدأ التركيز",
+    "startShortBreak": "ابدأ الاستراحة القصيرة",
+    "startLongBreak": "ابدأ الاستراحة الطويلة"
   },
   "picker": {
     "aria": "تقنية التركيز",
@@ -225,7 +230,13 @@
     "quit": "خروج",
     "tooltipReady": "Tempura · جاهز",
     "tooltipPaused": "Tempura · {{phase}} · متوقف",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "المتابعة تلقائيًا",
+    "startFocus": "ابدأ التركيز",
+    "startShortBreak": "ابدأ الاستراحة القصيرة",
+    "startLongBreak": "ابدأ الاستراحة الطويلة",
+    "statusWaiting": "الحالة · {{phase}} · جاهز للبدء",
+    "tooltipWaiting": "Tempura · {{phase}} · جاهز"
   },
   "notifications": {
     "focusComplete": "انتهى التركيز",
@@ -238,7 +249,10 @@
     "earnedLongBreak": "لقد استحققت استراحة أطول.",
     "sessionFinished": "انتهت الجلسة.",
     "halfwayTitle": "في المنتصف",
-    "halfwayBody": "أنت عند نقطة الوسط."
+    "halfwayBody": "أنت عند نقطة الوسط.",
+    "focusReady": "التركيز جاهز. ابدأ عندما تكون مستعدًا.",
+    "shortBreakReady": "استراحتك القصيرة جاهزة. ابدأها عندما تكون مستعدًا.",
+    "longBreakReady": "استراحتك الطويلة جاهزة. ابدأها عندما تكون مستعدًا."
   },
   "site": {
     "title": "Tempura — توقيت يقرمش.",
@@ -303,6 +317,9 @@
     "long_break": "بدأت استراحة طويلة.",
     "paused": "تم إيقاف المؤقت مؤقتًا.",
     "resumed": "تم استئناف المؤقت.",
-    "stopped": "تم إيقاف المؤقت."
+    "stopped": "تم إيقاف المؤقت.",
+    "ready_focus": "التركيز جاهز للبدء.",
+    "ready_short_break": "الاستراحة القصيرة جاهزة للبدء.",
+    "ready_long_break": "الاستراحة الطويلة جاهزة للبدء."
   }
 }

@@ -40,7 +40,12 @@
     "cycles_few": "cykle",
     "cycles_many": "cykli",
     "cycles_other": "cykli",
-    "dayStreak": "dni z rzędu"
+    "dayStreak": "dni z rzędu",
+    "autoContinue": "Kontynuuj automatycznie",
+    "autoContinueHint": "Automatycznie rozpoczyna następną przerwę lub skupienie. Wyłącz, aby samodzielnie rozpoczynać każdą fazę.",
+    "startFocus": "Rozpocznij skupienie",
+    "startShortBreak": "Rozpocznij krótką przerwę",
+    "startLongBreak": "Rozpocznij długą przerwę"
   },
   "picker": {
     "aria": "Technika skupienia",
@@ -223,7 +228,13 @@
     "quit": "Zakończ",
     "tooltipReady": "Tempura · Gotowe",
     "tooltipPaused": "Tempura · {{phase}} · Pauza",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Kontynuuj automatycznie",
+    "startFocus": "Rozpocznij skupienie",
+    "startShortBreak": "Rozpocznij krótką przerwę",
+    "startLongBreak": "Rozpocznij długą przerwę",
+    "statusWaiting": "Status · {{phase}} · Gotowe do startu",
+    "tooltipWaiting": "Tempura · {{phase}} · Gotowe"
   },
   "notifications": {
     "focusComplete": "Skupienie skończone",
@@ -236,7 +247,10 @@
     "earnedLongBreak": "Zasłużyłeś na dłuższą przerwę.",
     "sessionFinished": "Sesja skończona.",
     "halfwayTitle": "W połowie",
-    "halfwayBody": "Jesteś w środku."
+    "halfwayBody": "Jesteś w środku.",
+    "focusReady": "Skupienie jest gotowe. Zacznij, kiedy zechcesz.",
+    "shortBreakReady": "Krótka przerwa jest gotowa. Zacznij, kiedy zechcesz.",
+    "longBreakReady": "Długa przerwa jest gotowa. Zacznij, kiedy zechcesz."
   },
   "site": {
     "title": "Tempura — Czas, który chrupie.",
@@ -301,6 +315,9 @@
     "long_break": "Długa przerwa rozpoczęta.",
     "paused": "Timer wstrzymany.",
     "resumed": "Timer wznowiony.",
-    "stopped": "Timer zatrzymany."
+    "stopped": "Timer zatrzymany.",
+    "ready_focus": "Skupienie gotowe do startu.",
+    "ready_short_break": "Krótka przerwa gotowa do startu.",
+    "ready_long_break": "Długa przerwa gotowa do startu."
   }
 }
