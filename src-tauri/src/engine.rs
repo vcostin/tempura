@@ -87,6 +87,10 @@ impl EngineHandle {
         eng.snapshot.working_on = settings.working_on;
     }
 
+    pub fn auto_continue(&self) -> bool {
+        self.inner.lock().settings.auto_continue
+    }
+
     pub fn locale(&self) -> String {
         crate::i18n::resolve_locale(&self.inner.lock().settings.locale)
     }
@@ -138,6 +142,7 @@ impl EngineHandle {
             is_flow: technique.mode == "flowtime",
             hybrid_switched: false,
             working_on: eng.settings.working_on.clone(),
+            awaiting_start: false,
         };
         eng.halfway_sent = false;
         eng.flow_break_secs = 0;
@@ -189,6 +194,7 @@ impl EngineHandle {
         }
         let paused = eng.paused_remaining.take().unwrap_or_default();
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.last_wall = SystemTime::now();
 
         if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
@@ -271,6 +277,7 @@ impl EngineHandle {
             eng.snapshot.duration_secs = 0;
             eng.snapshot.is_flow = false;
             eng.snapshot.hybrid_switched = false;
+            eng.snapshot.awaiting_start = false;
             eng.phase_deadline = None;
             eng.phase_started = None;
             eng.paused_remaining = None;
@@ -392,6 +399,10 @@ impl EngineHandle {
                     Self::complete_phase(&mut eng, false);
                     let next = eng.snapshot.phase;
                     phase_change = Some((previous, next));
+                    let hold = !eng.settings.auto_continue && eng.snapshot.running;
+                    if hold {
+                        Self::hold_at_start(&mut eng);
+                    }
 
                     let loc = crate::i18n::resolve_locale(&eng.settings.locale);
                     let title = match previous {
@@ -401,6 +412,11 @@ impl EngineHandle {
                         Phase::Idle => crate::i18n::t(&loc, "notifications.appName"),
                     };
                     let body = match next {
+                        Phase::Focus if hold => crate::i18n::t(&loc, "notifications.focusReady"),
+                        Phase::ShortBreak if hold => {
+                            crate::i18n::t(&loc, "notifications.shortBreakReady")
+                        }
+                        Phase::LongBreak if hold => crate::i18n::t(&loc, "notifications.longBreakReady"),
                         Phase::Focus => crate::i18n::t(&loc, "notifications.timeToFocus"),
                         Phase::ShortBreak => crate::i18n::t(&loc, "notifications.enjoyShortBreak"),
                         Phase::LongBreak => crate::i18n::t(&loc, "notifications.earnedLongBreak"),
@@ -442,6 +458,19 @@ impl EngineHandle {
         }
     }
 
+    /// Auto-continue off: keep the phase that was just entered at its start,
+    /// paused, until the user starts it (resume).
+    fn hold_at_start(eng: &mut Engine) {
+        eng.paused_remaining = Some(if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
+            Duration::ZERO
+        } else {
+            Duration::from_secs(eng.snapshot.duration_secs.max(0) as u64)
+        });
+        eng.phase_deadline = None;
+        eng.snapshot.paused = true;
+        eng.snapshot.awaiting_start = true;
+    }
+
     /// Detect OS sleep / clock skew via wall clock.
     fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime) {
         if let Ok(delta) = now_wall.duration_since(eng.last_wall) {
@@ -480,6 +509,7 @@ impl EngineHandle {
             eng.phase_started = Some(Instant::now());
             eng.phase_deadline = None;
             eng.snapshot.paused = false;
+            eng.snapshot.awaiting_start = false;
             return;
         }
 
@@ -494,6 +524,7 @@ impl EngineHandle {
         eng.snapshot.remaining_secs = secs;
         eng.snapshot.elapsed_secs = 0;
         eng.snapshot.paused = false;
+        eng.snapshot.awaiting_start = false;
         eng.halfway_sent = false;
         eng.phase_started = Some(Instant::now());
         eng.phase_deadline = Some(Instant::now() + Duration::from_secs(secs.max(0) as u64));
@@ -604,6 +635,9 @@ impl EngineHandle {
             return crate::i18n::t(locale, "tray.tooltipReady");
         }
         let phase = crate::i18n::phase_label(locale, snap.phase.as_str());
+        if snap.awaiting_start {
+            return crate::i18n::t_vars(locale, "tray.tooltipWaiting", &[("phase", &phase)]);
+        }
         if snap.paused {
             return crate::i18n::t_vars(locale, "tray.tooltipPaused", &[("phase", &phase)]);
         }
@@ -800,6 +834,46 @@ mod tests {
     }
 
     #[test]
+    fn hold_keeps_next_break_at_its_start() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert!(eng.snapshot.paused && eng.snapshot.awaiting_start);
+        assert!(eng.phase_deadline.is_none());
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(5 * 60)));
+        assert_eq!(eng.snapshot.remaining_secs, 5 * 60);
+    }
+
+    #[test]
+    fn hold_keeps_flowtime_focus_at_zero() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 25 * 60;
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        assert!(eng.snapshot.is_flow && eng.snapshot.awaiting_start);
+        assert_eq!(eng.paused_remaining, Some(Duration::ZERO));
+    }
+
+    #[test]
+    fn skipping_a_waiting_phase_starts_the_next_one() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::hold_at_start(&mut eng);
+        EngineHandle::complete_phase(&mut eng, true);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(!eng.snapshot.paused && !eng.snapshot.awaiting_start);
+        assert!(eng.phase_deadline.is_some());
+    }
+
+    #[test]
+    fn auto_continue_defaults_on() {
+        assert!(AppSettings::default().auto_continue);
+        assert!(EngineHandle::new().auto_continue());
+    }
+
+    #[test]
     fn small_wall_gap_is_ignored() {
         let mut eng = started(technique("classic"));
         let deadline = eng.phase_deadline;
@@ -850,5 +924,9 @@ mod tests {
         snap.paused = true;
         let paused = EngineHandle::format_tooltip(&snap, "en");
         assert!(paused.ends_with("· Paused"), "{paused}");
+
+        snap.awaiting_start = true;
+        let waiting = EngineHandle::format_tooltip(&snap, "en");
+        assert!(waiting.ends_with("· Ready"), "{waiting}");
     }
 }

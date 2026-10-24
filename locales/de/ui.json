@@ -38,7 +38,12 @@
     "focusedToday": "heute fokussiert",
     "cycles_one": "Zyklus",
     "cycles_other": "Zyklen",
-    "dayStreak": "Tage in Folge"
+    "dayStreak": "Tage in Folge",
+    "autoContinue": "Automatisch weiter",
+    "autoContinueHint": "Startet die nächste Pause oder Fokusphase automatisch. Ausschalten, um jede Phase selbst zu starten.",
+    "startFocus": "Fokus starten",
+    "startShortBreak": "Kurze Pause starten",
+    "startLongBreak": "Lange Pause starten"
   },
   "picker": {
     "aria": "Fokustechnik",
@@ -221,7 +226,13 @@
     "quit": "Beenden",
     "tooltipReady": "Tempura · Bereit",
     "tooltipPaused": "Tempura · {{phase}} · Pausiert",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Automatisch weiter",
+    "startFocus": "Fokus starten",
+    "startShortBreak": "Kurze Pause starten",
+    "startLongBreak": "Lange Pause starten",
+    "statusWaiting": "Status · {{phase}} · Startbereit",
+    "tooltipWaiting": "Tempura · {{phase}} · Bereit"
   },
   "notifications": {
     "focusComplete": "Fokus fertig",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "Du hast eine längere Pause verdient.",
     "sessionFinished": "Sitzung beendet.",
     "halfwayTitle": "Halbzeit",
-    "halfwayBody": "Du bist in der Mitte."
+    "halfwayBody": "Du bist in der Mitte.",
+    "focusReady": "Fokus ist bereit. Starte ihn, wenn du so weit bist.",
+    "shortBreakReady": "Deine kurze Pause ist bereit. Starte sie, wenn du so weit bist.",
+    "longBreakReady": "Deine lange Pause ist bereit. Starte sie, wenn du so weit bist."
   },
   "site": {
     "title": "Tempura — Timing, das knuspert.",
@@ -299,6 +313,9 @@
     "long_break": "Lange Pause gestartet.",
     "paused": "Timer pausiert.",
     "resumed": "Timer fortgesetzt.",
-    "stopped": "Timer gestoppt."
+    "stopped": "Timer gestoppt.",
+    "ready_focus": "Fokus ist startbereit.",
+    "ready_short_break": "Kurze Pause ist startbereit.",
+    "ready_long_break": "Lange Pause ist startbereit."
   }
 }

@@ -38,7 +38,12 @@
     "focusedToday": "vandaag gefocust",
     "cycles_one": "cyclus",
     "cycles_other": "cycli",
-    "dayStreak": "dagen op rij"
+    "dayStreak": "dagen op rij",
+    "autoContinue": "Automatisch doorgaan",
+    "autoContinueHint": "Start de volgende pauze of focus automatisch. Zet uit om elke fase zelf te starten.",
+    "startFocus": "Focus starten",
+    "startShortBreak": "Korte pauze starten",
+    "startLongBreak": "Lange pauze starten"
   },
   "picker": {
     "aria": "Focustechniek",
@@ -221,7 +226,13 @@
     "quit": "Afsluiten",
     "tooltipReady": "Tempura · Klaar",
     "tooltipPaused": "Tempura · {{phase}} · Gepauzeerd",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Automatisch doorgaan",
+    "startFocus": "Focus starten",
+    "startShortBreak": "Korte pauze starten",
+    "startLongBreak": "Lange pauze starten",
+    "statusWaiting": "Status · {{phase}} · Klaar om te starten",
+    "tooltipWaiting": "Tempura · {{phase}} · Klaar"
   },
   "notifications": {
     "focusComplete": "Focus klaar",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "Je hebt een langere pauze verdiend.",
     "sessionFinished": "Sessie klaar.",
     "halfwayTitle": "Halverwege",
-    "halfwayBody": "Je bent in het midden."
+    "halfwayBody": "Je bent in het midden.",
+    "focusReady": "Focus staat klaar. Start wanneer je wilt.",
+    "shortBreakReady": "Je korte pauze staat klaar. Start wanneer je wilt.",
+    "longBreakReady": "Je lange pauze staat klaar. Start wanneer je wilt."
   },
   "site": {
     "title": "Tempura — Timing dat knispert.",
@@ -299,6 +313,9 @@
     "long_break": "Lange pauze gestart.",
     "paused": "Timer gepauzeerd.",
     "resumed": "Timer hervat.",
-    "stopped": "Timer gestopt."
+    "stopped": "Timer gestopt.",
+    "ready_focus": "Focus klaar om te starten.",
+    "ready_short_break": "Korte pauze klaar om te starten.",
+    "ready_long_break": "Lange pauze klaar om te starten."
   }
 }

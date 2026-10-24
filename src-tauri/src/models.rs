@@ -75,6 +75,9 @@ pub struct AppSettings {
     /// Techniques left off the timer's picker. Empty: everything shows.
     #[serde(default)]
     pub hidden_technique_ids: Vec<String>,
+    /// Start the next break or focus on its own. Off: wait for the user.
+    #[serde(default = "default_true")]
+    pub auto_continue: bool,
 }
 
 fn default_true() -> bool {
@@ -94,6 +97,7 @@ impl Default for AppSettings {
             locale: String::new(),
             check_updates_on_launch: true,
             hidden_technique_ids: Vec::new(),
+            auto_continue: true,
         }
     }
 }
@@ -272,6 +276,8 @@ pub struct TimerSnapshot {
     pub is_flow: bool,
     pub hybrid_switched: bool,
     pub working_on: String,
+    /// The next phase is set up but waits for the user (auto-continue off).
+    pub awaiting_start: bool,
 }
 
 impl Default for TimerSnapshot {
@@ -290,6 +296,7 @@ impl Default for TimerSnapshot {
             is_flow: false,
             hybrid_switched: false,
             working_on: String::new(),
+            awaiting_start: false,
         }
     }
 }

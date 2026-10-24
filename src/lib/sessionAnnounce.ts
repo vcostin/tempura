@@ -6,7 +6,10 @@ export type AnnounceKind =
   | "long_break"
   | "paused"
   | "resumed"
-  | "stopped";
+  | "stopped"
+  | "ready_focus"
+  | "ready_short_break"
+  | "ready_long_break";
 
 /**
  * Meaningful session transitions only — not countdown ticks.
@@ -24,6 +27,13 @@ export function sessionAnnounceKind(
   const isPaused = next.running && next.paused;
 
   if (wasActive && !isActive) return "stopped";
+  // Auto-continue off: the next phase waits; announce it as ready, not paused.
+  if (next.awaitingStart && !prev.awaitingStart && next.phase !== "idle") {
+    return `ready_${next.phase}` as const;
+  }
+  if (prev.awaitingStart && !next.awaitingStart && isActive && next.phase !== "idle") {
+    return next.phase;
+  }
   if (!wasPaused && isPaused) return "paused";
   if (wasPaused && !isPaused && isActive && prev.phase === next.phase) return "resumed";
   if (prev.phase !== next.phase && next.phase !== "idle") return next.phase;

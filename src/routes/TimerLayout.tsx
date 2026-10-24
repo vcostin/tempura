@@ -302,6 +302,8 @@ export function TimerLayout() {
           onReset={() => void session.reset()}
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
+          autoContinue={settingsApi.settings.autoContinue}
+          onAutoContinue={(enabled) => void settingsApi.patch({ autoContinue: enabled })}
           onNewTechnique={() => openTechniqueEditor()}
           onShowHiddenTechniques={() => openPanel("techniques", "?hidden=1")}
           hideBlock={visibility.hideBlock}

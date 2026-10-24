@@ -38,7 +38,12 @@
     "focusedToday": "di focus oggi",
     "cycles_one": "ciclo",
     "cycles_other": "cicli",
-    "dayStreak": "giorni di fila"
+    "dayStreak": "giorni di fila",
+    "autoContinue": "Continua automaticamente",
+    "autoContinueHint": "Avvia automaticamente la pausa o il focus successivo. Disattiva per avviare ogni fase da te.",
+    "startFocus": "Avvia focus",
+    "startShortBreak": "Avvia pausa breve",
+    "startLongBreak": "Avvia pausa lunga"
   },
   "picker": {
     "aria": "Tecnica di focus",
@@ -221,7 +226,13 @@
     "quit": "Esci",
     "tooltipReady": "Tempura · Pronto",
     "tooltipPaused": "Tempura · {{phase}} · In pausa",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "Continua automaticamente",
+    "startFocus": "Avvia focus",
+    "startShortBreak": "Avvia pausa breve",
+    "startLongBreak": "Avvia pausa lunga",
+    "statusWaiting": "Stato · {{phase}} · Pronto ad avviare",
+    "tooltipWaiting": "Tempura · {{phase}} · Pronto"
   },
   "notifications": {
     "focusComplete": "Focus completato",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "Ti sei guadagnato una pausa più lunga.",
     "sessionFinished": "Sessione finita.",
     "halfwayTitle": "A metà strada",
-    "halfwayBody": "Sei a metà."
+    "halfwayBody": "Sei a metà.",
+    "focusReady": "Il focus è pronto. Avvialo quando vuoi.",
+    "shortBreakReady": "La tua pausa breve è pronta. Avviala quando vuoi.",
+    "longBreakReady": "La tua pausa lunga è pronta. Avviala quando vuoi."
   },
   "site": {
     "title": "Tempura — Un timing che scrocchia.",
@@ -299,6 +313,9 @@
     "long_break": "Pausa lunga avviata.",
     "paused": "Timer in pausa.",
     "resumed": "Timer ripreso.",
-    "stopped": "Timer fermato."
+    "stopped": "Timer fermato.",
+    "ready_focus": "Focus pronto ad avviarsi.",
+    "ready_short_break": "Pausa breve pronta ad avviarsi.",
+    "ready_long_break": "Pausa lunga pronta ad avviarsi."
   }
 }

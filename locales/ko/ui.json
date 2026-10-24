@@ -38,7 +38,12 @@
     "focusedToday": "오늘 집중",
     "cycles_one": "사이클",
     "cycles_other": "사이클",
-    "dayStreak": "일 연속"
+    "dayStreak": "일 연속",
+    "autoContinue": "자동으로 계속",
+    "autoContinueHint": "다음 휴식이나 집중을 자동으로 시작합니다. 끄면 각 단계를 직접 시작합니다.",
+    "startFocus": "집중 시작",
+    "startShortBreak": "짧은 휴식 시작",
+    "startLongBreak": "긴 휴식 시작"
   },
   "picker": {
     "aria": "집중 기법",
@@ -221,7 +226,13 @@
     "quit": "종료",
     "tooltipReady": "Tempura · 준비됨",
     "tooltipPaused": "Tempura · {{phase}} · 일시정지",
-    "tooltipRunning": "Tempura · {{phase}} · {{time}}"
+    "tooltipRunning": "Tempura · {{phase}} · {{time}}",
+    "autoContinue": "자동으로 계속",
+    "startFocus": "집중 시작",
+    "startShortBreak": "짧은 휴식 시작",
+    "startLongBreak": "긴 휴식 시작",
+    "statusWaiting": "상태 · {{phase}} · 시작 대기",
+    "tooltipWaiting": "Tempura · {{phase}} · 준비됨"
   },
   "notifications": {
     "focusComplete": "집중 완료",
@@ -234,7 +245,10 @@
     "earnedLongBreak": "더 긴 휴식을 얻었습니다.",
     "sessionFinished": "세션이 끝났습니다.",
     "halfwayTitle": "중간입니다",
-    "halfwayBody": "중점에 있습니다."
+    "halfwayBody": "중점에 있습니다.",
+    "focusReady": "집중이 준비되었습니다. 원할 때 시작하세요.",
+    "shortBreakReady": "짧은 휴식이 준비되었습니다. 원할 때 시작하세요.",
+    "longBreakReady": "긴 휴식이 준비되었습니다. 원할 때 시작하세요."
   },
   "site": {
     "title": "Tempura — 바삭한 타이밍.",
@@ -299,6 +313,9 @@
     "long_break": "긴 휴식을 시작했습니다.",
     "paused": "타이머가 일시정지되었습니다.",
     "resumed": "타이머가 재개되었습니다.",
-    "stopped": "타이머가 중지되었습니다."
+    "stopped": "타이머가 중지되었습니다.",
+    "ready_focus": "집중을 시작할 수 있습니다.",
+    "ready_short_break": "짧은 휴식을 시작할 수 있습니다.",
+    "ready_long_break": "긴 휴식을 시작할 수 있습니다."
   }
 }

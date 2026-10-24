@@ -51,6 +51,7 @@ export async function installTauriMock(page: Page) {
       locale: "en",
       checkUpdatesOnLaunch: false,
       hiddenTechniqueIds: [] as string[],
+      autoContinue: true,
     };
     const snapshot = {
       phase: "idle",
@@ -66,6 +67,7 @@ export async function installTauriMock(page: Page) {
       isFlow: false,
       hybridSwitched: false,
       workingOn: "",
+      awaitingStart: false,
     };
     let nextId = 1;
     let nextCallback = 1;
