@@ -756,6 +756,21 @@ mod range_stats_tests {
     }
 
     #[test]
+    fn auto_continue_round_trip_and_defaults_on() {
+        let db = temp_db();
+        assert!(db.get_settings().unwrap().auto_continue);
+        let mut s = db.get_settings().unwrap();
+        s.auto_continue = false;
+        db.update_settings(&s).unwrap();
+        assert!(!db.get_settings().unwrap().auto_continue);
+        // A database from before the setting existed reads as on.
+        db.conn
+            .execute("DELETE FROM settings WHERE key = 'auto_continue'", [])
+            .unwrap();
+        assert!(db.get_settings().unwrap().auto_continue);
+    }
+
+    #[test]
     fn range_stats_fills_empty_days() {
         let db = temp_db();
         let range = db.range_stats(7).expect("range");
