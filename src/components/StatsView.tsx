@@ -174,7 +174,7 @@ function ShareBars({ title, shares, t }: { title: string; shares: FocusShare[]; 
   if (!shares.length) return null;
   const max = Math.max(...shares.map((s) => s.focusSecs), 1);
   return (
-    <section className="stats-bars stats-bars--shares" aria-label={title}>
+    <section className="stats-bars" aria-label={title}>
       <p className="stats-bars__label">{title}</p>
       <ul className="stats-bars__list">
         {shares.map((share) => {

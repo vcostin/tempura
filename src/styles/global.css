@@ -2040,12 +2040,13 @@ button {
   margin-bottom: 0.25rem;
 }
 
-/* Label and technique breakdowns: names can be long, so give them a fixed share and truncate. */
-.stats-bars--shares .stats-bars__row {
-  grid-template-columns: minmax(0, 9rem) 1fr auto;
+/* Every stats bar list (days, labels, techniques) shares one name and value width,
+   so the tracks line up across sections. Long names truncate; the title shows them whole. */
+.stats-bars__row {
+  grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem;
 }
 
-.stats-bars--shares .stats-bars__day {
+.stats-bars__day {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
