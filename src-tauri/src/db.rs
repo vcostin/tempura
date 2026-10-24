@@ -2,6 +2,7 @@ use crate::models::{
     AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
     DEFAULT_FLOW_RATIO,
 };
+use crate::stats::{group_focus, FocusRow, TOP_SHARES};
 use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
 use std::collections::HashMap;
@@ -154,6 +155,22 @@ impl Database {
         self.conn.execute_batch(
             "DELETE FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n');",
         )?;
+        // What each session was on: added after release, so older databases get them here.
+        self.add_column_if_missing("sessions", "label", "TEXT NOT NULL DEFAULT ''")?;
+        self.add_column_if_missing("sessions", "technique_name", "TEXT")?;
+        Ok(())
+    }
+
+    fn add_column_if_missing(&self, table: &str, column: &str, decl: &str) -> DbResult<()> {
+        let exists: bool = self.conn.query_row(
+            &format!("SELECT COUNT(*) > 0 FROM pragma_table_info('{table}') WHERE name = ?1"),
+            params![column],
+            |row| row.get(0),
+        )?;
+        if !exists {
+            self.conn
+                .execute_batch(&format!("ALTER TABLE {table} ADD COLUMN {column} {decl};"))?;
+        }
         Ok(())
     }
 
@@ -530,15 +547,18 @@ impl Database {
         Ok(())
     }
 
-    pub fn start_session(&self, technique_id: &str) -> DbResult<String> {
+    pub fn start_session(&self, technique: &Technique, label: &str) -> DbResult<String> {
         let id = Uuid::new_v4().to_string();
         let now = Utc::now().to_rfc3339();
         self.conn.execute(
             "
-            INSERT INTO sessions (id, technique_id, started_at, focus_secs_completed, completed_cycles, interrupted)
-            VALUES (?1, ?2, ?3, 0, 0, 0)
+            INSERT INTO sessions (
+                id, technique_id, technique_name, label, started_at,
+                focus_secs_completed, completed_cycles, interrupted
+            )
+            VALUES (?1, ?2, ?3, ?4, ?5, 0, 0, 0)
             ",
-            params![id, technique_id, now],
+            params![id, technique.id, technique.name, label, now],
         )?;
         Ok(id)
     }
@@ -549,6 +569,7 @@ impl Database {
         focus_secs: i64,
         completed_cycles: i64,
         interrupted: bool,
+        label: &str,
     ) -> DbResult<()> {
         let now = Utc::now().to_rfc3339();
         self.conn.execute(
@@ -557,14 +578,16 @@ impl Database {
                 ended_at = ?1,
                 focus_secs_completed = ?2,
                 completed_cycles = ?3,
-                interrupted = ?4
-            WHERE id = ?5
+                interrupted = ?4,
+                label = ?5
+            WHERE id = ?6
             ",
             params![
                 now,
                 focus_secs,
                 completed_cycles,
                 if interrupted { 1 } else { 0 },
+                label,
                 session_id
             ],
         )?;
@@ -576,15 +599,17 @@ impl Database {
         session_id: &str,
         focus_secs: i64,
         completed_cycles: i64,
+        label: &str,
     ) -> DbResult<()> {
         self.conn.execute(
             "
             UPDATE sessions SET
                 focus_secs_completed = ?1,
-                completed_cycles = ?2
-            WHERE id = ?3
+                completed_cycles = ?2,
+                label = ?3
+            WHERE id = ?4
             ",
-            params![focus_secs, completed_cycles, session_id],
+            params![focus_secs, completed_cycles, label, session_id],
         )?;
         Ok(())
     }
@@ -624,27 +649,36 @@ impl Database {
         let start_day = today - Duration::days(days - 1);
         let start_utc = local_day_start_utc(start_day).to_rfc3339();
 
+        // Oldest first: the grouping shows each label's most recent spelling.
         let mut stmt = self.conn.prepare(
             "
-            SELECT started_at, focus_secs_completed, completed_cycles
-            FROM sessions
-            WHERE started_at >= ?1
+            SELECT s.started_at, s.focus_secs_completed, s.completed_cycles, s.label,
+                   s.technique_id, COALESCE(s.technique_name, t.name, '')
+            FROM sessions s
+            LEFT JOIN techniques t ON t.id = s.technique_id
+            WHERE s.started_at >= ?1
+            ORDER BY s.started_at
             ",
         )?;
-        let rows: Vec<(String, i64, i64)> = stmt
+        type Row = (String, i64, i64, String, Option<String>, String);
+        let rows: Vec<Row> = stmt
             .query_map(params![start_utc], |row| {
-                Ok((row.get(0)?, row.get(1)?, row.get(2)?))
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?))
             })?
             .collect::<Result<Vec<_>, _>>()?;
 
         let mut map: HashMap<NaiveDate, (i64, i64, i64)> = HashMap::new();
-        for (started_at, focus, cycles) in &rows {
-            let Some(d) = local_date_from_rfc3339(started_at) else {
+        let mut labels = Vec::new();
+        let mut techniques = Vec::new();
+        for (started_at, focus, cycles, label, technique_id, technique_name) in rows {
+            let Some(d) = local_date_from_rfc3339(&started_at) else {
                 continue;
             };
             if d < start_day || d > today {
                 continue;
             }
+            labels.push(FocusRow { id: None, name: label, focus_secs: focus });
+            techniques.push(FocusRow { id: technique_id, name: technique_name, focus_secs: focus });
             let e = map.entry(d).or_insert((0, 0, 0));
             e.0 += focus;
             e.1 += cycles;
@@ -677,6 +711,8 @@ impl Database {
             sessions,
             streak_days: self.compute_streak(today)?,
             buckets,
+            by_label: group_focus(labels, TOP_SHARES),
+            by_technique: group_focus(techniques, TOP_SHARES),
         })
     }
 

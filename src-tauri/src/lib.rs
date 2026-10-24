@@ -5,6 +5,7 @@ mod i18n;
 mod models;
 mod notify;
 mod open_url;
+mod stats;
 mod tray;
 
 pub use commands::AppState;

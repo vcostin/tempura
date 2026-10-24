@@ -71,6 +71,17 @@ export async function installTauriMock(page: Page) {
       awaitingStart: false,
       awaySecs: 0,
     };
+    // An empty range, until a test sets one.
+    let statsRange: Record<string, unknown> = {
+      days: 7,
+      focusSecs: 0,
+      completedCycles: 0,
+      sessions: 0,
+      streakDays: 0,
+      buckets: [],
+      byLabel: [],
+      byTechnique: [],
+    };
     let nextId = 1;
     let nextCallback = 1;
     const callbacks = new Map<number, (payload: unknown) => void>();
@@ -111,6 +122,7 @@ export async function installTauriMock(page: Page) {
       },
       get_system_locale: () => "en",
       get_stats: () => ({ focusSecsToday: 0, completedCyclesToday: 0, sessionsToday: 0, streakDays: 0 }),
+      get_stats_range: (a) => ({ ...statsRange, days: a.days }),
       get_app_info: () => ({
         name: "Tempura",
         version: "0.0.0-test",
@@ -158,6 +170,9 @@ export async function installTauriMock(page: Page) {
       setSnapshot(partial: Record<string, unknown>) {
         snapshot = { ...snapshot, ...partial } as typeof snapshot;
         emit("timer-tick", snapshot);
+      },
+      setStatsRange(range: Record<string, unknown>) {
+        statsRange = { ...statsRange, ...range };
       },
     };
 

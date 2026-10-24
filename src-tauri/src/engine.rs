@@ -152,7 +152,7 @@ impl EngineHandle {
             db.get_technique(&tech_id)?
                 .ok_or_else(|| crate::db::DbError::Message("technique not found".into()))
         })?;
-        let session_id = Self::with_db(app, |db| db.start_session(&technique.id))?;
+        let session_id = Self::with_db(app, |db| db.start_session(&technique, &settings.working_on))?;
 
         let mut eng = self.inner.lock();
         eng.settings = settings;
@@ -296,12 +296,14 @@ impl EngineHandle {
         let session_id;
         let focus_secs;
         let cycles;
+        let label;
         {
             let mut eng = self.inner.lock();
             previous = eng.snapshot.phase;
             session_id = eng.session_id.clone();
             focus_secs = eng.focus_secs_completed;
             cycles = eng.snapshot.cycle;
+            label = eng.snapshot.working_on.clone();
             eng.snapshot.running = false;
             eng.snapshot.paused = false;
             eng.snapshot.phase = Phase::Idle;
@@ -319,7 +321,7 @@ impl EngineHandle {
             eng.technique = None;
         }
         if let Some(id) = session_id {
-            let _ = Self::with_db(app, |db| db.end_session(&id, focus_secs, cycles, true));
+            let _ = Self::with_db(app, |db| db.end_session(&id, focus_secs, cycles, true, &label));
         }
         self.emit_phase(app, previous, Phase::Idle, "stop");
         self.emit_tick(app);
@@ -699,16 +701,17 @@ impl EngineHandle {
     }
 
     fn persist_progress(&self, app: &AppHandle) {
-        let (session_id, focus, cycles) = {
+        let (session_id, focus, cycles, label) = {
             let eng = self.inner.lock();
             (
                 eng.session_id.clone(),
                 eng.focus_secs_completed,
                 eng.snapshot.cycle,
+                eng.snapshot.working_on.clone(),
             )
         };
         if let Some(id) = session_id {
-            let _ = Self::with_db(app, |db| db.bump_session_progress(&id, focus, cycles));
+            let _ = Self::with_db(app, |db| db.bump_session_progress(&id, focus, cycles, &label));
         }
     }
 

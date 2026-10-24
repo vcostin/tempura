@@ -154,7 +154,11 @@
     "period30": "30 ימים",
     "periodAria": "טווח סטטיסטיקות",
     "dailyBreakdown": "מיקוד יומי",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "על מה",
+    "byTechnique": "לפי טכניקה",
+    "other": "אחר",
+    "noLabel": "ללא תווית"
   },
   "library": {
     "panel": "טכניקות",

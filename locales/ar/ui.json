@@ -157,7 +157,11 @@
     "period30": "٣٠ يومًا",
     "periodAria": "نطاق الإحصاءات",
     "dailyBreakdown": "التركيز اليومي",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "على ماذا",
+    "byTechnique": "حسب التقنية",
+    "other": "أخرى",
+    "noLabel": "بلا تسمية"
   },
   "library": {
     "panel": "التقنيات",

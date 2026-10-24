@@ -153,7 +153,11 @@
     "period30": "30 dagen",
     "periodAria": "Statistiekbereik",
     "dailyBreakdown": "Dagelijkse focus",
-    "noFocusDay": "—"
+    "noFocusDay": "—",
+    "byLabel": "Waaraan",
+    "byTechnique": "Per techniek",
+    "other": "Overig",
+    "noLabel": "Geen label"
   },
   "library": {
     "panel": "Technieken",
