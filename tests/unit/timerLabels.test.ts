@@ -1,6 +1,6 @@
 /// <reference lib="deno.ns" />
 import { assertEquals } from "jsr:@std/assert@1";
-import { showsPaused, startPhaseKey } from "../../src/lib/timerLabels.ts";
+import { offersToCountAway, showsPaused, startPhaseKey } from "../../src/lib/timerLabels.ts";
 import type { TimerSnapshot } from "../../src/lib/types.ts";
 
 const base: TimerSnapshot = {
@@ -18,6 +18,7 @@ const base: TimerSnapshot = {
   hybridSwitched: false,
   workingOn: "",
   awaitingStart: false,
+  awaySecs: 0,
 };
 
 Deno.test("startPhaseKey names the waiting phase", () => {
@@ -32,4 +33,12 @@ Deno.test("showsPaused: only a real pause reads as Paused", () => {
   assertEquals(showsPaused({ ...base, paused: true }), true);
   assertEquals(showsPaused({ ...base, paused: true, awaitingStart: true }), false);
   assertEquals(showsPaused({ ...base, paused: true, running: false }), false);
+});
+
+Deno.test("offersToCountAway: only after a long time away", () => {
+  const away = { ...base, paused: true };
+  assertEquals(offersToCountAway({ ...away, awaySecs: 0 }), false);
+  assertEquals(offersToCountAway({ ...away, awaySecs: 9 * 60 }), false);
+  assertEquals(offersToCountAway({ ...away, awaySecs: 10 * 60 }), true);
+  assertEquals(offersToCountAway({ ...away, awaySecs: 42 * 60, paused: false }), false);
 });

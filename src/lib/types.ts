@@ -59,6 +59,8 @@ export interface TimerSnapshot {
   workingOn: string;
   /** The next phase is set up but waits for the user (auto-continue off). */
   awaitingStart: boolean;
+  /** Seconds the computer was away (asleep) when focus paused for it; 0 otherwise. */
+  awaySecs: number;
 }
 
 export interface DayStats {

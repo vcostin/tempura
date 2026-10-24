@@ -45,7 +45,10 @@
     "autoContinueHint": "Automatycznie rozpoczyna następną przerwę lub skupienie. Wyłącz, aby samodzielnie rozpoczynać każdą fazę.",
     "startFocus": "Rozpocznij skupienie",
     "startShortBreak": "Rozpocznij krótką przerwę",
-    "startLongBreak": "Rozpocznij długą przerwę"
+    "startLongBreak": "Rozpocznij długą przerwę",
+    "awayPaused": "Wstrzymano podczas twojej nieobecności ({{time}}).",
+    "countAway": "Policz jako skupienie",
+    "dontCountAway": "Nie licz"
   },
   "picker": {
     "aria": "Technika skupienia",

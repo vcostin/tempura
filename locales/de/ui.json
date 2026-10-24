@@ -43,7 +43,10 @@
     "autoContinueHint": "Startet die nächste Pause oder Fokusphase automatisch. Ausschalten, um jede Phase selbst zu starten.",
     "startFocus": "Fokus starten",
     "startShortBreak": "Kurze Pause starten",
-    "startLongBreak": "Lange Pause starten"
+    "startLongBreak": "Lange Pause starten",
+    "awayPaused": "Pausiert, während du weg warst ({{time}}).",
+    "countAway": "Als Fokus zählen",
+    "dontCountAway": "Nicht zählen"
   },
   "picker": {
     "aria": "Fokustechnik",

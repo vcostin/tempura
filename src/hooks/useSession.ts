@@ -19,6 +19,7 @@ const idleSnap: TimerSnapshot = {
   hybridSwitched: false,
   workingOn: "",
   awaitingStart: false,
+  awaySecs: 0,
 };
 
 export function useSession() {
@@ -123,6 +124,15 @@ export function useSession() {
     setSnapshot(await api.continueFlow());
   }, []);
 
+  const countAway = useCallback(async () => {
+    setSnapshot(await api.countAway());
+    await refreshStats();
+  }, [refreshStats]);
+
+  const dismissAway = useCallback(async () => {
+    setSnapshot(await api.dismissAway());
+  }, []);
+
   const reloadTechniques = useCallback(async () => {
     setTechniques(await api.listTechniques());
   }, []);
@@ -142,6 +152,8 @@ export function useSession() {
     reset,
     stop,
     continueFlow,
+    countAway,
+    dismissAway,
     reloadTechniques,
     refreshStats,
   };

@@ -1,8 +1,8 @@
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
-import { formatClock, formatTechniqueRhythm, phaseLabel } from "../lib/api";
+import { formatClock, formatMinutes, formatTechniqueRhythm, phaseLabel } from "../lib/api";
 import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
-import { showsPaused, startPhaseKey } from "../lib/timerLabels";
+import { offersToCountAway, showsPaused, startPhaseKey } from "../lib/timerLabels";
 import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
@@ -27,6 +27,8 @@ interface Props {
   onReset: () => void;
   onStop: () => void;
   onContinueFlow: () => void;
+  onCountAway: () => void;
+  onDismissAway: () => void;
   autoContinue: boolean;
   onAutoContinue: (enabled: boolean) => void;
   onNewTechnique: () => void;
@@ -200,6 +202,22 @@ export function TimerView(props: Props) {
                 {t("timer.takeBreak")}
               </button>
             </div>
+          </div>
+        )}
+
+        {s.awaySecs > 0 && (
+          <div className="hybrid-banner away-banner" role="status">
+            <span>{t("timer.awayPaused", { time: formatMinutes(s.awaySecs, t) })}</span>
+            {offersToCountAway(s) && (
+              <div className="row">
+                <button type="button" className="btn btn-ghost" onClick={props.onCountAway}>
+                  {t("timer.countAway")}
+                </button>
+                <button type="button" className="btn btn-primary" onClick={props.onDismissAway}>
+                  {t("timer.dontCountAway")}
+                </button>
+              </div>
+            )}
           </div>
         )}
 

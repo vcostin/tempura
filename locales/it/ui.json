@@ -43,7 +43,10 @@
     "autoContinueHint": "Avvia automaticamente la pausa o il focus successivo. Disattiva per avviare ogni fase manualmente.",
     "startFocus": "Avvia focus",
     "startShortBreak": "Avvia pausa breve",
-    "startLongBreak": "Avvia pausa lunga"
+    "startLongBreak": "Avvia pausa lunga",
+    "awayPaused": "In pausa mentre eri via ({{time}}).",
+    "countAway": "Conta come focus",
+    "dontCountAway": "Non contare"
   },
   "picker": {
     "aria": "Tecnica di focus",

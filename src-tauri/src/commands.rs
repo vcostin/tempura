@@ -75,6 +75,16 @@ pub fn timer_continue_flow(
 }
 
 #[tauri::command]
+pub fn timer_count_away(app: AppHandle, engine: State<'_, EngineHandle>) -> Result<TimerSnapshot, String> {
+    engine.count_away(&app)
+}
+
+#[tauri::command]
+pub fn timer_dismiss_away(app: AppHandle, engine: State<'_, EngineHandle>) -> Result<TimerSnapshot, String> {
+    engine.dismiss_away(&app)
+}
+
+#[tauri::command]
 pub fn list_techniques(state: State<'_, AppState>) -> Result<Vec<Technique>, String> {
     state.db.lock().list_techniques().map_err(|e| e.to_string())
 }

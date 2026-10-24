@@ -44,7 +44,10 @@
     "autoContinueHint": "Pornește automat următoarea pauză sau sesiune de focus. Dezactivează ca să pornești manual fiecare fază.",
     "startFocus": "Pornește focusul",
     "startShortBreak": "Pornește pauza scurtă",
-    "startLongBreak": "Pornește pauza lungă"
+    "startLongBreak": "Pornește pauza lungă",
+    "awayPaused": "Pus pe pauză cât ai lipsit ({{time}}).",
+    "countAway": "Socotește ca focus",
+    "dontCountAway": "Nu socoti"
   },
   "picker": {
     "aria": "Tehnică de focus",

@@ -302,6 +302,8 @@ export function TimerLayout() {
           onReset={() => void session.reset()}
           onStop={() => void session.stop()}
           onContinueFlow={() => void session.continueFlow()}
+          onCountAway={() => void session.countAway()}
+          onDismissAway={() => void session.dismissAway()}
           autoContinue={settingsApi.settings.autoContinue}
           onAutoContinue={(enabled) => void settingsApi.patch({ autoContinue: enabled })}
           onNewTechnique={() => openTechniqueEditor()}

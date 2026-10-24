@@ -44,7 +44,10 @@
     "autoContinueHint": "מתחיל אוטומטית את ההפסקה או המיקוד הבאים. כבו כדי להתחיל כל שלב בעצמכם.",
     "startFocus": "התחלת מיקוד",
     "startShortBreak": "התחלת הפסקה קצרה",
-    "startLongBreak": "התחלת הפסקה ארוכה"
+    "startLongBreak": "התחלת הפסקה ארוכה",
+    "awayPaused": "הושהה בזמן היעדרות ({{time}}).",
+    "countAway": "לספור כזמן מיקוד",
+    "dontCountAway": "לא לספור"
   },
   "picker": {
     "aria": "טכניקת מיקוד",

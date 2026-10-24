@@ -16,3 +16,11 @@ export function startPhaseKey(phase: Phase): (typeof START_PHASE_KEYS)[Phase] {
 export function showsPaused(s: TimerSnapshot): boolean {
   return s.running && s.paused && !s.awaitingStart;
 }
+
+/** Away this long (seconds) and the timer asks whether to count it as focus. */
+export const COUNT_AWAY_PROMPT_SECS = 10 * 60;
+
+/** A long time away during focus: offer to count it. Shorter gaps just stay paused. */
+export function offersToCountAway(s: TimerSnapshot): boolean {
+  return s.paused && s.awaySecs >= COUNT_AWAY_PROMPT_SECS;
+}

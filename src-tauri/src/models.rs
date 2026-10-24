@@ -278,6 +278,8 @@ pub struct TimerSnapshot {
     pub working_on: String,
     /// The next phase is set up but waits for the user (auto-continue off).
     pub awaiting_start: bool,
+    /// Seconds the machine was away (asleep) when focus was paused for it; 0 otherwise.
+    pub away_secs: i64,
 }
 
 impl Default for TimerSnapshot {
@@ -297,6 +299,7 @@ impl Default for TimerSnapshot {
             hybrid_switched: false,
             working_on: String::new(),
             awaiting_start: false,
+            away_secs: 0,
         }
     }
 }
