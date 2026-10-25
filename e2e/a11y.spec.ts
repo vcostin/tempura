@@ -122,7 +122,7 @@ test.describe("a11y dialogs and landmarks", () => {
 
   test("toolbar About opens About dialog with feedback", async ({ page }) => {
     await page.locator('[data-open-panel="about"]').click();
-    await page.waitForSelector('[role="dialog"][aria-label="About"]');
+    await page.waitForSelector('[role="dialog"][aria-label="Help & About"]');
     const aboutToolbar = await page.evaluate(() => {
       const d = document.querySelector('[role="dialog"]');
       return {
@@ -146,8 +146,8 @@ test.describe("a11y dialogs and landmarks", () => {
   test("settings About link opens About dialog with feedback", async ({ page }) => {
     await page.locator('[data-open-panel="settings"]').click();
     await page.waitForSelector('[role="dialog"]');
-    await page.getByRole("button", { name: "About…" }).click();
-    await page.waitForSelector('[role="dialog"][aria-label="About"]');
+    await page.getByRole("button", { name: "Help & About…" }).click();
+    await page.waitForSelector('[role="dialog"][aria-label="Help & About"]');
 
     const about = await page.evaluate(() => {
       const d = document.querySelector('[role="dialog"]');
@@ -162,7 +162,7 @@ test.describe("a11y dialogs and landmarks", () => {
       };
     });
     expect(about.modal).toBe("true");
-    expect(about.label).toBe("About");
+    expect(about.label).toBe("Help & About");
     expect(about.close).toBe(true);
     expect(about.feedback).toBe(true);
 

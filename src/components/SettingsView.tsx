@@ -18,6 +18,7 @@ interface Props {
   onToggleAutostart: (enabled: boolean) => Promise<void>;
   onOpenTechniques: () => void;
   onOpenAbout?: () => void;
+  onOpenShortcuts: () => void;
   onQuit?: () => void;
 }
 
@@ -156,13 +157,16 @@ export function SettingsView(props: Props) {
         </button>
       </section>
 
-      {props.onOpenAbout && (
-        <p className="settings-foot">
+      <p className="settings-foot">
+        <button type="button" className="linkish" onClick={props.onOpenShortcuts}>
+          {t("shortcuts.open")}
+        </button>
+        {props.onOpenAbout && (
           <button type="button" className="linkish" onClick={props.onOpenAbout}>
             {t("settings.openAbout")}
           </button>
-        </p>
-      )}
+        )}
+      </p>
     </ScrollPanel>
   );
 }
