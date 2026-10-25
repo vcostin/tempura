@@ -77,6 +77,7 @@
     "desktop": "데스크톱",
     "launchAtLogin": "로그인 시 실행",
     "startMinimized": "트레이로 최소화하여 시작",
+    "menuBarCountdown": "메뉴 막대에 카운트다운 표시",
     "quit": "Tempura 종료",
     "delete": "삭제",
     "editTechnique": "기법 편집",

@@ -77,6 +77,7 @@
     "desktop": "桌面",
     "launchAtLogin": "登录时启动",
     "startMinimized": "启动时最小化到托盘",
+    "menuBarCountdown": "在菜单栏显示倒计时",
     "quit": "退出 Tempura",
     "delete": "删除",
     "editTechnique": "编辑技法",

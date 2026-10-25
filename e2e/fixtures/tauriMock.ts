@@ -53,6 +53,7 @@ export async function installTauriMock(page: Page) {
       checkUpdatesOnLaunch: false,
       hiddenTechniqueIds: [] as string[],
       autoContinue: true,
+      menuBarCountdown: true,
       globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
     };
     let snapshot = {

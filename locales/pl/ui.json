@@ -79,6 +79,7 @@
     "desktop": "Pulpit",
     "launchAtLogin": "Uruchamiaj po zalogowaniu",
     "startMinimized": "Start zminimalizowany do zasobnika",
+    "menuBarCountdown": "Odliczanie na pasku menu",
     "quit": "Zakończ Tempura",
     "delete": "Usuń",
     "editTechnique": "Edytuj technikę",

@@ -307,6 +307,15 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     let tooltip = EngineHandle::format_tooltip(snap, &locale);
     if let Some(tray) = app.tray_by_id("main") {
         let _ = tray.set_tooltip(Some(&tooltip));
+        #[cfg(target_os = "macos")]
+        {
+            let title = app
+                .state::<EngineHandle>()
+                .menu_bar_countdown()
+                .then(|| EngineHandle::menu_bar_title(snap))
+                .flatten();
+            let _ = tray.set_title(title.as_deref());
+        }
     }
 
     let Some(items) = app.try_state::<TrayMenuItems>() else {

@@ -77,6 +77,7 @@
     "desktop": "Bureau",
     "launchAtLogin": "Lancer à la connexion",
     "startMinimized": "Démarrer réduit dans la zone de notification",
+    "menuBarCountdown": "Compte à rebours dans la barre des menus",
     "quit": "Quitter Tempura",
     "delete": "Supprimer",
     "editTechnique": "Modifier la technique",

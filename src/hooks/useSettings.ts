@@ -23,6 +23,7 @@ const defaultSettings: AppSettings = {
   checkUpdatesOnLaunch: true,
   hiddenTechniqueIds: [],
   autoContinue: true,
+  menuBarCountdown: true,
   globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
 };
 
@@ -67,6 +68,7 @@ export function useSettings() {
       const s = await api.getSettings();
       s.hiddenTechniqueIds ??= [];
       s.autoContinue ??= true;
+      s.menuBarCountdown ??= true;
       s.globalHotkeys ??= { toggle: "", skip: "", show: "", portal: false };
       commit(s);
       document.documentElement.setAttribute("data-theme", s.theme);

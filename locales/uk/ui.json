@@ -79,6 +79,7 @@
     "desktop": "Стільниця",
     "launchAtLogin": "Запускати після входу",
     "startMinimized": "Запускати згорнутим у лоток",
+    "menuBarCountdown": "Зворотний відлік у рядку меню",
     "quit": "Вийти з Tempura",
     "delete": "Видалити",
     "editTechnique": "Редагувати техніку",

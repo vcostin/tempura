@@ -88,6 +88,7 @@
     "desktop": "Desktop",
     "launchAtLogin": "Launch at login",
     "startMinimized": "Start minimized to tray",
+    "menuBarCountdown": "Countdown in the menu bar",
     "quit": "Quit Tempura",
     "delete": "Delete",
     "editTechnique": "Edit technique",
