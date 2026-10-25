@@ -179,7 +179,7 @@ export function TimerView(props: Props) {
               {phaseText}
             </h2>
             <p className="clock" aria-hidden={showClock ? undefined : true}>
-              {showClock ? formatClock(displaySecs) : "––:––"}
+              {fixedDigits(showClock ? formatClock(displaySecs) : "––:––")}
             </p>
             {(shownName || selected) && (
               <p className="technique-name">
@@ -347,5 +347,21 @@ function BugIcon() {
       <path d="M12 5V3M8.5 8H5M18.5 8H15M8.5 12H4M20 12h-4.5M9 16.5 6.5 19M15 16.5 17.5 19" strokeLinecap="round" />
       <path d="M10 10.5h4M10 13.5h4" strokeLinecap="round" />
     </svg>
+  );
+}
+
+/**
+ * The display font has no tabular figures, so each digit gets a cell of the same
+ * width; otherwise the clock jiggles sideways as it ticks.
+ */
+function fixedDigits(text: string) {
+  return Array.from(text, (ch, i) =>
+    /[0-9–]/.test(ch) ? (
+      <span key={i} className="clock-digit">
+        {ch}
+      </span>
+    ) : (
+      ch
+    ),
   );
 }

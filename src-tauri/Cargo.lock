@@ -4314,6 +4314,8 @@ dependencies = [
  "gtk",
  "mac-usernotifications",
  "notify-rust",
+ "objc2",
+ "objc2-app-kit",
  "parking_lot",
  "rusqlite",
  "rust-embed",

@@ -254,6 +254,7 @@
     "tooltipPaused": "Tempura · {{phase}} · 已暂停",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "自动继续",
+    "menuBarCountdown": "菜单栏倒计时",
     "startFocus": "开始专注",
     "startShortBreak": "开始短休息",
     "startLongBreak": "开始长休息",

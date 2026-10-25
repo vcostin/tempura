@@ -87,13 +87,17 @@ export function useSettings() {
     void load();
   }, [desktop, commit]);
 
-  // The tray can change settings too (auto-continue); keep the window in step.
+  // The tray can change settings too (auto-continue, menu bar countdown); keep the window in step.
   useEffect(() => {
     if (!isTauri()) return;
     let unlisten: (() => void) | undefined;
     let cancelled = false;
     void listen<AppSettings>("settings-updated", (e) => {
-      commit({ ...latest.current, autoContinue: e.payload.autoContinue });
+      commit({
+        ...latest.current,
+        autoContinue: e.payload.autoContinue,
+        menuBarCountdown: e.payload.menuBarCountdown,
+      });
     }).then((u) => {
       if (cancelled) u();
       else unlisten = u;

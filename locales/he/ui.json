@@ -255,6 +255,7 @@
     "tooltipPaused": "Tempura · {{phase}} · מושהה",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "המשך אוטומטי",
+    "menuBarCountdown": "ספירה לאחור בשורת התפריטים",
     "startFocus": "התחלת מיקוד",
     "startShortBreak": "התחלת הפסקה קצרה",
     "startLongBreak": "התחלת הפסקה ארוכה",

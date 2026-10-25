@@ -254,6 +254,7 @@
     "tooltipPaused": "Tempura · {{phase}} · Pausiert",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "Automatisch weiter",
+    "menuBarCountdown": "Countdown in der Menüleiste",
     "startFocus": "Fokus starten",
     "startShortBreak": "Kurze Pause starten",
     "startLongBreak": "Lange Pause starten",

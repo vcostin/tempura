@@ -254,6 +254,7 @@
     "tooltipPaused": "Tempura · {{phase}} · 일시정지",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "자동으로 계속",
+    "menuBarCountdown": "메뉴 막대 카운트다운",
     "startFocus": "집중 시작",
     "startShortBreak": "짧은 휴식 시작",
     "startLongBreak": "긴 휴식 시작",

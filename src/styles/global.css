@@ -413,6 +413,12 @@ button {
   margin: 0;
 }
 
+.clock-digit {
+  display: inline-block;
+  width: 0.6em;
+  text-align: center;
+}
+
 .technique-name {
   font-size: 0.95rem;
   color: var(--ink-muted);

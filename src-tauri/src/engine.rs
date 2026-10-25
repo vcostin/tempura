@@ -122,7 +122,6 @@ impl EngineHandle {
         self.inner.lock().settings.auto_continue
     }
 
-    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
     pub fn menu_bar_countdown(&self) -> bool {
         self.inner.lock().settings.menu_bar_countdown
     }

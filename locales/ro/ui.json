@@ -255,6 +255,7 @@
     "tooltipPaused": "Tempura · {{phase}} · Pauză",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "Continuare automată",
+    "menuBarCountdown": "Numărătoare inversă în bara de meniu",
     "startFocus": "Pornește focusul",
     "startShortBreak": "Pornește pauza scurtă",
     "startLongBreak": "Pornește pauza lungă",

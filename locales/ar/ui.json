@@ -258,6 +258,7 @@
     "tooltipPaused": "Tempura · {{phase}} · متوقف",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "المتابعة تلقائيًا",
+    "menuBarCountdown": "العد التنازلي في شريط القوائم",
     "startFocus": "ابدأ التركيز",
     "startShortBreak": "ابدأ الاستراحة القصيرة",
     "startLongBreak": "ابدأ الاستراحة الطويلة",

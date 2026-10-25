@@ -254,6 +254,7 @@
     "tooltipPaused": "Tempura · {{phase}} · En pausa",
     "tooltipRunning": "Tempura · {{phase}} · {{time}}",
     "autoContinue": "Continuar automáticamente",
+    "menuBarCountdown": "Cuenta atrás en la barra de menús",
     "startFocus": "Iniciar foco",
     "startShortBreak": "Iniciar pausa corta",
     "startLongBreak": "Iniciar pausa larga",
