@@ -140,7 +140,7 @@ export async function installTauriMock(page: Page) {
       get_hotkey_report: () => hotkeyReport,
       setup_portal_hotkeys: () => {
         hotkeyReport = { ...hotkeyReport, portalProblem: !portalAssigns, portalShortcuts: portalAssigns ?? [] };
-        if (!portalAssigns) throw new Error("Cancelled");
+        return !!portalAssigns;
       },
       get_app_info: () => ({
         name: "Tempura",

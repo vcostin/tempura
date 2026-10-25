@@ -43,11 +43,7 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   const name = (key: string) => t(`shortcuts.key_${key}`);
 
   const refresh = useCallback(async () => {
-    try {
-      setReport(await api.getHotkeyReport());
-    } catch {
-      setReport(null);
-    }
+    setReport(await api.getHotkeyReport());
   }, []);
 
   useEffect(() => {
@@ -90,22 +86,17 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   }
 
   async function copyCommand(action: HotkeyAction, command: string) {
-    try {
-      await navigator.clipboard.writeText(command);
-      setCopied(action);
-      window.setTimeout(() => setCopied((c) => (c === action ? null : c)), 2000);
-    } catch {
-      /* clipboard may be denied; the command is still on screen to select */
-    }
+    await navigator.clipboard.writeText(command);
+    setCopied(action);
+    window.setTimeout(() => setCopied((c) => (c === action ? null : c)), 2000);
   }
 
   async function setUpPortal() {
     setPortalBusy(true);
     try {
-      await api.setupPortalHotkeys();
-      if (!hotkeys.portal) await onChange({ ...hotkeys, portal: true });
-    } catch {
-      /* cancelled or refused: the report says so */
+      // False when the user cancels the desktop's dialog; the report then says so.
+      const bound = await api.setupPortalHotkeys();
+      if (bound && !hotkeys.portal) await onChange({ ...hotkeys, portal: true });
     } finally {
       setPortalBusy(false);
       await refresh();

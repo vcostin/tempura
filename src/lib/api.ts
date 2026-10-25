@@ -24,7 +24,8 @@ export const api = {
   stop: () => invoke<TimerSnapshot>("timer_stop"),
   continueFlow: () => invoke<TimerSnapshot>("timer_continue_flow"),
   getHotkeyReport: () => invoke<HotkeyReport>("get_hotkey_report"),
-  setupPortalHotkeys: () => invoke<void>("setup_portal_hotkeys"),
+  /** True once the desktop bound the shortcuts; false if the user cancelled its dialog. */
+  setupPortalHotkeys: () => invoke<boolean>("setup_portal_hotkeys"),
   countAway: () => invoke<TimerSnapshot>("timer_count_away"),
   dismissAway: () => invoke<TimerSnapshot>("timer_dismiss_away"),
 

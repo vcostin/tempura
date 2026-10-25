@@ -23,10 +23,7 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
 
   useEffect(() => {
     if (!globalHotkeys.portal) return;
-    api.getHotkeyReport().then(
-      (report) => setPortalShortcuts(report.portalShortcuts ?? []),
-      () => {},
-    );
+    void api.getHotkeyReport().then((report) => setPortalShortcuts(report.portalShortcuts ?? []));
   }, [globalHotkeys.portal]);
 
   // Recorded keys, or on Wayland the ones the desktop assigned (one label each).
