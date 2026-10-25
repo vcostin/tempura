@@ -44,7 +44,7 @@ Deno.test("hotkeyCaps shows readable caps per platform", () => {
 });
 
 Deno.test("takenBy finds another action using the same shortcut", () => {
-  const hotkeys = { toggle: "Control+Alt+KeyP", skip: "", show: "" };
+  const hotkeys = { toggle: "Control+Alt+KeyP", skip: "", show: "", portal: false };
   assertEquals(takenBy(hotkeys, "skip", "Control+Alt+KeyP"), "toggle");
   assertEquals(takenBy(hotkeys, "toggle", "Control+Alt+KeyP"), null);
   assertEquals(takenBy(hotkeys, "skip", "Control+Alt+KeyS"), null);

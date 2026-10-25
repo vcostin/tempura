@@ -175,6 +175,21 @@ pub fn get_hotkey_report(hotkeys: State<'_, crate::hotkeys::HotkeyState>) -> cra
     hotkeys.report()
 }
 
+/// Wayland: ask the desktop for the shortcuts, or open its dialog to change them.
+/// False when that didn't happen (the user cancelled, say); the report says so.
+#[cfg(target_os = "linux")]
+#[tauri::command]
+pub async fn setup_portal_hotkeys(app: AppHandle) -> bool {
+    crate::portal::setup(&app).await.is_ok()
+}
+
+/// Only Linux has a shortcuts portal; elsewhere Tempura records keys itself.
+#[cfg(not(target_os = "linux"))]
+#[tauri::command]
+pub async fn setup_portal_hotkeys() -> bool {
+    false
+}
+
 #[tauri::command]
 pub fn get_stats(state: State<'_, AppState>) -> Result<DayStats, String> {
     state.db.lock().day_stats().map_err(|e| e.to_string())

@@ -90,6 +90,8 @@ pub struct GlobalHotkeys {
     pub toggle: String,
     pub skip: String,
     pub show: String,
+    /// Wayland: the user set shortcuts up through the desktop's portal.
+    pub portal: bool,
 }
 
 fn default_true() -> bool {
@@ -491,7 +493,7 @@ mod tests {
 
     fn with_hotkeys(toggle: &str, skip: &str, show: &str) -> AppSettings {
         AppSettings {
-            global_hotkeys: GlobalHotkeys { toggle: toggle.into(), skip: skip.into(), show: show.into() },
+            global_hotkeys: GlobalHotkeys { toggle: toggle.into(), skip: skip.into(), show: show.into(), portal: false },
             ..Default::default()
         }
     }

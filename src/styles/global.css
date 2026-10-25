@@ -2153,6 +2153,27 @@ kbd {
   color: var(--danger, var(--accent));
 }
 
+.hotkey-row--portal {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.hotkey-portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.hotkey-commands-more {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.hotkey-commands-more summary {
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+
 .hotkey-commands {
   margin: 0.5rem 0 0;
   display: flex;
@@ -2161,12 +2182,23 @@ kbd {
   font-size: 0.85rem;
 }
 
+.hotkey-commands dt {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
 .hotkey-commands dd {
-  margin: 0.15rem 0 0;
+  margin: 0.25rem 0 0;
 }
 
 .hotkey-commands code {
+  display: block;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--surface);
   font-size: 0.8rem;
-  word-break: break-all;
+  overflow-wrap: anywhere;
   user-select: all;
 }

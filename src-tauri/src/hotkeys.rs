@@ -3,14 +3,15 @@
 //! shortcut needs Ctrl, Alt or Super (so typing is never captured), and a key
 //! another app already owns is reported, never taken.
 //!
-//! The plugin can't grab keys on Wayland; there the Settings page points to the
-//! `tempura --toggle` style commands (see `actions.rs`) instead.
+//! The plugin can't grab keys on Wayland; there Tempura asks the desktop through
+//! its GlobalShortcuts portal (see `portal.rs`), and where no portal exists the
+//! Settings page points to the `tempura --toggle` style commands (`actions.rs`).
 
 use std::str::FromStr;
 
 use parking_lot::Mutex;
 use serde::Serialize;
-use tauri::{AppHandle, Manager};
+use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{
     GlobalShortcutExt, Modifiers, Shortcut, ShortcutEvent, ShortcutState,
 };
@@ -55,20 +56,37 @@ pub fn session_supports_hotkeys(session_type: Option<&str>, wayland_display: Opt
     !wayland
 }
 
+/// How this session offers global shortcuts.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum HotkeyMode {
+    /// Tempura records and registers the keys itself.
+    #[default]
+    Keys,
+    /// Wayland with a GlobalShortcuts portal: the desktop's dialog picks the keys.
+    Portal,
+    /// Wayland without a portal: Settings lists commands to bind in the system settings.
+    Commands,
+}
+
 /// What the Settings page shows next to each shortcut.
 #[derive(Debug, Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct HotkeyReport {
-    /// False on Wayland: Settings shows the command-line actions instead.
-    pub supported: bool,
+    pub mode: HotkeyMode,
     /// Actions ("toggle", "skip", "show") whose shortcut another app already owns.
     pub in_use: Vec<String>,
     /// How to run this Tempura from a system shortcut: the AppImage itself when
     /// running from one (its mounted binary moves every launch), else this executable.
     pub command: String,
+    /// The keys the desktop assigned through the portal; empty until set up.
+    #[cfg(target_os = "linux")]
+    pub portal_shortcuts: Vec<crate::portal::PortalShortcut>,
+    /// The desktop refused or failed to bind the shortcuts the last time we asked.
+    pub portal_problem: bool,
 }
 
-fn launch_command() -> String {
+pub fn launch_command() -> String {
     std::env::var("APPIMAGE")
         .ok()
         .filter(|path| !path.is_empty())
@@ -89,10 +107,17 @@ impl HotkeyState {
     }
 }
 
+/// Change the report and tell the Settings page to fetch it again.
+pub fn update_report(app: &AppHandle, change: impl FnOnce(&mut HotkeyReport)) {
+    change(&mut app.state::<HotkeyState>().report.lock());
+    let _ = app.emit("hotkeys-changed", ());
+}
+
 /// Release our old shortcuts and register the recorded ones. A no-op when nothing changed.
 pub fn apply(app: &AppHandle, hotkeys: &GlobalHotkeys) {
     let state = app.state::<HotkeyState>();
-    if state.applied.lock().as_ref() == Some(hotkeys) {
+    let previous = state.applied.lock().replace(hotkeys.clone());
+    if previous.as_ref() == Some(hotkeys) {
         return;
     }
     let manager = app.global_shortcut();
@@ -104,7 +129,7 @@ pub fn apply(app: &AppHandle, hotkeys: &GlobalHotkeys) {
         std::env::var("XDG_SESSION_TYPE").ok().as_deref(),
         std::env::var("WAYLAND_DISPLAY").ok().as_deref(),
     );
-    let mut report = HotkeyReport { supported, in_use: Vec::new(), command: launch_command() };
+    let mut in_use = Vec::new();
     if supported {
         let mut bound = state.bound.lock();
         for (name, action, accelerator) in bindings(hotkeys) {
@@ -112,12 +137,30 @@ pub fn apply(app: &AppHandle, hotkeys: &GlobalHotkeys) {
             match manager.register(shortcut) {
                 Ok(()) => bound.push((shortcut, action)),
                 // The OS refuses a combination another app has grabbed: report it, don't fight.
-                Err(_) => report.in_use.push(name.to_string()),
+                Err(_) => in_use.push(name.to_string()),
             }
         }
     }
-    *state.report.lock() = report;
-    *state.applied.lock() = Some(hotkeys.clone());
+    let first_run = previous.is_none();
+    update_report(app, |report| {
+        report.in_use = in_use;
+        report.command = launch_command();
+        if supported {
+            report.mode = HotkeyMode::Keys;
+        } else if first_run {
+            // Until the portal answers, offer the commands.
+            report.mode = HotkeyMode::Commands;
+        }
+    });
+
+    #[cfg(target_os = "linux")]
+    if !supported {
+        if first_run {
+            crate::portal::init(app, hotkeys.portal);
+        } else {
+            crate::portal::sync(app, hotkeys.portal);
+        }
+    }
 }
 
 pub fn on_shortcut(app: &AppHandle, shortcut: &Shortcut, event: ShortcutEvent) {
@@ -167,6 +210,7 @@ mod tests {
             toggle: "Control+Alt+KeyP".into(),
             skip: String::new(),
             show: "Control+Alt+KeyT".into(),
+            portal: false,
         };
         let names: Vec<_> = bindings(&hotkeys).iter().map(|(n, a, s)| (*n, *a, s.to_string())).collect();
         assert_eq!(names[0], ("toggle", Action::Toggle, "Control+Alt+KeyP".to_string()));

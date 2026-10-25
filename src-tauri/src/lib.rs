@@ -7,6 +7,8 @@ mod i18n;
 mod models;
 mod notify;
 mod open_url;
+#[cfg(target_os = "linux")]
+mod portal;
 mod stats;
 mod tray;
 
@@ -46,6 +48,11 @@ pub fn run() {
             );
     }
 
+    #[cfg(target_os = "linux")]
+    {
+        builder = builder.manage(portal::PortalState::default());
+    }
+
     macro_rules! tempura_invoke_handler {
         ($($extra:path),* $(,)?) => {
             tauri::generate_handler![
@@ -74,6 +81,7 @@ pub fn run() {
                 commands::request_quit,
                 commands::hide_to_tray,
                 commands::get_hotkey_report,
+                commands::setup_portal_hotkeys,
                 $($extra,)*
             ]
         };
