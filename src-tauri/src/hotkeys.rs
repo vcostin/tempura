@@ -86,7 +86,7 @@ pub struct HotkeyReport {
     pub portal_problem: bool,
 }
 
-fn launch_command() -> String {
+pub fn launch_command() -> String {
     std::env::var("APPIMAGE")
         .ok()
         .filter(|path| !path.is_empty())

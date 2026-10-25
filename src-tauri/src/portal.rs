@@ -164,7 +164,50 @@ async fn bind(app: &AppHandle) -> Result<(), String> {
     result
 }
 
+/// The desktop names the shortcuts' owner, and shows its icon, from the menu entry
+/// matching our app id. Installed packages may lack one under that id (and dev
+/// builds have none), so keep a hidden one in the user's data folder.
+fn ensure_desktop_entry() -> std::io::Result<()> {
+    let data_home = std::env::var_os("XDG_DATA_HOME")
+        .map(std::path::PathBuf::from)
+        .or_else(|| std::env::var_os("HOME").map(|home| std::path::Path::new(&home).join(".local/share")))
+        .ok_or_else(|| std::io::Error::other("no home folder"))?;
+    let file = format!("{APP_ID}.desktop");
+    let system_dirs = std::env::var("XDG_DATA_DIRS").unwrap_or_else(|_| "/usr/local/share:/usr/share".into());
+    if system_dirs.split(':').any(|dir| std::path::Path::new(dir).join("applications").join(&file).exists()) {
+        return Ok(());
+    }
+    let icon_dir = data_home.join("icons/hicolor/128x128/apps");
+    std::fs::create_dir_all(&icon_dir)?;
+    std::fs::write(icon_dir.join(format!("{APP_ID}.png")), include_bytes!("../icons/128x128.png"))?;
+    let apps = data_home.join("applications");
+    std::fs::create_dir_all(&apps)?;
+    let entry = desktop_entry(&hotkeys::launch_command());
+    let path = apps.join(&file);
+    if std::fs::read_to_string(&path).ok().as_deref() != Some(entry.as_str()) {
+        std::fs::write(path, entry)?;
+    }
+    Ok(())
+}
+
+/// A hidden menu entry (no duplicate in the app menu) that names and pictures Tempura.
+pub fn desktop_entry(command: &str) -> String {
+    let quoted: String = command
+        .chars()
+        .flat_map(|c| match c {
+            '"' | '`' | '$' | '\\' => vec!['\\', c],
+            c => vec![c],
+        })
+        .collect();
+    format!(
+        "[Desktop Entry]\nType=Application\nName=Tempura\nComment=Focus timer\nExec=\"{quoted}\"\nIcon={APP_ID}\nTerminal=false\nNoDisplay=true\n"
+    )
+}
+
 async fn try_bind(app: &AppHandle) -> Result<(), String> {
+    if let Err(e) = ensure_desktop_entry() {
+        eprintln!("tempura: couldn't write the desktop entry for {APP_ID}: {e}");
+    }
     let proxy = GlobalShortcuts::new().await.map_err(|e| e.to_string())?;
     let session = proxy
         .create_session(CreateSessionOptions::default())
@@ -278,6 +321,17 @@ mod tests {
         assert_eq!(activation_token(&options).as_deref(), Some("kwin-42"));
         options.insert("activation_token".to_string(), OwnedValue::try_from(ashpd::zvariant::Value::from("")).unwrap());
         assert_eq!(activation_token(&options), None);
+    }
+
+    #[test]
+    fn desktop_entry_names_tempura_and_quotes_the_command() {
+        let entry = desktop_entry("/home/me/My Apps/Tempura.AppImage");
+        assert!(entry.starts_with("[Desktop Entry]\n"));
+        assert!(entry.contains("\nName=Tempura\n"));
+        assert!(entry.contains("\nExec=\"/home/me/My Apps/Tempura.AppImage\"\n"));
+        assert!(entry.contains("\nIcon=app.tempura.focus\n"));
+        assert!(entry.contains("\nNoDisplay=true\n"));
+        assert!(desktop_entry("/opt/a$b").contains("Exec=\"/opt/a\\$b\""));
     }
 
     #[test]
