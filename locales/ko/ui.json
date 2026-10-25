@@ -176,7 +176,12 @@
     "byLabel": "무엇에",
     "byTechnique": "기법별",
     "other": "기타",
-    "noLabel": "라벨 없음"
+    "noLabel": "라벨 없음",
+    "export": "내보내기",
+    "exportHint": "기록한 모든 세션을 이 컴퓨터에 파일로 저장합니다.",
+    "exportCsv": "CSV로 저장",
+    "exportJson": "JSON으로 저장",
+    "exportDialogTitle": "세션 내보내기"
   },
   "library": {
     "panel": "기법",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} 삭제됨",
     "undo": "실행 취소",
-    "hidden": "{{name}}을(를) 타이머에서 숨겼습니다"
+    "hidden": "{{name}}을(를) 타이머에서 숨겼습니다",
+    "exported": "{{file}} 저장됨",
+    "exportFailed": "내보내기를 저장하지 못했습니다"
   },
   "themes": {
     "batter": "반죽",

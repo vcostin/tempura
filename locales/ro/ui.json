@@ -177,7 +177,12 @@
     "byLabel": "La ce",
     "byTechnique": "După tehnică",
     "other": "Altele",
-    "noLabel": "Fără etichetă"
+    "noLabel": "Fără etichetă",
+    "export": "Export",
+    "exportHint": "Toate sesiunile înregistrate, salvate ca fișier pe acest computer.",
+    "exportCsv": "Salvează ca CSV",
+    "exportJson": "Salvează ca JSON",
+    "exportDialogTitle": "Exportă sesiunile"
   },
   "library": {
     "panel": "Tehnici",
@@ -218,7 +223,9 @@
   "toast": {
     "deleted": "{{name}} a fost ștearsă",
     "undo": "Anulează",
-    "hidden": "{{name}} ascunsă din cronometru"
+    "hidden": "{{name}} ascunsă din cronometru",
+    "exported": "{{file}} a fost salvat",
+    "exportFailed": "Exportul nu a putut fi salvat"
   },
   "themes": {
     "batter": "Aluat",

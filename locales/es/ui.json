@@ -176,7 +176,12 @@
     "byLabel": "En qué",
     "byTechnique": "Por técnica",
     "other": "Otros",
-    "noLabel": "Sin etiqueta"
+    "noLabel": "Sin etiqueta",
+    "export": "Exportar",
+    "exportHint": "Todas las sesiones registradas, guardadas como archivo en este equipo.",
+    "exportCsv": "Guardar como CSV",
+    "exportJson": "Guardar como JSON",
+    "exportDialogTitle": "Exportar sesiones"
   },
   "library": {
     "panel": "Técnicas",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} eliminada",
     "undo": "Deshacer",
-    "hidden": "{{name}} oculta del temporizador"
+    "hidden": "{{name}} oculta del temporizador",
+    "exported": "{{file}} guardado",
+    "exportFailed": "No se pudo guardar la exportación"
   },
   "themes": {
     "batter": "Rebozado",

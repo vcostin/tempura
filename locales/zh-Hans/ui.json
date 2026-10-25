@@ -176,7 +176,12 @@
     "byLabel": "专注内容",
     "byTechnique": "按方法",
     "other": "其他",
-    "noLabel": "无标签"
+    "noLabel": "无标签",
+    "export": "导出",
+    "exportHint": "将你记录的所有专注时段保存为此电脑上的文件。",
+    "exportCsv": "保存为 CSV",
+    "exportJson": "保存为 JSON",
+    "exportDialogTitle": "导出记录"
   },
   "library": {
     "panel": "技巧",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "已删除 {{name}}",
     "undo": "撤销",
-    "hidden": "已在计时器中隐藏 {{name}}"
+    "hidden": "已在计时器中隐藏 {{name}}",
+    "exported": "已保存 {{file}}",
+    "exportFailed": "无法保存导出文件"
   },
   "themes": {
     "batter": "面糊",

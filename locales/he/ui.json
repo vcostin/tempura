@@ -177,7 +177,12 @@
     "byLabel": "על מה",
     "byTechnique": "לפי טכניקה",
     "other": "אחר",
-    "noLabel": "ללא תווית"
+    "noLabel": "ללא תווית",
+    "export": "ייצוא",
+    "exportHint": "כל הסשנים שתיעדת, נשמרים כקובץ במחשב הזה.",
+    "exportCsv": "שמירה כ-CSV",
+    "exportJson": "שמירה כ-JSON",
+    "exportDialogTitle": "ייצוא סשנים"
   },
   "library": {
     "panel": "טכניקות",
@@ -218,7 +223,9 @@
   "toast": {
     "deleted": "{{name}} נמחקה",
     "undo": "ביטול",
-    "hidden": "{{name}} הוסתרה מהטיימר"
+    "hidden": "{{name}} הוסתרה מהטיימר",
+    "exported": "{{file}} נשמר",
+    "exportFailed": "לא ניתן היה לשמור את הייצוא"
   },
   "themes": {
     "batter": "בלילה",

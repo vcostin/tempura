@@ -4,7 +4,7 @@ import type { TFunction } from "i18next";
 import { api, formatMinutes } from "../lib/api";
 import { barPercent } from "../lib/statsBars";
 import { techniqueDisplayName } from "../lib/techniqueGuide";
-import type { FocusShare, StatsPeriod, StatsRange } from "../lib/types";
+import type { ExportFormat, FocusShare, StatsPeriod, StatsRange } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 
@@ -12,6 +12,8 @@ interface Props {
   /** Today glance from the session hook — used for streak until range loads. */
   streakFallback?: number;
   onClose: () => void;
+  /** Save every session as a file; the route reports the outcome. */
+  onExport: (format: ExportFormat) => Promise<void>;
 }
 
 const PERIODS: StatsPeriod[] = [1, 7, 30];
@@ -34,11 +36,12 @@ function shortDayLabel(isoDate: string, days: StatsPeriod, locale: string): stri
   return date.toLocaleDateString(locale, { month: "short", day: "numeric" });
 }
 
-export function StatsView({ streakFallback = 0, onClose }: Props) {
+export function StatsView({ streakFallback = 0, onClose, onExport }: Props) {
   const { t, i18n } = useTranslation();
   const [period, setPeriod] = useState<StatsPeriod>(7);
   const [range, setRange] = useState<StatsRange | null>(null);
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const dateLocale = i18n.resolvedLanguage || i18n.language;
 
   useEffect(() => {
@@ -66,6 +69,15 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
 
   const hasAny = (range?.focusSecs ?? 0) > 0 || (range?.sessions ?? 0) > 0;
   const streak = range?.streakDays ?? streakFallback;
+
+  const exportAs = async (format: ExportFormat) => {
+    setExporting(true);
+    try {
+      await onExport(format);
+    } finally {
+      setExporting(false);
+    }
+  };
 
   return (
     <ScrollPanel label={t("stats.panel")}>
@@ -155,6 +167,24 @@ export function StatsView({ streakFallback = 0, onClose }: Props) {
           </>
         )}
       </div>
+
+      <section className="stats-export" aria-label={t("stats.export")}>
+        <p className="stats-bars__label">{t("stats.export")}</p>
+        <p className="hint">{t("stats.exportHint")}</p>
+        <div className="stats-export__buttons">
+          {(["csv", "json"] as const).map((format) => (
+            <button
+              key={format}
+              type="button"
+              className="btn btn-ghost"
+              disabled={exporting}
+              onClick={() => void exportAs(format)}
+            >
+              {t(format === "csv" ? "stats.exportCsv" : "stats.exportJson")}
+            </button>
+          ))}
+        </div>
+      </section>
     </ScrollPanel>
   );
 }

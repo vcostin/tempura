@@ -176,7 +176,12 @@
     "byLabel": "Su cosa",
     "byTechnique": "Per tecnica",
     "other": "Altro",
-    "noLabel": "Senza etichetta"
+    "noLabel": "Senza etichetta",
+    "export": "Esporta",
+    "exportHint": "Tutte le sessioni registrate, salvate in un file su questo computer.",
+    "exportCsv": "Salva come CSV",
+    "exportJson": "Salva come JSON",
+    "exportDialogTitle": "Esporta sessioni"
   },
   "library": {
     "panel": "Tecniche",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} eliminata",
     "undo": "Annulla",
-    "hidden": "{{name}} nascosta dal timer"
+    "hidden": "{{name}} nascosta dal timer",
+    "exported": "{{file}} salvato",
+    "exportFailed": "Impossibile salvare l'esportazione"
   },
   "themes": {
     "batter": "Pastella",

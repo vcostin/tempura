@@ -81,6 +81,7 @@ export async function installTauriMock(page: Page) {
       portalProblem: false,
     };
     // What the desktop's shortcuts dialog "assigns" when setup is asked; null = the user cancels.
+    let exportResult: string | null | Error = "tempura-sessions";
     let portalAssigns: { action: string; trigger: string }[] | null = [
       { action: "toggle", trigger: "Ctrl+Alt+P" },
       { action: "skip", trigger: "" },
@@ -138,6 +139,10 @@ export async function installTauriMock(page: Page) {
       get_system_locale: () => "en",
       get_stats: () => ({ focusSecsToday: 0, completedCyclesToday: 0, sessionsToday: 0, streakDays: 0 }),
       get_stats_range: (a) => ({ ...statsRange, days: a.days }),
+      export_sessions: (a) => {
+        if (exportResult instanceof Error) throw exportResult;
+        return exportResult && `${exportResult}.${a.format}`;
+      },
       get_hotkey_report: () => hotkeyReport,
       setup_portal_hotkeys: () => {
         hotkeyReport = { ...hotkeyReport, portalProblem: !portalAssigns, portalShortcuts: portalAssigns ?? [] };
@@ -196,6 +201,10 @@ export async function installTauriMock(page: Page) {
       },
       setHotkeyReport(report: Record<string, unknown>) {
         hotkeyReport = { ...hotkeyReport, ...report };
+      },
+      /** What the save dialog does next: a file name without extension, null to cancel, or an Error. */
+      setExportResult(result: string | null | { error: string }) {
+        exportResult = result && typeof result === "object" ? new Error(result.error) : result;
       },
       setPortalAssigns(assigns: { action: string; trigger: string }[] | null) {
         portalAssigns = assigns;

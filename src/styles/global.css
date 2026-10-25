@@ -1426,6 +1426,20 @@ button {
   text-transform: none;
 }
 
+.stats-export {
+  margin-top: 1.25rem;
+}
+
+.stats-export .hint {
+  margin: 0 0 0.6rem;
+}
+
+.stats-export__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .stats-bars__list {
   list-style: none;
   margin: 0;

@@ -176,7 +176,12 @@
     "byLabel": "取り組んだこと",
     "byTechnique": "テクニック別",
     "other": "その他",
-    "noLabel": "ラベルなし"
+    "noLabel": "ラベルなし",
+    "export": "書き出し",
+    "exportHint": "記録したすべてのセッションを、このコンピューターにファイルとして保存します。",
+    "exportCsv": "CSV で保存",
+    "exportJson": "JSON で保存",
+    "exportDialogTitle": "セッションを書き出す"
   },
   "library": {
     "panel": "テクニック",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} を削除しました",
     "undo": "元に戻す",
-    "hidden": "{{name}} をタイマーから非表示にしました"
+    "hidden": "{{name}} をタイマーから非表示にしました",
+    "exported": "{{file}} を保存しました",
+    "exportFailed": "書き出しを保存できませんでした"
   },
   "themes": {
     "batter": "衣",
