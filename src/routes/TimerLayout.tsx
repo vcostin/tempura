@@ -213,8 +213,16 @@ export function TimerLayout() {
     return () => unlisten?.();
   }, []);
 
+  // The key handler reads the latest render through a ref. A listener re-registered
+  // in an effect would lag one paint behind navigation: an Esc pressed right after
+  // a panel opens would still act as if the previous route were showing.
+  const keyState = useRef({ session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast });
+  keyState.current = { session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast };
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
+      const { session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast } =
+        keyState.current;
       if (e.key === "Escape") {
         if (e.defaultPrevented) return;
         if (!onTimer) {
@@ -255,7 +263,7 @@ export function TimerLayout() {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast]);
+  }, []);
 
   if (!session.ready) {
     return (
