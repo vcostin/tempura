@@ -12,7 +12,7 @@ import { isDesktopShell, isTauri } from "../lib/platform";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 import { useTechniqueVisibility } from "../state/techniqueVisibility";
 
-export type Panel = "settings" | "stats" | "techniques" | "debug" | "about";
+export type Panel = "settings" | "stats" | "techniques" | "debug" | "about" | "shortcuts";
 
 const PANEL_OPENER: Record<Panel, string> = {
   settings: '[data-open-panel="settings"]',
@@ -20,6 +20,8 @@ const PANEL_OPENER: Record<Panel, string> = {
   techniques: '[data-open-panel="techniques"]',
   debug: '[data-open-panel="debug"]',
   about: '[data-open-panel="about"]',
+  // Opened with "?" from the timer; the Help & About button is the nearest opener.
+  shortcuts: '[data-open-panel="about"]',
 };
 
 const NEW_TECHNIQUE_OPENER = '[data-open-panel="technique-new"]';
@@ -154,6 +156,8 @@ export function TimerLayout() {
   }, [navigate, location.key]);
 
   const inEditor = location.pathname.startsWith("/techniques/");
+  // Opened from Help & About or Settings as well as the timer: Back returns there.
+  const onShortcuts = location.pathname === "/shortcuts";
 
   useLayoutEffect(() => {
     if (!onTimer) return;
@@ -215,7 +219,7 @@ export function TimerLayout() {
         if (e.defaultPrevented) return;
         if (!onTimer) {
           e.preventDefault();
-          if (inEditor) goBack();
+          if (inEditor || onShortcuts) goBack();
           else closePanel();
         } else if (!isTypingTarget(e.target)) {
           void hideToTray();
@@ -241,14 +245,17 @@ export function TimerLayout() {
       } else if (e.key === "s" || e.key === "S") {
         if (!onTimer) return;
         if (session.snapshot.running) void session.skip();
-      } else if (e.key === "," || (e.ctrlKey && e.key === ",")) {
+      } else if (e.key === "," || ((e.ctrlKey || e.metaKey) && e.key === ",")) {
         e.preventDefault();
         openPanel("settings");
+      } else if (e.key === "?" && !onShortcuts) {
+        e.preventDefault();
+        openPanel("shortcuts");
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [session, onTimer, inEditor, hideToTray, openPanel, closePanel, goBack, toast, dismissToast]);
+  }, [session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast]);
 
   if (!session.ready) {
     return (

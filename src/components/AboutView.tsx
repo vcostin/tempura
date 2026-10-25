@@ -11,6 +11,7 @@ import { UpdatesSection } from "./UpdatesSection";
 interface Props {
   info: AppInfo | null;
   onClose: () => void;
+  onOpenShortcuts: () => void;
   /** After unlocking debug access in a release build. */
   onDebugUnlocked?: () => void;
   updater?: {
@@ -59,6 +60,18 @@ export function AboutView(props: Props) {
           </button>
         }
       />
+
+      <section className="section">
+        <button type="button" className="link-row" onClick={props.onOpenShortcuts}>
+          <span>
+            <span className="link-row-title">{t("shortcuts.panel")}</span>
+            <span className="link-row-meta">{t("shortcuts.meta")}</span>
+          </span>
+          <span className="link-row-chevron" aria-hidden="true">
+            ›
+          </span>
+        </button>
+      </section>
 
       <section className="section">
         <div className="privacy-note">

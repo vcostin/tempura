@@ -4,6 +4,7 @@ import { Navigate, useParams, useSearchParams } from "react-router";
 import { AboutView } from "../components/AboutView";
 import { DebugView } from "../components/DebugView";
 import { SettingsView } from "../components/SettingsView";
+import { ShortcutsView } from "../components/ShortcutsView";
 import { StatsView } from "../components/StatsView";
 import { TechniqueEditor } from "../components/TechniqueEditor";
 import { TechniquesLibrary, type LibraryTab } from "../components/TechniquesLibrary";
@@ -51,6 +52,7 @@ export function SettingsRoute() {
       onToggleAutostart={settingsApi.toggleAutostart}
       onOpenTechniques={() => openPanel("techniques")}
       onOpenAbout={() => openPanel("about")}
+      onOpenShortcuts={() => openPanel("shortcuts")}
       onQuit={
         settingsApi.desktop
           ? () => {
@@ -69,6 +71,7 @@ export function AboutRoute() {
     <AboutView
       info={settingsApi.info}
       onClose={closePanel}
+      onOpenShortcuts={() => openPanel("shortcuts")}
       onDebugUnlocked={() => {
         setDebugEnabled(true);
         openPanel("debug");
@@ -89,6 +92,11 @@ export function AboutRoute() {
       }
     />
   );
+}
+
+export function ShortcutsRoute() {
+  const { goBack } = useShell();
+  return <ShortcutsView onClose={goBack} />;
 }
 
 export function StatsRoute() {
