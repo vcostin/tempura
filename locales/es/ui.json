@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Mayús",
     "key_menu": "Menú",
-    "showWindow": "Mostrar Tempura",
+    "showWindow": "Mostrar u ocultar Tempura",
     "groupSystemWide": "En todo el sistema",
     "systemWideSet": "Funcionan aunque Tempura esté en segundo plano.",
     "systemWideNone": "Ninguno asignado. Puedes añadir atajos que funcionen con Tempura en segundo plano.",

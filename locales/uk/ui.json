@@ -370,7 +370,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "Меню",
-    "showWindow": "Показати Tempura",
+    "showWindow": "Показати або сховати Tempura",
     "groupSystemWide": "Загальносистемні",
     "systemWideSet": "Працюють, навіть коли Tempura у фоні.",
     "systemWideNone": "Не задано. Можна додати комбінації, що працюють у фоні.",

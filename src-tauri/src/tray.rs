@@ -45,6 +45,14 @@ pub fn restore_main(app: &AppHandle) {
     }
 }
 
+/// The window is up and has focus, so a "show or hide" key should hide it.
+pub fn main_in_front(app: &AppHandle) -> bool {
+    WINDOW_SHOWN.load(Ordering::Relaxed)
+        && app
+            .get_webview_window("main")
+            .is_some_and(|win| win.is_focused().unwrap_or(false))
+}
+
 pub fn hide_main(app: &AppHandle) {
     if let Some(win) = app.get_webview_window("main") {
         hide_window(&win);

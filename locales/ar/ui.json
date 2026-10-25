@@ -372,7 +372,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "القائمة",
-    "showWindow": "إظهار Tempura",
+    "showWindow": "إظهار Tempura أو إخفاؤه",
     "groupSystemWide": "على مستوى النظام",
     "systemWideSet": "تعمل حتى عندما يكون Tempura في الخلفية.",
     "systemWideNone": "لا شيء معيّن. يمكنك إضافة اختصارات تعمل في الخلفية.",

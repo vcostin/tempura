@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "메뉴",
-    "showWindow": "Tempura 보기",
+    "showWindow": "Tempura 표시/숨기기",
     "groupSystemWide": "시스템 전체",
     "systemWideSet": "Tempura가 백그라운드에 있어도 작동해요.",
     "systemWideNone": "설정된 단축키가 없어요. 백그라운드에서도 작동하는 단축키를 추가할 수 있어요.",

@@ -368,7 +368,7 @@
     "key_ctrl": "Strg",
     "key_shift": "Umschalt",
     "key_menu": "Menü",
-    "showWindow": "Tempura zeigen",
+    "showWindow": "Tempura zeigen oder ausblenden",
     "groupSystemWide": "Systemweit",
     "systemWideSet": "Funktionieren auch, wenn Tempura im Hintergrund ist.",
     "systemWideNone": "Keine gesetzt. Du kannst Kürzel anlegen, die auch im Hintergrund funktionieren.",

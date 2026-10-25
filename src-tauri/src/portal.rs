@@ -198,7 +198,9 @@ async fn try_bind(app: &AppHandle) -> Result<(), String> {
                 match action_for(event.shortcut_id()) {
                     // Wayland won't let a window raise itself; the desktop's token for
                     // this key press is what allows Tempura to come forward.
-                    Some(Action::Show) => present_main(&app, activation_token(event.options())),
+                    Some(Action::Show) if !crate::tray::main_in_front(&app) => {
+                        present_main(&app, activation_token(event.options()))
+                    }
                     Some(action) => actions::run(&app, action),
                     None => {}
                 }

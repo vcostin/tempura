@@ -370,7 +370,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "Menu",
-    "showWindow": "Pokazanie Tempury",
+    "showWindow": "Pokazanie lub ukrycie Tempury",
     "groupSystemWide": "W całym systemie",
     "systemWideSet": "Działają także, gdy Tempura jest w tle.",
     "systemWideNone": "Brak. Możesz dodać skróty działające, gdy Tempura jest w tle.",

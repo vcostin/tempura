@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "Menu",
-    "showWindow": "Mostrar o Tempura",
+    "showWindow": "Mostrar ou ocultar o Tempura",
     "groupSystemWide": "No sistema todo",
     "systemWideSet": "Funcionam mesmo com o Tempura em segundo plano.",
     "systemWideNone": "Nenhum definido. Você pode adicionar atalhos que funcionam em segundo plano.",

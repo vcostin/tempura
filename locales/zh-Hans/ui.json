@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "菜单",
-    "showWindow": "显示 Tempura",
+    "showWindow": "显示或隐藏 Tempura",
     "groupSystemWide": "系统范围",
     "systemWideSet": "Tempura 在后台时也能使用。",
     "systemWideNone": "尚未设置。你可以添加在后台也能用的快捷键。",

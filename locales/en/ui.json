@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "Menu",
-    "showWindow": "Show Tempura",
+    "showWindow": "Show or hide Tempura",
     "groupSystemWide": "System-wide",
     "systemWideSet": "These work even when Tempura is in the background.",
     "systemWideNone": "None set. You can add shortcuts that work while Tempura is in the background.",

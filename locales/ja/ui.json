@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
     "key_menu": "メニュー",
-    "showWindow": "Tempura を表示",
+    "showWindow": "Tempura を表示/非表示",
     "groupSystemWide": "システム全体",
     "systemWideSet": "Tempura がバックグラウンドにあっても使えます。",
     "systemWideNone": "未設定です。バックグラウンドでも使えるショートカットを追加できます。",

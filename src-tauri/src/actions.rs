@@ -45,6 +45,7 @@ pub fn run(app: &AppHandle, action: Action) {
                 let _ = engine.skip(app);
             }
         }
+        Action::Show if crate::tray::main_in_front(app) => crate::tray::hide_main(app),
         Action::Show => crate::tray::restore_main(app),
     }
 }

@@ -49,9 +49,9 @@ test.describe("global shortcuts", () => {
     await openSettings(page);
     await row(page, "Start, pause or resume").locator(".hotkey-recorder").click();
     await page.keyboard.press("Control+Alt+KeyP");
-    await row(page, "Show Tempura").locator(".hotkey-recorder").click();
+    await row(page, "Show or hide Tempura").locator(".hotkey-recorder").click();
     await page.keyboard.press("Control+Alt+KeyP");
-    await expect(row(page, "Show Tempura").getByRole("status")).toHaveText(
+    await expect(row(page, "Show or hide Tempura").getByRole("status")).toHaveText(
       "Already used for “Start, pause or resume”.",
     );
   });
@@ -95,7 +95,7 @@ test.describe("global shortcuts", () => {
     await expect(page.locator(".hotkey-row")).toHaveText([
       /Start, pause or resume\s*Ctrl\+Alt\+P/,
       /Skip to the next phase\s*Not set/,
-      /Show Tempura\s*Super\+T/,
+      /Show or hide Tempura\s*Super\+T/,
     ]);
     const calls = await page.evaluate(() => (window as any).__tempuraMock.calls as string[]);
     expect(calls).toContain("setup_portal_hotkeys");
@@ -138,16 +138,16 @@ test.describe("global shortcuts", () => {
     const systemWide = page.locator(".section", { has: page.getByRole("heading", { name: "System-wide" }) });
     await expect(systemWide.locator(".shortcut-row")).toHaveText([
       /Ctrl\+Alt\+P\s*Start, pause or resume/,
-      /Super\+T\s*Show Tempura/,
+      /Super\+T\s*Show or hide Tempura/,
     ]);
   });
 
   test("the shortcuts page lists recorded ones under System-wide", async ({ page }) => {
     await openSettings(page);
-    await row(page, "Show Tempura").locator(".hotkey-recorder").click();
+    await row(page, "Show or hide Tempura").locator(".hotkey-recorder").click();
     await page.keyboard.press("Control+Alt+KeyT");
     await page.getByRole("button", { name: "Keyboard shortcuts…" }).click();
     const systemWide = page.locator(".section", { has: page.getByRole("heading", { name: "System-wide" }) });
-    await expect(systemWide.locator(".shortcut-row")).toHaveText([/Ctrl\s*\+\s*Alt\s*\+\s*T\s*Show Tempura/]);
+    await expect(systemWide.locator(".shortcut-row")).toHaveText([/Ctrl\s*\+\s*Alt\s*\+\s*T\s*Show or hide Tempura/]);
   });
 });

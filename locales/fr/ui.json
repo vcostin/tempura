@@ -368,7 +368,7 @@
     "key_ctrl": "Ctrl",
     "key_shift": "Maj",
     "key_menu": "Menu",
-    "showWindow": "Afficher Tempura",
+    "showWindow": "Afficher ou masquer Tempura",
     "groupSystemWide": "Dans tout le système",
     "systemWideSet": "Ils fonctionnent même quand Tempura est en arrière-plan.",
     "systemWideNone": "Aucun défini. Vous pouvez ajouter des raccourcis qui marchent en arrière-plan.",
