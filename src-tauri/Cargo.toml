@@ -33,6 +33,8 @@ uuid = { version = "1", features = ["v4"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 mac-usernotifications = "0.3"
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSFont", "NSFontDescriptor", "NSControl", "NSButton", "NSStatusBarButton", "NSStatusItem", "NSView", "NSResponder", "objc2-core-foundation"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 ashpd = { version = "0.13", default-features = false, features = ["tokio", "global_shortcuts"] }

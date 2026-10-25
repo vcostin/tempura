@@ -300,6 +300,7 @@ impl Database {
             ),
             ("hidden_technique_ids", String::new()),
             ("auto_continue", defaults.auto_continue.to_string()),
+            ("menu_bar_countdown", defaults.menu_bar_countdown.to_string()),
         ];
         for (key, value) in pairs {
             self.conn.execute(
@@ -387,6 +388,11 @@ impl Database {
                 .as_deref()
                 .map(|v| v == "true")
                 .unwrap_or(defaults.auto_continue),
+            menu_bar_countdown: self
+                .get_setting("menu_bar_countdown")?
+                .as_deref()
+                .map(|v| v == "true")
+                .unwrap_or(defaults.menu_bar_countdown),
         })
     }
 
@@ -411,6 +417,7 @@ impl Database {
             &settings.hidden_technique_ids.join(","),
         )?;
         self.set_setting("auto_continue", &settings.auto_continue.to_string())?;
+        self.set_setting("menu_bar_countdown", &settings.menu_bar_countdown.to_string())?;
         self.set_setting("hotkey_toggle", &settings.global_hotkeys.toggle)?;
         self.set_setting("hotkey_skip", &settings.global_hotkeys.skip)?;
         self.set_setting("hotkey_show", &settings.global_hotkeys.show)?;

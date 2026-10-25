@@ -34,6 +34,8 @@ struct TrayMenuItems {
     toggle: MenuItem<tauri::Wry>,
     skip: MenuItem<tauri::Wry>,
     auto_continue: CheckMenuItem<tauri::Wry>,
+    /// macOS only: the countdown beside the menu bar icon.
+    menu_bar_countdown: Option<CheckMenuItem<tauri::Wry>>,
     settings: MenuItem<tauri::Wry>,
     about: MenuItem<tauri::Wry>,
     quit: MenuItem<tauri::Wry>,
@@ -170,6 +172,18 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         app.state::<EngineHandle>().auto_continue(),
         None::<&str>,
     )?;
+    let menu_bar_countdown = if cfg!(target_os = "macos") {
+        Some(CheckMenuItem::with_id(
+            app,
+            "menu_bar_countdown",
+            crate::i18n::t(&locale, "tray.menuBarCountdown"),
+            true,
+            app.state::<EngineHandle>().menu_bar_countdown(),
+            None::<&str>,
+        )?)
+    } else {
+        None
+    };
     let status = MenuItem::with_id(
         app,
         "status",
@@ -210,13 +224,12 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
             &toggle,
             &skip,
             &auto_continue,
-            &sep2,
-            &settings,
-            &about,
-            &sep3,
-            &quit,
         ],
     )?;
+    if let Some(item) = &menu_bar_countdown {
+        menu.append(item)?;
+    }
+    menu.append_items(&[&sep2, &settings, &about, &sep3, &quit])?;
 
     app.manage(TrayMenuItems {
         visibility,
@@ -224,6 +237,7 @@ pub fn setup_tray(app: &AppHandle) -> tauri::Result<()> {
         toggle,
         skip,
         auto_continue,
+        menu_bar_countdown,
         settings,
         about,
         quit,
@@ -262,7 +276,8 @@ fn handle_menu(app: &AppHandle, id: &str) {
         }
         "toggle" => crate::actions::run(app, crate::actions::Action::Toggle),
         "skip" => crate::actions::run(app, crate::actions::Action::Skip),
-        "auto_continue" => toggle_auto_continue(app),
+        "auto_continue" => toggle_setting(app, |s| s.auto_continue = !s.auto_continue),
+        "menu_bar_countdown" => toggle_setting(app, |s| s.menu_bar_countdown = !s.menu_bar_countdown),
         "settings" => {
             restore_main(app);
             let _ = app.emit("open-settings", ());
@@ -281,14 +296,14 @@ fn handle_menu(app: &AppHandle, id: &str) {
     }
 }
 
-/// Flip auto-continue from the tray and tell the window, which owns the toggle too.
-fn toggle_auto_continue(app: &AppHandle) {
+/// Flip a setting from the tray and tell the window, which owns the toggle too.
+fn toggle_setting(app: &AppHandle, flip: impl FnOnce(&mut crate::models::AppSettings)) {
     let state = app.state::<crate::AppState>();
     let engine = app.state::<EngineHandle>();
     let saved = {
         let db = state.db.lock();
         db.get_settings().ok().and_then(|mut settings| {
-            settings.auto_continue = !settings.auto_continue;
+            flip(&mut settings);
             db.update_settings(&settings).ok().map(|_| settings)
         })
     };
@@ -302,11 +317,45 @@ fn toggle_auto_continue(app: &AppHandle) {
     let _ = app.emit("settings-updated", &settings);
 }
 
+/// The menu bar font has proportional digits, so a ticking title would nudge the
+/// icons beside it every second. Give the button the same font with fixed-width digits.
+#[cfg(target_os = "macos")]
+fn use_tabular_digits<R: tauri::Runtime>(tray: &tauri::tray::TrayIcon<R>) {
+    static DONE: AtomicBool = AtomicBool::new(false);
+    if DONE.swap(true, Ordering::Relaxed) {
+        return;
+    }
+    let _ = tray.with_inner_tray_icon(|inner| {
+        use objc2_app_kit::{NSFont, NSFontWeightRegular};
+        let (Some(item), Some(mtm)) = (inner.ns_status_item(), objc2::MainThreadMarker::new()) else {
+            return;
+        };
+        if let Some(button) = item.button(mtm) {
+            let size = NSFont::menuBarFontOfSize(0.0).pointSize();
+            let font = NSFont::monospacedDigitSystemFontOfSize_weight(size, unsafe { NSFontWeightRegular });
+            button.setFont(Some(&font));
+        }
+    });
+}
+
 pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     let locale = app.state::<EngineHandle>().locale();
     let tooltip = EngineHandle::format_tooltip(snap, &locale);
     if let Some(tray) = app.tray_by_id("main") {
         let _ = tray.set_tooltip(Some(&tooltip));
+        #[cfg(target_os = "macos")]
+        {
+            let title = app
+                .state::<EngineHandle>()
+                .menu_bar_countdown()
+                .then(|| EngineHandle::menu_bar_title(snap))
+                .flatten();
+            if title.is_some() {
+                use_tabular_digits(&tray);
+            }
+            // tray-icon skips `None` on macOS and leaves the old text up; clear it instead.
+            let _ = tray.set_title(Some(title.as_deref().unwrap_or("")));
+        }
     }
 
     let Some(items) = app.try_state::<TrayMenuItems>() else {
@@ -337,6 +386,10 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
     let _ = items
         .auto_continue
         .set_text(crate::i18n::t(&locale, "tray.autoContinue"));
+    if let Some(item) = &items.menu_bar_countdown {
+        let _ = item.set_checked(app.state::<EngineHandle>().menu_bar_countdown());
+        let _ = item.set_text(crate::i18n::t(&locale, "tray.menuBarCountdown"));
+    }
     let _ = items
         .visibility
         .set_text(visibility_label(&locale, WINDOW_SHOWN.load(Ordering::Relaxed)));

@@ -64,6 +64,7 @@ pub enum HotkeyMode {
     #[default]
     Keys,
     /// Wayland with a GlobalShortcuts portal: the desktop's dialog picks the keys.
+    #[cfg_attr(not(target_os = "linux"), allow(dead_code))]
     Portal,
     /// Wayland without a portal: Settings lists commands to bind in the system settings.
     Commands,

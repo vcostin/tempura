@@ -81,6 +81,9 @@ pub struct AppSettings {
     /// Opt-in system-wide shortcuts. Empty: none registered.
     #[serde(default)]
     pub global_hotkeys: GlobalHotkeys,
+    /// macOS: the time left shows next to the menu bar icon. Default on.
+    #[serde(default = "default_true")]
+    pub menu_bar_countdown: bool,
 }
 
 /// Recorded system-wide shortcuts, like "Control+Alt+KeyP"; empty means not set.
@@ -113,6 +116,7 @@ impl Default for AppSettings {
             hidden_technique_ids: Vec::new(),
             auto_continue: true,
             global_hotkeys: GlobalHotkeys::default(),
+            menu_bar_countdown: true,
         }
     }
 }

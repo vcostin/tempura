@@ -122,6 +122,10 @@ impl EngineHandle {
         self.inner.lock().settings.auto_continue
     }
 
+    pub fn menu_bar_countdown(&self) -> bool {
+        self.inner.lock().settings.menu_bar_countdown
+    }
+
     pub fn locale(&self) -> String {
         crate::i18n::resolve_locale(&self.inner.lock().settings.locale)
     }
@@ -793,6 +797,21 @@ impl EngineHandle {
             &[("phase", &phase), ("time", &time)],
         )
     }
+
+    /// The text beside the macOS menu bar icon: time left, or time so far in a
+    /// flow focus. Nothing while idle or waiting for the user to start a phase.
+    #[cfg_attr(not(target_os = "macos"), allow(dead_code))]
+    pub fn menu_bar_title(snap: &TimerSnapshot) -> Option<String> {
+        if !snap.running || snap.awaiting_start {
+            return None;
+        }
+        let secs = if snap.is_flow && snap.phase == Phase::Focus {
+            snap.elapsed_secs
+        } else {
+            snap.remaining_secs
+        };
+        Some(format!("{:02}:{:02}", secs / 60, secs % 60))
+    }
 }
 
 #[cfg(test)]
@@ -998,6 +1017,36 @@ mod tests {
         assert_eq!(eng.snapshot.phase, Phase::Focus);
         assert!(!eng.snapshot.paused && !eng.snapshot.awaiting_start);
         assert!(eng.phase_deadline.is_some());
+    }
+
+    #[test]
+    fn menu_bar_shows_time_left_while_a_phase_runs() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.remaining_secs = 24 * 60 + 5;
+        assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot).as_deref(), Some("24:05"));
+        eng.snapshot.paused = true;
+        assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot).as_deref(), Some("24:05"));
+    }
+
+    #[test]
+    fn menu_bar_counts_up_in_flow_focus() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 61;
+        assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot).as_deref(), Some("01:01"));
+    }
+
+    #[test]
+    fn menu_bar_is_blank_when_idle_or_waiting() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.awaiting_start = true;
+        assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot), None);
+        eng.snapshot.running = false;
+        assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot), None);
+    }
+
+    #[test]
+    fn menu_bar_countdown_defaults_on() {
+        assert!(AppSettings::default().menu_bar_countdown);
     }
 
     #[test]

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { LOCALES } from "../lib/i18n";
+import { isMacPlatform } from "../lib/shortcuts";
 import type { AppSettings } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
@@ -135,6 +136,18 @@ export function SettingsView(props: Props) {
               onClick={() => void props.onPatch({ startMinimized: !settings.startMinimized })}
             />
           </label>
+          {isMacPlatform() && (
+            <label className="toggle-row">
+              <span>{t("settings.menuBarCountdown")}</span>
+              <button
+                type="button"
+                className="toggle"
+                role="switch"
+                aria-checked={settings.menuBarCountdown}
+                onClick={() => void props.onPatch({ menuBarCountdown: !settings.menuBarCountdown })}
+              />
+            </label>
+          )}
           {props.onQuit && (
             <button type="button" className="btn btn-ghost settings-quit" onClick={props.onQuit}>
               {t("settings.quit")}

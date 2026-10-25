@@ -43,6 +43,8 @@ export interface AppSettings {
   hiddenTechniqueIds: string[];
   /** Start the next break or focus on its own; off waits for the user. */
   autoContinue: boolean;
+  /** macOS: the time left shows next to the menu bar icon. */
+  menuBarCountdown: boolean;
   /** Opt-in system-wide shortcuts; empty strings are not set. */
   globalHotkeys: GlobalHotkeys;
 }
