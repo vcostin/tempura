@@ -2153,6 +2153,31 @@ kbd {
   color: var(--danger, var(--accent));
 }
 
+.hotkey-row--portal {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.hotkey-trigger {
+  color: var(--ink-muted);
+}
+
+.hotkey-portal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.hotkey-commands-more {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.hotkey-commands-more summary {
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+
 .hotkey-commands {
   margin: 0.5rem 0 0;
   display: flex;

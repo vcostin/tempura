@@ -5,19 +5,37 @@ export interface GlobalHotkeys {
   toggle: string;
   skip: string;
   show: string;
+  /** Wayland: the user set shortcuts up through the desktop's portal. */
+  portal: boolean;
 }
 
-export type HotkeyAction = keyof GlobalHotkeys;
+export type HotkeyAction = "toggle" | "skip" | "show";
 
 export const HOTKEY_ACTIONS: HotkeyAction[] = ["toggle", "skip", "show"];
 
+/**
+ * How this session offers global shortcuts: Tempura records keys itself, the
+ * Wayland desktop picks them in its own dialog (portal), or, with no portal,
+ * the user binds Tempura's commands in the system settings.
+ */
+export type HotkeyMode = "keys" | "portal" | "commands";
+
+/** A shortcut the desktop assigned through its portal; trigger is its own label. */
+export interface PortalShortcut {
+  action: HotkeyAction;
+  trigger: string;
+}
+
 export interface HotkeyReport {
-  /** False on Wayland: offer the command-line actions instead. */
-  supported: boolean;
+  mode: HotkeyMode;
   /** Actions whose shortcut another app already owns. */
   inUse: HotkeyAction[];
   /** How to launch this Tempura from a system shortcut. */
   command: string;
+  /** Linux only: the keys the desktop assigned; empty until set up. */
+  portalShortcuts?: PortalShortcut[];
+  /** The desktop refused or failed to add the shortcuts last time. */
+  portalProblem: boolean;
 }
 
 /** Command-line flag for each action, for desktops that bind shortcuts themselves. */

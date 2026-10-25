@@ -1,6 +1,7 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { HOTKEY_ACTIONS, hotkeyCaps, type GlobalHotkeys } from "../lib/hotkeys";
+import { api } from "../lib/api";
+import { HOTKEY_ACTIONS, hotkeyCaps, type GlobalHotkeys, type PortalShortcut } from "../lib/hotkeys";
 import { isMacPlatform, keyLabel, SHORTCUT_GROUPS } from "../lib/shortcuts";
 import { HOTKEY_LABEL_KEYS } from "./GlobalHotkeysSection";
 import { BrandHeader } from "./BrandHeader";
@@ -18,7 +19,22 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
   const { t } = useTranslation();
   const mac = isMacPlatform();
   const name = (key: string) => t(`shortcuts.key_${key}`);
-  const systemWide = HOTKEY_ACTIONS.filter((action) => globalHotkeys[action]);
+  const [portalShortcuts, setPortalShortcuts] = useState<PortalShortcut[]>([]);
+
+  useEffect(() => {
+    if (!globalHotkeys.portal) return;
+    api.getHotkeyReport().then(
+      (report) => setPortalShortcuts(report.portalShortcuts ?? []),
+      () => {},
+    );
+  }, [globalHotkeys.portal]);
+
+  // Recorded keys, or on Wayland the ones the desktop assigned (one label each).
+  const systemWide = HOTKEY_ACTIONS.flatMap((action) => {
+    const trigger = globalHotkeys.portal ? portalShortcuts.find((s) => s.action === action)?.trigger : "";
+    if (trigger) return [{ action, caps: [trigger] }];
+    return globalHotkeys[action] ? [{ action, caps: hotkeyCaps(globalHotkeys[action], mac, name) }] : [];
+  });
 
   return (
     <ScrollPanel label={t("shortcuts.panel")}>
@@ -67,10 +83,10 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
         <h2>{t("shortcuts.groupSystemWide")}</h2>
         {systemWide.length > 0 && (
           <dl className="shortcut-list">
-            {systemWide.map((action) => (
+            {systemWide.map(({ action, caps }) => (
               <div key={action} className="shortcut-row">
                 <dt className="shortcut-keys">
-                  {hotkeyCaps(globalHotkeys[action], mac, name).map((cap, i) => (
+                  {caps.map((cap, i) => (
                     <Fragment key={i}>
                       {i > 0 && <span aria-hidden="true">+</span>}
                       <kbd>{cap}</kbd>

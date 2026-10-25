@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import {
   HOTKEY_ACTIONS,
@@ -27,8 +28,9 @@ export const HOTKEY_LABEL_KEYS: Record<HotkeyAction, string> = {
 
 /**
  * Opt-in system-wide shortcuts. Nothing is set until the user records one; the
- * backend reports shortcuts another app owns, and on Wayland, where apps can't
- * grab keys, the section lists the commands to bind in system settings instead.
+ * backend reports shortcuts another app owns. On Wayland, where apps can't grab
+ * keys, the desktop's own dialog picks them (portal), and without a portal the
+ * section lists the commands to bind in the system settings instead.
  */
 export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   const [recording, setRecording] = useState<HotkeyAction | null>(null);
   const [problem, setProblem] = useState<{ action: HotkeyAction; message: string } | null>(null);
   const [copied, setCopied] = useState<HotkeyAction | null>(null);
+  const [portalBusy, setPortalBusy] = useState(false);
   const mac = isMacPlatform();
   const name = (key: string) => t(`shortcuts.key_${key}`);
 
@@ -49,6 +52,11 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
 
   useEffect(() => {
     void refresh();
+    // The portal answers in the background, and the desktop can change keys at any time.
+    const unlisten = listen("hotkeys-changed", () => void refresh());
+    return () => {
+      void unlisten.then((stop) => stop());
+    };
   }, [refresh]);
 
   async function save(action: HotkeyAction, accelerator: string) {
@@ -91,35 +99,105 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
     }
   }
 
-  if (report && !report.supported) {
+  async function setUpPortal() {
+    setPortalBusy(true);
+    try {
+      await api.setupPortalHotkeys();
+      if (!hotkeys.portal) await onChange({ ...hotkeys, portal: true });
+    } catch {
+      /* cancelled or refused: the report says so */
+    } finally {
+      setPortalBusy(false);
+      await refresh();
+    }
+  }
+
+  const commandList = report && (
+    <dl className="hotkey-commands">
+      {HOTKEY_ACTIONS.map((action) => {
+        const label = t(HOTKEY_LABEL_KEYS[action]);
+        const command = `${report.command} ${HOTKEY_FLAGS[action]}`;
+        return (
+          <div key={action} className="hotkey-command">
+            <dt>
+              <span>{label}</span>
+              <button
+                type="button"
+                className="linkish"
+                aria-label={t("settings.hotkeyCopyAria", { action: label })}
+                onClick={() => void copyCommand(action, command)}
+              >
+                {copied === action ? t("settings.hotkeyCopied") : t("settings.hotkeyCopy")}
+              </button>
+            </dt>
+            <dd>
+              <code>{withPathBreaks(command)}</code>
+            </dd>
+          </div>
+        );
+      })}
+    </dl>
+  );
+
+  if (report?.mode === "commands") {
     return (
       <section className="section">
         <h2>{t("settings.hotkeys")}</h2>
         <p className="hint">{t("settings.hotkeysWayland")}</p>
-        <dl className="hotkey-commands">
-          {HOTKEY_ACTIONS.map((action) => {
-            const label = t(HOTKEY_LABEL_KEYS[action]);
-            const command = `${report.command} ${HOTKEY_FLAGS[action]}`;
-            return (
-              <div key={action} className="hotkey-command">
-                <dt>
-                  <span>{label}</span>
-                  <button
-                    type="button"
-                    className="linkish"
-                    aria-label={t("settings.hotkeyCopyAria", { action: label })}
-                    onClick={() => void copyCommand(action, command)}
-                  >
-                    {copied === action ? t("settings.hotkeyCopied") : t("settings.hotkeyCopy")}
-                  </button>
-                </dt>
-                <dd>
-                  <code>{withPathBreaks(command)}</code>
-                </dd>
-              </div>
-            );
-          })}
-        </dl>
+        {commandList}
+      </section>
+    );
+  }
+
+  if (report?.mode === "portal") {
+    const assigned = report.portalShortcuts ?? [];
+    return (
+      <section className="section">
+        <h2>{t("settings.hotkeys")}</h2>
+        <p className="hint">{t("settings.hotkeysPortalHint")}</p>
+        {hotkeys.portal && (
+          <ul className="hotkey-list">
+            {HOTKEY_ACTIONS.map((action) => {
+              const trigger = assigned.find((s) => s.action === action)?.trigger ?? "";
+              return (
+                <li key={action} className="hotkey-row hotkey-row--portal">
+                  <span className="hotkey-label">{t(HOTKEY_LABEL_KEYS[action])}</span>
+                  <span className="hotkey-trigger">{trigger ? <kbd>{trigger}</kbd> : t("settings.hotkeyNotSet")}</span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {report.portalProblem && (
+          <p className="hotkey-problem" role="status">
+            {t("settings.hotkeysPortalProblem")}
+          </p>
+        )}
+        <div className="hotkey-portal-actions">
+          <button
+            type="button"
+            className={`btn ${hotkeys.portal ? "btn-ghost" : "btn-primary"}`}
+            disabled={portalBusy}
+            onClick={() => void setUpPortal()}
+          >
+            {hotkeys.portal ? t("settings.hotkeysPortalChange") : t("settings.hotkeysPortalSetup")}
+          </button>
+          {hotkeys.portal && (
+            <button
+              type="button"
+              className="btn btn-ghost"
+              disabled={portalBusy}
+              onClick={() => void onChange({ ...hotkeys, portal: false })}
+            >
+              {t("settings.hotkeysPortalOff")}
+            </button>
+          )}
+        </div>
+        <details className="hotkey-commands-more">
+          <summary>{t("settings.hotkeysCommandsInstead")}</summary>
+          <p className="hint">{t("settings.hotkeysCommandsHint")}</p>
+          {commandList}
+        </details>
       </section>
     );
   }

@@ -371,6 +371,7 @@ impl Database {
                 toggle: self.get_setting("hotkey_toggle")?.unwrap_or_default(),
                 skip: self.get_setting("hotkey_skip")?.unwrap_or_default(),
                 show: self.get_setting("hotkey_show")?.unwrap_or_default(),
+                portal: self.get_setting("hotkey_portal")?.as_deref() == Some("1"),
             },
             hidden_technique_ids: self
                 .get_setting("hidden_technique_ids")?
@@ -413,6 +414,7 @@ impl Database {
         self.set_setting("hotkey_toggle", &settings.global_hotkeys.toggle)?;
         self.set_setting("hotkey_skip", &settings.global_hotkeys.skip)?;
         self.set_setting("hotkey_show", &settings.global_hotkeys.show)?;
+        self.set_setting("hotkey_portal", if settings.global_hotkeys.portal { "1" } else { "" })?;
         Ok(())
     }
 

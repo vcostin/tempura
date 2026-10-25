@@ -53,7 +53,7 @@ export async function installTauriMock(page: Page) {
       checkUpdatesOnLaunch: false,
       hiddenTechniqueIds: [] as string[],
       autoContinue: true,
-      globalHotkeys: { toggle: "", skip: "", show: "" },
+      globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
     };
     let snapshot = {
       phase: "idle",
@@ -72,7 +72,19 @@ export async function installTauriMock(page: Page) {
       awaitingStart: false,
       awaySecs: 0,
     };
-    let hotkeyReport: Record<string, unknown> = { supported: true, inUse: [], command: "/usr/bin/tempura" };
+    let hotkeyReport: Record<string, unknown> = {
+      mode: "keys",
+      inUse: [],
+      command: "/usr/bin/tempura",
+      portalShortcuts: [],
+      portalProblem: false,
+    };
+    // What the desktop's shortcuts dialog "assigns" when setup is asked; null = the user cancels.
+    let portalAssigns: { action: string; trigger: string }[] | null = [
+      { action: "toggle", trigger: "Ctrl+Alt+P" },
+      { action: "skip", trigger: "" },
+      { action: "show", trigger: "Super+T" },
+    ];
     // An empty range, until a test sets one.
     let statsRange: Record<string, unknown> = {
       days: 7,
@@ -126,6 +138,10 @@ export async function installTauriMock(page: Page) {
       get_stats: () => ({ focusSecsToday: 0, completedCyclesToday: 0, sessionsToday: 0, streakDays: 0 }),
       get_stats_range: (a) => ({ ...statsRange, days: a.days }),
       get_hotkey_report: () => hotkeyReport,
+      setup_portal_hotkeys: () => {
+        hotkeyReport = { ...hotkeyReport, portalProblem: !portalAssigns, portalShortcuts: portalAssigns ?? [] };
+        if (!portalAssigns) throw new Error("Cancelled");
+      },
       get_app_info: () => ({
         name: "Tempura",
         version: "0.0.0-test",
@@ -179,6 +195,9 @@ export async function installTauriMock(page: Page) {
       },
       setHotkeyReport(report: Record<string, unknown>) {
         hotkeyReport = { ...hotkeyReport, ...report };
+      },
+      setPortalAssigns(assigns: { action: string; trigger: string }[] | null) {
+        portalAssigns = assigns;
       },
     };
 
