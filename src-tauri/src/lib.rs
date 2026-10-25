@@ -1,6 +1,8 @@
+mod actions;
 mod commands;
 mod db;
 mod engine;
+mod hotkeys;
 mod i18n;
 mod models;
 mod notify;
@@ -20,8 +22,12 @@ pub fn run() {
 
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_notification::init())
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            tray::restore_main(app);
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            // `tempura --toggle` and friends act on the running app; a bare launch shows it.
+            match actions::parse_action(&args) {
+                Some(action) => actions::run(app, action),
+                None => tray::restore_main(app),
+            }
         }));
 
     #[cfg(desktop)]
@@ -32,7 +38,12 @@ pub fn run() {
                 Some(vec!["--minimized"]),
             ))
             .plugin(tauri_plugin_updater::Builder::new().build())
-            .plugin(tauri_plugin_process::init());
+            .plugin(tauri_plugin_process::init())
+            .plugin(
+                tauri_plugin_global_shortcut::Builder::new()
+                    .with_handler(hotkeys::on_shortcut)
+                    .build(),
+            );
     }
 
     macro_rules! tempura_invoke_handler {
@@ -62,6 +73,7 @@ pub fn run() {
                 commands::open_feedback_url,
                 commands::request_quit,
                 commands::hide_to_tray,
+                commands::get_hotkey_report,
                 $($extra,)*
             ]
         };
@@ -69,6 +81,7 @@ pub fn run() {
 
     builder
         .manage(engine.clone())
+        .manage(hotkeys::HotkeyState::default())
         .invoke_handler({
             #[cfg(debug_assertions)]
             {
@@ -99,6 +112,7 @@ pub fn run() {
                 }
                 tray::setup_tray(app.handle())?;
                 notify::init(app.handle());
+                hotkeys::apply(app.handle(), &settings.global_hotkeys);
             }
 
             let start_minimized = settings.start_minimized
@@ -110,6 +124,12 @@ pub fn run() {
             }
 
             engine.clone().start_ticker(app.handle().clone());
+
+            // Launched by a desktop shortcut while not running yet: do what it asked.
+            let args: Vec<String> = std::env::args().collect();
+            if let Some(action) = actions::parse_action(&args) {
+                actions::run(app.handle(), action);
+            }
             Ok(())
         })
         .on_window_event(|window, event| {

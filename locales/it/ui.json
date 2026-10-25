@@ -102,7 +102,16 @@
     "openAbout": "Aiuto e info…",
     "techniques": "Tecniche",
     "manageTechniques": "Gestisci tecniche",
-    "techniquesMeta": "Tue: {{mine}} · Integrate: {{builtIn}}"
+    "techniquesMeta": "Tue: {{mine}} · Integrate: {{builtIn}}",
+    "hotkeys": "Scorciatoie globali",
+    "hotkeysHint": "Funzionano anche con Tempura in background. Nessuna è attiva finché non ne registri una, e ognuna richiede Ctrl, Alt o Super.",
+    "hotkeysWayland": "Questo desktop (Wayland) non permette alle app di catturare i tasti. Aggiungi questi comandi come scorciatoie personalizzate nelle impostazioni della tastiera del sistema:",
+    "hotkeyPress": "Premi una scorciatoia… (Esc per annullare)",
+    "hotkeyNotSet": "Non impostata",
+    "hotkeyClear": "Rimuovi la scorciatoia per {{action}}",
+    "hotkeyNeedsModifier": "Aggiungi Ctrl, Alt o Super, così la digitazione nelle altre app non ne risente.",
+    "hotkeyTaken": "Già usata per «{{action}}».",
+    "hotkeyInUse": "Un’altra app usa già questa scorciatoia, quindi Tempura l’ha lasciata stare. Scegline un’altra."
   },
   "about": {
     "panel": "Aiuto e info",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Maiusc",
-    "key_menu": "Menu"
+    "key_menu": "Menu",
+    "showWindow": "Mostra Tempura",
+    "groupSystemWide": "In tutto il sistema",
+    "systemWideSet": "Funzionano anche con Tempura in background.",
+    "systemWideNone": "Nessuna impostata. Puoi aggiungere scorciatoie che funzionano con Tempura in background.",
+    "systemWideSettings": "Impostale nelle impostazioni",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

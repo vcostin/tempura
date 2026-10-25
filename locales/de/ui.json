@@ -102,7 +102,16 @@
     "openAbout": "Hilfe & Über…",
     "techniques": "Techniken",
     "manageTechniques": "Techniken verwalten",
-    "techniquesMeta": "Eigene: {{mine}} · Integriert: {{builtIn}}"
+    "techniquesMeta": "Eigene: {{mine}} · Integriert: {{builtIn}}",
+    "hotkeys": "Globale Tastenkürzel",
+    "hotkeysHint": "Funktionieren auch, wenn Tempura im Hintergrund ist. Keines ist aktiv, bis du eines aufnimmst, und jedes braucht Strg, Alt oder Super.",
+    "hotkeysWayland": "Dieser Desktop (Wayland) lässt Apps keine Tasten abfangen. Lege diese Befehle in den Tastatur-Einstellungen deines Systems als eigene Tastenkürzel an:",
+    "hotkeyPress": "Kürzel drücken… (Esc bricht ab)",
+    "hotkeyNotSet": "Nicht gesetzt",
+    "hotkeyClear": "Kürzel für {{action}} entfernen",
+    "hotkeyNeedsModifier": "Nimm Strg, Alt oder Super dazu, damit das Tippen in anderen Apps nicht gestört wird.",
+    "hotkeyTaken": "Schon für „{{action}}“ vergeben.",
+    "hotkeyInUse": "Eine andere App nutzt dieses Kürzel bereits, daher hat Tempura es nicht übernommen. Wähle ein anderes."
   },
   "about": {
     "panel": "Hilfe & Über",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Strg",
     "key_shift": "Umschalt",
-    "key_menu": "Menü"
+    "key_menu": "Menü",
+    "showWindow": "Tempura zeigen",
+    "groupSystemWide": "Systemweit",
+    "systemWideSet": "Funktionieren auch, wenn Tempura im Hintergrund ist.",
+    "systemWideNone": "Keine gesetzt. Du kannst Kürzel anlegen, die auch im Hintergrund funktionieren.",
+    "systemWideSettings": "In den Einstellungen festlegen",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

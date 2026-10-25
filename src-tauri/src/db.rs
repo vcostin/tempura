@@ -1,5 +1,5 @@
 use crate::models::{
-    AppSettings, DayBucket, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
+    AppSettings, DayBucket, GlobalHotkeys, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
     DEFAULT_FLOW_RATIO,
 };
 use crate::stats::{group_focus, FocusRow, TOP_SHARES};
@@ -367,6 +367,11 @@ impl Database {
                 .map(|v| v == "true")
                 .unwrap_or(defaults.check_updates_on_launch),
             // Comma-joined: technique ids never contain commas (see `validate_id`).
+            global_hotkeys: GlobalHotkeys {
+                toggle: self.get_setting("hotkey_toggle")?.unwrap_or_default(),
+                skip: self.get_setting("hotkey_skip")?.unwrap_or_default(),
+                show: self.get_setting("hotkey_show")?.unwrap_or_default(),
+            },
             hidden_technique_ids: self
                 .get_setting("hidden_technique_ids")?
                 .map(|v| {
@@ -405,6 +410,9 @@ impl Database {
             &settings.hidden_technique_ids.join(","),
         )?;
         self.set_setting("auto_continue", &settings.auto_continue.to_string())?;
+        self.set_setting("hotkey_toggle", &settings.global_hotkeys.toggle)?;
+        self.set_setting("hotkey_skip", &settings.global_hotkeys.skip)?;
+        self.set_setting("hotkey_show", &settings.global_hotkeys.show)?;
         Ok(())
     }
 

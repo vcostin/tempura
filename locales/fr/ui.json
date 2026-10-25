@@ -102,7 +102,16 @@
     "openAbout": "Aide et à propos…",
     "techniques": "Techniques",
     "manageTechniques": "Gérer les techniques",
-    "techniquesMeta": "Les vôtres : {{mine}} · Intégrées : {{builtIn}}"
+    "techniquesMeta": "Les vôtres : {{mine}} · Intégrées : {{builtIn}}",
+    "hotkeys": "Raccourcis globaux",
+    "hotkeysHint": "Ils fonctionnent même quand Tempura est en arrière-plan. Aucun n’est actif tant que vous n’en enregistrez pas, et chacun demande Ctrl, Alt ou Super.",
+    "hotkeysWayland": "Ce bureau (Wayland) ne laisse pas les applications capter les touches. Ajoutez ces commandes comme raccourcis personnalisés dans les réglages clavier du système :",
+    "hotkeyPress": "Appuyez sur un raccourci… (Échap pour annuler)",
+    "hotkeyNotSet": "Non défini",
+    "hotkeyClear": "Effacer le raccourci de {{action}}",
+    "hotkeyNeedsModifier": "Ajoutez Ctrl, Alt ou Super pour ne pas gêner la saisie dans les autres applications.",
+    "hotkeyTaken": "Déjà utilisé pour « {{action}} ».",
+    "hotkeyInUse": "Une autre application utilise déjà ce raccourci, Tempura ne l’a donc pas pris. Choisissez-en un autre."
   },
   "about": {
     "panel": "Aide et à propos",
@@ -349,6 +358,13 @@
     "key_esc": "Échap",
     "key_ctrl": "Ctrl",
     "key_shift": "Maj",
-    "key_menu": "Menu"
+    "key_menu": "Menu",
+    "showWindow": "Afficher Tempura",
+    "groupSystemWide": "Dans tout le système",
+    "systemWideSet": "Ils fonctionnent même quand Tempura est en arrière-plan.",
+    "systemWideNone": "Aucun défini. Vous pouvez ajouter des raccourcis qui marchent en arrière-plan.",
+    "systemWideSettings": "Les définir dans les réglages",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

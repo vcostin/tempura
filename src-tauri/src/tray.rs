@@ -252,21 +252,8 @@ fn handle_menu(app: &AppHandle, id: &str) {
                 restore_main(app);
             }
         }
-        "toggle" => {
-            let engine = app.state::<EngineHandle>();
-            let snap = engine.snapshot();
-            if !snap.running {
-                let _ = engine.start(app, None);
-            } else if snap.paused {
-                let _ = engine.resume(app);
-            } else {
-                let _ = engine.pause(app);
-            }
-        }
-        "skip" => {
-            let engine = app.state::<EngineHandle>();
-            let _ = engine.skip(app);
-        }
+        "toggle" => crate::actions::run(app, crate::actions::Action::Toggle),
+        "skip" => crate::actions::run(app, crate::actions::Action::Skip),
         "auto_continue" => toggle_auto_continue(app),
         "settings" => {
             restore_main(app);

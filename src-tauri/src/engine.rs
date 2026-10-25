@@ -244,6 +244,21 @@ impl EngineHandle {
         Ok(snap)
     }
 
+    /// Resume, except at the Hybrid bell, where resuming means taking the break.
+    pub fn resume_or_take_break(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
+        let snap = self.snapshot();
+        if snap.running
+            && snap.paused
+            && snap.mode == "hybrid"
+            && snap.phase == Phase::Focus
+            && snap.remaining_secs == 0
+            && !snap.hybrid_switched
+        {
+            return self.skip(app);
+        }
+        self.resume(app)
+    }
+
     pub fn skip(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
         let previous;
         {

@@ -102,7 +102,16 @@
     "openAbout": "도움말 및 정보…",
     "techniques": "기법",
     "manageTechniques": "기법 관리",
-    "techniquesMeta": "내 기법: {{mine}} · 기본 제공: {{builtIn}}"
+    "techniquesMeta": "내 기법: {{mine}} · 기본 제공: {{builtIn}}",
+    "hotkeys": "전역 단축키",
+    "hotkeysHint": "Tempura가 백그라운드에 있어도 작동해요. 직접 기록하기 전에는 아무것도 등록되지 않으며, 각 단축키에는 Ctrl, Alt 또는 Super가 필요해요.",
+    "hotkeysWayland": "이 데스크톱(Wayland)에서는 앱이 키를 가로챌 수 없어요. 시스템 키보드 설정에서 다음 명령을 사용자 지정 단축키로 추가하세요:",
+    "hotkeyPress": "단축키를 누르세요… (Esc로 취소)",
+    "hotkeyNotSet": "설정 안 됨",
+    "hotkeyClear": "{{action}} 단축키 지우기",
+    "hotkeyNeedsModifier": "다른 앱에서 입력에 방해되지 않도록 Ctrl, Alt 또는 Super를 함께 눌러 주세요.",
+    "hotkeyTaken": "이미 “{{action}}”에 쓰이고 있어요.",
+    "hotkeyInUse": "다른 앱이 이미 이 단축키를 쓰고 있어서 Tempura는 건드리지 않았어요. 다른 단축키를 골라 주세요."
   },
   "about": {
     "panel": "도움말 및 정보",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "메뉴"
+    "key_menu": "메뉴",
+    "showWindow": "Tempura 보기",
+    "groupSystemWide": "시스템 전체",
+    "systemWideSet": "Tempura가 백그라운드에 있어도 작동해요.",
+    "systemWideNone": "설정된 단축키가 없어요. 백그라운드에서도 작동하는 단축키를 추가할 수 있어요.",
+    "systemWideSettings": "설정에서 지정하기",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

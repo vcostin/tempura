@@ -15,7 +15,7 @@ test.describe("keyboard shortcuts page", () => {
   test("? opens it from the timer, lists the keys, and Esc goes back", async ({ page }) => {
     await page.keyboard.press("?");
     await expect(dialog(page)).toBeVisible();
-    await expect(dialog(page).locator(".section h2")).toHaveText(["On the timer", "Anywhere", "Menus and lists"]);
+    await expect(dialog(page).locator(".section h2")).toHaveText(["On the timer", "Anywhere", "Menus and lists", "System-wide"]);
     const timerRows = dialog(page).locator(".section").first().locator(".shortcut-row");
     await expect(timerRows).toHaveText([
       /Space\s*Start, pause or resume/,

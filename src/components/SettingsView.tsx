@@ -3,6 +3,7 @@ import { LOCALES } from "../lib/i18n";
 import type { AppSettings } from "../lib/types";
 import { THEMES } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
+import { GlobalHotkeysSection } from "./GlobalHotkeysSection";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
 
@@ -140,6 +141,13 @@ export function SettingsView(props: Props) {
             </button>
           )}
         </section>
+      )}
+
+      {props.desktop && (
+        <GlobalHotkeysSection
+          hotkeys={settings.globalHotkeys}
+          onChange={(globalHotkeys) => props.onPatch({ globalHotkeys })}
+        />
       )}
 
       <section className="section">

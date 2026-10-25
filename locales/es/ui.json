@@ -102,7 +102,16 @@
     "openAbout": "Ayuda y acerca de…",
     "techniques": "Técnicas",
     "manageTechniques": "Gestionar técnicas",
-    "techniquesMeta": "Tuyas: {{mine}} · Integradas: {{builtIn}}"
+    "techniquesMeta": "Tuyas: {{mine}} · Integradas: {{builtIn}}",
+    "hotkeys": "Atajos globales",
+    "hotkeysHint": "Funcionan aunque Tempura esté en segundo plano. No hay ninguno hasta que grabes uno, y cada uno necesita Ctrl, Alt o Super.",
+    "hotkeysWayland": "Este escritorio (Wayland) no deja que las apps capturen teclas. Para usar atajos, añade estos comandos como atajos personalizados en los ajustes de teclado del sistema:",
+    "hotkeyPress": "Pulsa un atajo… (Esc para cancelar)",
+    "hotkeyNotSet": "Sin asignar",
+    "hotkeyClear": "Quitar el atajo de {{action}}",
+    "hotkeyNeedsModifier": "Añade Ctrl, Alt o Super para no afectar a lo que escribes en otras apps.",
+    "hotkeyTaken": "Ya se usa para «{{action}}».",
+    "hotkeyInUse": "Otra app ya usa este atajo, así que Tempura no lo tocó. Elige otro."
   },
   "about": {
     "panel": "Ayuda y acerca de",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Mayús",
-    "key_menu": "Menú"
+    "key_menu": "Menú",
+    "showWindow": "Mostrar Tempura",
+    "groupSystemWide": "En todo el sistema",
+    "systemWideSet": "Funcionan aunque Tempura esté en segundo plano.",
+    "systemWideNone": "Ninguno asignado. Puedes añadir atajos que funcionen con Tempura en segundo plano.",
+    "systemWideSettings": "Configúralos en Ajustes",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

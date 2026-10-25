@@ -102,7 +102,16 @@
     "openAbout": "Ajuda e sobre…",
     "techniques": "Técnicas",
     "manageTechniques": "Gerenciar técnicas",
-    "techniquesMeta": "Suas: {{mine}} · Integradas: {{builtIn}}"
+    "techniquesMeta": "Suas: {{mine}} · Integradas: {{builtIn}}",
+    "hotkeys": "Atalhos globais",
+    "hotkeysHint": "Funcionam mesmo com o Tempura em segundo plano. Nenhum fica ativo até você gravar um, e cada um precisa de Ctrl, Alt ou Super.",
+    "hotkeysWayland": "Este desktop (Wayland) não deixa apps capturarem teclas. Para usar atalhos, adicione estes comandos como atalhos personalizados nas configurações de teclado do sistema:",
+    "hotkeyPress": "Pressione um atalho… (Esc para cancelar)",
+    "hotkeyNotSet": "Não definido",
+    "hotkeyClear": "Limpar o atalho de {{action}}",
+    "hotkeyNeedsModifier": "Adicione Ctrl, Alt ou Super para não atrapalhar a digitação em outros apps.",
+    "hotkeyTaken": "Já usado para “{{action}}”.",
+    "hotkeyInUse": "Outro app já usa este atalho, então o Tempura não mexeu nele. Escolha outro."
   },
   "about": {
     "panel": "Ajuda e sobre",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "Menu"
+    "key_menu": "Menu",
+    "showWindow": "Mostrar o Tempura",
+    "groupSystemWide": "No sistema todo",
+    "systemWideSet": "Funcionam mesmo com o Tempura em segundo plano.",
+    "systemWideNone": "Nenhum definido. Você pode adicionar atalhos que funcionam em segundo plano.",
+    "systemWideSettings": "Defina nas configurações",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

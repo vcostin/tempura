@@ -95,8 +95,15 @@ export function AboutRoute() {
 }
 
 export function ShortcutsRoute() {
-  const { goBack } = useShell();
-  return <ShortcutsView onClose={goBack} />;
+  const settingsApi = useSettingsContext();
+  const { goBack, openPanel } = useShell();
+  return (
+    <ShortcutsView
+      globalHotkeys={settingsApi.settings.globalHotkeys}
+      onOpenSettings={() => openPanel("settings")}
+      onClose={goBack}
+    />
+  );
 }
 
 export function StatsRoute() {

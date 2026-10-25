@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import type { TFunction } from "i18next";
 import { i18n } from "./i18n";
+import type { HotkeyReport } from "./hotkeys";
 import {
   DEFAULT_FLOW_RATIO,
   type AppInfo,
@@ -22,6 +23,7 @@ export const api = {
   reset: () => invoke<TimerSnapshot>("timer_reset"),
   stop: () => invoke<TimerSnapshot>("timer_stop"),
   continueFlow: () => invoke<TimerSnapshot>("timer_continue_flow"),
+  getHotkeyReport: () => invoke<HotkeyReport>("get_hotkey_report"),
   countAway: () => invoke<TimerSnapshot>("timer_count_away"),
   dismissAway: () => invoke<TimerSnapshot>("timer_dismiss_away"),
 

@@ -102,7 +102,16 @@
     "openAbout": "ヘルプとこのアプリについて…",
     "techniques": "テクニック",
     "manageTechniques": "テクニックを管理",
-    "techniquesMeta": "自分: {{mine}} · 組み込み: {{builtIn}}"
+    "techniquesMeta": "自分: {{mine}} · 組み込み: {{builtIn}}",
+    "hotkeys": "グローバルショートカット",
+    "hotkeysHint": "Tempura がバックグラウンドにあっても使えます。記録するまで何も登録されず、Ctrl・Alt・Super のいずれかが必要です。",
+    "hotkeysWayland": "このデスクトップ (Wayland) ではアプリがキーを取得できません。次のコマンドをシステムのキーボード設定でカスタムショートカットとして追加してください:",
+    "hotkeyPress": "ショートカットを押してください… (Esc で取消)",
+    "hotkeyNotSet": "未設定",
+    "hotkeyClear": "{{action}} のショートカットを削除",
+    "hotkeyNeedsModifier": "他のアプリでの入力を妨げないよう、Ctrl・Alt・Super のいずれかを加えてください。",
+    "hotkeyTaken": "「{{action}}」で使用中です。",
+    "hotkeyInUse": "別のアプリがこのショートカットを使っているため、Tempura は登録しませんでした。別のものを選んでください。"
   },
   "about": {
     "panel": "ヘルプとこのアプリについて",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "メニュー"
+    "key_menu": "メニュー",
+    "showWindow": "Tempura を表示",
+    "groupSystemWide": "システム全体",
+    "systemWideSet": "Tempura がバックグラウンドにあっても使えます。",
+    "systemWideNone": "未設定です。バックグラウンドでも使えるショートカットを追加できます。",
+    "systemWideSettings": "設定で登録",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

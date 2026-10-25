@@ -37,18 +37,7 @@ pub fn timer_resume(
     app: AppHandle,
     engine: State<'_, EngineHandle>,
 ) -> Result<TimerSnapshot, String> {
-    // Hybrid bell: resume means take the break
-    let snap = engine.snapshot();
-    if snap.running
-        && snap.paused
-        && snap.mode == "hybrid"
-        && snap.phase == crate::models::Phase::Focus
-        && snap.remaining_secs == 0
-        && !snap.hybrid_switched
-    {
-        return engine.skip(&app);
-    }
-    engine.resume(&app)
+    engine.resume_or_take_break(&app)
 }
 
 #[tauri::command]
@@ -174,8 +163,16 @@ pub fn update_settings(
         .map_err(|e| e.to_string())?;
     engine.load_settings(settings.clone());
     engine.update_tray(&app);
+    #[cfg(desktop)]
+    crate::hotkeys::apply(&app, &settings.global_hotkeys);
     let _ = app.emit("settings-updated", &settings);
     Ok(settings)
+}
+
+/// Whether global shortcuts work in this session, and which ones another app owns.
+#[tauri::command]
+pub fn get_hotkey_report(hotkeys: State<'_, crate::hotkeys::HotkeyState>) -> crate::hotkeys::HotkeyReport {
+    hotkeys.report()
 }
 
 #[tauri::command]
