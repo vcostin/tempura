@@ -75,6 +75,16 @@ test.describe("global shortcuts", () => {
     ]);
   });
 
+  test("on Wayland, each command has a copy button", async ({ page, context }) => {
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await setReport(page, { supported: false, command: "/opt/Tempura.AppImage" });
+    await page.locator('[data-open-panel="settings"]').click();
+    const copy = page.getByRole("button", { name: "Copy the command for Skip to the next phase" });
+    await copy.click();
+    await expect(copy).toHaveText("Copied");
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("/opt/Tempura.AppImage --skip");
+  });
+
   test("the shortcuts page lists recorded ones under System-wide", async ({ page }) => {
     await openSettings(page);
     await row(page, "Show Tempura").locator(".hotkey-recorder").click();

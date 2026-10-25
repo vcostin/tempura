@@ -35,6 +35,7 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   const [report, setReport] = useState<HotkeyReport | null>(null);
   const [recording, setRecording] = useState<HotkeyAction | null>(null);
   const [problem, setProblem] = useState<{ action: HotkeyAction; message: string } | null>(null);
+  const [copied, setCopied] = useState<HotkeyAction | null>(null);
   const mac = isMacPlatform();
   const name = (key: string) => t(`shortcuts.key_${key}`);
 
@@ -80,20 +81,44 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
     void save(action, result.accelerator);
   }
 
+  async function copyCommand(action: HotkeyAction, command: string) {
+    try {
+      await navigator.clipboard.writeText(command);
+      setCopied(action);
+      window.setTimeout(() => setCopied((c) => (c === action ? null : c)), 2000);
+    } catch {
+      /* clipboard may be denied; the command is still on screen to select */
+    }
+  }
+
   if (report && !report.supported) {
     return (
       <section className="section">
         <h2>{t("settings.hotkeys")}</h2>
         <p className="hint">{t("settings.hotkeysWayland")}</p>
         <dl className="hotkey-commands">
-          {HOTKEY_ACTIONS.map((action) => (
-            <div key={action} className="hotkey-command">
-              <dt>{t(HOTKEY_LABEL_KEYS[action])}</dt>
-              <dd>
-                <code>{`${report.command} ${HOTKEY_FLAGS[action]}`}</code>
-              </dd>
-            </div>
-          ))}
+          {HOTKEY_ACTIONS.map((action) => {
+            const label = t(HOTKEY_LABEL_KEYS[action]);
+            const command = `${report.command} ${HOTKEY_FLAGS[action]}`;
+            return (
+              <div key={action} className="hotkey-command">
+                <dt>
+                  <span>{label}</span>
+                  <button
+                    type="button"
+                    className="linkish"
+                    aria-label={t("settings.hotkeyCopyAria", { action: label })}
+                    onClick={() => void copyCommand(action, command)}
+                  >
+                    {copied === action ? t("settings.hotkeyCopied") : t("settings.hotkeyCopy")}
+                  </button>
+                </dt>
+                <dd>
+                  <code>{withPathBreaks(command)}</code>
+                </dd>
+              </div>
+            );
+          })}
         </dl>
       </section>
     );
@@ -162,4 +187,9 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
       </ul>
     </section>
   );
+}
+
+/** Lets a long command wrap after a path separator rather than mid-word. */
+function withPathBreaks(command: string) {
+  return command.split("/").flatMap((part, i) => (i === 0 ? [part] : [<wbr key={i} />, "/" + part]));
 }
