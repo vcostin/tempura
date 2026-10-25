@@ -86,7 +86,12 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
   }
 
   async function copyCommand(action: HotkeyAction, command: string) {
-    await navigator.clipboard.writeText(command);
+    try {
+      await navigator.clipboard.writeText(command);
+    } catch {
+      // WebKitGTK may deny the clipboard; the command stays on screen to select.
+      return;
+    }
     setCopied(action);
     window.setTimeout(() => setCopied((c) => (c === action ? null : c)), 2000);
   }

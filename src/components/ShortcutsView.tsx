@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import { HOTKEY_ACTIONS, hotkeyCaps, type GlobalHotkeys, type PortalShortcut } from "../lib/hotkeys";
 import { isMacPlatform, keyLabel, SHORTCUT_GROUPS } from "../lib/shortcuts";
@@ -23,7 +24,14 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
 
   useEffect(() => {
     if (!globalHotkeys.portal) return;
-    void api.getHotkeyReport().then((report) => setPortalShortcuts(report.portalShortcuts ?? []));
+    const refresh = () =>
+      void api.getHotkeyReport().then((report) => setPortalShortcuts(report.portalShortcuts ?? []));
+    refresh();
+    // The portal binds in the background at startup, and the desktop can change keys.
+    const unlisten = listen("hotkeys-changed", refresh);
+    return () => {
+      void unlisten.then((stop) => stop());
+    };
   }, [globalHotkeys.portal]);
 
   // Recorded keys, or on Wayland the ones the desktop assigned (one label each).

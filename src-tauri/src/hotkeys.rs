@@ -141,19 +141,21 @@ pub fn apply(app: &AppHandle, hotkeys: &GlobalHotkeys) {
             }
         }
     }
+    let first_run = previous.is_none();
     update_report(app, |report| {
         report.in_use = in_use;
         report.command = launch_command();
         if supported {
             report.mode = HotkeyMode::Keys;
+        } else if first_run {
+            // Until the portal answers, offer the commands.
+            report.mode = HotkeyMode::Commands;
         }
     });
 
     #[cfg(target_os = "linux")]
     if !supported {
-        if previous.is_none() {
-            // First run: until the portal answers, offer the commands.
-            update_report(app, |report| report.mode = HotkeyMode::Commands);
+        if first_run {
             crate::portal::init(app, hotkeys.portal);
         } else {
             crate::portal::sync(app, hotkeys.portal);

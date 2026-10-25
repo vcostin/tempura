@@ -71,79 +71,100 @@ struct Active {
 #[derive(Default)]
 pub struct PortalState {
     available: AtomicBool,
+    /// Whether settings ask for shortcuts; startup and later changes both settle on it.
+    wanted: AtomicBool,
+    /// Held across every bind and close, so they never overlap.
     active: Mutex<Option<Active>>,
-}
-
-impl PortalState {
-    pub fn available(&self) -> bool {
-        self.available.load(Ordering::Relaxed)
-    }
 }
 
 /// Look for the portal once at startup; if the user set shortcuts up before,
 /// bind them again (the desktop remembers their keys, so no dialog this time).
 pub fn init(app: &AppHandle, enabled: bool) {
+    app.state::<PortalState>().wanted.store(enabled, Ordering::Relaxed);
     let app = app.clone();
     async_runtime::spawn(async move {
-        // A throwaway connection: registering our app id must be the first call on
-        // the one that binds, and that waits until the user asks for shortcuts.
-        let available = match ashpd::zbus::Connection::session().await {
-            Ok(connection) => GlobalShortcuts::with_connection(connection).await.is_ok(),
-            Err(_) => false,
-        };
+        let available = portal_present().await;
         app.state::<PortalState>().available.store(available, Ordering::Relaxed);
         hotkeys::update_report(&app, |r| {
             r.mode = if available { HotkeyMode::Portal } else { HotkeyMode::Commands };
         });
-        if available && enabled {
-            let _ = bind(&app).await;
-        }
+        settle(&app).await;
     });
 }
 
 /// Follow the "set up" flag in settings: bind when on, close the session when off.
 pub fn sync(app: &AppHandle, enabled: bool) {
+    app.state::<PortalState>().wanted.store(enabled, Ordering::Relaxed);
     let app = app.clone();
-    async_runtime::spawn(async move {
-        let state = app.state::<PortalState>();
-        if !state.available() {
-            return;
-        }
-        let running = state.active.lock().await.is_some();
-        if enabled && !running {
-            let _ = bind(&app).await;
-        } else if !enabled && running {
-            close(&app).await;
-        }
-    });
+    async_runtime::spawn(async move { settle(&app).await });
+}
+
+/// Bind or close so the session matches what settings want right now.
+async fn settle(app: &AppHandle) {
+    let state = app.state::<PortalState>();
+    if !state.available.load(Ordering::Relaxed) {
+        return;
+    }
+    let mut active = state.active.lock().await;
+    let wanted = state.wanted.load(Ordering::Relaxed);
+    if wanted && active.is_none() {
+        let _ = bind(app, &mut active).await;
+    } else if !wanted && active.is_some() {
+        close(app, &mut active).await;
+    }
+}
+
+/// Whether the desktop runs a GlobalShortcuts portal. Asked on a throwaway
+/// connection: registering our app id must be the first call on the one that binds.
+async fn portal_present() -> bool {
+    let Ok(connection) = ashpd::zbus::Connection::session().await else { return false };
+    let Ok(proxy) = ashpd::zbus::Proxy::new(
+        &connection,
+        "org.freedesktop.portal.Desktop",
+        "/org/freedesktop/portal/desktop",
+        "org.freedesktop.portal.GlobalShortcuts",
+    )
+    .await
+    else {
+        return false;
+    };
+    proxy.get_property::<u32>("version").await.is_ok()
 }
 
 /// Ask the desktop for the shortcuts (its dialog shows for any not yet assigned),
 /// or, once they exist, open the desktop's dialog to change them.
 pub async fn setup(app: &AppHandle) -> Result<(), String> {
     let state = app.state::<PortalState>();
-    {
-        let active = state.active.lock().await;
-        if let Some(active) = active.as_ref() {
-            if active.proxy.version() >= 2 {
-                return active
-                    .proxy
-                    .configure_shortcuts(&active.session, None, ConfigureShortcutsOptions::default())
-                    .await
-                    .map_err(|e| e.to_string());
-            }
-            // Older portals (KDE today) can't reopen their dialog for keys they
-            // already know, so open the desktop's own shortcuts page instead.
-            let desktop = std::env::var("XDG_CURRENT_DESKTOP").unwrap_or_default();
-            if let Some((program, args)) = system_shortcuts_page(&desktop) {
-                if std::process::Command::new(program).args(args).spawn().is_ok() {
-                    return Ok(());
-                }
-            }
+    let mut active = state.active.lock().await;
+    if let Some(current) = active.as_ref() {
+        if current.proxy.version() >= 2 {
+            return current
+                .proxy
+                .configure_shortcuts(&current.session, None, ConfigureShortcutsOptions::default())
+                .await
+                .map_err(|e| e.to_string());
         }
+        // Older portals (KDE today) can't reopen their dialog for keys they
+        // already know, so open the desktop's own shortcuts page instead.
+        if open_system_shortcuts_page() {
+            return Ok(());
+        }
+        close(app, &mut active).await;
     }
-    close(app).await;
-    bind(app).await
+    bind(app, &mut active).await
+}
+
+fn open_system_shortcuts_page() -> bool {
+    let desktop = std::env::var("XDG_CURRENT_DESKTOP").unwrap_or_default();
+    let Some((program, args)) = system_shortcuts_page(&desktop) else { return false };
+    match std::process::Command::new(program).args(args).spawn() {
+        Ok(mut child) => {
+            // Reap it when the user closes it, so no zombie lingers.
+            std::thread::spawn(move || child.wait());
+            true
+        }
+        Err(_) => false,
+    }
 }
 
 /// The desktop's keyboard shortcuts settings, where portal shortcuts can be changed.
@@ -158,10 +179,11 @@ pub fn system_shortcuts_page(current_desktop: &str) -> Option<(&'static str, &'s
     }
 }
 
-async fn bind(app: &AppHandle) -> Result<(), String> {
+async fn bind(app: &AppHandle, active: &mut Option<Active>) -> Result<(), String> {
     let result = try_bind(app).await;
     hotkeys::update_report(app, |r| r.portal_problem = result.is_err());
-    result
+    *active = Some(result?);
+    Ok(())
 }
 
 /// The desktop names the shortcuts' owner, and shows its icon, from the menu entry
@@ -192,100 +214,123 @@ fn ensure_desktop_entry() -> std::io::Result<()> {
 
 /// A hidden menu entry (no duplicate in the app menu) that names and pictures Tempura.
 pub fn desktop_entry(command: &str) -> String {
-    let quoted: String = command
-        .chars()
-        .flat_map(|c| match c {
-            '"' | '`' | '$' | '\\' => vec!['\\', c],
-            c => vec![c],
-        })
-        .collect();
     format!(
-        "[Desktop Entry]\nType=Application\nName=Tempura\nComment=Focus timer\nExec=\"{quoted}\"\nIcon={APP_ID}\nTerminal=false\nNoDisplay=true\n"
+        "[Desktop Entry]\nType=Application\nName=Tempura\nComment=Focus timer\nExec={}\nIcon={APP_ID}\nTerminal=false\nNoDisplay=true\n",
+        exec_argument(command)
     )
 }
 
-async fn try_bind(app: &AppHandle) -> Result<(), String> {
+/// Quote one Exec argument per the Desktop Entry spec: escape for the quoted
+/// argument, then again for the file's string escapes, and double `%` (field codes).
+fn exec_argument(arg: &str) -> String {
+    let mut quoted = String::from("\"");
+    for c in arg.chars() {
+        match c {
+            '"' | '`' | '$' => {
+                quoted.push_str("\\\\");
+                quoted.push(c);
+            }
+            '\\' => quoted.push_str("\\\\\\\\"),
+            '%' => quoted.push_str("%%"),
+            c => quoted.push(c),
+        }
+    }
+    quoted.push('"');
+    quoted
+}
+
+/// Registering fails until a freshly written entry reaches the portal's app index.
+fn entry_not_indexed_yet(error: &ashpd::Error) -> bool {
+    error.to_string().contains("App info not found")
+}
+
+async fn try_bind(app: &AppHandle) -> Result<Active, String> {
     // The portal only accepts our app id once a desktop entry for it exists, and
     // without it the desktop guesses from the launching process (a terminal, say).
     if let Err(e) = ensure_desktop_entry() {
         eprintln!("tempura: couldn't write the desktop entry for {APP_ID}: {e}");
     }
     let app_id: ashpd::AppID = APP_ID.try_into().expect("valid app id");
-    // A freshly written entry can take a moment to reach the portal's app index;
-    // each try gets a fresh connection, since registering must come first on it.
-    let mut connection = None;
-    for attempt in 0..3 {
-        let fresh = ashpd::zbus::Connection::session().await.map_err(|e| e.to_string())?;
-        match ashpd::register_host_app_with_connection(fresh.clone(), app_id.clone()).await {
-            Ok(()) => {
-                connection = Some(fresh);
-                break;
+    // Each try gets a fresh connection, since registering must come first on it.
+    let mut attempt = 0;
+    let connection = loop {
+        let connection = ashpd::zbus::Connection::session().await.map_err(|e| e.to_string())?;
+        match ashpd::register_host_app_with_connection(connection.clone(), app_id.clone()).await {
+            Err(e) if attempt < 2 && entry_not_indexed_yet(&e) => {
+                attempt += 1;
+                tokio::time::sleep(std::time::Duration::from_millis(300)).await;
             }
-            Err(e) if attempt == 2 => {
+            Err(e) => {
+                // Older portals have no registry; the desktop then names us itself.
                 eprintln!("tempura: couldn't register {APP_ID} with the portal: {e}");
-                connection = Some(fresh);
+                break connection;
             }
-            Err(_) => {
-                let _ = async_runtime::spawn_blocking(|| std::thread::sleep(std::time::Duration::from_millis(300))).await;
-            }
+            Ok(()) => break connection,
         }
-    }
-    let connection = connection.expect("the last attempt keeps its connection");
+    };
     let proxy = GlobalShortcuts::with_connection(connection).await.map_err(|e| e.to_string())?;
     let session = proxy
         .create_session(CreateSessionOptions::default())
         .await
         .map_err(|e| e.to_string())?;
+    match listen(app, &proxy, &session).await {
+        Ok(listeners) => Ok(Active { proxy, session, listeners }),
+        Err(e) => {
+            let _ = session.close().await;
+            Err(e)
+        }
+    }
+}
+
+/// Bind our shortcuts in the session and follow their key presses and changes.
+async fn listen(
+    app: &AppHandle,
+    proxy: &GlobalShortcuts,
+    session: &Session<GlobalShortcuts>,
+) -> Result<Vec<JoinHandle<()>>, String> {
+    // Subscribe first, so no press right after binding is missed.
+    let mut pressed = proxy.receive_activated().await.map_err(|e| e.to_string())?;
+    let changed = proxy.receive_shortcuts_changed().await.ok();
+
     let locale = app.state::<EngineHandle>().locale();
     let wanted: Vec<NewShortcut> = SHORTCUTS
         .iter()
         .map(|(id, _, label)| NewShortcut::new(*id, crate::i18n::t(&locale, label)))
         .collect();
     let bound = proxy
-        .bind_shortcuts(&session, &wanted, None, BindShortcutsOptions::default())
+        .bind_shortcuts(session, &wanted, None, BindShortcutsOptions::default())
         .await
         .and_then(|request| request.response())
-        .map_err(|e| e.to_string());
-    let bound = match bound {
-        Ok(bound) => bound,
-        Err(e) => {
-            let _ = session.close().await;
-            return Err(e);
-        }
-    };
+        .map_err(|e| e.to_string())?;
     let shortcuts = assigned(bound.shortcuts().iter().map(|s| (s.id(), s.trigger_description())));
     hotkeys::update_report(app, |r| r.portal_shortcuts = shortcuts);
 
     let mut listeners = Vec::new();
-    if let Ok(mut pressed) = proxy.receive_activated().await {
-        let app = app.clone();
-        listeners.push(async_runtime::spawn(async move {
-            while let Some(event) = pressed.next().await {
-                match action_for(event.shortcut_id()) {
-                    // Wayland won't let a window raise itself; the desktop's token for
-                    // this key press is what allows Tempura to come forward.
-                    Some(Action::Show) if !crate::tray::main_in_front(&app) => {
-                        present_main(&app, activation_token(event.options()))
-                    }
-                    Some(action) => actions::run(&app, action),
-                    None => {}
+    let on_press = app.clone();
+    listeners.push(async_runtime::spawn(async move {
+        while let Some(event) = pressed.next().await {
+            match action_for(event.shortcut_id()) {
+                // Wayland won't let a window raise itself; the desktop's token for
+                // this key press is what allows Tempura to come forward.
+                Some(Action::Show) if !crate::tray::main_in_front(&on_press) => {
+                    present_main(&on_press, activation_token(event.options()))
                 }
+                Some(action) => actions::run(&on_press, action),
+                None => {}
             }
-        }));
-    }
-    if let Ok(mut changed) = proxy.receive_shortcuts_changed().await {
-        let app = app.clone();
+        }
+    }));
+    if let Some(mut changed) = changed {
+        let on_change = app.clone();
         listeners.push(async_runtime::spawn(async move {
             while let Some(event) = changed.next().await {
                 let shortcuts =
                     assigned(event.shortcuts().iter().map(|s| (s.id(), s.trigger_description())));
-                hotkeys::update_report(&app, |r| r.portal_shortcuts = shortcuts);
+                hotkeys::update_report(&on_change, |r| r.portal_shortcuts = shortcuts);
             }
         }));
     }
-
-    *app.state::<PortalState>().active.lock().await = Some(Active { proxy, session, listeners });
-    Ok(())
+    Ok(listeners)
 }
 
 fn activation_token(options: &HashMap<String, OwnedValue>) -> Option<String> {
@@ -310,9 +355,8 @@ fn present_main(app: &AppHandle, token: Option<String>) {
     });
 }
 
-async fn close(app: &AppHandle) {
-    let active = app.state::<PortalState>().active.lock().await.take();
-    if let Some(active) = active {
+async fn close(app: &AppHandle, active: &mut Option<Active>) {
+    if let Some(active) = active.take() {
         for listener in active.listeners {
             listener.abort();
         }
@@ -354,7 +398,10 @@ mod tests {
         assert!(entry.contains("\nExec=\"/home/me/My Apps/Tempura.AppImage\"\n"));
         assert!(entry.contains("\nIcon=app.tempura.focus\n"));
         assert!(entry.contains("\nNoDisplay=true\n"));
-        assert!(desktop_entry("/opt/a$b").contains("Exec=\"/opt/a\\$b\""));
+        // `$` and `\` take two escapes (quoting, then the file's own); `%` doubles.
+        assert_eq!(exec_argument("/opt/a$b"), r#""/opt/a\\$b""#);
+        assert_eq!(exec_argument(r"/opt/a\b"), r#""/opt/a\\\\b""#);
+        assert_eq!(exec_argument("/opt/100%"), r#""/opt/100%%""#);
     }
 
     #[test]
