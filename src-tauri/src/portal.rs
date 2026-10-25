@@ -84,7 +84,10 @@ pub fn init(app: &AppHandle, enabled: bool) {
     let app = app.clone();
     async_runtime::spawn(async move {
         // Tells the portal which desktop entry this unsandboxed process is.
-        let _ = ashpd::register_host_app(APP_ID.try_into().expect("valid app id")).await;
+        // Without it the desktop guesses from the launching process (a terminal, say).
+        if let Err(e) = ashpd::register_host_app(APP_ID.try_into().expect("valid app id")).await {
+            eprintln!("tempura: couldn't register {APP_ID} with the portal: {e}");
+        }
         let available = GlobalShortcuts::new().await.is_ok();
         app.state::<PortalState>().available.store(available, Ordering::Relaxed);
         hotkeys::update_report(&app, |r| {
@@ -127,10 +130,30 @@ pub async fn setup(app: &AppHandle) -> Result<(), String> {
                     .await
                     .map_err(|e| e.to_string());
             }
+            // Older portals (KDE today) can't reopen their dialog for keys they
+            // already know, so open the desktop's own shortcuts page instead.
+            let desktop = std::env::var("XDG_CURRENT_DESKTOP").unwrap_or_default();
+            if let Some((program, args)) = system_shortcuts_page(&desktop) {
+                if std::process::Command::new(program).args(args).spawn().is_ok() {
+                    return Ok(());
+                }
+            }
         }
     }
     close(app).await;
     bind(app).await
+}
+
+/// The desktop's keyboard shortcuts settings, where portal shortcuts can be changed.
+pub fn system_shortcuts_page(current_desktop: &str) -> Option<(&'static str, &'static [&'static str])> {
+    let desktops: Vec<String> = current_desktop.split(':').map(str::to_ascii_lowercase).collect();
+    if desktops.iter().any(|d| d == "kde") {
+        Some(("systemsettings", &["kcm_keys"]))
+    } else if desktops.iter().any(|d| d == "gnome") {
+        Some(("gnome-control-center", &["keyboard"]))
+    } else {
+        None
+    }
 }
 
 async fn bind(app: &AppHandle) -> Result<(), String> {
@@ -215,6 +238,14 @@ mod tests {
         assert_eq!(action_for("skip"), Some(Action::Skip));
         assert_eq!(action_for("show"), Some(Action::Show));
         assert_eq!(action_for("something-else"), None);
+    }
+
+    #[test]
+    fn finds_the_shortcuts_page_for_kde_and_gnome() {
+        assert_eq!(system_shortcuts_page("KDE"), Some(("systemsettings", &["kcm_keys"][..])));
+        assert_eq!(system_shortcuts_page("ubuntu:GNOME"), Some(("gnome-control-center", &["keyboard"][..])));
+        assert_eq!(system_shortcuts_page("Hyprland"), None);
+        assert_eq!(system_shortcuts_page(""), None);
     }
 
     #[test]
