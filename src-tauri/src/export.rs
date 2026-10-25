@@ -50,9 +50,10 @@ fn parse<Tz: TimeZone>(stamp: &str, tz: &Tz) -> Option<DateTime<Tz>> {
 }
 
 const CSV_HEADER: &str =
-    "date,start,end,label,technique,focus_minutes,focus_seconds,completed_cycles,interrupted";
+    "date,start,end_date,end,label,technique,focus_minutes,focus_seconds,completed_cycles,interrupted";
 
-/// Spreadsheet-friendly: local date and times in separate columns, whole focus
+/// Spreadsheet-friendly: local dates and times in separate columns (the end has
+/// its own date for sessions that cross midnight), whole focus
 /// minutes for summing, exact seconds beside them. Starts with a byte order mark
 /// so Excel reads non-Latin labels as UTF-8.
 fn to_csv<Tz: TimeZone>(rows: &[ExportRow], tz: &Tz) -> String
@@ -66,16 +67,17 @@ where
         let Some(start) = parse(&row.started_at, tz) else {
             continue;
         };
-        let end = row
-            .ended_at
-            .as_deref()
-            .and_then(|e| parse(e, tz))
-            .map(|e| e.format("%H:%M:%S").to_string())
-            .unwrap_or_default();
+        let end = row.ended_at.as_deref().and_then(|e| parse(e, tz));
+        let end_part = |fmt: &str| {
+            end.as_ref()
+                .map(|e| e.format(fmt).to_string())
+                .unwrap_or_default()
+        };
         let fields = [
             start.format("%Y-%m-%d").to_string(),
             start.format("%H:%M:%S").to_string(),
-            end,
+            end_part("%Y-%m-%d"),
+            end_part("%H:%M:%S"),
             csv_field(&row.label),
             csv_field(&row.technique),
             ((row.focus_secs + 30) / 60).to_string(),
@@ -195,7 +197,7 @@ mod tests {
             csv_lines(&[row("Thesis")]),
             vec![
                 CSV_HEADER.to_string(),
-                "2026-10-25,09:58:00,10:23:10,Thesis,Classic,25,1500,1,no".into(),
+                "2026-10-25,09:58:00,2026-10-25,10:23:10,Thesis,Classic,25,1500,1,no".into(),
                 String::new(),
             ]
         );
@@ -216,8 +218,16 @@ mod tests {
         running.interrupted = true;
         assert_eq!(
             csv_lines(&[running])[1],
-            "2026-10-25,09:58:00,,,Classic,25,1500,1,yes"
+            "2026-10-25,09:58:00,,,,Classic,25,1500,1,yes"
         );
+    }
+
+    #[test]
+    fn csv_gives_the_end_its_own_date_across_midnight() {
+        let mut late = row("Night owl");
+        late.started_at = "2026-10-25T21:50:00+00:00".into();
+        late.ended_at = Some("2026-10-25T22:15:00+00:00".into());
+        assert!(csv_lines(&[late])[1].starts_with("2026-10-25,23:50:00,2026-10-26,00:15:00,"));
     }
 
     #[test]
@@ -236,11 +246,14 @@ mod tests {
 
     #[test]
     fn rows_with_a_broken_start_are_skipped() {
-        let mut broken = row("x");
-        broken.started_at = "not a time".into();
-        assert_eq!(csv_lines(&[broken]).len(), 2);
-        let json = render(ExportFormat::Json, &[row("x"), row("y")], &tz());
+        let broken = || {
+            let mut r = row("x");
+            r.started_at = "not a time".into();
+            r
+        };
+        assert_eq!(csv_lines(&[broken(), row("y")]).len(), 3);
+        let json = render(ExportFormat::Json, &[broken(), row("y")], &tz());
         let value: serde_json::Value = serde_json::from_str(&json).unwrap();
-        assert_eq!(value["sessions"].as_array().unwrap().len(), 2);
+        assert_eq!(value["sessions"].as_array().unwrap().len(), 1);
     }
 }

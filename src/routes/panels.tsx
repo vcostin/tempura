@@ -114,8 +114,9 @@ export function StatsRoute() {
     try {
       const file = await api.exportSessions(format, t("stats.exportDialogTitle"));
       if (file) showToast({ message: t("toast.exported", { file }) });
-    } catch {
-      // The backend reports why the file couldn't be written; the toast says it wasn't.
+    } catch (e) {
+      // The toast says the file wasn't saved; the backend's reason goes to the console.
+      console.error(e);
       showToast({ message: t("toast.exportFailed") });
     }
   };
