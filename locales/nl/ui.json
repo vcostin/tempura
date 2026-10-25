@@ -102,7 +102,16 @@
     "openAbout": "Help & over…",
     "techniques": "Technieken",
     "manageTechniques": "Technieken beheren",
-    "techniquesMeta": "Eigen: {{mine}} · Ingebouwd: {{builtIn}}"
+    "techniquesMeta": "Eigen: {{mine}} · Ingebouwd: {{builtIn}}",
+    "hotkeys": "Globale sneltoetsen",
+    "hotkeysHint": "Werken ook als Tempura op de achtergrond draait. Er is er geen actief tot je er een opneemt, en elke sneltoets heeft Ctrl, Alt of Super nodig.",
+    "hotkeysWayland": "Deze desktop (Wayland) laat apps geen toetsen afvangen. Voeg deze opdrachten toe als eigen sneltoetsen in de toetsenbordinstellingen van je systeem:",
+    "hotkeyPress": "Druk een sneltoets in… (Esc om te annuleren)",
+    "hotkeyNotSet": "Niet ingesteld",
+    "hotkeyClear": "Sneltoets voor {{action}} wissen",
+    "hotkeyNeedsModifier": "Voeg Ctrl, Alt of Super toe, zodat typen in andere apps niet verstoord wordt.",
+    "hotkeyTaken": "Al in gebruik voor ‘{{action}}’.",
+    "hotkeyInUse": "Een andere app gebruikt deze sneltoets al, dus Tempura heeft hem niet overgenomen. Kies een andere."
   },
   "about": {
     "panel": "Help & over",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "Menu"
+    "key_menu": "Menu",
+    "showWindow": "Tempura tonen",
+    "groupSystemWide": "Systeembreed",
+    "systemWideSet": "Werken ook als Tempura op de achtergrond draait.",
+    "systemWideNone": "Niets ingesteld. Je kunt sneltoetsen toevoegen die ook op de achtergrond werken.",
+    "systemWideSettings": "Instellen bij Instellingen",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

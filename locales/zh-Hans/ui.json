@@ -102,7 +102,16 @@
     "openAbout": "帮助与关于…",
     "techniques": "技巧",
     "manageTechniques": "管理技巧",
-    "techniquesMeta": "我的：{{mine}} · 内置：{{builtIn}}"
+    "techniquesMeta": "我的：{{mine}} · 内置：{{builtIn}}",
+    "hotkeys": "全局快捷键",
+    "hotkeysHint": "Tempura 在后台时也能使用。录制之前不会注册任何快捷键，并且每个都需要 Ctrl、Alt 或 Super。",
+    "hotkeysWayland": "此桌面 (Wayland) 不允许应用捕获按键。请在系统键盘设置中把以下命令添加为自定义快捷键：",
+    "hotkeyPress": "请按下快捷键…（Esc 取消）",
+    "hotkeyNotSet": "未设置",
+    "hotkeyClear": "清除“{{action}}”的快捷键",
+    "hotkeyNeedsModifier": "请加上 Ctrl、Alt 或 Super，以免影响在其他应用中打字。",
+    "hotkeyTaken": "已用于“{{action}}”。",
+    "hotkeyInUse": "其他应用已在使用此快捷键，Tempura 没有占用它。请换一个。"
   },
   "about": {
     "panel": "帮助与关于",
@@ -349,6 +358,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "菜单"
+    "key_menu": "菜单",
+    "showWindow": "显示 Tempura",
+    "groupSystemWide": "系统范围",
+    "systemWideSet": "Tempura 在后台时也能使用。",
+    "systemWideNone": "尚未设置。你可以添加在后台也能用的快捷键。",
+    "systemWideSettings": "在设置中添加",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

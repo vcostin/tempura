@@ -106,7 +106,16 @@
     "openAbout": "المساعدة وحول…",
     "techniques": "التقنيات",
     "manageTechniques": "إدارة التقنيات",
-    "techniquesMeta": "الخاصة بك: {{mine}} · المدمجة: {{builtIn}}"
+    "techniquesMeta": "الخاصة بك: {{mine}} · المدمجة: {{builtIn}}",
+    "hotkeys": "اختصارات عامة",
+    "hotkeysHint": "تعمل حتى عندما يكون Tempura في الخلفية. لا يُسجَّل أي اختصار قبل أن تسجّله بنفسك، ويحتاج كل اختصار إلى Ctrl أو Alt أو Super.",
+    "hotkeysWayland": "سطح المكتب هذا (Wayland) لا يسمح للتطبيقات بالتقاط المفاتيح. لاستخدام الاختصارات، أضف هذه الأوامر كاختصارات مخصّصة في إعدادات لوحة المفاتيح في النظام:",
+    "hotkeyPress": "اضغط اختصارًا… (Esc للإلغاء)",
+    "hotkeyNotSet": "غير معيّن",
+    "hotkeyClear": "مسح اختصار {{action}}",
+    "hotkeyNeedsModifier": "أضف Ctrl أو Alt أو Super حتى لا تتأثر الكتابة في التطبيقات الأخرى.",
+    "hotkeyTaken": "مستخدم بالفعل لـ «{{action}}».",
+    "hotkeyInUse": "تطبيق آخر يستخدم هذا الاختصار بالفعل، لذا تركه Tempura. اختر اختصارًا آخر."
   },
   "about": {
     "panel": "المساعدة وحول",
@@ -353,6 +362,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "القائمة"
+    "key_menu": "القائمة",
+    "showWindow": "إظهار Tempura",
+    "groupSystemWide": "على مستوى النظام",
+    "systemWideSet": "تعمل حتى عندما يكون Tempura في الخلفية.",
+    "systemWideNone": "لا شيء معيّن. يمكنك إضافة اختصارات تعمل في الخلفية.",
+    "systemWideSettings": "عيّنها في الإعدادات",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

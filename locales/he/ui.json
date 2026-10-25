@@ -103,7 +103,16 @@
     "openAbout": "עזרה ואודות…",
     "techniques": "טכניקות",
     "manageTechniques": "ניהול טכניקות",
-    "techniquesMeta": "שלכם: {{mine}} · מובנות: {{builtIn}}"
+    "techniquesMeta": "שלכם: {{mine}} · מובנות: {{builtIn}}",
+    "hotkeys": "קיצורים גלובליים",
+    "hotkeysHint": "הם פועלים גם כש־Tempura ברקע. אף אחד לא פעיל עד שמקליטים אחד, וכל קיצור צריך Ctrl, Alt או Super.",
+    "hotkeysWayland": "שולחן העבודה הזה (Wayland) לא מאפשר לאפליקציות ללכוד מקשים. כדי להשתמש בקיצורים, יש להוסיף את הפקודות האלה כקיצורים מותאמים בהגדרות המקלדת של המערכת:",
+    "hotkeyPress": "יש ללחוץ על קיצור… (Esc לביטול)",
+    "hotkeyNotSet": "לא הוגדר",
+    "hotkeyClear": "ניקוי הקיצור של {{action}}",
+    "hotkeyNeedsModifier": "יש להוסיף Ctrl, Alt או Super כדי לא להפריע להקלדה באפליקציות אחרות.",
+    "hotkeyTaken": "כבר בשימוש עבור „{{action}}”.",
+    "hotkeyInUse": "אפליקציה אחרת כבר משתמשת בקיצור הזה, ולכן Tempura לא נגעה בו. כדאי לבחור קיצור אחר."
   },
   "about": {
     "panel": "עזרה ואודות",
@@ -350,6 +359,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "תפריט"
+    "key_menu": "תפריט",
+    "showWindow": "הצגת Tempura",
+    "groupSystemWide": "בכל המערכת",
+    "systemWideSet": "הם פועלים גם כש־Tempura ברקע.",
+    "systemWideNone": "לא הוגדרו. אפשר להוסיף קיצורים שפועלים גם ברקע.",
+    "systemWideSettings": "להגדרה בהגדרות",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

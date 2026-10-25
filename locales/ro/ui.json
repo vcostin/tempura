@@ -103,7 +103,16 @@
     "openAbout": "Ajutor și despre…",
     "techniques": "Tehnici",
     "manageTechniques": "Gestionează tehnicile",
-    "techniquesMeta": "Ale tale: {{mine}} · Integrate: {{builtIn}}"
+    "techniquesMeta": "Ale tale: {{mine}} · Integrate: {{builtIn}}",
+    "hotkeys": "Scurtături globale",
+    "hotkeysHint": "Funcționează și când Tempura e în fundal. Niciuna nu e activă până nu înregistrezi una, și fiecare are nevoie de Ctrl, Alt sau Super.",
+    "hotkeysWayland": "Acest desktop (Wayland) nu lasă aplicațiile să capteze taste. Adaugă aceste comenzi ca scurtături personalizate în setările de tastatură ale sistemului:",
+    "hotkeyPress": "Apasă o scurtătură… (Esc pentru anulare)",
+    "hotkeyNotSet": "Nesetată",
+    "hotkeyClear": "Șterge scurtătura pentru {{action}}",
+    "hotkeyNeedsModifier": "Adaugă Ctrl, Alt sau Super, ca să nu încurci scrisul în alte aplicații.",
+    "hotkeyTaken": "Deja folosită pentru „{{action}}”.",
+    "hotkeyInUse": "O altă aplicație folosește deja scurtătura, așa că Tempura n-a luat-o. Alege alta."
   },
   "about": {
     "panel": "Ajutor și despre",
@@ -350,6 +359,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "Meniu"
+    "key_menu": "Meniu",
+    "showWindow": "Arată Tempura",
+    "groupSystemWide": "În tot sistemul",
+    "systemWideSet": "Funcționează și când Tempura e în fundal.",
+    "systemWideNone": "Niciuna setată. Poți adăuga scurtături care merg și cu Tempura în fundal.",
+    "systemWideSettings": "Setează-le în Setări",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

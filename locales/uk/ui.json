@@ -104,7 +104,16 @@
     "openAbout": "Довідка й про програму…",
     "techniques": "Техніки",
     "manageTechniques": "Керувати техніками",
-    "techniquesMeta": "Ваші: {{mine}} · Вбудовані: {{builtIn}}"
+    "techniquesMeta": "Ваші: {{mine}} · Вбудовані: {{builtIn}}",
+    "hotkeys": "Глобальні клавіші",
+    "hotkeysHint": "Працюють, навіть коли Tempura у фоні. Жодна не діє, доки ти її не запишеш, і кожна потребує Ctrl, Alt або Super.",
+    "hotkeysWayland": "Цей робочий стіл (Wayland) не дає застосункам перехоплювати клавіші. Додай ці команди як власні комбінації в системних налаштуваннях клавіатури:",
+    "hotkeyPress": "Натисни комбінацію… (Esc — скасувати)",
+    "hotkeyNotSet": "Не задано",
+    "hotkeyClear": "Очистити комбінацію для «{{action}}»",
+    "hotkeyNeedsModifier": "Додай Ctrl, Alt або Super, щоб не заважати набору тексту в інших застосунках.",
+    "hotkeyTaken": "Уже використано для «{{action}}».",
+    "hotkeyInUse": "Інший застосунок уже використовує цю комбінацію, тож Tempura її не чіпала. Обери іншу."
   },
   "about": {
     "panel": "Довідка й про програму",
@@ -351,6 +360,13 @@
     "key_esc": "Esc",
     "key_ctrl": "Ctrl",
     "key_shift": "Shift",
-    "key_menu": "Меню"
+    "key_menu": "Меню",
+    "showWindow": "Показати Tempura",
+    "groupSystemWide": "Загальносистемні",
+    "systemWideSet": "Працюють, навіть коли Tempura у фоні.",
+    "systemWideNone": "Не задано. Можна додати комбінації, що працюють у фоні.",
+    "systemWideSettings": "Задати в налаштуваннях",
+    "key_alt": "Alt",
+    "key_super": "Super"
   }
 }

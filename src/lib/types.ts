@@ -1,3 +1,5 @@
+import type { GlobalHotkeys } from "./hotkeys";
+
 export type Phase = "idle" | "focus" | "short_break" | "long_break";
 export type TechniqueKind = "system" | "custom";
 
@@ -41,6 +43,8 @@ export interface AppSettings {
   hiddenTechniqueIds: string[];
   /** Start the next break or focus on its own; off waits for the user. */
   autoContinue: boolean;
+  /** Opt-in system-wide shortcuts; empty strings are not set. */
+  globalHotkeys: GlobalHotkeys;
 }
 
 export interface TimerSnapshot {

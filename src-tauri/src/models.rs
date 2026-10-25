@@ -78,6 +78,18 @@ pub struct AppSettings {
     /// Start the next break or focus on its own. Off: wait for the user.
     #[serde(default = "default_true")]
     pub auto_continue: bool,
+    /// Opt-in system-wide shortcuts. Empty: none registered.
+    #[serde(default)]
+    pub global_hotkeys: GlobalHotkeys,
+}
+
+/// Recorded system-wide shortcuts, like "Control+Alt+KeyP"; empty means not set.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct GlobalHotkeys {
+    pub toggle: String,
+    pub skip: String,
+    pub show: String,
 }
 
 fn default_true() -> bool {
@@ -98,6 +110,7 @@ impl Default for AppSettings {
             check_updates_on_launch: true,
             hidden_technique_ids: Vec::new(),
             auto_continue: true,
+            global_hotkeys: GlobalHotkeys::default(),
         }
     }
 }
@@ -255,6 +268,21 @@ impl AppSettings {
             return Err("too many hidden techniques".into());
         }
         self.hidden_technique_ids = hidden;
+
+        let hotkeys = &mut self.global_hotkeys;
+        for value in [&mut hotkeys.toggle, &mut hotkeys.skip, &mut hotkeys.show] {
+            *value = value.trim().to_string();
+            if !value.is_empty() && crate::hotkeys::check(value).is_err() {
+                return Err("invalid global shortcut".into());
+            }
+        }
+        let set: Vec<&String> = [&hotkeys.toggle, &hotkeys.skip, &hotkeys.show]
+            .into_iter()
+            .filter(|v| !v.is_empty())
+            .collect();
+        if set.iter().enumerate().any(|(i, v)| set[..i].contains(v)) {
+            return Err("the same global shortcut is set twice".into());
+        }
 
         Ok(self)
     }
@@ -459,6 +487,30 @@ mod tests {
         };
         let v = s.validated().unwrap();
         assert_eq!(v.hidden_technique_ids, vec!["deep".to_string()]);
+    }
+
+    fn with_hotkeys(toggle: &str, skip: &str, show: &str) -> AppSettings {
+        AppSettings {
+            global_hotkeys: GlobalHotkeys { toggle: toggle.into(), skip: skip.into(), show: show.into() },
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn settings_have_no_global_hotkeys_by_default() {
+        assert_eq!(AppSettings::default().global_hotkeys, GlobalHotkeys::default());
+    }
+
+    #[test]
+    fn settings_trim_and_keep_valid_global_hotkeys() {
+        let v = with_hotkeys(" Control+Alt+KeyP ", "", "").validated().unwrap();
+        assert_eq!(v.global_hotkeys.toggle, "Control+Alt+KeyP");
+    }
+
+    #[test]
+    fn settings_reject_typing_keys_and_duplicate_hotkeys() {
+        assert!(with_hotkeys("KeyP", "", "").validated().is_err());
+        assert!(with_hotkeys("Control+Alt+KeyP", "Control+Alt+KeyP", "").validated().is_err());
     }
 
     #[test]
