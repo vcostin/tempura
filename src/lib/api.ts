@@ -8,6 +8,7 @@ import {
   type AppSettings,
   type DayStats,
   type StatsRange,
+  type ExportFormat,
   type Technique,
   type TechniqueInput,
   type TimerSnapshot,
@@ -43,6 +44,9 @@ export const api = {
 
   getStats: () => invoke<DayStats>("get_stats"),
   getStatsRange: (days: number) => invoke<StatsRange>("get_stats_range", { days }),
+  /** Saves every session through a save dialog; resolves to the file name, or null if cancelled. */
+  exportSessions: (format: ExportFormat, title: string) =>
+    invoke<string | null>("export_sessions", { format, title }),
   getAppInfo: () => invoke<AppInfo>("get_app_info"),
   debugTestNotification: () => invoke<void>("debug_test_notification"),
   openFeedbackUrl: () => invoke<void>("open_feedback_url"),

@@ -2,6 +2,7 @@ mod actions;
 mod commands;
 mod db;
 mod engine;
+mod export;
 mod hotkeys;
 mod i18n;
 mod models;
@@ -41,6 +42,7 @@ pub fn run() {
             ))
             .plugin(tauri_plugin_updater::Builder::new().build())
             .plugin(tauri_plugin_process::init())
+            .plugin(tauri_plugin_dialog::init())
             .plugin(
                 tauri_plugin_global_shortcut::Builder::new()
                     .with_handler(hotkeys::on_shortcut)
@@ -76,6 +78,7 @@ pub fn run() {
                 commands::update_settings,
                 commands::get_stats,
                 commands::get_stats_range,
+                commands::export_sessions,
                 commands::get_app_info,
                 commands::open_feedback_url,
                 commands::request_quit,

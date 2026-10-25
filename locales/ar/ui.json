@@ -180,7 +180,12 @@
     "byLabel": "على ماذا",
     "byTechnique": "حسب التقنية",
     "other": "أخرى",
-    "noLabel": "بلا تسمية"
+    "noLabel": "بلا تسمية",
+    "export": "تصدير",
+    "exportHint": "كل الجلسات التي سجّلتها، محفوظة في ملف على هذا الحاسوب.",
+    "exportCsv": "حفظ بصيغة CSV",
+    "exportJson": "حفظ بصيغة JSON",
+    "exportDialogTitle": "تصدير الجلسات"
   },
   "library": {
     "panel": "التقنيات",
@@ -221,7 +226,9 @@
   "toast": {
     "deleted": "تم حذف {{name}}",
     "undo": "تراجع",
-    "hidden": "تم إخفاء {{name}} من المؤقت"
+    "hidden": "تم إخفاء {{name}} من المؤقت",
+    "exported": "تم حفظ {{file}}",
+    "exportFailed": "تعذّر حفظ ملف التصدير"
   },
   "themes": {
     "batter": "عجينة",

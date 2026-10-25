@@ -176,7 +176,12 @@
     "byLabel": "Woran",
     "byTechnique": "Nach Technik",
     "other": "Sonstiges",
-    "noLabel": "Ohne Bezeichnung"
+    "noLabel": "Ohne Bezeichnung",
+    "export": "Exportieren",
+    "exportHint": "Alle aufgezeichneten Sitzungen als Datei auf diesem Computer speichern.",
+    "exportCsv": "Als CSV speichern",
+    "exportJson": "Als JSON speichern",
+    "exportDialogTitle": "Sitzungen exportieren"
   },
   "library": {
     "panel": "Techniken",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} gelöscht",
     "undo": "Rückgängig",
-    "hidden": "{{name}} vom Timer ausgeblendet"
+    "hidden": "{{name}} vom Timer ausgeblendet",
+    "exported": "{{file}} gespeichert",
+    "exportFailed": "Export konnte nicht gespeichert werden"
   },
   "themes": {
     "batter": "Teig",

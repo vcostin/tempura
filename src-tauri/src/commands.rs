@@ -1,5 +1,6 @@
 use crate::db::Database;
 use crate::engine::EngineHandle;
+use crate::export::ExportFormat;
 use crate::models::{
     validate_id, AppInfo, AppSettings, DayStats, StatsRange, Technique, TechniqueInput, TimerSnapshot,
 };
@@ -198,6 +199,37 @@ pub fn get_stats(state: State<'_, AppState>) -> Result<DayStats, String> {
 #[tauri::command]
 pub fn get_stats_range(state: State<'_, AppState>, days: i64) -> Result<StatsRange, String> {
     state.db.lock().range_stats(days).map_err(|e| e.to_string())
+}
+
+/// Save every session as CSV or JSON where the user picks. `None` when they cancel.
+#[tauri::command]
+pub async fn export_sessions(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    format: ExportFormat,
+    title: String,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+
+    let rows = state.db.lock().export_rows().map_err(|e| e.to_string())?;
+    let contents = crate::export::render(format, &rows, &chrono::Local);
+    let ext = format.extension();
+    let file_name = format!("tempura-sessions-{}.{ext}", chrono::Local::now().format("%Y-%m-%d"));
+    // Async commands run off the main thread, where the blocking dialog is allowed.
+    let Some(path) = app
+        .dialog()
+        .file()
+        .set_title(title)
+        .set_file_name(&file_name)
+        .add_filter(ext.to_uppercase(), &[ext])
+        .blocking_save_file()
+    else {
+        return Ok(None);
+    };
+    let path = path.into_path().map_err(|e| e.to_string())?;
+    std::fs::write(&path, contents).map_err(|e| e.to_string())?;
+    let name = path.file_name().map(|n| n.to_string_lossy().into_owned());
+    Ok(Some(name.unwrap_or(file_name)))
 }
 
 #[tauri::command]

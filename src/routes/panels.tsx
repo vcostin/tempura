@@ -10,7 +10,7 @@ import { TechniqueEditor } from "../components/TechniqueEditor";
 import { TechniquesLibrary, type LibraryTab } from "../components/TechniquesLibrary";
 import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
-import type { Technique, TechniqueInput } from "../lib/types";
+import type { ExportFormat, Technique, TechniqueInput } from "../lib/types";
 import { useSessionContext, useSettingsContext } from "../state/AppState";
 import { useTechniqueVisibility } from "../state/techniqueVisibility";
 import { useShell } from "./TimerLayout";
@@ -108,8 +108,24 @@ export function ShortcutsRoute() {
 
 export function StatsRoute() {
   const session = useSessionContext();
-  const { closePanel } = useShell();
-  return <StatsView streakFallback={session.stats?.streakDays ?? 0} onClose={closePanel} />;
+  const { closePanel, showToast } = useShell();
+  const { t } = useTranslation();
+  const exportSessions = async (format: ExportFormat) => {
+    try {
+      const file = await api.exportSessions(format, t("stats.exportDialogTitle"));
+      if (file) showToast({ message: t("toast.exported", { file }) });
+    } catch {
+      // The backend reports why the file couldn't be written; the toast says it wasn't.
+      showToast({ message: t("toast.exportFailed") });
+    }
+  };
+  return (
+    <StatsView
+      streakFallback={session.stats?.streakDays ?? 0}
+      onClose={closePanel}
+      onExport={exportSessions}
+    />
+  );
 }
 
 /** Tab the library reopens on for the rest of this app session. */

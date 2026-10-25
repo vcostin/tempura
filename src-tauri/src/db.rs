@@ -2,6 +2,7 @@ use crate::models::{
     AppSettings, DayBucket, GlobalHotkeys, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
     DEFAULT_FLOW_RATIO,
 };
+use crate::export::ExportRow;
 use crate::stats::{group_focus, FocusRow, TOP_SHARES};
 use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
@@ -774,6 +775,35 @@ impl Database {
             }
         }
         Ok(streak)
+    }
+
+    /// Every session, oldest first, for the CSV/JSON export.
+    pub fn export_rows(&self) -> DbResult<Vec<ExportRow>> {
+        let mut stmt = self.conn.prepare(
+            "
+            SELECT s.started_at, s.ended_at, s.label, s.technique_id,
+                   COALESCE(s.technique_name, t.name, ''),
+                   s.focus_secs_completed, s.completed_cycles, s.interrupted
+            FROM sessions s
+            LEFT JOIN techniques t ON t.id = s.technique_id
+            ORDER BY s.started_at
+            ",
+        )?;
+        let rows = stmt
+            .query_map([], |row| {
+                Ok(ExportRow {
+                    started_at: row.get(0)?,
+                    ended_at: row.get(1)?,
+                    label: row.get(2)?,
+                    technique_id: row.get(3)?,
+                    technique: row.get(4)?,
+                    focus_secs: row.get(5)?,
+                    completed_cycles: row.get(6)?,
+                    interrupted: row.get::<_, i64>(7)? != 0,
+                })
+            })?
+            .collect::<Result<Vec<_>, _>>()?;
+        Ok(rows)
     }
 }
 

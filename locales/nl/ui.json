@@ -176,7 +176,12 @@
     "byLabel": "Waaraan",
     "byTechnique": "Per techniek",
     "other": "Overig",
-    "noLabel": "Geen label"
+    "noLabel": "Geen label",
+    "export": "Exporteren",
+    "exportHint": "Al je opgenomen sessies, opgeslagen als bestand op deze computer.",
+    "exportCsv": "Opslaan als CSV",
+    "exportJson": "Opslaan als JSON",
+    "exportDialogTitle": "Sessies exporteren"
   },
   "library": {
     "panel": "Technieken",
@@ -217,7 +222,9 @@
   "toast": {
     "deleted": "{{name}} verwijderd",
     "undo": "Ongedaan maken",
-    "hidden": "{{name}} verborgen op de timer"
+    "hidden": "{{name}} verborgen op de timer",
+    "exported": "{{file}} opgeslagen",
+    "exportFailed": "Export kon niet worden opgeslagen"
   },
   "themes": {
     "batter": "Beslag",

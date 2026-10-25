@@ -187,7 +187,12 @@
     "byLabel": "On what",
     "byTechnique": "By technique",
     "other": "Other",
-    "noLabel": "No label"
+    "noLabel": "No label",
+    "export": "Export",
+    "exportHint": "Every session you've recorded, saved as a file on this computer.",
+    "exportCsv": "Save as CSV",
+    "exportJson": "Save as JSON",
+    "exportDialogTitle": "Export sessions"
   },
   "library": {
     "panel": "Techniques",
@@ -228,7 +233,9 @@
   "toast": {
     "deleted": "{{name}} deleted",
     "undo": "Undo",
-    "hidden": "{{name}} hidden from the timer"
+    "hidden": "{{name}} hidden from the timer",
+    "exported": "Saved {{file}}",
+    "exportFailed": "Couldn't save the export"
   },
   "themes": {
     "batter": "Batter",
