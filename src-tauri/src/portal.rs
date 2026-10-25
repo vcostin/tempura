@@ -85,12 +85,12 @@ impl PortalState {
 pub fn init(app: &AppHandle, enabled: bool) {
     let app = app.clone();
     async_runtime::spawn(async move {
-        // Tells the portal which desktop entry this unsandboxed process is.
-        // Without it the desktop guesses from the launching process (a terminal, say).
-        if let Err(e) = ashpd::register_host_app(APP_ID.try_into().expect("valid app id")).await {
-            eprintln!("tempura: couldn't register {APP_ID} with the portal: {e}");
-        }
-        let available = GlobalShortcuts::new().await.is_ok();
+        // A throwaway connection: registering our app id must be the first call on
+        // the one that binds, and that waits until the user asks for shortcuts.
+        let available = match ashpd::zbus::Connection::session().await {
+            Ok(connection) => GlobalShortcuts::with_connection(connection).await.is_ok(),
+            Err(_) => false,
+        };
         app.state::<PortalState>().available.store(available, Ordering::Relaxed);
         hotkeys::update_report(&app, |r| {
             r.mode = if available { HotkeyMode::Portal } else { HotkeyMode::Commands };
@@ -205,10 +205,33 @@ pub fn desktop_entry(command: &str) -> String {
 }
 
 async fn try_bind(app: &AppHandle) -> Result<(), String> {
+    // The portal only accepts our app id once a desktop entry for it exists, and
+    // without it the desktop guesses from the launching process (a terminal, say).
     if let Err(e) = ensure_desktop_entry() {
         eprintln!("tempura: couldn't write the desktop entry for {APP_ID}: {e}");
     }
-    let proxy = GlobalShortcuts::new().await.map_err(|e| e.to_string())?;
+    let app_id: ashpd::AppID = APP_ID.try_into().expect("valid app id");
+    // A freshly written entry can take a moment to reach the portal's app index;
+    // each try gets a fresh connection, since registering must come first on it.
+    let mut connection = None;
+    for attempt in 0..3 {
+        let fresh = ashpd::zbus::Connection::session().await.map_err(|e| e.to_string())?;
+        match ashpd::register_host_app_with_connection(fresh.clone(), app_id.clone()).await {
+            Ok(()) => {
+                connection = Some(fresh);
+                break;
+            }
+            Err(e) if attempt == 2 => {
+                eprintln!("tempura: couldn't register {APP_ID} with the portal: {e}");
+                connection = Some(fresh);
+            }
+            Err(_) => {
+                let _ = async_runtime::spawn_blocking(|| std::thread::sleep(std::time::Duration::from_millis(300))).await;
+            }
+        }
+    }
+    let connection = connection.expect("the last attempt keeps its connection");
+    let proxy = GlobalShortcuts::with_connection(connection).await.map_err(|e| e.to_string())?;
     let session = proxy
         .create_session(CreateSessionOptions::default())
         .await
