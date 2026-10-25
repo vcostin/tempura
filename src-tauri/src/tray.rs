@@ -353,7 +353,8 @@ pub fn update_tray_ui(app: &AppHandle, snap: &TimerSnapshot) {
             if title.is_some() {
                 use_tabular_digits(&tray);
             }
-            let _ = tray.set_title(title.as_deref());
+            // tray-icon skips `None` on macOS and leaves the old text up; clear it instead.
+            let _ = tray.set_title(Some(title.as_deref().unwrap_or("")));
         }
     }
 
