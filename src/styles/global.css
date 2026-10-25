@@ -2157,10 +2157,6 @@ kbd {
   grid-template-columns: minmax(0, 1fr) auto;
 }
 
-.hotkey-trigger {
-  color: var(--ink-muted);
-}
-
 .hotkey-portal-actions {
   display: flex;
   flex-wrap: wrap;

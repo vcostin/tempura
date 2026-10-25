@@ -108,7 +108,6 @@
     "hotkeysWayland": "Este desktop (Wayland) não deixa apps capturarem teclas. Para usar atalhos, adicione estes comandos como atalhos personalizados nas configurações de teclado do sistema:",
     "hotkeysPortalHint": "Seu desktop gerencia os atalhos globais. O Tempura pede por eles e você escolhe as teclas na janela do sistema, assim nunca conflitam com outros apps.",
     "hotkeysPortalSetup": "Configurar atalhos…",
-    "hotkeysPortalChange": "Alterar…",
     "hotkeysPortalOff": "Desativar",
     "hotkeysPortalProblem": "O desktop não adicionou os atalhos. Tente de novo ou use os comandos abaixo.",
     "hotkeysCommandsInstead": "Usar comandos",

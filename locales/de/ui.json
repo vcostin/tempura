@@ -108,7 +108,6 @@
     "hotkeysWayland": "Dieser Desktop (Wayland) lässt Apps keine Tasten abfangen. Lege diese Befehle in den Tastatur-Einstellungen deines Systems als eigene Tastenkürzel an:",
     "hotkeysPortalHint": "Dein Desktop verwaltet globale Tastenkürzel. Tempura fragt danach, und du wählst die Tasten im Dialog des Systems – so kommen sie anderen Apps nie in die Quere.",
     "hotkeysPortalSetup": "Tastenkürzel einrichten…",
-    "hotkeysPortalChange": "Ändern…",
     "hotkeysPortalOff": "Ausschalten",
     "hotkeysPortalProblem": "Der Desktop hat die Tastenkürzel nicht hinzugefügt. Versuche es erneut oder nutze die Befehle unten.",
     "hotkeysCommandsInstead": "Stattdessen Befehle nutzen",

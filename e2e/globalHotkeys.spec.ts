@@ -101,6 +101,16 @@ test.describe("global shortcuts", () => {
     expect(calls).toContain("setup_portal_hotkeys");
     expect(calls).toContain("update_settings");
 
+    // Each key is a button that opens the desktop's editor again.
+    await page.getByRole("button", { name: "Skip to the next phase Not set" }).click();
+    await expect
+      .poll(async () =>
+        (await page.evaluate(() => (window as any).__tempuraMock.calls as string[])).filter(
+          (c) => c === "setup_portal_hotkeys",
+        ).length,
+      )
+      .toBe(2);
+
     await page.getByRole("button", { name: "Turn off" }).click();
     await expect(page.getByRole("button", { name: "Set up shortcuts…" })).toBeVisible();
     await expect(page.locator(".hotkey-row")).toHaveCount(0);

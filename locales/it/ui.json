@@ -108,7 +108,6 @@
     "hotkeysWayland": "Questo desktop (Wayland) non permette alle app di catturare i tasti. Aggiungi questi comandi come scorciatoie personalizzate nelle impostazioni della tastiera del sistema:",
     "hotkeysPortalHint": "Il tuo desktop gestisce le scorciatoie globali. Tempura le richiede e tu scegli i tasti nella finestra del sistema, così non entrano mai in conflitto con altre app.",
     "hotkeysPortalSetup": "Configura scorciatoie…",
-    "hotkeysPortalChange": "Modifica…",
     "hotkeysPortalOff": "Disattiva",
     "hotkeysPortalProblem": "Il desktop non ha aggiunto le scorciatoie. Riprova o usa i comandi qui sotto.",
     "hotkeysCommandsInstead": "Usa i comandi",

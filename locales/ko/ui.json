@@ -108,7 +108,6 @@
     "hotkeysWayland": "이 데스크톱(Wayland)에서는 앱이 키를 가로챌 수 없어요. 시스템 키보드 설정에서 다음 명령을 사용자 지정 단축키로 추가하세요:",
     "hotkeysPortalHint": "전역 단축키는 데스크톱이 관리합니다. Tempura가 요청하면 시스템 대화상자에서 키를 고르므로 다른 앱과 충돌하지 않습니다.",
     "hotkeysPortalSetup": "단축키 설정…",
-    "hotkeysPortalChange": "변경…",
     "hotkeysPortalOff": "끄기",
     "hotkeysPortalProblem": "데스크톱이 단축키를 추가하지 않았습니다. 다시 시도하거나 아래 명령을 사용하세요.",
     "hotkeysCommandsInstead": "대신 명령 사용",

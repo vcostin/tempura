@@ -108,7 +108,6 @@
     "hotkeysWayland": "Ce bureau (Wayland) ne laisse pas les applications capter les touches. Ajoutez ces commandes comme raccourcis personnalisés dans les réglages clavier du système :",
     "hotkeysPortalHint": "Votre bureau gère les raccourcis globaux. Tempura les demande, et vous choisissez les touches dans la fenêtre du système : ils n'entrent jamais en conflit avec d'autres apps.",
     "hotkeysPortalSetup": "Configurer les raccourcis…",
-    "hotkeysPortalChange": "Modifier…",
     "hotkeysPortalOff": "Désactiver",
     "hotkeysPortalProblem": "Le bureau n'a pas ajouté les raccourcis. Réessayez, ou utilisez les commandes ci-dessous.",
     "hotkeysCommandsInstead": "Utiliser des commandes à la place",

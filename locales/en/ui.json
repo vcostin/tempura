@@ -119,7 +119,6 @@
     "hotkeysWayland": "This desktop (Wayland) doesn’t let apps capture keys. To use shortcuts, add these commands as custom shortcuts in your system’s keyboard settings:",
     "hotkeysPortalHint": "Your desktop manages global shortcuts. Tempura asks for them, and you pick the keys in the system's own dialog, so they never clash with other apps.",
     "hotkeysPortalSetup": "Set up shortcuts…",
-    "hotkeysPortalChange": "Change…",
     "hotkeysPortalOff": "Turn off",
     "hotkeysPortalProblem": "The desktop didn't add the shortcuts. Try again, or use the commands below.",
     "hotkeysCommandsInstead": "Use commands instead",

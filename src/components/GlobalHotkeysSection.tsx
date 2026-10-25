@@ -159,10 +159,23 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
           <ul className="hotkey-list">
             {HOTKEY_ACTIONS.map((action) => {
               const trigger = assigned.find((s) => s.action === action)?.trigger ?? "";
+              // The desktop edits all three at once, so each key opens its editor.
               return (
                 <li key={action} className="hotkey-row hotkey-row--portal">
-                  <span className="hotkey-label">{t(HOTKEY_LABEL_KEYS[action])}</span>
-                  <span className="hotkey-trigger">{trigger ? <kbd>{trigger}</kbd> : t("settings.hotkeyNotSet")}</span>
+                  <span className="hotkey-label" id={`hotkey-${action}`}>
+                    {t(HOTKEY_LABEL_KEYS[action])}
+                  </span>
+                  <button
+                    type="button"
+                    className="hotkey-recorder"
+                    aria-labelledby={`hotkey-${action} hotkey-${action}-value`}
+                    disabled={portalBusy}
+                    onClick={() => void setUpPortal()}
+                  >
+                    <span id={`hotkey-${action}-value`}>
+                      {trigger ? <kbd>{trigger}</kbd> : t("settings.hotkeyNotSet")}
+                    </span>
+                  </button>
                 </li>
               );
             })}
@@ -174,14 +187,11 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
           </p>
         )}
         <div className="hotkey-portal-actions">
-          <button
-            type="button"
-            className={`btn ${hotkeys.portal ? "btn-ghost" : "btn-primary"}`}
-            disabled={portalBusy}
-            onClick={() => void setUpPortal()}
-          >
-            {hotkeys.portal ? t("settings.hotkeysPortalChange") : t("settings.hotkeysPortalSetup")}
-          </button>
+          {!hotkeys.portal && (
+            <button type="button" className="btn btn-primary" disabled={portalBusy} onClick={() => void setUpPortal()}>
+              {t("settings.hotkeysPortalSetup")}
+            </button>
+          )}
           {hotkeys.portal && (
             <button
               type="button"

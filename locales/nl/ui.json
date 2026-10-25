@@ -108,7 +108,6 @@
     "hotkeysWayland": "Deze desktop (Wayland) laat apps geen toetsen afvangen. Voeg deze opdrachten toe als eigen sneltoetsen in de toetsenbordinstellingen van je systeem:",
     "hotkeysPortalHint": "Je bureaublad beheert globale sneltoetsen. Tempura vraagt erom en jij kiest de toetsen in het venster van het systeem, zodat ze nooit botsen met andere apps.",
     "hotkeysPortalSetup": "Sneltoetsen instellen…",
-    "hotkeysPortalChange": "Wijzigen…",
     "hotkeysPortalOff": "Uitzetten",
     "hotkeysPortalProblem": "Het bureaublad heeft de sneltoetsen niet toegevoegd. Probeer het opnieuw of gebruik de opdrachten hieronder.",
     "hotkeysCommandsInstead": "Opdrachten gebruiken",

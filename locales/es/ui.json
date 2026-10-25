@@ -108,7 +108,6 @@
     "hotkeysWayland": "Este escritorio (Wayland) no deja que las apps capturen teclas. Para usar atajos, añade estos comandos como atajos personalizados en los ajustes de teclado del sistema:",
     "hotkeysPortalHint": "Tu escritorio gestiona los atajos globales. Tempura los solicita y tú eliges las teclas en el diálogo del sistema, así nunca chocan con otras apps.",
     "hotkeysPortalSetup": "Configurar atajos…",
-    "hotkeysPortalChange": "Cambiar…",
     "hotkeysPortalOff": "Desactivar",
     "hotkeysPortalProblem": "El escritorio no añadió los atajos. Vuelve a intentarlo o usa los comandos de abajo.",
     "hotkeysCommandsInstead": "Usar comandos en su lugar",

@@ -108,7 +108,6 @@
     "hotkeysWayland": "此桌面 (Wayland) 不允许应用捕获按键。请在系统键盘设置中把以下命令添加为自定义快捷键：",
     "hotkeysPortalHint": "全局快捷键由桌面管理。Tempura 发出请求，你在系统对话框中选择按键，因此不会与其他应用冲突。",
     "hotkeysPortalSetup": "设置快捷键…",
-    "hotkeysPortalChange": "更改…",
     "hotkeysPortalOff": "关闭",
     "hotkeysPortalProblem": "桌面没有添加这些快捷键。请重试，或使用下面的命令。",
     "hotkeysCommandsInstead": "改用命令",

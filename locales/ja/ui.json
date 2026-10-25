@@ -108,7 +108,6 @@
     "hotkeysWayland": "このデスクトップ (Wayland) ではアプリがキーを取得できません。次のコマンドをシステムのキーボード設定でカスタムショートカットとして追加してください:",
     "hotkeysPortalHint": "グローバルショートカットはデスクトップが管理します。Tempuraが要求し、キーはシステムのダイアログで選ぶので、他のアプリと衝突しません。",
     "hotkeysPortalSetup": "ショートカットを設定…",
-    "hotkeysPortalChange": "変更…",
     "hotkeysPortalOff": "オフにする",
     "hotkeysPortalProblem": "デスクトップがショートカットを追加しませんでした。もう一度試すか、下のコマンドを使ってください。",
     "hotkeysCommandsInstead": "代わりにコマンドを使う",
