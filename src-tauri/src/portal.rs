@@ -7,12 +7,14 @@
 //! "Set up shortcuts…" in Settings, and turning them off closes the session,
 //! which releases the keys.
 
+use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use ashpd::desktop::global_shortcuts::{
     BindShortcutsOptions, ConfigureShortcutsOptions, GlobalShortcuts, NewShortcut,
 };
 use ashpd::desktop::{CreateSessionOptions, Session};
+use ashpd::zvariant::OwnedValue;
 use futures_util::StreamExt;
 use serde::Serialize;
 use tauri::async_runtime::{self, JoinHandle, Mutex};
@@ -193,8 +195,12 @@ async fn try_bind(app: &AppHandle) -> Result<(), String> {
         let app = app.clone();
         listeners.push(async_runtime::spawn(async move {
             while let Some(event) = pressed.next().await {
-                if let Some(action) = action_for(event.shortcut_id()) {
-                    actions::run(&app, action);
+                match action_for(event.shortcut_id()) {
+                    // Wayland won't let a window raise itself; the desktop's token for
+                    // this key press is what allows Tempura to come forward.
+                    Some(Action::Show) => present_main(&app, activation_token(event.options())),
+                    Some(action) => actions::run(&app, action),
+                    None => {}
                 }
             }
         }));
@@ -212,6 +218,28 @@ async fn try_bind(app: &AppHandle) -> Result<(), String> {
 
     *app.state::<PortalState>().active.lock().await = Some(Active { proxy, session, listeners });
     Ok(())
+}
+
+fn activation_token(options: &HashMap<String, OwnedValue>) -> Option<String> {
+    let value = options.get("activation_token")?;
+    <&str>::try_from(&**value).ok().filter(|t| !t.is_empty()).map(str::to_string)
+}
+
+/// Show the window and raise it with the desktop's activation token when there is one.
+fn present_main(app: &AppHandle, token: Option<String>) {
+    crate::tray::restore_main(app);
+    let Some(token) = token else {
+        eprintln!("tempura: the desktop sent no activation token, so it may keep Tempura behind");
+        return;
+    };
+    let Some(win) = app.get_webview_window("main") else { return };
+    let _ = app.run_on_main_thread(move || {
+        if let Ok(gtk_window) = win.gtk_window() {
+            use gtk::prelude::GtkWindowExt;
+            gtk_window.set_startup_id(&token);
+            gtk_window.present();
+        }
+    });
 }
 
 async fn close(app: &AppHandle) {
@@ -238,6 +266,16 @@ mod tests {
         assert_eq!(action_for("skip"), Some(Action::Skip));
         assert_eq!(action_for("show"), Some(Action::Show));
         assert_eq!(action_for("something-else"), None);
+    }
+
+    #[test]
+    fn reads_the_activation_token_from_the_key_press() {
+        let mut options = HashMap::new();
+        assert_eq!(activation_token(&options), None);
+        options.insert("activation_token".to_string(), OwnedValue::try_from(ashpd::zvariant::Value::from("kwin-42")).unwrap());
+        assert_eq!(activation_token(&options).as_deref(), Some("kwin-42"));
+        options.insert("activation_token".to_string(), OwnedValue::try_from(ashpd::zvariant::Value::from("")).unwrap());
+        assert_eq!(activation_token(&options), None);
     }
 
     #[test]

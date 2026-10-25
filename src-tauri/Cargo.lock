@@ -4311,6 +4311,7 @@ dependencies = [
  "ashpd",
  "chrono",
  "futures-util",
+ "gtk",
  "mac-usernotifications",
  "notify-rust",
  "parking_lot",

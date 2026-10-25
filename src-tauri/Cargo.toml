@@ -37,3 +37,4 @@ mac-usernotifications = "0.3"
 [target.'cfg(target_os = "linux")'.dependencies]
 ashpd = { version = "0.13", default-features = false, features = ["tokio", "global_shortcuts"] }
 futures-util = { version = "0.3", default-features = false }
+gtk = "0.18"
