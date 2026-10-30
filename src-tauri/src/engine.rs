@@ -150,6 +150,8 @@ impl EngineHandle {
             .expect("spawn timer thread");
     }
 
+    /// Lock order is engine, then database. May run with the engine locked, so
+    /// nothing may take the engine lock while it holds the database.
     fn with_db<T>(app: &AppHandle, f: impl FnOnce(&Database) -> Result<T, crate::db::DbError>) -> Result<T, String> {
         let state = app.state::<crate::AppState>();
         let db = state.db.lock();
@@ -294,6 +296,7 @@ impl EngineHandle {
         let phase = self.inner.lock().snapshot.phase;
         self.emit_phase(app, previous, phase, "skip");
         self.persist_progress(app);
+        let _ = app.emit("stats-updated", ());
         self.emit_tick(app);
         self.update_tray(app);
         Ok(self.snapshot())
