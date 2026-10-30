@@ -995,6 +995,33 @@ mod range_stats_tests {
     }
 
     #[test]
+    fn session_open_from_before_last_seen_at_ends_at_its_start() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-legacy-orphan-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        let started = "2026-10-01T09:00:00+00:00";
+        db.conn
+            .execute(
+                "INSERT INTO sessions (id, technique_id, started_at, focus_secs_completed, completed_cycles, interrupted)
+                 VALUES ('old', 'classic', ?1, 300, 0, 0)",
+                params![started],
+            )
+            .unwrap();
+        drop(db);
+
+        let db = Database::open(&path).expect("reopen");
+        let rows = db.export_rows().unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].ended_at.as_deref(), Some(started));
+        assert!(rows[0].interrupted);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
     fn drops_orphan_global_rhythm_settings() {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)

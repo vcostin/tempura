@@ -202,27 +202,38 @@ impl EngineHandle {
         if !eng.snapshot.running || eng.snapshot.paused || eng.snapshot.phase == Phase::Idle {
             return Ok(eng.snapshot.clone());
         }
-        let remaining = eng
-            .phase_deadline
-            .map(|d| d.saturating_duration_since(Instant::now()))
-            .unwrap_or_default();
-        if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
-            // Flowtime: freeze elapsed
-            let elapsed = eng
-                .phase_started
-                .map(|s| s.elapsed())
-                .unwrap_or_default();
-            eng.paused_remaining = Some(elapsed);
-        } else {
-            eng.paused_remaining = Some(remaining);
-        }
-        eng.phase_deadline = None;
-        eng.snapshot.paused = true;
+        Self::freeze(&mut eng, Instant::now());
         let snap = eng.snapshot.clone();
         drop(eng);
         self.emit_tick(app);
         self.update_tray(app);
         Ok(snap)
+    }
+
+    /// Pause the running phase where it stands at `now`. The snapshot is brought up
+    /// to `now` too, not left at the last tick: stop() records what it shows.
+    fn freeze(eng: &mut Engine, now: Instant) {
+        if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
+            // Flowtime: freeze elapsed
+            let elapsed = eng
+                .phase_started
+                .map(|s| now.saturating_duration_since(s))
+                .unwrap_or_default();
+            eng.snapshot.elapsed_secs = elapsed.as_secs() as i64;
+            eng.paused_remaining = Some(elapsed);
+        } else {
+            let remaining = eng
+                .phase_deadline
+                .map(|d| d.saturating_duration_since(now))
+                .unwrap_or_default();
+            eng.snapshot.remaining_secs = remaining.as_secs() as i64;
+            if eng.snapshot.duration_secs > 0 {
+                eng.snapshot.elapsed_secs = eng.snapshot.duration_secs - eng.snapshot.remaining_secs;
+            }
+            eng.paused_remaining = Some(remaining);
+        }
+        eng.phase_deadline = None;
+        eng.snapshot.paused = true;
     }
 
     pub fn resume(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
@@ -1211,6 +1222,26 @@ mod tests {
         let still = eng.last_instant; // Instant stopped while asleep
         EngineHandle::compensate_wall_jump(&mut eng, now, still);
         assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, true));
+    }
+
+    #[test]
+    fn stopping_after_a_pause_counts_up_to_the_pause() {
+        // No tick since the start: the pause itself brings the snapshot up to date.
+        let mut eng = started(technique("classic"));
+        let at = eng.phase_deadline.unwrap() - Duration::from_secs(20 * 60);
+        EngineHandle::freeze(&mut eng, at);
+        assert_eq!(eng.snapshot.remaining_secs, 20 * 60);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(20 * 60)));
+        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, true));
+    }
+
+    #[test]
+    fn stopping_a_paused_flowtime_counts_up_to_the_pause() {
+        let mut eng = started(technique("flowtime"));
+        let at = eng.phase_started.unwrap() + Duration::from_secs(7 * 60);
+        EngineHandle::freeze(&mut eng, at);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(7 * 60)));
+        assert_eq!(EngineHandle::stop_tally(&eng), (7 * 60, true));
     }
 
     #[test]
