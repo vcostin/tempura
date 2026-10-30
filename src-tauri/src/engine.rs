@@ -334,8 +334,7 @@ impl EngineHandle {
             let mut eng = self.inner.lock();
             previous = eng.snapshot.phase;
             session_id = eng.session_id.clone();
-            (focus_secs, interrupted) = Self::stop_tally(&eng);
-            cycles = eng.snapshot.cycle;
+            (focus_secs, cycles, interrupted) = Self::stop_tally(&eng);
             label = eng.snapshot.working_on.clone();
             eng.snapshot.running = false;
             eng.snapshot.paused = false;
@@ -363,21 +362,26 @@ impl EngineHandle {
         Ok(self.snapshot())
     }
 
-    /// Focus time to record when the session stops now, and whether stopping cut a
-    /// focus short. The focus in progress counts up to where it stands; stopping in
-    /// a break, before a held phase starts, or at the Hybrid bell interrupts nothing.
-    fn stop_tally(eng: &Engine) -> (i64, bool) {
+    /// Focus time and cycles to record when the session stops now, and whether
+    /// stopping cut a focus short. The focus in progress counts up to where it
+    /// stands; stopping in a break, before a held phase starts, or at the Hybrid
+    /// bell interrupts nothing. At the bell the focus is done, so its cycle counts.
+    fn stop_tally(eng: &Engine) -> (i64, i64, bool) {
         let snap = &eng.snapshot;
         let in_focus = snap.running && snap.phase == Phase::Focus && !snap.awaiting_start;
         if !in_focus {
-            return (eng.focus_secs_completed, false);
+            return (eng.focus_secs_completed, snap.cycle, false);
         }
         let at_hybrid_bell = snap.mode == "hybrid"
             && !snap.hybrid_switched
             && snap.paused
             && snap.remaining_secs == 0
             && snap.duration_secs > 0;
-        (eng.focus_secs_completed + snap.elapsed_secs.max(0), !at_hybrid_bell)
+        let focus = eng.focus_secs_completed + snap.elapsed_secs.max(0);
+        if at_hybrid_bell {
+            return (focus, snap.cycle + 1, false);
+        }
+        (focus, snap.cycle, true)
     }
 
     /// Hybrid: continue past focus bell → switch to flowtime count-up
@@ -1203,14 +1207,14 @@ mod tests {
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
         eng.snapshot.elapsed_secs = 24 * 60;
-        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60 + 24 * 60, true));
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60 + 24 * 60, 1, true));
     }
 
     #[test]
     fn stopping_mid_flowtime_counts_the_time_so_far() {
         let mut eng = started(technique("flowtime"));
         eng.snapshot.elapsed_secs = 300;
-        assert_eq!(EngineHandle::stop_tally(&eng), (300, true));
+        assert_eq!(EngineHandle::stop_tally(&eng), (300, 0, true));
     }
 
     #[test]
@@ -1221,7 +1225,7 @@ mod tests {
         let now = eng.last_wall + Duration::from_secs(42 * 60);
         let still = eng.last_instant; // Instant stopped while asleep
         EngineHandle::compensate_wall_jump(&mut eng, now, still);
-        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, true));
+        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, 0, true));
     }
 
     #[test]
@@ -1232,7 +1236,7 @@ mod tests {
         EngineHandle::freeze(&mut eng, at);
         assert_eq!(eng.snapshot.remaining_secs, 20 * 60);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(20 * 60)));
-        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, true));
+        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, 0, true));
     }
 
     #[test]
@@ -1241,14 +1245,14 @@ mod tests {
         let at = eng.phase_started.unwrap() + Duration::from_secs(7 * 60);
         EngineHandle::freeze(&mut eng, at);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(7 * 60)));
-        assert_eq!(EngineHandle::stop_tally(&eng), (7 * 60, true));
+        assert_eq!(EngineHandle::stop_tally(&eng), (7 * 60, 0, true));
     }
 
     #[test]
     fn stopping_in_a_break_is_not_an_interruption() {
         let mut eng = started(technique("classic"));
         EngineHandle::complete_phase(&mut eng, false);
-        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, false));
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
     }
 
     #[test]
@@ -1259,16 +1263,16 @@ mod tests {
         EngineHandle::expire_phase(&mut eng);
         assert_eq!(eng.snapshot.phase, Phase::Focus);
         assert!(eng.snapshot.awaiting_start);
-        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, false));
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
     }
 
     #[test]
-    fn stopping_at_the_hybrid_bell_keeps_the_whole_focus() {
+    fn stopping_at_the_hybrid_bell_keeps_the_whole_focus_and_its_cycle() {
         let mut eng = started(technique("hybrid"));
         eng.snapshot.remaining_secs = 0;
         eng.snapshot.elapsed_secs = 25 * 60;
         assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
-        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, false));
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
     }
 
     #[test]
