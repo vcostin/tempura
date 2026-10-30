@@ -321,6 +321,9 @@ impl EngineHandle {
                 Phase::Idle => {}
             }
         }
+        // A restarted focus starts from zero: its minute saves no longer count.
+        self.persist_progress(app);
+        let _ = app.emit("stats-updated", ());
         let phase = self.inner.lock().snapshot.phase;
         self.emit_phase(app, previous, phase, "reset");
         self.emit_tick(app);
@@ -463,7 +466,7 @@ impl EngineHandle {
         let mut notifications: Vec<(String, String)> = Vec::new();
         let mut phase_change: Option<(Phase, Phase)> = None;
         let mut emit_halfway = false;
-        let mut save_focus: Option<(i64, i64)> = None;
+        let mut saved_focus = false;
 
         {
             let mut eng = self.inner.lock();
@@ -529,12 +532,20 @@ impl EngineHandle {
             }
 
             if phase_change.is_none() {
-                save_focus = Self::focus_save_due(&mut eng, Instant::now());
+                let now = Instant::now();
+                if let Some((focus, cycles)) = Self::focus_save_due(&eng, now) {
+                    // Written under the engine lock, so a skip or reset can't land
+                    // in between and be overwritten by these older numbers.
+                    if Self::save_progress(app, &eng, focus, cycles) {
+                        eng.last_saved = now;
+                        saved_focus = true;
+                    }
+                }
             }
         }
 
-        if let Some((focus, cycles)) = save_focus {
-            self.save_progress(app, focus, cycles);
+        if saved_focus {
+            let _ = app.emit("stats-updated", ());
         }
 
         if emit_halfway {
@@ -778,7 +789,7 @@ impl EngineHandle {
 
     /// Every `SAVE_EVERY` of a running focus: the focus and cycles to save, counting
     /// the focus so far, so a crash keeps it. A finished phase saves on its own.
-    fn focus_save_due(eng: &mut Engine, now: Instant) -> Option<(i64, i64)> {
+    fn focus_save_due(eng: &Engine, now: Instant) -> Option<(i64, i64)> {
         let snap = &eng.snapshot;
         if !snap.running || snap.paused || snap.phase != Phase::Focus {
             return None;
@@ -786,27 +797,26 @@ impl EngineHandle {
         if now.saturating_duration_since(eng.last_saved) < SAVE_EVERY {
             return None;
         }
-        eng.last_saved = now;
         Some((eng.focus_secs_completed + snap.elapsed_secs.max(0), snap.cycle))
     }
 
+    /// Save finished focus and cycles, dropping any running focus saved before.
     fn persist_progress(&self, app: &AppHandle) {
-        let (focus, cycles) = {
-            let mut eng = self.inner.lock();
+        let mut eng = self.inner.lock();
+        let (focus, cycles) = (eng.focus_secs_completed, eng.snapshot.cycle);
+        if Self::save_progress(app, &eng, focus, cycles) {
             eng.last_saved = Instant::now();
-            (eng.focus_secs_completed, eng.snapshot.cycle)
-        };
-        self.save_progress(app, focus, cycles);
+        }
     }
 
-    fn save_progress(&self, app: &AppHandle, focus: i64, cycles: i64) {
-        let (session_id, label) = {
-            let eng = self.inner.lock();
-            (eng.session_id.clone(), eng.snapshot.working_on.clone())
+    /// Takes the engine as locked by the caller: progress writes happen in the
+    /// same order as the changes they record. Lock order is engine, then database.
+    fn save_progress(app: &AppHandle, eng: &Engine, focus: i64, cycles: i64) -> bool {
+        let Some(id) = eng.session_id.as_deref() else {
+            return false;
         };
-        if let Some(id) = session_id {
-            let _ = Self::with_db(app, |db| db.bump_session_progress(&id, focus, cycles, &label));
-        }
+        let label = &eng.snapshot.working_on;
+        Self::with_db(app, |db| db.bump_session_progress(id, focus, cycles, label)).is_ok()
     }
 
     fn emit_tick(&self, app: &AppHandle) {
@@ -1312,11 +1322,13 @@ mod tests {
         let mut eng = started(technique("classic"));
         let t0 = eng.last_saved;
         eng.snapshot.elapsed_secs = 59;
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + Duration::from_secs(59)), None);
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + Duration::from_secs(59)), None);
         eng.snapshot.elapsed_secs = 60;
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + SAVE_EVERY), Some((60, 0)));
-        // The next save is a minute after that one.
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + SAVE_EVERY + Duration::from_secs(30)), None);
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY), Some((60, 0)));
+        // Still due until a save succeeds and moves the clock.
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY + Duration::from_secs(1)), Some((60, 0)));
+        eng.last_saved = t0 + SAVE_EVERY;
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY + Duration::from_secs(30)), None);
     }
 
     #[test]
@@ -1327,7 +1339,7 @@ mod tests {
         eng.focus_secs_completed = 40 * 60;
         eng.snapshot.elapsed_secs = 12 * 60;
         let later = eng.last_saved + SAVE_EVERY;
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), Some((52 * 60, 1)));
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), Some((52 * 60, 1)));
     }
 
     #[test]
@@ -1335,11 +1347,11 @@ mod tests {
         let mut eng = started(technique("classic"));
         let later = eng.last_saved + SAVE_EVERY;
         eng.snapshot.paused = true;
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), None);
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), None);
         eng.snapshot.paused = false;
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
-        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), None);
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), None);
     }
 
     #[test]

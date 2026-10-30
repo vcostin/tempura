@@ -641,7 +641,7 @@ impl Database {
                 completed_cycles = ?2,
                 label = ?3,
                 last_seen_at = ?4
-            WHERE id = ?5
+            WHERE id = ?5 AND ended_at IS NULL
             ",
             params![focus_secs, completed_cycles, label, now, session_id],
         )?;
@@ -991,6 +991,24 @@ mod range_stats_tests {
         assert_eq!(crashed_row.ended_at.as_deref(), Some(seen.as_str()));
         let finished_row = rows.iter().find(|r| r.focus_secs == 600).unwrap();
         assert!(!finished_row.interrupted);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn progress_cannot_change_an_ended_session() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-late-bump-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.end_session(&id, 1500, 1, false, "").unwrap();
+        db.bump_session_progress(&id, 60, 0, "").unwrap();
+        let rows = db.export_rows().unwrap();
+        assert_eq!((rows[0].focus_secs, rows[0].completed_cycles), (1500, 1));
         let _ = std::fs::remove_file(&path);
     }
 
