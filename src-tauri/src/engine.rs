@@ -11,6 +11,9 @@ use tauri::{AppHandle, Emitter, Manager};
 /// where it stood and the gap is not counted. Shorter gaps count as usual.
 const AWAY_PAUSE: Duration = Duration::from_secs(2 * 60);
 
+/// How often a running focus saves its progress, so a crash loses at most this much.
+const SAVE_EVERY: Duration = Duration::from_secs(60);
+
 #[derive(Clone)]
 pub struct EngineHandle {
     inner: Arc<Mutex<Engine>>,
@@ -28,6 +31,7 @@ struct Engine {
     paused_remaining: Option<Duration>,
     last_wall: SystemTime,
     last_instant: Instant,
+    last_saved: Instant,
     halfway_sent: bool,
     flow_break_secs: i64,
     allow_quit: bool,
@@ -46,6 +50,7 @@ impl Default for Engine {
             paused_remaining: None,
             last_wall: SystemTime::now(),
             last_instant: Instant::now(),
+            last_saved: Instant::now(),
             halfway_sent: false,
             flow_break_secs: 0,
             allow_quit: false,
@@ -458,6 +463,7 @@ impl EngineHandle {
         let mut notifications: Vec<(String, String)> = Vec::new();
         let mut phase_change: Option<(Phase, Phase)> = None;
         let mut emit_halfway = false;
+        let mut save_focus: Option<(i64, i64)> = None;
 
         {
             let mut eng = self.inner.lock();
@@ -521,6 +527,14 @@ impl EngineHandle {
                     }
                 }
             }
+
+            if phase_change.is_none() {
+                save_focus = Self::focus_save_due(&mut eng, Instant::now());
+            }
+        }
+
+        if let Some((focus, cycles)) = save_focus {
+            self.save_progress(app, focus, cycles);
         }
 
         if emit_halfway {
@@ -762,15 +776,33 @@ impl EngineHandle {
         }
     }
 
+    /// Every `SAVE_EVERY` of a running focus: the focus and cycles to save, counting
+    /// the focus so far, so a crash keeps it. A finished phase saves on its own.
+    fn focus_save_due(eng: &mut Engine, now: Instant) -> Option<(i64, i64)> {
+        let snap = &eng.snapshot;
+        if !snap.running || snap.paused || snap.phase != Phase::Focus {
+            return None;
+        }
+        if now.saturating_duration_since(eng.last_saved) < SAVE_EVERY {
+            return None;
+        }
+        eng.last_saved = now;
+        Some((eng.focus_secs_completed + snap.elapsed_secs.max(0), snap.cycle))
+    }
+
     fn persist_progress(&self, app: &AppHandle) {
-        let (session_id, focus, cycles, label) = {
+        let (focus, cycles) = {
+            let mut eng = self.inner.lock();
+            eng.last_saved = Instant::now();
+            (eng.focus_secs_completed, eng.snapshot.cycle)
+        };
+        self.save_progress(app, focus, cycles);
+    }
+
+    fn save_progress(&self, app: &AppHandle, focus: i64, cycles: i64) {
+        let (session_id, label) = {
             let eng = self.inner.lock();
-            (
-                eng.session_id.clone(),
-                eng.focus_secs_completed,
-                eng.snapshot.cycle,
-                eng.snapshot.working_on.clone(),
-            )
+            (eng.session_id.clone(), eng.snapshot.working_on.clone())
         };
         if let Some(id) = session_id {
             let _ = Self::with_db(app, |db| db.bump_session_progress(&id, focus, cycles, &label));
@@ -1273,6 +1305,41 @@ mod tests {
         eng.snapshot.elapsed_secs = 25 * 60;
         assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
         assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
+    }
+
+    #[test]
+    fn running_focus_saves_its_progress_every_minute() {
+        let mut eng = started(technique("classic"));
+        let t0 = eng.last_saved;
+        eng.snapshot.elapsed_secs = 59;
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + Duration::from_secs(59)), None);
+        eng.snapshot.elapsed_secs = 60;
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + SAVE_EVERY), Some((60, 0)));
+        // The next save is a minute after that one.
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, t0 + SAVE_EVERY + Duration::from_secs(30)), None);
+    }
+
+    #[test]
+    fn saved_progress_adds_the_focus_so_far_to_finished_ones() {
+        let mut eng = started(technique("flowtime"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        eng.focus_secs_completed = 40 * 60;
+        eng.snapshot.elapsed_secs = 12 * 60;
+        let later = eng.last_saved + SAVE_EVERY;
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), Some((52 * 60, 1)));
+    }
+
+    #[test]
+    fn breaks_and_pauses_do_not_save_on_the_clock() {
+        let mut eng = started(technique("classic"));
+        let later = eng.last_saved + SAVE_EVERY;
+        eng.snapshot.paused = true;
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), None);
+        eng.snapshot.paused = false;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert_eq!(EngineHandle::focus_save_due(&mut eng, later), None);
     }
 
     #[test]
