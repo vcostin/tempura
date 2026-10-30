@@ -109,6 +109,7 @@ impl Database {
         )?;
         let db = Self { conn };
         db.migrate()?;
+        db.close_orphan_sessions()?;
         db.seed_system_techniques()?;
         db.ensure_default_settings()?;
         #[cfg(unix)]
@@ -159,6 +160,19 @@ impl Database {
         // What each session was on: added after release, so older databases get them here.
         self.add_column_if_missing("sessions", "label", "TEXT NOT NULL DEFAULT ''")?;
         self.add_column_if_missing("sessions", "technique_name", "TEXT")?;
+        // When the session last saved progress: where a crash cut it off.
+        self.add_column_if_missing("sessions", "last_seen_at", "TEXT")?;
+        Ok(())
+    }
+
+    /// Sessions still open at launch were cut off by a crash, a kill, or logout:
+    /// nothing is running yet. End them where they last saved, as interrupted.
+    fn close_orphan_sessions(&self) -> DbResult<()> {
+        self.conn.execute(
+            "UPDATE sessions SET ended_at = COALESCE(last_seen_at, started_at), interrupted = 1
+             WHERE ended_at IS NULL",
+            [],
+        )?;
         Ok(())
     }
 
@@ -571,10 +585,10 @@ impl Database {
         self.conn.execute(
             "
             INSERT INTO sessions (
-                id, technique_id, technique_name, label, started_at,
+                id, technique_id, technique_name, label, started_at, last_seen_at,
                 focus_secs_completed, completed_cycles, interrupted
             )
-            VALUES (?1, ?2, ?3, ?4, ?5, 0, 0, 0)
+            VALUES (?1, ?2, ?3, ?4, ?5, ?5, 0, 0, 0)
             ",
             params![id, technique.id, technique.name, label, now],
         )?;
@@ -619,15 +633,17 @@ impl Database {
         completed_cycles: i64,
         label: &str,
     ) -> DbResult<()> {
+        let now = Utc::now().to_rfc3339();
         self.conn.execute(
             "
             UPDATE sessions SET
                 focus_secs_completed = ?1,
                 completed_cycles = ?2,
-                label = ?3
-            WHERE id = ?4
+                label = ?3,
+                last_seen_at = ?4
+            WHERE id = ?5 AND ended_at IS NULL
             ",
-            params![focus_secs, completed_cycles, label, session_id],
+            params![focus_secs, completed_cycles, label, now, session_id],
         )?;
         Ok(())
     }
@@ -944,6 +960,83 @@ mod range_stats_tests {
         assert_eq!(range.streak_days, 2);
         assert_eq!(range.sessions, 3);
         assert_eq!(range.focus_secs, 240);
+    }
+
+    #[test]
+    fn reopening_closes_sessions_a_crash_left_open() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-orphans-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let finished = db.start_session(&tech, "").unwrap();
+        db.end_session(&finished, 600, 1, false, "").unwrap();
+        let crashed = db.start_session(&tech, "").unwrap();
+        db.bump_session_progress(&crashed, 1500, 1, "").unwrap();
+        let seen: String = db
+            .conn
+            .query_row("SELECT last_seen_at FROM sessions WHERE id = ?1", params![crashed], |r| r.get(0))
+            .unwrap();
+        drop(db);
+
+        let db = Database::open(&path).expect("reopen");
+        let rows = db.export_rows().unwrap();
+        assert_eq!(rows.len(), 2);
+        assert!(rows.iter().all(|r| r.ended_at.is_some()));
+        let crashed_row = rows.iter().find(|r| r.focus_secs == 1500).unwrap();
+        assert!(crashed_row.interrupted);
+        assert_eq!(crashed_row.ended_at.as_deref(), Some(seen.as_str()));
+        let finished_row = rows.iter().find(|r| r.focus_secs == 600).unwrap();
+        assert!(!finished_row.interrupted);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn progress_cannot_change_an_ended_session() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-late-bump-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.end_session(&id, 1500, 1, false, "").unwrap();
+        db.bump_session_progress(&id, 60, 0, "").unwrap();
+        let rows = db.export_rows().unwrap();
+        assert_eq!((rows[0].focus_secs, rows[0].completed_cycles), (1500, 1));
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn session_open_from_before_last_seen_at_ends_at_its_start() {
+        let nanos = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        let path = std::env::temp_dir().join(format!("tempura-legacy-orphan-{nanos}.sqlite"));
+        let _ = std::fs::remove_file(&path);
+        let db = Database::open(&path).expect("open");
+        let started = "2026-10-01T09:00:00+00:00";
+        db.conn
+            .execute(
+                "INSERT INTO sessions (id, technique_id, started_at, focus_secs_completed, completed_cycles, interrupted)
+                 VALUES ('old', 'classic', ?1, 300, 0, 0)",
+                params![started],
+            )
+            .unwrap();
+        drop(db);
+
+        let db = Database::open(&path).expect("reopen");
+        let rows = db.export_rows().unwrap();
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].ended_at.as_deref(), Some(started));
+        assert!(rows[0].interrupted);
+        let _ = std::fs::remove_file(&path);
     }
 
     #[test]

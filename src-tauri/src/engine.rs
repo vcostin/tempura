@@ -11,6 +11,9 @@ use tauri::{AppHandle, Emitter, Manager};
 /// where it stood and the gap is not counted. Shorter gaps count as usual.
 const AWAY_PAUSE: Duration = Duration::from_secs(2 * 60);
 
+/// How often a running focus saves its progress, so a crash loses at most this much.
+const SAVE_EVERY: Duration = Duration::from_secs(60);
+
 #[derive(Clone)]
 pub struct EngineHandle {
     inner: Arc<Mutex<Engine>>,
@@ -27,6 +30,8 @@ struct Engine {
     phase_started: Option<Instant>,
     paused_remaining: Option<Duration>,
     last_wall: SystemTime,
+    last_instant: Instant,
+    last_saved: Instant,
     halfway_sent: bool,
     flow_break_secs: i64,
     allow_quit: bool,
@@ -44,6 +49,8 @@ impl Default for Engine {
             phase_started: None,
             paused_remaining: None,
             last_wall: SystemTime::now(),
+            last_instant: Instant::now(),
+            last_saved: Instant::now(),
             halfway_sent: false,
             flow_break_secs: 0,
             allow_quit: false,
@@ -143,6 +150,8 @@ impl EngineHandle {
             .expect("spawn timer thread");
     }
 
+    /// Lock order is engine, then database. May run with the engine locked, so
+    /// nothing may take the engine lock while it holds the database.
     fn with_db<T>(app: &AppHandle, f: impl FnOnce(&Database) -> Result<T, crate::db::DbError>) -> Result<T, String> {
         let state = app.state::<crate::AppState>();
         let db = state.db.lock();
@@ -200,27 +209,38 @@ impl EngineHandle {
         if !eng.snapshot.running || eng.snapshot.paused || eng.snapshot.phase == Phase::Idle {
             return Ok(eng.snapshot.clone());
         }
-        let remaining = eng
-            .phase_deadline
-            .map(|d| d.saturating_duration_since(Instant::now()))
-            .unwrap_or_default();
-        if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
-            // Flowtime: freeze elapsed
-            let elapsed = eng
-                .phase_started
-                .map(|s| s.elapsed())
-                .unwrap_or_default();
-            eng.paused_remaining = Some(elapsed);
-        } else {
-            eng.paused_remaining = Some(remaining);
-        }
-        eng.phase_deadline = None;
-        eng.snapshot.paused = true;
+        Self::freeze(&mut eng, Instant::now());
         let snap = eng.snapshot.clone();
         drop(eng);
         self.emit_tick(app);
         self.update_tray(app);
         Ok(snap)
+    }
+
+    /// Pause the running phase where it stands at `now`. The snapshot is brought up
+    /// to `now` too, not left at the last tick: stop() records what it shows.
+    fn freeze(eng: &mut Engine, now: Instant) {
+        if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
+            // Flowtime: freeze elapsed
+            let elapsed = eng
+                .phase_started
+                .map(|s| now.saturating_duration_since(s))
+                .unwrap_or_default();
+            eng.snapshot.elapsed_secs = elapsed.as_secs() as i64;
+            eng.paused_remaining = Some(elapsed);
+        } else {
+            let remaining = eng
+                .phase_deadline
+                .map(|d| d.saturating_duration_since(now))
+                .unwrap_or_default();
+            eng.snapshot.remaining_secs = remaining.as_secs() as i64;
+            if eng.snapshot.duration_secs > 0 {
+                eng.snapshot.elapsed_secs = eng.snapshot.duration_secs - eng.snapshot.remaining_secs;
+            }
+            eng.paused_remaining = Some(remaining);
+        }
+        eng.phase_deadline = None;
+        eng.snapshot.paused = true;
     }
 
     pub fn resume(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
@@ -232,7 +252,7 @@ impl EngineHandle {
         eng.snapshot.paused = false;
         eng.snapshot.awaiting_start = false;
         eng.snapshot.away_secs = 0;
-        eng.last_wall = SystemTime::now();
+        Self::mark_clocks(&mut eng);
 
         if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
             eng.phase_started = Some(Instant::now() - paused);
@@ -276,6 +296,7 @@ impl EngineHandle {
         let phase = self.inner.lock().snapshot.phase;
         self.emit_phase(app, previous, phase, "skip");
         self.persist_progress(app);
+        let _ = app.emit("stats-updated", ());
         self.emit_tick(app);
         self.update_tray(app);
         Ok(self.snapshot())
@@ -303,6 +324,9 @@ impl EngineHandle {
                 Phase::Idle => {}
             }
         }
+        // A restarted focus starts from zero: its minute saves no longer count.
+        self.persist_progress(app);
+        let _ = app.emit("stats-updated", ());
         let phase = self.inner.lock().snapshot.phase;
         self.emit_phase(app, previous, phase, "reset");
         self.emit_tick(app);
@@ -314,14 +338,14 @@ impl EngineHandle {
         let previous;
         let session_id;
         let focus_secs;
+        let interrupted;
         let cycles;
         let label;
         {
             let mut eng = self.inner.lock();
             previous = eng.snapshot.phase;
             session_id = eng.session_id.clone();
-            focus_secs = eng.focus_secs_completed;
-            cycles = eng.snapshot.cycle;
+            (focus_secs, cycles, interrupted) = Self::stop_tally(&eng);
             label = eng.snapshot.working_on.clone();
             eng.snapshot.running = false;
             eng.snapshot.paused = false;
@@ -340,13 +364,35 @@ impl EngineHandle {
             eng.technique = None;
         }
         if let Some(id) = session_id {
-            let _ = Self::with_db(app, |db| db.end_session(&id, focus_secs, cycles, true, &label));
+            let _ = Self::with_db(app, |db| db.end_session(&id, focus_secs, cycles, interrupted, &label));
         }
         self.emit_phase(app, previous, Phase::Idle, "stop");
         self.emit_tick(app);
         self.update_tray(app);
         let _ = app.emit("stats-updated", ());
         Ok(self.snapshot())
+    }
+
+    /// Focus time and cycles to record when the session stops now, and whether
+    /// stopping cut a focus short. The focus in progress counts up to where it
+    /// stands; stopping in a break, before a held phase starts, or at the Hybrid
+    /// bell interrupts nothing. At the bell the focus is done, so its cycle counts.
+    fn stop_tally(eng: &Engine) -> (i64, i64, bool) {
+        let snap = &eng.snapshot;
+        let in_focus = snap.running && snap.phase == Phase::Focus && !snap.awaiting_start;
+        if !in_focus {
+            return (eng.focus_secs_completed, snap.cycle, false);
+        }
+        let at_hybrid_bell = snap.mode == "hybrid"
+            && !snap.hybrid_switched
+            && snap.paused
+            && snap.remaining_secs == 0
+            && snap.duration_secs > 0;
+        let focus = eng.focus_secs_completed + snap.elapsed_secs.max(0);
+        if at_hybrid_bell {
+            return (focus, snap.cycle + 1, false);
+        }
+        (focus, snap.cycle, true)
     }
 
     /// Hybrid: continue past focus bell → switch to flowtime count-up
@@ -375,7 +421,7 @@ impl EngineHandle {
         eng.snapshot.remaining_secs = 0;
         eng.snapshot.elapsed_secs = already;
         eng.halfway_sent = true;
-        eng.last_wall = SystemTime::now();
+        Self::mark_clocks(&mut eng);
         let snap = eng.snapshot.clone();
         drop(eng);
         self.emit_tick(app);
@@ -423,6 +469,7 @@ impl EngineHandle {
         let mut notifications: Vec<(String, String)> = Vec::new();
         let mut phase_change: Option<(Phase, Phase)> = None;
         let mut emit_halfway = false;
+        let mut saved_focus = false;
 
         {
             let mut eng = self.inner.lock();
@@ -430,7 +477,7 @@ impl EngineHandle {
                 return;
             }
 
-            if Self::compensate_wall_jump(&mut eng, SystemTime::now()) {
+            if Self::compensate_wall_jump(&mut eng, SystemTime::now(), Instant::now()) {
                 drop(eng);
                 self.emit_tick(app);
                 self.update_tray(app);
@@ -486,6 +533,22 @@ impl EngineHandle {
                     }
                 }
             }
+
+            if phase_change.is_none() {
+                let now = Instant::now();
+                if let Some((focus, cycles)) = Self::focus_save_due(&eng, now) {
+                    // Written under the engine lock, so a skip or reset can't land
+                    // in between and be overwritten by these older numbers.
+                    if Self::save_progress(app, &eng, focus, cycles) {
+                        eng.last_saved = now;
+                        saved_focus = true;
+                    }
+                }
+            }
+        }
+
+        if saved_focus {
+            let _ = app.emit("stats-updated", ());
         }
 
         if emit_halfway {
@@ -556,31 +619,39 @@ impl EngineHandle {
         eng.snapshot.awaiting_start = true;
     }
 
-    /// Detect OS sleep / clock skew via wall clock. Returns true when focus was
-    /// paused because the machine was away.
-    fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime) -> bool {
+    /// Both clocks as of now, so the next tick measures its gap from here.
+    fn mark_clocks(eng: &mut Engine) {
+        eng.last_wall = SystemTime::now();
+        eng.last_instant = Instant::now();
+    }
+
+    /// Detect OS sleep via the wall clock. Returns true when focus was paused
+    /// because the machine was away.
+    ///
+    /// Only the part of the gap that `Instant` missed is taken off the countdown:
+    /// `Instant` stops during sleep on some platforms and keeps going on others,
+    /// and a stalled tick thread advances both clocks alike.
+    fn compensate_wall_jump(eng: &mut Engine, now_wall: SystemTime, now_instant: Instant) -> bool {
         let mut paused = false;
         if let Ok(delta) = now_wall.duration_since(eng.last_wall) {
+            let missed = delta.saturating_sub(now_instant.saturating_duration_since(eng.last_instant));
             if delta >= AWAY_PAUSE && eng.snapshot.phase == Phase::Focus {
                 Self::pause_for_away(eng, delta);
                 paused = true;
-            } else if delta > Duration::from_secs(3) {
-                // Slept: advance deadline relative to Instant is automatic;
-                // Instant does not advance during sleep on most platforms.
-                // Compensate countdown by subtracting wall delta from remaining.
+            } else if missed > Duration::from_secs(3) {
                 if let Some(deadline) = eng.phase_deadline {
-                    let slept = delta - Duration::from_millis(250);
-                    eng.phase_deadline = Some(deadline.checked_sub(slept).unwrap_or(Instant::now()));
+                    eng.phase_deadline = Some(deadline.checked_sub(missed).unwrap_or(now_instant));
                 }
                 if eng.snapshot.is_flow && eng.snapshot.phase == Phase::Focus {
                     if let Some(started) = eng.phase_started {
-                        // For count-up, add wall sleep time to elapsed base
-                        eng.phase_started = Some(started - (delta - Duration::from_millis(250)));
+                        // Count-up: the time Instant missed still passed.
+                        eng.phase_started = Some(started.checked_sub(missed).unwrap_or(started));
                     }
                 }
             }
         }
         eng.last_wall = now_wall;
+        eng.last_instant = now_instant;
         paused
     }
 
@@ -632,7 +703,7 @@ impl EngineHandle {
         let Some(tech) = tech else { return };
 
         eng.halfway_sent = false;
-        eng.last_wall = SystemTime::now();
+        Self::mark_clocks(eng);
 
         if tech.mode == "flowtime" || eng.snapshot.hybrid_switched {
             eng.snapshot.phase = Phase::Focus;
@@ -664,7 +735,7 @@ impl EngineHandle {
         eng.halfway_sent = false;
         eng.phase_started = Some(Instant::now());
         eng.phase_deadline = Some(Instant::now() + Duration::from_secs(secs.max(0) as u64));
-        eng.last_wall = SystemTime::now();
+        Self::mark_clocks(eng);
     }
 
     fn complete_phase(eng: &mut Engine, skipped: bool) {
@@ -719,19 +790,36 @@ impl EngineHandle {
         }
     }
 
-    fn persist_progress(&self, app: &AppHandle) {
-        let (session_id, focus, cycles, label) = {
-            let eng = self.inner.lock();
-            (
-                eng.session_id.clone(),
-                eng.focus_secs_completed,
-                eng.snapshot.cycle,
-                eng.snapshot.working_on.clone(),
-            )
-        };
-        if let Some(id) = session_id {
-            let _ = Self::with_db(app, |db| db.bump_session_progress(&id, focus, cycles, &label));
+    /// Every `SAVE_EVERY` of a running focus: the focus and cycles to save, counting
+    /// the focus so far, so a crash keeps it. A finished phase saves on its own.
+    fn focus_save_due(eng: &Engine, now: Instant) -> Option<(i64, i64)> {
+        let snap = &eng.snapshot;
+        if !snap.running || snap.paused || snap.phase != Phase::Focus {
+            return None;
         }
+        if now.saturating_duration_since(eng.last_saved) < SAVE_EVERY {
+            return None;
+        }
+        Some((eng.focus_secs_completed + snap.elapsed_secs.max(0), snap.cycle))
+    }
+
+    /// Save finished focus and cycles, dropping any running focus saved before.
+    fn persist_progress(&self, app: &AppHandle) {
+        let mut eng = self.inner.lock();
+        let (focus, cycles) = (eng.focus_secs_completed, eng.snapshot.cycle);
+        if Self::save_progress(app, &eng, focus, cycles) {
+            eng.last_saved = Instant::now();
+        }
+    }
+
+    /// Takes the engine as locked by the caller: progress writes happen in the
+    /// same order as the changes they record. Lock order is engine, then database.
+    fn save_progress(app: &AppHandle, eng: &Engine, focus: i64, cycles: i64) -> bool {
+        let Some(id) = eng.session_id.as_deref() else {
+            return false;
+        };
+        let label = &eng.snapshot.working_on;
+        Self::with_db(app, |db| db.bump_session_progress(id, focus, cycles, label)).is_ok()
     }
 
     fn emit_tick(&self, app: &AppHandle) {
@@ -1136,11 +1224,146 @@ mod tests {
     }
 
     #[test]
+    fn gap_the_monotonic_clock_also_saw_is_not_taken_twice() {
+        // A stalled tick thread, or a platform whose Instant runs through sleep.
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        let deadline = eng.phase_deadline;
+        let now = eng.last_wall + Duration::from_secs(60);
+        let instant = eng.last_instant + Duration::from_secs(60);
+        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now, instant));
+        assert_eq!(eng.phase_deadline, deadline);
+        assert_eq!(eng.last_instant, instant);
+    }
+
+    #[test]
+    fn only_the_part_instant_missed_is_compensated() {
+        let mut eng = started(technique("classic"));
+        let deadline = eng.phase_deadline.unwrap();
+        let now = eng.last_wall + Duration::from_secs(60);
+        let instant = eng.last_instant + Duration::from_secs(20);
+        EngineHandle::compensate_wall_jump(&mut eng, now, instant);
+        assert_eq!(deadline - eng.phase_deadline.unwrap(), Duration::from_secs(40));
+    }
+
+    #[test]
+    fn stopping_mid_focus_counts_it_and_is_an_interruption() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        eng.snapshot.elapsed_secs = 24 * 60;
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60 + 24 * 60, 1, true));
+    }
+
+    #[test]
+    fn stopping_mid_flowtime_counts_the_time_so_far() {
+        let mut eng = started(technique("flowtime"));
+        eng.snapshot.elapsed_secs = 300;
+        assert_eq!(EngineHandle::stop_tally(&eng), (300, 0, true));
+    }
+
+    #[test]
+    fn stopping_paused_by_sleep_counts_only_up_to_the_sleep() {
+        let mut eng = started(technique("classic"));
+        eng.snapshot.elapsed_secs = 5 * 60;
+        eng.snapshot.remaining_secs = 20 * 60;
+        let now = eng.last_wall + Duration::from_secs(42 * 60);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
+        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, 0, true));
+    }
+
+    #[test]
+    fn stopping_after_a_pause_counts_up_to_the_pause() {
+        // No tick since the start: the pause itself brings the snapshot up to date.
+        let mut eng = started(technique("classic"));
+        let at = eng.phase_deadline.unwrap() - Duration::from_secs(20 * 60);
+        EngineHandle::freeze(&mut eng, at);
+        assert_eq!(eng.snapshot.remaining_secs, 20 * 60);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(20 * 60)));
+        assert_eq!(EngineHandle::stop_tally(&eng), (5 * 60, 0, true));
+    }
+
+    #[test]
+    fn stopping_a_paused_flowtime_counts_up_to_the_pause() {
+        let mut eng = started(technique("flowtime"));
+        let at = eng.phase_started.unwrap() + Duration::from_secs(7 * 60);
+        EngineHandle::freeze(&mut eng, at);
+        assert_eq!(eng.paused_remaining, Some(Duration::from_secs(7 * 60)));
+        assert_eq!(EngineHandle::stop_tally(&eng), (7 * 60, 0, true));
+    }
+
+    #[test]
+    fn stopping_in_a_break_is_not_an_interruption() {
+        let mut eng = started(technique("classic"));
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
+    }
+
+    #[test]
+    fn stopping_before_a_held_focus_starts_is_not_an_interruption() {
+        let mut eng = started(technique("classic"));
+        eng.settings.auto_continue = false;
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::expire_phase(&mut eng);
+        assert_eq!(eng.snapshot.phase, Phase::Focus);
+        assert!(eng.snapshot.awaiting_start);
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
+    }
+
+    #[test]
+    fn stopping_at_the_hybrid_bell_keeps_the_whole_focus_and_its_cycle() {
+        let mut eng = started(technique("hybrid"));
+        eng.snapshot.remaining_secs = 0;
+        eng.snapshot.elapsed_secs = 25 * 60;
+        assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
+        assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
+    }
+
+    #[test]
+    fn running_focus_saves_its_progress_every_minute() {
+        let mut eng = started(technique("classic"));
+        let t0 = eng.last_saved;
+        eng.snapshot.elapsed_secs = 59;
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + Duration::from_secs(59)), None);
+        eng.snapshot.elapsed_secs = 60;
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY), Some((60, 0)));
+        // Still due until a save succeeds and moves the clock.
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY + Duration::from_secs(1)), Some((60, 0)));
+        eng.last_saved = t0 + SAVE_EVERY;
+        assert_eq!(EngineHandle::focus_save_due(&eng, t0 + SAVE_EVERY + Duration::from_secs(30)), None);
+    }
+
+    #[test]
+    fn saved_progress_adds_the_focus_so_far_to_finished_ones() {
+        let mut eng = started(technique("flowtime"));
+        EngineHandle::complete_phase(&mut eng, false);
+        EngineHandle::complete_phase(&mut eng, false);
+        eng.focus_secs_completed = 40 * 60;
+        eng.snapshot.elapsed_secs = 12 * 60;
+        let later = eng.last_saved + SAVE_EVERY;
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), Some((52 * 60, 1)));
+    }
+
+    #[test]
+    fn breaks_and_pauses_do_not_save_on_the_clock() {
+        let mut eng = started(technique("classic"));
+        let later = eng.last_saved + SAVE_EVERY;
+        eng.snapshot.paused = true;
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), None);
+        eng.snapshot.paused = false;
+        EngineHandle::complete_phase(&mut eng, false);
+        assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
+        assert_eq!(EngineHandle::focus_save_due(&eng, later), None);
+    }
+
+    #[test]
     fn small_wall_gap_is_ignored() {
         let mut eng = started(technique("classic"));
         let deadline = eng.phase_deadline;
         let now = eng.last_wall + Duration::from_secs(2);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
         assert_eq!(eng.phase_deadline, deadline);
         assert_eq!(eng.last_wall, now);
     }
@@ -1150,9 +1373,10 @@ mod tests {
         let mut eng = started(technique("classic"));
         let deadline = eng.phase_deadline.unwrap();
         let now = eng.last_wall + Duration::from_secs(60);
-        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now));
+        let still = eng.last_instant; // Instant stopped while asleep
+        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now, still));
         let moved = deadline - eng.phase_deadline.unwrap();
-        assert_eq!(moved, Duration::from_secs(60) - Duration::from_millis(250));
+        assert_eq!(moved, Duration::from_secs(60));
     }
 
     #[test]
@@ -1162,10 +1386,11 @@ mod tests {
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
         let deadline = eng.phase_deadline.unwrap();
         let now = eng.last_wall + Duration::from_secs(600);
-        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now));
+        let still = eng.last_instant; // Instant stopped while asleep
+        assert!(!EngineHandle::compensate_wall_jump(&mut eng, now, still));
         assert!(!eng.snapshot.paused);
         assert_eq!(eng.snapshot.away_secs, 0);
-        assert_eq!(deadline - eng.phase_deadline.unwrap(), Duration::from_secs(600) - Duration::from_millis(250));
+        assert_eq!(deadline - eng.phase_deadline.unwrap(), Duration::from_secs(600));
     }
 
     #[test]
@@ -1173,7 +1398,8 @@ mod tests {
         let mut eng = started(technique("classic"));
         eng.snapshot.remaining_secs = 20 * 60;
         let now = eng.last_wall + Duration::from_secs(42 * 60);
-        assert!(EngineHandle::compensate_wall_jump(&mut eng, now));
+        let still = eng.last_instant; // Instant stopped while asleep
+        assert!(EngineHandle::compensate_wall_jump(&mut eng, now, still));
         assert!(eng.snapshot.paused);
         assert_eq!(eng.phase_deadline, None);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(20 * 60)));
@@ -1186,7 +1412,8 @@ mod tests {
         let mut eng = started(technique("flowtime"));
         eng.snapshot.elapsed_secs = 300;
         let now = eng.last_wall + Duration::from_secs(2 * 60);
-        assert!(EngineHandle::compensate_wall_jump(&mut eng, now));
+        let still = eng.last_instant; // Instant stopped while asleep
+        assert!(EngineHandle::compensate_wall_jump(&mut eng, now, still));
         assert!(eng.snapshot.paused);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(300)));
         assert_eq!(eng.snapshot.away_secs, 120);
@@ -1197,7 +1424,8 @@ mod tests {
         let mut eng = started(technique("flowtime"));
         eng.snapshot.elapsed_secs = 300;
         let now = eng.last_wall + Duration::from_secs(600);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
         assert_eq!(EngineHandle::credit_away(&mut eng), None);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(900)));
         assert_eq!(eng.snapshot.elapsed_secs, 900);
@@ -1209,7 +1437,8 @@ mod tests {
         let mut eng = started(technique("classic"));
         eng.snapshot.remaining_secs = 20 * 60;
         let now = eng.last_wall + Duration::from_secs(15 * 60);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
         assert_eq!(EngineHandle::credit_away(&mut eng), None);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(5 * 60)));
         assert_eq!(eng.snapshot.remaining_secs, 5 * 60);
@@ -1221,7 +1450,8 @@ mod tests {
         let mut eng = started(technique("classic"));
         eng.snapshot.remaining_secs = 10 * 60;
         let now = eng.last_wall + Duration::from_secs(42 * 60);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
         let expiry = EngineHandle::credit_away(&mut eng);
         assert!(
             matches!(expiry, Some(Expiry::Advanced { previous: Phase::Focus, next: Phase::ShortBreak, .. })),
@@ -1242,7 +1472,8 @@ mod tests {
     fn resuming_clears_the_away_gap() {
         let mut eng = started(technique("classic"));
         let now = eng.last_wall + Duration::from_secs(600);
-        EngineHandle::compensate_wall_jump(&mut eng, now);
+        let still = eng.last_instant; // Instant stopped while asleep
+        EngineHandle::compensate_wall_jump(&mut eng, now, still);
         EngineHandle::enter_focus(&mut eng);
         assert_eq!(eng.snapshot.away_secs, 0);
     }

@@ -40,7 +40,14 @@ export function useSession() {
   }, []);
 
   useEffect(() => {
-    let unsubs: Array<() => void> = [];
+    // Cleanup can run before boot has registered anything (StrictMode, hot reload):
+    // whatever registers after that is removed right away.
+    let cancelled = false;
+    const unsubs: Array<() => void> = [];
+    const keep = (unlisten: () => void) => {
+      if (cancelled) unlisten();
+      else unsubs.push(unlisten);
+    };
 
     async function boot() {
       if (!isTauri()) {
@@ -64,30 +71,41 @@ export function useSession() {
         setReady(true);
       }
 
-      unsubs = [
-        await listen<TimerSnapshot>("timer-tick", (e) => setSnapshot(e.payload)),
+      keep(await listen<TimerSnapshot>("timer-tick", (e) => setSnapshot(e.payload)));
+      keep(
         await listen<PhaseEvent>("timer-phase", (e) => {
           setSnapshot(e.payload.snapshot);
-          if (e.payload.reason !== "hybrid") setHybridBell(false);
+          setHybridBell(false);
         }),
-        await listen("hybrid-bell", () => setHybridBell(true)),
+      );
+      keep(await listen("hybrid-bell", () => setHybridBell(true)));
+      keep(
         await listen("stats-updated", () => {
           void refreshStats();
         }),
+      );
+      keep(
         await listen("techniques-updated", () => {
           void api.listTechniques().then(setTechniques);
         }),
+      );
+      keep(
         await listen("open-settings", () => {
           window.dispatchEvent(new CustomEvent("tempura:open-settings"));
         }),
+      );
+      keep(
         await listen("open-about", () => {
           window.dispatchEvent(new CustomEvent("tempura:open-about"));
         }),
-      ];
+      );
     }
 
     void boot();
-    return () => unsubs.forEach((u) => u());
+    return () => {
+      cancelled = true;
+      unsubs.forEach((u) => u());
+    };
   }, [refreshStats]);
 
   const start = useCallback(async () => {
