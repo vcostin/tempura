@@ -10,9 +10,9 @@ accounts, no telemetry, no extra update server. Host access is real
 
 | | |
 | --- | --- |
-| **App version** | 0.3.2 |
-| **Tree** | `a46d817` (`main` as of 2026-09-19; findings first noted around `d78d7f2`) |
-| **Scope** | Tauri 2 config, Rust commands, opener, SQLite, updater CI, download site |
+| **App version** | 0.5.1 |
+| **Tree** | `43214c9` (`main` as of 2026-10-31). Earlier pass: 0.3.2 at `a46d817` (2026-09-19). |
+| **Scope** | Tauri 2 config, Rust commands, opener, SQLite, updater CI, download site; since 0.3.2 also session export, global shortcuts, the Wayland shortcuts portal, and command-line actions |
 | **Critical / High** | None found |
 
 Related: [releasing.md](releasing.md) (ed25519 updater signing).
@@ -30,12 +30,16 @@ Rust**, plus **how updates are chosen and verified**.
 | Webview is untrusted relative to Rust | CSP + `freezePrototype` reduce XSS. They do not replace command allowlists. Anything the frontend can `invoke` is available to a capable window. |
 | Updater authenticity ≠ first-run authenticity | In-app updates require an ed25519 signature that matches the pubkey baked into the binary. First install is whatever the user downloaded (SmartScreen / Gatekeeper may warn; see M2). |
 | Signing secret stays off the tree | Release CI fails without `TAURI_SIGNING_PRIVATE_KEY`. Private keys are gitignored. Losing or rotating the key breaks in-app updates for already-shipped builds. |
+| Other processes of the same user are trusted | `tempura --toggle` / `--skip` / `--show` reach the running app through the single-instance plugin. Anything running as you can start, pause, skip, or show/hide the window; nothing else is accepted on that path. |
 | Locale catalogs are maintainer-trusted | GitHub Pages copies `locales/` onto the download site. Strings are assigned with `textContent` (L5). A locale PR can change copy, not inject HTML. |
 
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
 sig), relaunch, quit, timer/settings/stats, open the pinned GitHub
-discussion. Debug builds also expose a test notification. That is
+discussion, open the native save dialog for a session export (the user
+still picks the path), register up to three global shortcuts (see L7),
+and ask the Wayland portal to bind or reconfigure them (the desktop shows
+its own dialog). Debug builds also expose a test notification. That is
 annoying, not “unsigned update.”
 
 ## Findings
@@ -183,6 +187,47 @@ concatenated into a shell string. Linux was already absolute
 **Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs)
 `MACOS_OPEN`, `windows_cmd_exe`, `open_in_host_browser`.
 
+#### L7 — Global shortcuts can take common combinations
+
+**Status.** Open.
+
+**Impact.** Settings accept any shortcut with Ctrl, Alt, or Super
+(`hotkeys::check`), so `Control+KeyC` or `Control+KeyV` pass validation.
+Registered globally, they stop copy or paste from reaching other apps on
+X11, Windows, and macOS until the shortcut is cleared. A user can do this
+by mistake; XSS could do it through `update_settings`. Presses only run
+the three timer actions; no key or other app's input is sent to the
+webview, so this is a nuisance, not a keylogger. Keys another app has
+already registered are reported, never taken, but plain editing
+shortcuts are usually not registered by anyone.
+
+**Evidence.** [`src-tauri/src/hotkeys.rs`](../src-tauri/src/hotkeys.rs)
+`check`, `on_shortcut`; [`src-tauri/src/models.rs`](../src-tauri/src/models.rs)
+`AppSettings::validated`.
+
+**Fix sketch.** Refuse the common editing and system combinations
+(copy, paste, cut, undo, select all, save, quit, close, tab switching), or
+require two modifiers, in `hotkeys::check`, with a Settings message that
+says why.
+
+#### L8 — Portal desktop entry: `Exec` quoting does not cover newlines
+
+**Status.** Open (informational in practice).
+
+**Impact.** When the user sets up Wayland shortcuts, Tempura writes a
+hidden `app.tempura.focus.desktop` (and icon) under `~/.local/share` if
+no system entry exists. `exec_argument` follows the Desktop Entry quoting
+rules for `"`, `` ` ``, `$`, `\`, and `%`, but a newline in the path
+would end the `Exec` line and could add keys. The path comes from
+`$APPIMAGE` or the running executable, both set by the same user, so
+there is no attacker in the middle; it is a correctness gap.
+
+**Evidence.** [`src-tauri/src/portal.rs`](../src-tauri/src/portal.rs)
+`ensure_desktop_entry`, `desktop_entry`, `exec_argument`.
+
+**Fix sketch.** Refuse to write the entry (and report a portal problem)
+when the command contains a control character.
+
 ### Info
 
 These are easy to misread as stronger guarantees than they are.
@@ -204,6 +249,32 @@ These are easy to misread as stronger guarantees than they are.
   IPC only; GitHub is reached from Rust (updater), not from page JS.
 - **Autostart + `updater:default` + `process:allow-restart`** are
   intentional. XSS can nag and relaunch; it cannot skip ed25519.
+- **Session export** (`export_sessions`) is a Rust command, not the
+  dialog or fs plugin: the webview passes only the format and the dialog
+  title. Rust renders the rows and shows a native save dialog modal to
+  the main window; the file goes where the user picks, and gets the
+  format's extension if the chosen name has none. CSV text fields (labels
+  and technique names) starting like a formula (`=`, `+`, `-`, `@`, tab,
+  CR) are defused. XSS could open the dialog with a misleading title, but
+  the contents are always session history.
+- **Global shortcut and dialog plugins** are used from Rust only. Neither
+  appears in [`capabilities/default.json`](../src-tauri/capabilities/default.json),
+  so page JS cannot call them directly; it can only change the recorded
+  shortcuts through `update_settings` (L7).
+- **Portal files persist.** The hidden desktop entry and icon written for
+  Wayland shortcuts (L8) stay in `~/.local/share` after uninstall. Only
+  written once portal shortcuts are enabled in settings (by the user, or
+  by XSS through `update_settings`). On portals too old to reconfigure,
+  Tempura opens the desktop's own shortcuts page (`systemsettings` or
+  `gnome-control-center`). Program names and arguments are fixed, but
+  they are found through `PATH`, unlike the feedback opener's absolute
+  paths (L6); `PATH` is the user's own, so this is consistency, not risk.
+- **Hotkey report** includes the path Tempura was launched from (to show
+  the command for system shortcuts). That is visible to page JS; it is
+  the user's own path, not a secret.
+- **Session accounting (0.5.1)** saves progress once a minute during
+  focus and closes sessions a crash left open. Same database, same
+  `0600` mode; no new data leaves the machine.
 - **Notification plugin** is permission-grant only. Phase banners go
   through Rust (`notify.rs`), not `notification:allow-notify`.
 
@@ -213,7 +284,12 @@ Worth keeping; do not “fix” these into something weaker.
 
 - **Lean capabilities** — events, window focus, notification
   permission, autostart, updater, relaunch. No shell, fs, http, or
-  opener plugins in `Cargo.toml` either.
+  opener plugins in `Cargo.toml`; the dialog and global-shortcut plugins
+  added since are driven from Rust only and are not granted to the page.
+- **Global shortcuts are opt-in** — nothing is registered until the user
+  records a key, every key needs a modifier, and keys another app owns
+  are reported instead of taken. On Wayland the desktop's own portal
+  dialog assigns them.
 - **Parameterized SQL** throughout [`db.rs`](../src-tauri/src/db.rs);
   [`models.rs`](../src-tauri/src/models.rs) validates technique ids,
   durations, themes, locale, accent.
@@ -242,8 +318,13 @@ notification IPC is debug-only; no `window.open` fallback; Unix DB
 modes; absolute opener binaries; Pages i18n is `textContent` only).
 Remaining:
 
-1. **M2** — Authenticode / notarization when you are ready to operate
-   those programs (cert/account work, not a weekend patch).
+1. **L7** — refuse common editing/system combinations as global
+   shortcuts (small code change in `hotkeys::check`).
+2. **L8** — refuse control characters in the portal desktop entry's
+   command (small code change in `portal.rs`).
+3. **M2** — Authenticode / notarization. Backlog: it costs money for
+   certificates and developer accounts, and is not planned for now. The
+   README warns about SmartScreen and Gatekeeper on first open.
 
 ## Out of scope here
 
