@@ -1,10 +1,10 @@
 use crate::models::{
-    AppSettings, DayBucket, GlobalHotkeys, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
+    AppSettings, DayBucket, FocusShare, GlobalHotkeys, DayStats, HourCell, PeriodTotals, PeriodStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
     TechniqueMode, DEFAULT_FLOW_RATIO,
 };
 use crate::export::ExportRow;
 use crate::stats::{group_focus, FocusRow, TOP_SHARES};
-use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Timelike, Utc};
+use chrono::{DateTime, Datelike, Duration, Local, NaiveDate, NaiveDateTime, Timelike, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -860,10 +860,112 @@ impl Database {
     pub fn range_stats(&self, days: i64) -> DbResult<StatsRange> {
         let days = days.clamp(1, 366);
         let today = Local::now().date_naive();
-        let start_day = today - Duration::days(days - 1);
+        let core = self.period_core(today - Duration::days(days - 1), today)?;
+        Ok(StatsRange {
+            days,
+            focus_secs: core.focus_secs,
+            completed_cycles: core.completed_cycles,
+            sessions: core.sessions,
+            streak_days: self.compute_streak(today)?,
+            buckets: core.buckets,
+            by_label: core.by_label,
+            by_technique: core.by_technique,
+        })
+    }
+
+    /// Stats for the local days `first..=last`, compared with `compare` (also
+    /// inclusive), or by default with the same number of days just before.
+    pub fn period_stats(
+        &self,
+        first: NaiveDate,
+        last: NaiveDate,
+        compare: Option<(NaiveDate, NaiveDate)>,
+    ) -> DbResult<PeriodStats> {
+        let len = check_period(first, last)?;
+        let (prev_first, prev_last) = match compare {
+            Some((a, b)) => {
+                check_period(a, b)?;
+                (a, b)
+            }
+            None => (first - Duration::days(len), first - Duration::days(1)),
+        };
+        let core = self.period_core(first, last)?;
+        let prev = self.period_core(prev_first, prev_last)?;
+        let first_day: Option<String> = self.conn.query_row(
+            "SELECT MIN(day) FROM session_hours WHERE focus_secs > 0 OR cycles > 0",
+            [],
+            |row| row.get(0),
+        )?;
+        let mut weekday_counts = [0i64; 7];
+        let mut cursor = first;
+        while cursor <= last {
+            weekday_counts[cursor.weekday().num_days_from_monday() as usize] += 1;
+            cursor += Duration::days(1);
+        }
+        Ok(PeriodStats {
+            from: day_key(first),
+            to: day_key(last),
+            focus_secs: core.focus_secs,
+            completed_cycles: core.completed_cycles,
+            sessions: core.sessions,
+            active_days: core.active_days(),
+            longest_streak: core.longest_streak(),
+            hours: self.weekday_hours(first, last)?,
+            weekday_counts,
+            previous: PeriodTotals {
+                from: day_key(prev_first),
+                to: day_key(prev_last),
+                focus_secs: prev.focus_secs,
+                completed_cycles: prev.completed_cycles,
+                sessions: prev.sessions,
+                active_days: prev.active_days(),
+            },
+            first_day,
+            buckets: core.buckets,
+            by_label: core.by_label,
+            by_technique: core.by_technique,
+        })
+    }
+
+    /// Focus and cycles per weekday and hour over `first..=last`.
+    fn weekday_hours(&self, first: NaiveDate, last: NaiveDate) -> DbResult<Vec<HourCell>> {
+        let rows: Vec<(String, i64, i64, i64)> = self
+            .conn
+            .prepare(
+                "SELECT day, hour, SUM(focus_secs), SUM(cycles) FROM session_hours
+                 WHERE day BETWEEN ?1 AND ?2 GROUP BY day, hour",
+            )?
+            .query_map(params![day_key(first), day_key(last)], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?))
+            })?
+            .collect::<Result<_, _>>()?;
+        let mut grid = [[(0i64, 0i64); 24]; 7];
+        for (day, hour, focus, cycles) in rows {
+            let Ok(d) = NaiveDate::parse_from_str(&day, "%Y-%m-%d") else { continue };
+            let Ok(h) = usize::try_from(hour) else { continue };
+            if h > 23 {
+                continue;
+            }
+            let cell = &mut grid[d.weekday().num_days_from_monday() as usize][h];
+            cell.0 += focus;
+            cell.1 += cycles;
+        }
+        let mut cells = Vec::new();
+        for (weekday, hours) in grid.iter().enumerate() {
+            for (hour, &(focus_secs, cycles)) in hours.iter().enumerate() {
+                if focus_secs > 0 || cycles > 0 {
+                    cells.push(HourCell { weekday: weekday as u8, hour: hour as u8, focus_secs, cycles });
+                }
+            }
+        }
+        Ok(cells)
+    }
+
+    /// Daily buckets, totals and breakdowns for the local days `start_day..=end_day`.
+    fn period_core(&self, start_day: NaiveDate, end_day: NaiveDate) -> DbResult<PeriodCore> {
         let start_utc = local_day_start_utc(start_day).to_rfc3339();
 
-        let (first, last) = (day_key(start_day), day_key(today));
+        let (first, last) = (day_key(start_day), day_key(end_day));
         // Per day: focus and cycles from the hours they happened in, and the
         // sessions active that day or started on it.
         let mut map: HashMap<NaiveDate, (i64, i64, HashSet<String>)> = HashMap::new();
@@ -891,7 +993,7 @@ impl Database {
             .collect::<Result<_, _>>()?;
         for (id, started_at) in started {
             let Some(d) = local_date_from_rfc3339(&started_at) else { continue };
-            if d < start_day || d > today {
+            if d < start_day || d > end_day {
                 continue;
             }
             map.entry(d).or_default().2.insert(id.clone());
@@ -923,13 +1025,13 @@ impl Database {
             techniques.push(FocusRow { id: technique_id, name: technique_name, focus_secs: focus });
         }
 
-        let mut buckets = Vec::with_capacity(days as usize);
+        let mut buckets = Vec::with_capacity(((end_day - start_day).num_days() + 1).max(0) as usize);
         let mut focus_secs = 0i64;
         let mut completed_cycles = 0i64;
         // Distinct: a session active on two days counts once in the total.
         let sessions = all_sessions.len() as i64;
         let mut cursor = start_day;
-        while cursor <= today {
+        while cursor <= end_day {
             let (f, c, s) = map
                 .get(&cursor)
                 .map(|(f, c, ids)| (*f, *c, ids.len() as i64))
@@ -945,12 +1047,10 @@ impl Database {
             cursor += Duration::days(1);
         }
 
-        Ok(StatsRange {
-            days,
+        Ok(PeriodCore {
             focus_secs,
             completed_cycles,
             sessions,
-            streak_days: self.compute_streak(today)?,
             buckets,
             by_label: group_focus(labels, TOP_SHARES),
             by_technique: group_focus(techniques, TOP_SHARES),
@@ -1021,6 +1121,46 @@ impl Database {
             })?
             .collect::<Result<Vec<_>, _>>()?;
         Ok(rows)
+    }
+}
+
+/// The longest span a stats query covers: about ten years.
+const MAX_PERIOD_DAYS: i64 = 3660;
+
+/// Days in `first..=last`, or an error when it ends before it starts or is too long.
+fn check_period(first: NaiveDate, last: NaiveDate) -> DbResult<i64> {
+    let len = (last - first).num_days() + 1;
+    if len < 1 {
+        return Err(DbError::Message("the period ends before it starts".into()));
+    }
+    if len > MAX_PERIOD_DAYS {
+        return Err(DbError::Message(format!("a period can span at most {MAX_PERIOD_DAYS} days")));
+    }
+    Ok(len)
+}
+
+/// What every stats window shares: totals, one bucket per day, breakdowns.
+struct PeriodCore {
+    focus_secs: i64,
+    completed_cycles: i64,
+    sessions: i64,
+    buckets: Vec<DayBucket>,
+    by_label: Vec<FocusShare>,
+    by_technique: Vec<FocusShare>,
+}
+
+impl PeriodCore {
+    fn active_days(&self) -> i64 {
+        self.buckets.iter().filter(|b| b.focus_secs > 0).count() as i64
+    }
+
+    fn longest_streak(&self) -> i64 {
+        let (mut best, mut run) = (0i64, 0i64);
+        for b in &self.buckets {
+            run = if b.focus_secs > 0 { run + 1 } else { 0 };
+            best = best.max(run);
+        }
+        best
     }
 }
 
@@ -1115,6 +1255,84 @@ mod range_stats_tests {
 
     fn at(day: NaiveDate, hour: u32, min: u32) -> NaiveDateTime {
         day.and_hms_opt(hour, min, 0).unwrap()
+    }
+
+    fn ymd(y: i32, m: u32, d: u32) -> NaiveDate {
+        NaiveDate::from_ymd_opt(y, m, d).unwrap()
+    }
+
+    /// A week from Monday 2026-10-05, with one session the Thursday before.
+    fn october_week(db: &Database) {
+        insert_session(db, local_hms_utc(ymd(2026, 10, 1), 8, 0, 0), 60 * 60, 2);
+        insert_session(db, local_hms_utc(ymd(2026, 10, 5), 10, 15, 0), 30 * 60, 1);
+        insert_session(db, local_hms_utc(ymd(2026, 10, 5), 10, 40, 0), 20 * 60, 0);
+        insert_session(db, local_hms_utc(ymd(2026, 10, 7), 15, 0, 0), 45 * 60, 2);
+        insert_session(db, local_hms_utc(ymd(2026, 10, 9), 9, 5, 0), 25 * 60, 0);
+    }
+
+    #[test]
+    fn period_stats_totals_buckets_and_hours() {
+        let db = temp_db();
+        october_week(&db);
+        let p = db.period_stats(ymd(2026, 10, 5), ymd(2026, 10, 11), None).unwrap();
+        assert_eq!((p.from.as_str(), p.to.as_str()), ("2026-10-05", "2026-10-11"));
+        assert_eq!((p.focus_secs, p.completed_cycles, p.sessions), (120 * 60, 3, 4));
+        assert_eq!(p.buckets.len(), 7);
+        assert_eq!(p.buckets[0].focus_secs, 50 * 60);
+        assert_eq!((p.active_days, p.longest_streak), (3, 1));
+        assert_eq!(p.weekday_counts, [1; 7]);
+        let cell = |weekday, hour, focus_secs, cycles| HourCell { weekday, hour, focus_secs, cycles };
+        assert_eq!(
+            p.hours,
+            vec![cell(0, 10, 50 * 60, 1), cell(2, 15, 45 * 60, 2), cell(4, 9, 25 * 60, 0)]
+        );
+        assert_eq!(p.first_day.as_deref(), Some("2026-10-01"));
+    }
+
+    #[test]
+    fn period_stats_compares_with_the_days_before_or_a_given_period() {
+        let db = temp_db();
+        october_week(&db);
+        let p = db.period_stats(ymd(2026, 10, 5), ymd(2026, 10, 11), None).unwrap();
+        assert_eq!((p.previous.from.as_str(), p.previous.to.as_str()), ("2026-09-28", "2026-10-04"));
+        assert_eq!(
+            (p.previous.focus_secs, p.previous.completed_cycles, p.previous.sessions, p.previous.active_days),
+            (60 * 60, 2, 1, 1)
+        );
+        // A calendar month compared with the whole month before.
+        let oct = db
+            .period_stats(ymd(2026, 10, 1), ymd(2026, 10, 31), Some((ymd(2026, 9, 1), ymd(2026, 9, 30))))
+            .unwrap();
+        assert_eq!(oct.focus_secs, 180 * 60);
+        assert_eq!((oct.previous.from.as_str(), oct.previous.focus_secs), ("2026-09-01", 0));
+        // October 2026 starts on a Thursday: Thursday to Saturday come five times.
+        assert_eq!(oct.weekday_counts, [4, 4, 4, 5, 5, 5, 4]);
+    }
+
+    #[test]
+    fn period_stats_longest_streak_inside_the_period() {
+        let db = temp_db();
+        for day in [3, 4, 5, 7, 8] {
+            insert_session(&db, local_hms_utc(ymd(2026, 10, day), 9, 0, 0), 25 * 60, 1);
+        }
+        let p = db.period_stats(ymd(2026, 10, 1), ymd(2026, 10, 10), None).unwrap();
+        assert_eq!((p.active_days, p.longest_streak), (5, 3));
+        // The streak is cut at the period's edge.
+        let p = db.period_stats(ymd(2026, 10, 4), ymd(2026, 10, 8), None).unwrap();
+        assert_eq!(p.longest_streak, 2);
+    }
+
+    #[test]
+    fn period_stats_rejects_backwards_and_huge_periods() {
+        let db = temp_db();
+        assert!(db.period_stats(ymd(2026, 10, 2), ymd(2026, 10, 1), None).is_err());
+        assert!(db.period_stats(ymd(2000, 1, 1), ymd(2026, 1, 1), None).is_err());
+        let backwards = Some((ymd(2026, 9, 30), ymd(2026, 9, 1)));
+        assert!(db.period_stats(ymd(2026, 10, 1), ymd(2026, 10, 31), backwards).is_err());
+        // An empty database: zeros and no first day.
+        let p = db.period_stats(ymd(2026, 10, 1), ymd(2026, 10, 1), None).unwrap();
+        assert_eq!((p.focus_secs, p.sessions, p.active_days, p.first_day), (0, 0, 0, None));
+        assert!(p.hours.is_empty());
     }
 
     #[test]

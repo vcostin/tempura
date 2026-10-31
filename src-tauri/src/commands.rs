@@ -2,7 +2,7 @@ use crate::db::Database;
 use crate::engine::EngineHandle;
 use crate::export::ExportFormat;
 use crate::models::{
-    validate_id, AppInfo, AppSettings, DayStats, StatsRange, Technique, TechniqueInput, TimerSnapshot,
+    validate_id, AppInfo, AppSettings, DayStats, PeriodStats, StatsRange, Technique, TechniqueInput, TimerSnapshot,
 };
 use parking_lot::Mutex;
 use tauri::{AppHandle, Emitter, State};
@@ -194,6 +194,29 @@ pub async fn setup_portal_hotkeys() -> bool {
 #[tauri::command]
 pub fn get_stats(state: State<'_, AppState>) -> Result<DayStats, String> {
     state.db.lock().day_stats().map_err(|e| e.to_string())
+}
+
+/// Stats for local days `from..=to` (`YYYY-MM-DD`), compared with
+/// `compare_from..=compare_to` when both are given, else the same number of days before.
+#[tauri::command]
+pub fn get_period_stats(
+    state: State<'_, AppState>,
+    from: String,
+    to: String,
+    compare_from: Option<String>,
+    compare_to: Option<String>,
+) -> Result<PeriodStats, String> {
+    let day = |s: &str| chrono::NaiveDate::parse_from_str(s, "%Y-%m-%d").map_err(|_| format!("not a date: {s:?}"));
+    let compare = match (compare_from, compare_to) {
+        (Some(a), Some(b)) => Some((day(&a)?, day(&b)?)),
+        (None, None) => None,
+        _ => return Err("compare_from and compare_to go together".into()),
+    };
+    state
+        .db
+        .lock()
+        .period_stats(day(&from)?, day(&to)?, compare)
+        .map_err(|e| e.to_string())
 }
 
 #[tauri::command]

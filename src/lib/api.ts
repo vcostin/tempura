@@ -7,6 +7,7 @@ import {
   type AppInfo,
   type AppSettings,
   type DayStats,
+  type PeriodStats,
   type StatsRange,
   type ExportFormat,
   type Technique,
@@ -44,6 +45,14 @@ export const api = {
 
   getStats: () => invoke<DayStats>("get_stats"),
   getStatsRange: (days: number) => invoke<StatsRange>("get_stats_range", { days }),
+  /** Local days `from..=to` (`YYYY-MM-DD`); compared with `compare`, else the same number of days before. */
+  getPeriodStats: (from: string, to: string, compare?: { from: string; to: string }) =>
+    invoke<PeriodStats>("get_period_stats", {
+      from,
+      to,
+      compareFrom: compare?.from ?? null,
+      compareTo: compare?.to ?? null,
+    }),
   /** Saves every session through a save dialog; resolves to the file name, or null if cancelled. */
   exportSessions: (format: ExportFormat, title: string) =>
     invoke<string | null>("export_sessions", { format, title }),
