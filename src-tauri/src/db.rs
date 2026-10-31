@@ -4,9 +4,9 @@ use crate::models::{
 };
 use crate::export::ExportRow;
 use crate::stats::{group_focus, FocusRow, TOP_SHARES};
-use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Utc};
+use chrono::{DateTime, Duration, Local, NaiveDate, NaiveDateTime, Timelike, Utc};
 use rusqlite::{params, Connection, OptionalExtension};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use thiserror::Error;
 use uuid::Uuid;
@@ -82,6 +82,12 @@ fn local_day_start_utc(day: NaiveDate) -> DateTime<Utc> {
     naive_to_local(day.and_hms_opt(0, 0, 0).expect("midnight")).with_timezone(&Utc)
 }
 
+fn local_from_rfc3339(started_at: &str) -> Option<NaiveDateTime> {
+    DateTime::parse_from_rfc3339(started_at)
+        .ok()
+        .map(|dt| dt.with_timezone(&Local).naive_local())
+}
+
 fn local_date_from_rfc3339(started_at: &str) -> Option<NaiveDate> {
     DateTime::parse_from_rfc3339(started_at)
         .ok()
@@ -95,7 +101,12 @@ type Migration = fn(&Connection) -> DbResult<()>;
 
 /// Schema changes in order; `PRAGMA user_version` counts how many have run.
 /// Append new ones at the end and never change one that has shipped.
-const MIGRATIONS: &[Migration] = &[migrate_v1_baseline, migrate_v2_settings_json, migrate_v3_focus_by_day];
+const MIGRATIONS: &[Migration] = &[
+    migrate_v1_baseline,
+    migrate_v2_settings_json,
+    migrate_v3_focus_by_day,
+    migrate_v4_focus_by_hour,
+];
 
 /// The schema as it stood before versioning. Every step tolerates a database
 /// that already has it, so pre-versioning databases pass through unchanged.
@@ -192,54 +203,112 @@ fn migrate_v3_focus_by_day(conn: &Connection) -> DbResult<()> {
     Ok(())
 }
 
-/// How `session_days` writes a day: sorts and compares as text.
+/// How a day is stored: sorts and compares as text.
 fn day_key(day: NaiveDate) -> String {
     day.format("%Y-%m-%d").to_string()
 }
 
-/// Bring a session's per-day focus up to `total`. No time ranges: whatever
-/// changed since the last save goes to `day`, the day of this save. Saves come
-/// at least once a minute during focus, so at most that much lands on the wrong
-/// side of midnight. Focus taken back (a reset focus) comes off the latest days
-/// first. Afterwards the days add up to `total`.
-fn record_focus(conn: &Connection, session_id: &str, total: i64, day: NaiveDate) -> DbResult<()> {
-    let recorded: i64 = conn.query_row(
-        "SELECT COALESCE(SUM(focus_secs), 0) FROM session_days WHERE session_id = ?1",
-        params![session_id],
-        |row| row.get(0),
+/// Focus and finished cycles per local hour for each session, replacing the
+/// per-day table: day totals add up the hours, and the hours also show when in
+/// the day focus happens. Days a session started on put their focus in the hour
+/// it started (all that was known); a later day's focus, which only dev builds
+/// of migration 3 recorded, goes to midnight. Cycles go with the start hour.
+fn migrate_v4_focus_by_hour(conn: &Connection) -> DbResult<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE session_hours (
+            session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+            day TEXT NOT NULL,
+            hour INTEGER NOT NULL CHECK (hour BETWEEN 0 AND 23),
+            focus_secs INTEGER NOT NULL DEFAULT 0,
+            cycles INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY (session_id, day, hour)
+        );
+        CREATE INDEX idx_session_hours_day ON session_hours(day);
+        ",
     )?;
-    let change = total.max(0) - recorded;
-    if change > 0 {
-        conn.execute(
-            "INSERT INTO session_days (session_id, day, focus_secs) VALUES (?1, ?2, ?3)
-             ON CONFLICT(session_id, day) DO UPDATE SET focus_secs = focus_secs + excluded.focus_secs",
-            params![session_id, day_key(day), change],
-        )?;
-        return Ok(());
-    }
-    let mut take_back = -change;
-    if take_back == 0 {
-        return Ok(());
-    }
-    let days: Vec<(String, i64)> = conn
-        .prepare("SELECT day, focus_secs FROM session_days WHERE session_id = ?1 ORDER BY day DESC")?
-        .query_map(params![session_id], |row| Ok((row.get(0)?, row.get(1)?)))?
+    let sessions: Vec<(String, String, i64)> = conn
+        .prepare("SELECT id, started_at, completed_cycles FROM sessions")?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
         .collect::<Result<_, _>>()?;
-    for (day, focus) in days {
-        let cut = focus.min(take_back);
-        if cut == focus {
-            conn.execute(
-                "DELETE FROM session_days WHERE session_id = ?1 AND day = ?2",
-                params![session_id, day],
-            )?;
-        } else {
-            conn.execute(
-                "UPDATE session_days SET focus_secs = focus_secs - ?3 WHERE session_id = ?1 AND day = ?2",
-                params![session_id, day, cut],
-            )?;
+    for (id, started_at, cycles) in sessions {
+        let Some(start) = local_from_rfc3339(&started_at) else {
+            eprintln!("tempura: session {id} has an unreadable start time; its focus stays off the hourly stats");
+            continue;
+        };
+        let start_day = day_key(start.date());
+        let start_hour = start.hour() as i64;
+        let days: Vec<(String, i64)> = conn
+            .prepare("SELECT day, focus_secs FROM session_days WHERE session_id = ?1")?
+            .query_map(params![id], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect::<Result<_, _>>()?;
+        for (day, focus) in days {
+            let hour = if day == start_day { start_hour } else { 0 };
+            add_to_hour(conn, &id, &day, hour, focus, 0)?;
         }
-        take_back -= cut;
-        if take_back == 0 {
+        if cycles > 0 {
+            add_to_hour(conn, &id, &start_day, start_hour, 0, cycles)?;
+        }
+    }
+    conn.execute_batch("DROP TABLE session_days;")?;
+    Ok(())
+}
+
+fn add_to_hour(conn: &Connection, session_id: &str, day: &str, hour: i64, focus: i64, cycles: i64) -> DbResult<()> {
+    conn.execute(
+        "INSERT INTO session_hours (session_id, day, hour, focus_secs, cycles) VALUES (?1, ?2, ?3, ?4, ?5)
+         ON CONFLICT(session_id, day, hour) DO UPDATE SET
+             focus_secs = focus_secs + excluded.focus_secs,
+             cycles = cycles + excluded.cycles",
+        params![session_id, day, hour, focus, cycles],
+    )?;
+    Ok(())
+}
+
+/// Bring a session's hours up to its `focus` and `cycles` totals. No time
+/// ranges: whatever changed since the last save goes to the local hour of this
+/// save (`at`). Saves come at least once a minute during focus, so at most that
+/// much lands in a neighbouring hour. Anything taken back (a reset focus) comes
+/// off the latest hours first. Afterwards the hours add up to the totals.
+fn record_progress(conn: &Connection, session_id: &str, focus: i64, cycles: i64, at: NaiveDateTime) -> DbResult<()> {
+    let (recorded_focus, recorded_cycles): (i64, i64) = conn.query_row(
+        "SELECT COALESCE(SUM(focus_secs), 0), COALESCE(SUM(cycles), 0) FROM session_hours WHERE session_id = ?1",
+        params![session_id],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    )?;
+    let focus_change = focus.max(0) - recorded_focus;
+    let cycles_change = cycles.max(0) - recorded_cycles;
+    let (day, hour) = (day_key(at.date()), at.hour() as i64);
+    add_to_hour(conn, session_id, &day, hour, focus_change.max(0), cycles_change.max(0))?;
+    take_back(conn, session_id, "focus_secs", -focus_change)?;
+    take_back(conn, session_id, "cycles", -cycles_change)?;
+    conn.execute(
+        "DELETE FROM session_hours WHERE session_id = ?1 AND focus_secs = 0 AND cycles = 0",
+        params![session_id],
+    )?;
+    Ok(())
+}
+
+/// Take `amount` of `column` back from a session's latest hours first.
+fn take_back(conn: &Connection, session_id: &str, column: &str, mut amount: i64) -> DbResult<()> {
+    if amount <= 0 {
+        return Ok(());
+    }
+    let hours: Vec<(String, i64, i64)> = conn
+        .prepare(&format!(
+            "SELECT day, hour, {column} FROM session_hours
+             WHERE session_id = ?1 AND {column} > 0 ORDER BY day DESC, hour DESC"
+        ))?
+        .query_map(params![session_id], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
+        .collect::<Result<_, _>>()?;
+    for (day, hour, value) in hours {
+        let cut = value.min(amount);
+        conn.execute(
+            &format!("UPDATE session_hours SET {column} = {column} - ?4 WHERE session_id = ?1 AND day = ?2 AND hour = ?3"),
+            params![session_id, day, hour, cut],
+        )?;
+        amount -= cut;
+        if amount == 0 {
             break;
         }
     }
@@ -706,7 +775,7 @@ impl Database {
             ],
         )?;
         if changed > 0 {
-            record_focus(&tx, session_id, focus_secs, Local::now().date_naive())?;
+            record_progress(&tx, session_id, focus_secs, completed_cycles, Local::now().naive_local())?;
         }
         tx.commit()?;
         Ok(())
@@ -733,7 +802,7 @@ impl Database {
             params![focus_secs.max(0), completed_cycles, label, now, session_id],
         )?;
         if changed > 0 {
-            record_focus(&tx, session_id, focus_secs, Local::now().date_naive())?;
+            record_progress(&tx, session_id, focus_secs, completed_cycles, Local::now().naive_local())?;
         }
         tx.commit()?;
         Ok(())
@@ -743,16 +812,20 @@ impl Database {
         let today = Local::now().date_naive();
         let start_utc = local_day_start_utc(today).to_rfc3339();
 
-        // Sessions and cycles count on the day a session started; focus on the
-        // days it happened.
-        let (completed_cycles_today, sessions_today): (i64, i64) = self.conn.query_row(
-            "SELECT COALESCE(SUM(completed_cycles), 0), COUNT(*) FROM sessions WHERE started_at >= ?1",
-            params![start_utc],
+        // Focus and cycles count in the hours they happened; a session counts on
+        // each day it was active, and on the day it started.
+        let (focus_secs_today, completed_cycles_today): (i64, i64) = self.conn.query_row(
+            "SELECT COALESCE(SUM(focus_secs), 0), COALESCE(SUM(cycles), 0) FROM session_hours WHERE day = ?1",
+            params![day_key(today)],
             |row| Ok((row.get(0)?, row.get(1)?)),
         )?;
-        let focus_secs_today: i64 = self.conn.query_row(
-            "SELECT COALESCE(SUM(focus_secs), 0) FROM session_days WHERE day = ?1",
-            params![day_key(today)],
+        let sessions_today: i64 = self.conn.query_row(
+            "SELECT COUNT(*) FROM (
+                SELECT session_id FROM session_hours WHERE day = ?1
+                UNION
+                SELECT id FROM sessions WHERE started_at >= ?2
+            )",
+            params![day_key(today), start_utc],
             |row| row.get(0),
         )?;
 
@@ -773,39 +846,39 @@ impl Database {
         let start_day = today - Duration::days(days - 1);
         let start_utc = local_day_start_utc(start_day).to_rfc3339();
 
-        // Sessions and cycles count on the day a session started.
-        let started: Vec<(String, i64)> = self
+        let (first, last) = (day_key(start_day), day_key(today));
+        // Per day: focus and cycles from the hours they happened in, and the
+        // sessions active that day or started on it.
+        let mut map: HashMap<NaiveDate, (i64, i64, HashSet<String>)> = HashMap::new();
+        let mut all_sessions: HashSet<String> = HashSet::new();
+        let active: Vec<(String, String, i64, i64)> = self
             .conn
-            .prepare("SELECT started_at, completed_cycles FROM sessions WHERE started_at >= ?1")?
+            .prepare(
+                "SELECT session_id, day, SUM(focus_secs), SUM(cycles) FROM session_hours
+                 WHERE day BETWEEN ?1 AND ?2 GROUP BY session_id, day",
+            )?
+            .query_map(params![first, last], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))?
+            .collect::<Result<_, _>>()?;
+        for (id, day, focus, cycles) in active {
+            let Ok(d) = NaiveDate::parse_from_str(&day, "%Y-%m-%d") else { continue };
+            let e = map.entry(d).or_default();
+            e.0 += focus;
+            e.1 += cycles;
+            e.2.insert(id.clone());
+            all_sessions.insert(id);
+        }
+        let started: Vec<(String, String)> = self
+            .conn
+            .prepare("SELECT id, started_at FROM sessions WHERE started_at >= ?1")?
             .query_map(params![start_utc], |row| Ok((row.get(0)?, row.get(1)?)))?
             .collect::<Result<_, _>>()?;
-        let mut map: HashMap<NaiveDate, (i64, i64, i64)> = HashMap::new();
-        for (started_at, cycles) in started {
-            let Some(d) = local_date_from_rfc3339(&started_at) else {
-                continue;
-            };
+        for (id, started_at) in started {
+            let Some(d) = local_date_from_rfc3339(&started_at) else { continue };
             if d < start_day || d > today {
                 continue;
             }
-            let e = map.entry(d).or_insert((0, 0, 0));
-            e.1 += cycles;
-            e.2 += 1;
-        }
-
-        // Focus counts on the days it happened, including a session that started
-        // before the window and ran into it.
-        let (first, last) = (day_key(start_day), day_key(today));
-        let focus_days: Vec<(String, i64)> = self
-            .conn
-            .prepare(
-                "SELECT day, SUM(focus_secs) FROM session_days WHERE day BETWEEN ?1 AND ?2 GROUP BY day",
-            )?
-            .query_map(params![first, last], |row| Ok((row.get(0)?, row.get(1)?)))?
-            .collect::<Result<_, _>>()?;
-        for (day, focus) in focus_days {
-            if let Ok(d) = NaiveDate::parse_from_str(&day, "%Y-%m-%d") {
-                map.entry(d).or_insert((0, 0, 0)).0 += focus;
-            }
+            map.entry(d).or_default().2.insert(id.clone());
+            all_sessions.insert(id);
         }
 
         // Each session's focus inside the window, oldest first: the grouping shows
@@ -816,7 +889,7 @@ impl Database {
             .prepare(
                 "
                 SELECT s.label, s.technique_id, COALESCE(s.technique_name, t.name, ''), SUM(d.focus_secs)
-                FROM session_days d
+                FROM session_hours d
                 JOIN sessions s ON s.id = d.session_id
                 LEFT JOIN techniques t ON t.id = s.technique_id
                 WHERE d.day BETWEEN ?1 AND ?2
@@ -836,13 +909,16 @@ impl Database {
         let mut buckets = Vec::with_capacity(days as usize);
         let mut focus_secs = 0i64;
         let mut completed_cycles = 0i64;
-        let mut sessions = 0i64;
+        // Distinct: a session active on two days counts once in the total.
+        let sessions = all_sessions.len() as i64;
         let mut cursor = start_day;
         while cursor <= today {
-            let (f, c, s) = map.get(&cursor).copied().unwrap_or((0, 0, 0));
+            let (f, c, s) = map
+                .get(&cursor)
+                .map(|(f, c, ids)| (*f, *c, ids.len() as i64))
+                .unwrap_or((0, 0, 0));
             focus_secs += f;
             completed_cycles += c;
-            sessions += s;
             buckets.push(DayBucket {
                 date: cursor.format("%Y-%m-%d").to_string(),
                 focus_secs: f,
@@ -867,7 +943,7 @@ impl Database {
     fn compute_streak(&self, today: NaiveDate) -> DbResult<i64> {
         // Days with any focus, newest first.
         let mut stmt = self.conn.prepare(
-            "SELECT DISTINCT day FROM session_days WHERE focus_secs > 0 ORDER BY day DESC",
+            "SELECT DISTINCT day FROM session_hours WHERE focus_secs > 0 ORDER BY day DESC",
         )?;
         let dates: Vec<NaiveDate> = stmt
             .query_map([], |row| row.get::<_, String>(0))?
@@ -984,7 +1060,7 @@ mod range_stats_tests {
         naive_to_local(day.and_hms_opt(hour, min, sec).expect("hms")).with_timezone(&Utc)
     }
 
-    /// A finished session with all its focus on the day it started.
+    /// A finished session with all its focus and cycles in the hour it started.
     fn insert_session(db: &Database, started: DateTime<Utc>, focus: i64, cycles: i64) -> String {
         let id = Uuid::new_v4().to_string();
         db.conn
@@ -997,68 +1073,95 @@ mod range_stats_tests {
                 params![id, started.to_rfc3339(), focus, cycles],
             )
             .expect("insert session");
-        let day = started.with_timezone(&Local).date_naive();
-        record_focus(&db.conn, &id, focus, day).expect("record focus");
+        record_progress(&db.conn, &id, focus, cycles, started.with_timezone(&Local).naive_local())
+            .expect("record progress");
         id
     }
 
-    fn days_of(db: &Database, id: &str) -> Vec<(String, i64)> {
+    /// A session's hours: (day, hour, focus, cycles).
+    fn hours_of(db: &Database, id: &str) -> Vec<(String, i64, i64, i64)> {
         let mut stmt = db
             .conn
-            .prepare("SELECT day, focus_secs FROM session_days WHERE session_id = ?1 ORDER BY day")
+            .prepare(
+                "SELECT day, hour, focus_secs, cycles FROM session_hours WHERE session_id = ?1 ORDER BY day, hour",
+            )
             .unwrap();
-        stmt.query_map(params![id], |row| Ok((row.get(0)?, row.get(1)?))).unwrap().collect::<Result<_, _>>().unwrap()
+        stmt.query_map(params![id], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap()
+    }
+
+    fn focus_of(db: &Database, id: &str) -> i64 {
+        hours_of(db, id).iter().map(|h| h.2).sum()
+    }
+
+    fn at(day: NaiveDate, hour: u32, min: u32) -> NaiveDateTime {
+        day.and_hms_opt(hour, min, 0).unwrap()
     }
 
     #[test]
-    fn focus_goes_to_the_day_of_each_save() {
+    fn focus_and_cycles_go_to_the_hour_of_each_save() {
         let db = temp_db();
         let today = Local::now().date_naive();
         let yesterday = today - Duration::days(1);
-        // Started at 23:00 yesterday: saves before midnight, then after.
-        let id = insert_session(&db, local_hms_utc(yesterday, 23, 0, 0), 0, 0);
-        record_focus(&db.conn, &id, 50 * 60, yesterday).unwrap();
-        record_focus(&db.conn, &id, 60 * 60, yesterday).unwrap();
-        record_focus(&db.conn, &id, 61 * 60, today).unwrap();
-        record_focus(&db.conn, &id, 90 * 60, today).unwrap();
-        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 60 * 60), (day_key(today), 30 * 60)]);
+        // Started at 22:40 yesterday: saves before midnight, then after.
+        let id = insert_session(&db, local_hms_utc(yesterday, 22, 40, 0), 0, 0);
+        record_progress(&db.conn, &id, 20 * 60, 0, at(yesterday, 22, 59)).unwrap();
+        record_progress(&db.conn, &id, 25 * 60, 1, at(yesterday, 23, 5)).unwrap();
+        record_progress(&db.conn, &id, 80 * 60, 1, at(yesterday, 23, 59)).unwrap();
+        record_progress(&db.conn, &id, 81 * 60, 1, at(today, 0, 1)).unwrap();
+        record_progress(&db.conn, &id, 110 * 60, 2, at(today, 0, 30)).unwrap();
+        assert_eq!(
+            hours_of(&db, &id),
+            vec![
+                (day_key(yesterday), 22, 20 * 60, 0),
+                (day_key(yesterday), 23, 60 * 60, 1),
+                (day_key(today), 0, 30 * 60, 1),
+            ]
+        );
 
         let range = db.range_stats(2).unwrap();
-        assert_eq!(range.buckets[0].focus_secs, 60 * 60);
-        assert_eq!(range.buckets[1].focus_secs, 30 * 60);
-        assert_eq!(range.focus_secs, 90 * 60);
-        // The session itself still counts once, on the day it started.
-        assert_eq!((range.buckets[0].sessions, range.buckets[1].sessions), (1, 0));
-        assert_eq!(db.day_stats().unwrap().focus_secs_today, 30 * 60);
+        assert_eq!((range.buckets[0].focus_secs, range.buckets[1].focus_secs), (80 * 60, 30 * 60));
+        assert_eq!((range.buckets[0].completed_cycles, range.buckets[1].completed_cycles), (1, 1));
+        // Active on both days, so it counts on both, and once in the total.
+        assert_eq!((range.buckets[0].sessions, range.buckets[1].sessions), (1, 1));
+        assert_eq!(range.sessions, 1);
+        assert_eq!(range.focus_secs, 110 * 60);
         assert_eq!(range.streak_days, 2);
+        let today_stats = db.day_stats().unwrap();
+        assert_eq!(
+            (today_stats.focus_secs_today, today_stats.completed_cycles_today, today_stats.sessions_today),
+            (30 * 60, 1, 1)
+        );
     }
 
     #[test]
-    fn focus_taken_back_comes_off_the_latest_days() {
+    fn focus_taken_back_comes_off_the_latest_hours() {
         let db = temp_db();
         let today = Local::now().date_naive();
         let yesterday = today - Duration::days(1);
         let id = insert_session(&db, local_hms_utc(yesterday, 23, 0, 0), 0, 0);
-        record_focus(&db.conn, &id, 40 * 60, yesterday).unwrap();
-        record_focus(&db.conn, &id, 50 * 60, today).unwrap();
-        // A reset focus: back to 35 minutes, more than today had.
-        record_focus(&db.conn, &id, 35 * 60, today).unwrap();
-        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 35 * 60)]);
-        // Same total again: nothing changes.
-        record_focus(&db.conn, &id, 35 * 60, today).unwrap();
-        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 35 * 60)]);
+        record_progress(&db.conn, &id, 40 * 60, 1, at(yesterday, 23, 40)).unwrap();
+        record_progress(&db.conn, &id, 50 * 60, 1, at(today, 0, 10)).unwrap();
+        // A reset focus: back to 35 minutes, more than today had. Cycles stay.
+        record_progress(&db.conn, &id, 35 * 60, 1, at(today, 0, 11)).unwrap();
+        assert_eq!(hours_of(&db, &id), vec![(day_key(yesterday), 23, 35 * 60, 1)]);
+        // Same totals again: nothing changes.
+        record_progress(&db.conn, &id, 35 * 60, 1, at(today, 0, 12)).unwrap();
+        assert_eq!(hours_of(&db, &id), vec![(day_key(yesterday), 23, 35 * 60, 1)]);
     }
 
     #[test]
-    fn saving_progress_records_focus_by_day_and_stops_after_the_end() {
+    fn saving_progress_records_hours_and_stops_after_the_end() {
         let db = temp_db();
         let tech = db.get_technique("classic").unwrap().unwrap();
         let id = db.start_session(&tech, "").unwrap();
         db.bump_session_progress(&id, 600, 0, "").unwrap();
         db.end_session(&id, 900, 1, false, "").unwrap();
         db.bump_session_progress(&id, 60, 0, "").unwrap();
-        let total: i64 = days_of(&db, &id).iter().map(|(_, f)| f).sum();
-        assert_eq!(total, 900);
+        assert_eq!(focus_of(&db, &id), 900);
+        assert_eq!(hours_of(&db, &id).iter().map(|h| h.3).sum::<i64>(), 1);
     }
 
     #[test]
@@ -1070,12 +1173,12 @@ mod range_stats_tests {
         db.end_session(&id, 60, 0, true, "").unwrap();
         let rows = db.export_rows().unwrap();
         assert_eq!((rows[0].focus_secs, rows[0].completed_cycles, rows[0].interrupted), (900, 1, false));
-        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), 900);
+        assert_eq!(focus_of(&db, &id), 900);
     }
 
     #[test]
-    fn days_add_up_to_the_total_after_a_crash_and_reopen() {
-        let path = std::env::temp_dir().join(format!("tempura-days-crash-{}.sqlite", Uuid::new_v4()));
+    fn hours_add_up_to_the_totals_after_a_crash_and_reopen() {
+        let path = std::env::temp_dir().join(format!("tempura-hours-crash-{}.sqlite", Uuid::new_v4()));
         let db = Database::open(&path).expect("open");
         let tech = db.get_technique("classic").unwrap().unwrap();
         let id = db.start_session(&tech, "").unwrap();
@@ -1083,25 +1186,31 @@ mod range_stats_tests {
         db.bump_session_progress(&id, 1500, 1, "").unwrap();
         drop(db);
         let db = Database::open(&path).expect("reopen");
-        let total: i64 = db
+        let (focus, cycles): (i64, i64) = db
             .conn
-            .query_row("SELECT focus_secs_completed FROM sessions WHERE id = ?1", params![id], |r| r.get(0))
+            .query_row(
+                "SELECT focus_secs_completed, completed_cycles FROM sessions WHERE id = ?1",
+                params![id],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
             .unwrap();
-        assert_eq!(total, 1500);
-        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), total);
+        assert_eq!((focus, cycles), (1500, 1));
+        assert_eq!(focus_of(&db, &id), focus);
+        assert_eq!(hours_of(&db, &id).iter().map(|h| h.3).sum::<i64>(), cycles);
         let _ = std::fs::remove_file(&path);
     }
 
     #[test]
-    fn a_session_from_before_the_window_counts_its_focus_inside_it() {
+    fn a_session_from_before_the_window_counts_inside_it() {
         let db = temp_db();
         let today = Local::now().date_naive();
         let start_day = today - Duration::days(6);
         let id = insert_session(&db, local_hms_utc(start_day - Duration::days(1), 23, 0, 0), 30 * 60, 1);
-        record_focus(&db.conn, &id, 50 * 60, start_day).unwrap();
+        record_progress(&db.conn, &id, 50 * 60, 1, at(start_day, 0, 20)).unwrap();
         let range = db.range_stats(7).unwrap();
         assert_eq!(range.focus_secs, 20 * 60);
-        assert_eq!(range.sessions, 0, "it started before the window");
+        assert_eq!(range.completed_cycles, 0, "the cycle finished before the window");
+        assert_eq!(range.sessions, 1, "active inside the window");
         assert_eq!(range.by_technique.first().map(|s| s.focus_secs), Some(20 * 60));
     }
 
@@ -1367,33 +1476,68 @@ mod range_stats_tests {
     }
 
     #[test]
-    fn sessions_from_before_count_their_focus_on_the_day_they_started() {
+    fn sessions_from_before_go_to_the_hour_they_started() {
+        // A database at version 3: per-day focus, as dev builds of #47 wrote it.
         let path = temp_path("backfill");
-        let started = Utc::now() - Duration::days(3);
+        let start_day = Local::now().date_naive() - Duration::days(3);
+        let started = local_hms_utc(start_day, 22, 15, 0);
+        let start_hour = started.with_timezone(&Local).hour() as i64;
         {
             let conn = Connection::open(&path).unwrap();
-            migrate_v1_baseline(&conn).unwrap();
-            migrate_v2_settings_json(&conn).unwrap();
-            conn.pragma_update(None, "user_version", 2).unwrap();
-            for (id, focus) in [("a", 1500), ("b", 0)] {
+            for migration in &MIGRATIONS[..3] {
+                migration(&conn).unwrap();
+            }
+            conn.pragma_update(None, "user_version", 3).unwrap();
+            for (id, focus, cycles) in [("a", 90 * 60, 3), ("b", 0, 0)] {
                 conn.execute(
-                    "INSERT INTO sessions (id, started_at, ended_at, focus_secs_completed) VALUES (?1, ?2, ?2, ?3)",
-                    params![id, started.to_rfc3339(), focus],
+                    "INSERT INTO sessions (id, started_at, ended_at, focus_secs_completed, completed_cycles)
+                     VALUES (?1, ?2, ?2, ?3, ?4)",
+                    params![id, started.to_rfc3339(), focus, cycles],
                 )
                 .unwrap();
             }
+            // "a" ran past midnight under a dev build: 60 min the first day, 30 the next.
+            conn.execute(
+                "INSERT INTO session_days (session_id, day, focus_secs) VALUES ('a', ?1, 3600), ('a', ?2, 1800)",
+                params![day_key(start_day), day_key(start_day + Duration::days(1))],
+            )
+            .unwrap();
         }
         let db = Database::open(&path).expect("open");
-        let day = day_key(started.with_timezone(&Local).date_naive());
-        let rows: Vec<(String, String, i64)> = db
+        assert_eq!(user_version(&db), MIGRATIONS.len() as i64);
+        assert_eq!(
+            hours_of(&db, "a"),
+            vec![
+                (day_key(start_day), start_hour, 3600, 3),
+                (day_key(start_day + Duration::days(1)), 0, 1800, 0),
+            ]
+        );
+        assert!(hours_of(&db, "b").is_empty());
+        let gone: i64 = db
             .conn
-            .prepare("SELECT session_id, day, focus_secs FROM session_days")
-            .unwrap()
-            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
-            .unwrap()
-            .collect::<Result<_, _>>()
+            .query_row("SELECT COUNT(*) FROM sqlite_master WHERE name = 'session_days'", [], |r| r.get(0))
             .unwrap();
-        assert_eq!(rows, vec![("a".to_string(), day, 1500)]);
+        assert_eq!(gone, 0);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn a_database_from_0_5_1_gets_its_sessions_in_their_start_hours() {
+        let path = temp_path("from-051");
+        let started = Utc::now() - Duration::days(2);
+        {
+            let conn = Connection::open(&path).unwrap();
+            migrate_v1_baseline(&conn).unwrap();
+            conn.execute(
+                "INSERT INTO sessions (id, started_at, ended_at, focus_secs_completed, completed_cycles)
+                 VALUES ('a', ?1, ?1, 1500, 1)",
+                params![started.to_rfc3339()],
+            )
+            .unwrap();
+        }
+        let db = Database::open(&path).expect("open");
+        let local = started.with_timezone(&Local);
+        assert_eq!(hours_of(&db, "a"), vec![(day_key(local.date_naive()), local.hour() as i64, 1500, 1)]);
         let _ = std::fs::remove_file(&path);
     }
 
