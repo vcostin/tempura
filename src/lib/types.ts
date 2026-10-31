@@ -183,8 +183,6 @@ export const THEMES = [
   { id: "sandstone" },
 ] as const;
 
-export type ThemeId = (typeof THEMES)[number]["id"];
-
 /** Break ≈ work × this when a technique has no flowRatio of its own. */
 export const DEFAULT_FLOW_RATIO = 0.2;
 

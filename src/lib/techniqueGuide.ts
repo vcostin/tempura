@@ -9,16 +9,6 @@ export interface TechniqueGuideEntry {
   blurb: string;
 }
 
-export const SYSTEM_TECHNIQUE_IDS = [
-  "classic",
-  "sprint",
-  "deep",
-  "fifty-two-seventeen",
-  "ultradian",
-  "flowtime",
-  "hybrid",
-] as const;
-
 function readTechnique(id: string): TechniqueGuideEntry | null {
   if (!i18n.exists(`${id}.name`, { ns: "techniques" })) return null;
   return {
@@ -28,13 +18,6 @@ function readTechnique(id: string): TechniqueGuideEntry | null {
     bestFor: i18n.t(`${id}.bestFor`, { ns: "techniques" }),
     blurb: i18n.t(`${id}.blurb`, { ns: "techniques" }),
   };
-}
-
-/** Built-in technique guidance. Shared with the download site locale catalogs. */
-export function techniqueGuideEntries(): TechniqueGuideEntry[] {
-  return SYSTEM_TECHNIQUE_IDS.map((id) => readTechnique(id)).filter(
-    (g): g is TechniqueGuideEntry => g !== null,
-  );
 }
 
 export function techniqueDisplayName(

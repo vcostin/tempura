@@ -385,22 +385,6 @@ pub struct DayBucket {
     pub sessions: i64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct StatsRange {
-    /// Inclusive day count ending today (1 = today, 7 = last week, 30 = last month).
-    pub days: i64,
-    pub focus_secs: i64,
-    pub completed_cycles: i64,
-    pub sessions: i64,
-    pub streak_days: i64,
-    pub buckets: Vec<DayBucket>,
-    /// Focus time per "Working on" label, largest first.
-    pub by_label: Vec<FocusShare>,
-    /// Focus time per technique, largest first.
-    pub by_technique: Vec<FocusShare>,
-}
-
 /// Stats for any span of local days, for the stats screen and the report.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
