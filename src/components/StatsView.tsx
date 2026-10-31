@@ -14,6 +14,8 @@ interface Props {
   onClose: () => void;
   /** Save every session as a file; the route reports the outcome. */
   onExport: (format: ExportFormat) => Promise<void>;
+  /** Opens the full report page. */
+  onOpenReport: () => void;
 }
 
 const PERIODS: StatsPeriod[] = [1, 7, 30];
@@ -36,7 +38,7 @@ function shortDayLabel(isoDate: string, days: StatsPeriod, locale: string): stri
   return date.toLocaleDateString(locale, { month: "short", day: "numeric" });
 }
 
-export function StatsView({ streakFallback = 0, onClose, onExport }: Props) {
+export function StatsView({ streakFallback = 0, onClose, onExport, onOpenReport }: Props) {
   const { t, i18n } = useTranslation();
   const [period, setPeriod] = useState<StatsPeriod>(7);
   const [range, setRange] = useState<StatsRange | null>(null);
@@ -168,6 +170,16 @@ export function StatsView({ streakFallback = 0, onClose, onExport }: Props) {
         )}
       </div>
 
+      <button type="button" className="link-row stats-report-link" data-open-panel="report" onClick={onOpenReport}>
+        <span>
+          <span className="link-row-title">{t("report.open")}</span>
+          <span className="link-row-meta">{t("report.openHint")}</span>
+        </span>
+        <span className="link-row-chevron" aria-hidden="true">
+          ›
+        </span>
+      </button>
+
       <section className="stats-export" aria-label={t("stats.export")}>
         <p className="stats-bars__label">{t("stats.export")}</p>
         <p className="hint">{t("stats.exportHint")}</p>
@@ -200,7 +212,7 @@ function shareName(share: FocusShare, t: TFunction): string {
 }
 
 /** Focus time split by what it was spent on, in the same bars as the daily breakdown. */
-function ShareBars({ title, shares, t }: { title: string; shares: FocusShare[]; t: TFunction }) {
+export function ShareBars({ title, shares, t }: { title: string; shares: FocusShare[]; t: TFunction }) {
   if (!shares.length) return null;
   const max = Math.max(...shares.map((s) => s.focusSecs), 1);
   return (

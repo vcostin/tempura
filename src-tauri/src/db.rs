@@ -994,7 +994,8 @@ impl Database {
                 finished: 0,
                 ended: 0,
             });
-            // Oldest first, so the latest name and mode win.
+            // Oldest first, so the latest spelling of the name wins. The mode is the
+            // technique's current one (none once it is deleted), not its mode back then.
             if !name.is_empty() {
                 usage.name = name;
             }
