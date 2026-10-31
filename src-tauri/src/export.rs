@@ -91,10 +91,41 @@ where
     out
 }
 
+/// Leading whitespace / Unicode Format (Cf) that spreadsheets skip before
+/// deciding whether a cell is a formula. Covers BOM, zero-width, and bidi marks.
+fn is_formula_prefix_noise(c: char) -> bool {
+    if c.is_whitespace() {
+        return true;
+    }
+    matches!(
+        c as u32,
+        0x00AD // soft hyphen
+            | 0x0600..=0x0605
+            | 0x061C
+            | 0x06DD
+            | 0x070F
+            | 0x180E
+            | 0x200B..=0x200F // ZWSP..RLM
+            | 0x202A..=0x202E // LRE..RLO
+            | 0x2060..=0x2064
+            | 0x2066..=0x206F
+            | 0xFEFF // BOM / ZWNBSP
+            | 0xFFF9..=0xFFFB
+            | 0x110BD
+            | 0x110CD
+            | 0x13430..=0x1343F
+            | 0x1BCA0..=0x1BCA3
+            | 0x1D173..=0x1D17A
+            | 0xE0001
+            | 0xE0020..=0xE007F
+    )
+}
+
 /// Quote a free-text field when it needs it, and keep a spreadsheet from running
-/// a label that starts like a formula.
+/// a label that starts like a formula (including after space / BOM / zero-width).
 fn csv_field(text: &str) -> String {
-    let text = if text.starts_with(['=', '+', '-', '@', '\t', '\r']) {
+    let significant = text.trim_start_matches(is_formula_prefix_noise);
+    let text = if significant.starts_with(['=', '+', '-', '@', '\t', '\r']) {
         format!("'{text}")
     } else {
         text.to_string()
@@ -205,10 +236,22 @@ mod tests {
 
     #[test]
     fn csv_quotes_and_defuses_labels() {
-        let lines = csv_lines(&[row("Report, \"final\""), row("=SUM(A1)"), row("Тези")]);
+        let lines = csv_lines(&[
+            row("Report, \"final\""),
+            row("=SUM(A1)"),
+            row("Тези"),
+            row(" =SUM(A1)"),
+            row("\u{feff}=SUM(A1)"),
+            row("\u{200b}+=cmd"),
+            row("\t@HYPERLINK"),
+        ]);
         assert!(lines[1].contains(",\"Report, \"\"final\"\"\",Classic,"));
         assert!(lines[2].contains(",'=SUM(A1),Classic,"));
         assert!(lines[3].contains(",Тези,Classic,"));
+        assert!(lines[4].contains(",' =SUM(A1),Classic,"));
+        assert!(lines[5].contains(",'\u{feff}=SUM(A1),Classic,"));
+        assert!(lines[6].contains(",'\u{200b}+=cmd,Classic,"));
+        assert!(lines[7].contains(",'\t@HYPERLINK,Classic,"));
     }
 
     #[test]

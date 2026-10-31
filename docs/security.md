@@ -235,28 +235,24 @@ was a correctness gap rather than an attack.
 
 #### L9 — CSV formula neutralization misses leading space / Unicode prefixes
 
-**Status.** Open (new in 0.7.0 pass).
+**Status.** Addressed. `csv_field` strips leading whitespace and Unicode
+format characters (BOM, zero-width, bidi marks, etc.), then applies the
+existing formula-prefix check on what remains, and still writes the
+original field with a leading `'` when it would be a formula.
 
-**Impact.** Session CSV export prefixes labels and technique names that
-start with `=`, `+`, `-`, `@`, tab, or CR with a leading `'` so Excel /
-LibreOffice do not treat them as formulas. A “Working on” label (or a
-technique name) that starts with a **space**, **BOM** (`U+FEFF`), or
-**zero-width** character before `=` still ships as a live formula cell.
-The user (or XSS via `update_settings` / technique APIs) chooses those
-strings; opening the export in a spreadsheet is the trigger. Same class
-as classic CSV injection; blast radius is the spreadsheet, not the
-Tempura process.
+**Was.** Session CSV export only checked the first character for `=`,
+`+`, `-`, `@`, tab, or CR before prefixing `'`. A “Working on” label
+(or a technique name) that started with a **space**, **BOM**
+(`U+FEFF`), or **zero-width** character before `=` still shipped as a
+live formula cell. The user (or XSS via `update_settings` / technique
+APIs) chose those strings; opening the export in a spreadsheet was the
+trigger.
 
 **Evidence.** [`src-tauri/src/export.rs`](../src-tauri/src/export.rs)
-`csv_field` (prefix check only on the first character); settings
-`working_on` allows space/tab and strips other controls
+`csv_field`, `is_formula_prefix_noise`; settings `working_on` allows
+space/tab and strips other controls
 ([`models.rs`](../src-tauri/src/models.rs)); technique names reject
 controls but not spaces or format characters.
-
-**Fix sketch.** After NFC (optional), strip leading BOM / format /
-whitespace, then apply the existing formula-prefix check (or always
-write text fields as quoted `'…` cells). Extend the unit test that
-already covers `=SUM(A1)`.
 
 ### Info
 
@@ -284,8 +280,9 @@ These are easy to misread as stronger guarantees than they are.
   title. Rust renders the rows and shows a native save dialog modal to
   the main window; the file goes where the user picks, and gets the
   format's extension if the chosen name has none. CSV text fields are
-  partially defused (L9). XSS could open the dialog with a misleading
-  title, but the contents are always session history.
+  defused against formula injection, including after leading space /
+  BOM / format characters (L9, addressed). XSS could open the dialog
+  with a misleading title, but the contents are always session history.
 - **Global shortcut and dialog plugins** are used from Rust only. Neither
   appears in [`capabilities/default.json`](../src-tauri/capabilities/default.json),
   so page JS cannot call them directly; it can only change the recorded
@@ -368,13 +365,10 @@ Worth keeping; do not “fix” these into something weaker.
 
 ## Recommended fix order
 
-**M1**, **L2**, **L1**, **L4**, **L3**, **L6**, **L5**, **L7**, and
-**L8** are done. Remaining before / around 0.7.0:
+**M1**, **L2**, **L1**, **L4**, **L3**, **L6**, **L5**, **L7**,
+**L8**, and **L9** are done. Remaining before / around 0.7.0:
 
-1. **L9** — harden `csv_field` (strip BOM / format / leading whitespace,
-   then formula-prefix). Small, ship with the export path that 0.7
-   leans on.
-2. **M2** — Authenticode / notarization. Backlog: it costs money for
+1. **M2** — Authenticode / notarization. Backlog: it costs money for
    certificates and developer accounts, and is not planned for now. The
    README warns about SmartScreen and Gatekeeper on first open.
 
