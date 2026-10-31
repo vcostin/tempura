@@ -1,8 +1,9 @@
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Navigate, useParams, useSearchParams } from "react-router";
+import { Navigate, useNavigate, useParams, useSearchParams } from "react-router";
 import { AboutView } from "../components/AboutView";
 import { DebugView } from "../components/DebugView";
+import { ReportView } from "../components/ReportView";
 import { SettingsView } from "../components/SettingsView";
 import { ShortcutsView } from "../components/ShortcutsView";
 import { StatsView } from "../components/StatsView";
@@ -109,6 +110,7 @@ export function ShortcutsRoute() {
 export function StatsRoute() {
   const session = useSessionContext();
   const { closePanel, showToast } = useShell();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const exportSessions = async (format: ExportFormat) => {
     try {
@@ -125,8 +127,15 @@ export function StatsRoute() {
       streakFallback={session.stats?.streakDays ?? 0}
       onClose={closePanel}
       onExport={exportSessions}
+      onOpenReport={() => navigate("/report")}
     />
   );
+}
+
+/** The full report: back returns to Stats, close goes to the timer. */
+export function ReportRoute() {
+  const { closePanel, goBack } = useShell();
+  return <ReportView onBack={goBack} onClose={closePanel} />;
 }
 
 /** Tab the library reopens on for the rest of this app session. */

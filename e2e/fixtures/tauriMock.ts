@@ -98,6 +98,22 @@ export async function installTauriMock(page: Page) {
       byLabel: [],
       byTechnique: [],
     };
+    // Report data, until a test sets it: an empty period.
+    let periodStats: Record<string, unknown> = {
+      focusSecs: 0,
+      completedCycles: 0,
+      sessions: 0,
+      activeDays: 0,
+      longestStreak: 0,
+      buckets: [],
+      byLabel: [],
+      byTechnique: [],
+      hours: [],
+      weekdayCounts: [0, 0, 0, 0, 0, 0, 0],
+      techniques: [],
+      previous: { from: "", to: "", focusSecs: 0, completedCycles: 0, sessions: 0, activeDays: 0 },
+      firstDay: null,
+    };
     let nextId = 1;
     let nextCallback = 1;
     const callbacks = new Map<number, (payload: unknown) => void>();
@@ -139,6 +155,7 @@ export async function installTauriMock(page: Page) {
       get_system_locale: () => "en",
       get_stats: () => ({ focusSecsToday: 0, completedCyclesToday: 0, sessionsToday: 0, streakDays: 0 }),
       get_stats_range: (a) => ({ ...statsRange, days: a.days }),
+      get_period_stats: (a) => ({ ...periodStats, from: a.from, to: a.to }),
       export_sessions: (a) => {
         if (exportResult instanceof Error) throw exportResult;
         return exportResult && `${exportResult}.${a.format}`;
@@ -189,6 +206,7 @@ export async function installTauriMock(page: Page) {
 
     // Test hooks: push a timer state or a backend event, and see which commands ran.
     const calls: string[] = [];
+    const argsLog: [string, Args][] = [];
     (window as any).__tempuraMock = {
       calls,
       emit,
@@ -199,6 +217,11 @@ export async function installTauriMock(page: Page) {
       setStatsRange(range: Record<string, unknown>) {
         statsRange = { ...statsRange, ...range };
       },
+      setPeriodStats(stats: Record<string, unknown>) {
+        periodStats = { ...periodStats, ...stats };
+      },
+      /** Arguments of each command call, in order: `[name, args]`. */
+      argsLog,
       setHotkeyReport(report: Record<string, unknown>) {
         hotkeyReport = { ...hotkeyReport, ...report };
       },
@@ -224,6 +247,7 @@ export async function installTauriMock(page: Page) {
       },
       async invoke(cmd: string, args: Args = {}) {
         calls.push(cmd);
+        argsLog.push([cmd, args]);
         const handler = commands[cmd];
         return handler ? structuredClone(handler(args)) : null;
       },
