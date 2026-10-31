@@ -1,8 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import { installTauriMock } from "./fixtures/tauriMock.ts";
 
-/** The full report: opened from Stats, paged by week, month, year or all time. */
-test.describe("report", () => {
+/** Stats: any day, week, month, year or all time, straight from the timer. */
+test.describe("stats", () => {
   const usage = (techniqueId: string, name: string, mode: string, focusSecs: number, finished: number, ended: number) => ({
     techniqueId,
     name,
@@ -45,7 +45,6 @@ test.describe("report", () => {
     };
     await page.evaluate((s) => (window as any).__tempuraMock.setPeriodStats(s), stats);
     await page.locator('[data-open-panel="stats"]').click();
-    await page.getByRole("button", { name: /Open full report/ }).click();
   });
 
   /** The arguments of the latest `get_period_stats` call. */
@@ -56,14 +55,23 @@ test.describe("report", () => {
       return calls[calls.length - 1]?.[1] ?? null;
     });
 
-  test("opens from Stats on this month, and Esc goes back to Stats", async ({ page }) => {
-    const report = page.getByRole("dialog", { name: "Focus report" });
-    await expect(report).toBeVisible();
-    await expect(report.getByRole("heading", { name: "October 2026" })).toBeVisible();
-    await expect(report.getByText("You focused for 10h.")).toBeVisible();
-    await expect(report.getByText("2h more than the month before.")).toBeVisible();
-    // The current month stops at today and compares with as many days of September.
+  test("opens on this week, compares fairly, and Esc goes back to the timer", async ({ page }) => {
+    const stats = page.getByRole("dialog", { name: "Stats" });
+    await expect(stats).toBeVisible();
+    await expect(stats.getByText("You focused for 10h.")).toBeVisible();
+    await expect(stats.getByText("2h more than the week before.")).toBeVisible();
+    // English weeks start on Sunday; this one stops at today (Thursday) and
+    // compares with Sunday to Thursday of the week before.
     expect(await lastPeriodCall(page)).toEqual({
+      from: "2026-10-11",
+      to: "2026-10-15",
+      compareFrom: "2026-10-04",
+      compareTo: "2026-10-08",
+    });
+
+    await stats.getByRole("button", { name: "Month", exact: true }).click();
+    await expect(stats.getByRole("heading", { name: "October 2026" })).toBeVisible();
+    await expect.poll(() => lastPeriodCall(page)).toEqual({
       from: "2026-10-01",
       to: "2026-10-15",
       compareFrom: "2026-09-01",
@@ -71,11 +79,30 @@ test.describe("report", () => {
     });
 
     await page.keyboard.press("Escape");
-    await expect(page.getByRole("dialog", { name: "Stats" })).toBeVisible();
+    await expect(stats).toHaveCount(0);
+    await expect(page.locator('[data-open-panel="stats"]')).toBeFocused();
+  });
+
+  test("shows a day by the hour, with today's streak and sessions", async ({ page }) => {
+    const stats = page.getByRole("dialog", { name: "Stats" });
+    await stats.getByRole("button", { name: "Day", exact: true }).click();
+    await expect(stats.getByRole("heading", { name: "Thursday, October 15" })).toBeVisible();
+    await expect.poll(() => lastPeriodCall(page)).toEqual({
+      from: "2026-10-15",
+      to: "2026-10-15",
+      compareFrom: "2026-10-14",
+      compareTo: "2026-10-14",
+    });
+    await expect(stats.getByRole("region", { name: "Focus by hour" })).toBeVisible();
+    await expect(stats.getByRole("region", { name: "When you focus" })).toHaveCount(0);
+    await expect(stats.locator(".report-kpi")).toHaveText([/10h\s*focus time/, /18\s*cycles finished/, /9\s*sessions/, /0\s*day streak/]);
+    await stats.getByRole("button", { name: "Previous period" }).click();
+    await expect(stats.getByRole("heading", { name: "Wednesday, October 14" })).toBeVisible();
   });
 
   test("pages back and forward, and switches range", async ({ page }) => {
-    const report = page.getByRole("dialog", { name: "Focus report" });
+    const report = page.getByRole("dialog", { name: "Stats" });
+    await report.getByRole("button", { name: "Month", exact: true }).click();
     const next = report.getByRole("button", { name: "Next period" });
     await expect(next).toBeDisabled();
 
@@ -111,7 +138,7 @@ test.describe("report", () => {
   });
 
   test("puts the heat-map's numbers in a table and names when focus happens", async ({ page }) => {
-    const report = page.getByRole("dialog", { name: "Focus report" });
+    const report = page.getByRole("dialog", { name: "Stats" });
     const table = report.getByRole("table", { name: "Focus by weekday and hour, in minutes" });
     await expect(table).toBeAttached();
     // Monday 9:00: four hours over three Mondays, an average of 80 minutes.

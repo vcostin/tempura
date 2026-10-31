@@ -2,7 +2,6 @@ import { createHashRouter, Navigate } from "react-router";
 import {
   AboutRoute,
   DebugRoute,
-  ReportRoute,
   SettingsRoute,
   ShortcutsRoute,
   StatsRoute,
@@ -22,7 +21,6 @@ export const router = createHashRouter([
     children: [
       { path: "settings", element: <SettingsRoute /> },
       { path: "stats", element: <StatsRoute /> },
-      { path: "report", element: <ReportRoute /> },
       { path: "techniques", element: <TechniquesRoute /> },
       { path: "guide", element: <Navigate to="/techniques" replace /> },
       { path: "about", element: <AboutRoute /> },

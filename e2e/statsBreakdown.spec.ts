@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { installTauriMock } from "./fixtures/tauriMock.ts";
 
-/** The stats page splits focus time by label and by technique. */
+/** Stats splits focus time by label ("On what"). Techniques are in "Which rhythm suits you". */
 test.describe("stats: what the focus time was on", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
@@ -16,23 +16,15 @@ test.describe("stats: what the focus time was on", () => {
     techniqueId,
   });
 
-  test("lists labels and techniques, with Other and No label last", async ({ page }) => {
+  test("lists labels with Other and No label last", async ({ page }) => {
     await page.evaluate(
-      (range) => (window as any).__tempuraMock.setStatsRange(range),
+      (stats) => (window as any).__tempuraMock.setPeriodStats(stats),
       {
         focusSecs: 9000,
         completedCycles: 4,
         sessions: 5,
         buckets: [{ date: "2026-10-24", focusSecs: 9000, completedCycles: 4, sessions: 5 }],
-        byLabel: [
-          share("named", "Thesis", 5400),
-          share("other", "", 2400),
-          share("none", "", 1200),
-        ],
-        byTechnique: [
-          share("named", "Classic", 6000, "classic"),
-          share("named", "My writing rhythm", 3000, "custom-1"),
-        ],
+        byLabel: [share("named", "Thesis", 5400), share("other", "", 2400), share("none", "", 1200)],
       },
     );
     await page.locator('[data-open-panel="stats"]').click();
@@ -43,21 +35,13 @@ test.describe("stats: what the focus time was on", () => {
       /Other\s*40m/,
       /No label\s*20m/,
     ]);
-
-    const byTechnique = page.getByRole("region", { name: "By technique" });
-    await expect(byTechnique.locator(".stats-bars__row")).toHaveText([
-      /Classic\s*1h 40m/,
-      /My writing rhythm\s*50m/,
-    ]);
   });
 
-  test("hides the breakdowns when there is nothing to split", async ({ page }) => {
-    await page.evaluate(
-      (range) => (window as any).__tempuraMock.setStatsRange(range),
-      { focusSecs: 0, sessions: 1, byLabel: [], byTechnique: [] },
-    );
+  test("says so when the range has no focus, and still offers export", async ({ page }) => {
     await page.locator('[data-open-panel="stats"]').click();
-    await expect(page.locator(".stats-strip--page")).toBeVisible();
-    await expect(page.getByRole("region", { name: "On what" })).toHaveCount(0);
+    const stats = page.getByRole("dialog", { name: "Stats" });
+    await expect(stats.getByText("No focus in this period.")).toBeVisible();
+    await expect(stats.getByRole("region", { name: "On what" })).toHaveCount(0);
+    await expect(stats.getByRole("region", { name: "Export" })).toBeVisible();
   });
 });

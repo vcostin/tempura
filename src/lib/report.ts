@@ -5,8 +5,8 @@
  */
 import type { DayBucket, HourCell, PeriodStats, TechniqueUsage } from "./types";
 
-export type ReportRange = "week" | "month" | "year" | "all";
-export const REPORT_RANGES: ReportRange[] = ["week", "month", "year", "all"];
+export type ReportRange = "day" | "week" | "month" | "year" | "all";
+export const REPORT_RANGES: ReportRange[] = ["day", "week", "month", "year", "all"];
 
 /** The longest span the backend serves (`MAX_PERIOD_DAYS` in db.rs). */
 export const MAX_PERIOD_DAYS = 3660;
@@ -95,6 +95,10 @@ function isoWeekday(d: Date): number {
 
 /** The calendar span of `range` around `anchor`, ignoring today. */
 function calendarSpan(range: Exclude<ReportRange, "all">, anchor: Date, weekStart: number): [Date, Date] {
+  if (range === "day") {
+    const day = parseDay(dayKey(anchor));
+    return [day, day];
+  }
   if (range === "week") {
     const back = (isoWeekday(anchor) - weekStart + 7) % 7;
     const start = addDays(anchor, -back);
@@ -109,7 +113,7 @@ function calendarSpan(range: Exclude<ReportRange, "all">, anchor: Date, weekStar
   return [new Date(anchor.getFullYear(), 0, 1, 12), new Date(anchor.getFullYear(), 11, 31, 12)];
 }
 
-/** The calendar span just before (the previous week, month or year). */
+/** The calendar span just before (the previous day, week, month or year). */
 function previousSpan(range: Exclude<ReportRange, "all">, start: Date, weekStart: number): [Date, Date] {
   return calendarSpan(range, addDays(start, -1), weekStart);
 }
@@ -155,6 +159,7 @@ export function reportPeriod(
 
 /** The anchor one range earlier (`-1`) or later (`+1`). */
 export function shiftAnchor(range: ReportRange, anchor: Date, dir: -1 | 1): Date {
+  if (range === "day") return addDays(anchor, dir);
   if (range === "week") return addDays(anchor, 7 * dir);
   if (range === "month") return new Date(anchor.getFullYear(), anchor.getMonth() + dir, 1, 12);
   if (range === "year") return new Date(anchor.getFullYear() + dir, 0, 1, 12);
@@ -227,6 +232,15 @@ export function heatRows(
     rows.push({ weekday, hours });
   }
   return rows;
+}
+
+/** Focus seconds per hour of day (0–23), all weekdays added up: a day's hours. */
+export function hourTotals(hours: HourCell[]): number[] {
+  const totals = new Array<number>(24).fill(0);
+  for (const cell of hours) {
+    if (cell.hour >= 0 && cell.hour <= 23) totals[cell.hour] += cell.focusSecs;
+  }
+  return totals;
 }
 
 /** Colour step 0–5 for a cell: 0 is empty, 5 the busiest cell in view. */

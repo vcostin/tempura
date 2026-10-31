@@ -7,6 +7,7 @@ import {
   finishedShare,
   heatLevel,
   heatRows,
+  hourTotals,
   insights,
   parseDay,
   weekdayOf,
@@ -149,4 +150,24 @@ Deno.test("a span after today never compares backwards", () => {
   const p = reportPeriod("month", parseDay("2026-12-10"), opts);
   assertEquals([p.from, p.to], ["2026-12-01", "2026-12-01"]);
   assertEquals(p.compare, { from: "2026-11-01", to: "2026-11-01" });
+});
+
+Deno.test("a day compares with the day before and pages one day at a time", () => {
+  const p = reportPeriod("day", today, opts);
+  assertEquals([p.from, p.to, p.full.to], ["2026-10-15", "2026-10-15", "2026-10-15"]);
+  assertEquals(p.compare, { from: "2026-10-14", to: "2026-10-14" });
+  assertEquals(canPageForward("day", p, today), false);
+  const before = reportPeriod("day", shiftAnchor("day", today, -1), opts);
+  assertEquals([before.from, canPageForward("day", before, today)], ["2026-10-14", true]);
+  // Across a month end.
+  assertEquals(reportPeriod("day", shiftAnchor("day", parseDay("2026-03-01"), -1), opts).from, "2026-02-28");
+});
+
+Deno.test("hour totals add up a day's hours", () => {
+  const totals = hourTotals([
+    { weekday: 3, hour: 9, focusSecs: 600, cycles: 0 },
+    { weekday: 3, hour: 9, focusSecs: 300, cycles: 0 },
+    { weekday: 3, hour: 23, focusSecs: 60, cycles: 0 },
+  ]);
+  assertEquals([totals.length, totals[9], totals[23], totals[0]], [24, 900, 60, 0]);
 });
