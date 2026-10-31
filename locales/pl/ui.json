@@ -122,6 +122,7 @@
     "hotkeyCopyAria": "Kopiuj polecenie dla: {{action}}",
     "hotkeyClear": "Usuń skrót dla: {{action}}",
     "hotkeyNeedsModifier": "Dodaj Ctrl, Alt lub Super, żeby nie przeszkadzać w pisaniu w innych aplikacjach.",
+    "hotkeyReserved": "Aplikacje używają tego skrótu np. do kopiowania lub wklejania, więc Tempura go nie przejmie. Wybierz inny.",
     "hotkeyTaken": "Już używany dla: „{{action}}”.",
     "hotkeyInUse": "Inna aplikacja już używa tego skrótu, więc Tempura go nie przejęła. Wybierz inny."
   },

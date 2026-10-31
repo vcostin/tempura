@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "Copiar o comando para {{action}}",
     "hotkeyClear": "Limpar o atalho de {{action}}",
     "hotkeyNeedsModifier": "Adicione Ctrl, Alt ou Super para não atrapalhar a digitação em outros apps.",
+    "hotkeyReserved": "Os apps usam este atalho para coisas como copiar ou colar, então o Tempura não vai pegá-lo. Escolha outro.",
     "hotkeyTaken": "Já usado para “{{action}}”.",
     "hotkeyInUse": "Outro app já usa este atalho, então o Tempura não mexeu nele. Escolha outro."
   },

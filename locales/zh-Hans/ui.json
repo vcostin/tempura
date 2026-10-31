@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "复制“{{action}}”的命令",
     "hotkeyClear": "清除“{{action}}”的快捷键",
     "hotkeyNeedsModifier": "请加上 Ctrl、Alt 或 Super，以免影响在其他应用中打字。",
+    "hotkeyReserved": "应用会用这个快捷键来复制、粘贴等，所以 Tempura 不会占用它。请换一个。",
     "hotkeyTaken": "已用于“{{action}}”。",
     "hotkeyInUse": "其他应用已在使用此快捷键，Tempura 没有占用它。请换一个。"
   },

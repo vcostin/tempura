@@ -124,6 +124,7 @@
     "hotkeyCopyAria": "نسخ أمر {{action}}",
     "hotkeyClear": "مسح اختصار {{action}}",
     "hotkeyNeedsModifier": "أضف Ctrl أو Alt أو Super حتى لا تتأثر الكتابة في التطبيقات الأخرى.",
+    "hotkeyReserved": "تعتمد التطبيقات على هذا الاختصار لأشياء مثل النسخ أو اللصق، لذا لن يأخذه Tempura. اختر اختصارًا آخر.",
     "hotkeyTaken": "مستخدم بالفعل لـ «{{action}}».",
     "hotkeyInUse": "تطبيق آخر يستخدم هذا الاختصار بالفعل، لذا تركه Tempura. اختر اختصارًا آخر."
   },
