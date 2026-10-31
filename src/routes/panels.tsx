@@ -20,7 +20,7 @@ function useSelectTechnique() {
   const session = useSessionContext();
   const settingsApi = useSettingsContext();
   return (id: string) => {
-    if (session.snapshot.running) return;
+    if (session.running) return;
     session.setSelectedId(id);
     const { defaultTechniqueId, hiddenTechniqueIds } = settingsApi.settings;
     if (id !== defaultTechniqueId || hiddenTechniqueIds.includes(id)) {
@@ -147,7 +147,7 @@ export function TechniquesRoute() {
       onSetHidden={(tech, hidden) => visibility.setHidden(tech, hidden, false)}
       techniques={session.techniques}
       selectedId={session.selectedId}
-      running={session.snapshot.running}
+      running={session.running}
       focusId={params.get("focus") ?? undefined}
       tab={lastLibraryTab}
       onTabChange={(tab) => {
