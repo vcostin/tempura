@@ -101,8 +101,10 @@ pub struct TechniqueInput {
     pub mode: Option<TechniqueMode>,
 }
 
+/// Saved as one JSON row (see `db.rs`). A setting missing from the saved copy,
+/// say one added in a later version, takes its value from `Default`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", default)]
 pub struct AppSettings {
     pub theme: String,
     pub notifications_enabled: bool,
@@ -111,22 +113,16 @@ pub struct AppSettings {
     pub default_technique_id: String,
     pub start_minimized: bool,
     pub working_on: String,
-    #[serde(default)]
     pub locale: String,
     /// Quiet GitHub Releases check when the app starts. Default on.
-    #[serde(default = "default_true")]
     pub check_updates_on_launch: bool,
     /// Techniques left off the timer's picker. Empty: everything shows.
-    #[serde(default)]
     pub hidden_technique_ids: Vec<String>,
     /// Start the next break or focus on its own. Off: wait for the user.
-    #[serde(default = "default_true")]
     pub auto_continue: bool,
     /// Opt-in system-wide shortcuts. Empty: none registered.
-    #[serde(default)]
     pub global_hotkeys: GlobalHotkeys,
     /// macOS: the time left shows next to the menu bar icon. Default on.
-    #[serde(default = "default_true")]
     pub menu_bar_countdown: bool,
 }
 
@@ -139,10 +135,6 @@ pub struct GlobalHotkeys {
     pub show: String,
     /// Wayland: the user set shortcuts up through the desktop's portal.
     pub portal: bool,
-}
-
-fn default_true() -> bool {
-    true
 }
 
 impl Default for AppSettings {

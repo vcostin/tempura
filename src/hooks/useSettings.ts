@@ -11,6 +11,7 @@ import {
 import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
 
+/** For the browser preview; the app gets its defaults from the backend. */
 const defaultSettings: AppSettings = {
   theme: "batter",
   notificationsEnabled: true,
@@ -65,11 +66,8 @@ export function useSettings() {
         await applyLocale(settings.locale);
         return;
       }
+      // Complete: the backend fills anything never saved from its defaults.
       const s = await api.getSettings();
-      s.hiddenTechniqueIds ??= [];
-      s.autoContinue ??= true;
-      s.menuBarCountdown ??= true;
-      s.globalHotkeys ??= { toggle: "", skip: "", show: "", portal: false };
       commit(s);
       document.documentElement.setAttribute("data-theme", s.theme);
       await applyLocale(s.locale);

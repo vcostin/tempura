@@ -88,6 +88,152 @@ fn local_date_from_rfc3339(started_at: &str) -> Option<NaiveDate> {
         .map(|dt| dt.with_timezone(&Local).date_naive())
 }
 
+/// The settings row: `AppSettings` as JSON.
+const SETTINGS_KEY: &str = "app";
+
+type Migration = fn(&Connection) -> DbResult<()>;
+
+/// Schema changes in order; `PRAGMA user_version` counts how many have run.
+/// Append new ones at the end and never change one that has shipped.
+const MIGRATIONS: &[Migration] = &[migrate_v1_baseline, migrate_v2_settings_json];
+
+/// The schema as it stood before versioning. Every step tolerates a database
+/// that already has it, so pre-versioning databases pass through unchanged.
+fn migrate_v1_baseline(conn: &Connection) -> DbResult<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE IF NOT EXISTS techniques (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            kind TEXT NOT NULL CHECK(kind IN ('system', 'custom')),
+            focus_secs INTEGER NOT NULL,
+            short_break_secs INTEGER NOT NULL,
+            long_break_secs INTEGER NOT NULL,
+            cycles_before_long INTEGER NOT NULL DEFAULT 4,
+            flow_ratio REAL,
+            accent TEXT,
+            mode TEXT NOT NULL DEFAULT 'classic',
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS sessions (
+            id TEXT PRIMARY KEY,
+            technique_id TEXT,
+            started_at TEXT NOT NULL,
+            ended_at TEXT,
+            focus_secs_completed INTEGER NOT NULL DEFAULT 0,
+            completed_cycles INTEGER NOT NULL DEFAULT 0,
+            interrupted INTEGER NOT NULL DEFAULT 0,
+            FOREIGN KEY(technique_id) REFERENCES techniques(id) ON DELETE SET NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
+        ",
+    )?;
+    conn.execute_batch(
+        "DELETE FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n');",
+    )?;
+    // What each session was on: added after release, so older databases get them here.
+    add_column_if_missing(conn, "sessions", "label", "TEXT NOT NULL DEFAULT ''")?;
+    add_column_if_missing(conn, "sessions", "technique_name", "TEXT")?;
+    // When the session last saved progress: where a crash cut it off.
+    add_column_if_missing(conn, "sessions", "last_seen_at", "TEXT")?;
+    Ok(())
+}
+
+/// Settings move from one row per setting into one JSON row, so a new setting
+/// is a field on `AppSettings` and nothing here.
+fn migrate_v2_settings_json(conn: &Connection) -> DbResult<()> {
+    let settings = read_legacy_settings(conn)?;
+    let json = serde_json::to_string(&settings).map_err(|e| DbError::Message(e.to_string()))?;
+    conn.execute("DELETE FROM settings", [])?;
+    conn.execute(
+        "INSERT INTO settings (key, value) VALUES (?1, ?2)",
+        params![SETTINGS_KEY, json],
+    )?;
+    Ok(())
+}
+
+fn add_column_if_missing(conn: &Connection, table: &str, column: &str, decl: &str) -> DbResult<()> {
+    let exists: bool = conn.query_row(
+        &format!("SELECT COUNT(*) > 0 FROM pragma_table_info('{table}') WHERE name = ?1"),
+        params![column],
+        |row| row.get(0),
+    )?;
+    if !exists {
+        conn.execute_batch(&format!("ALTER TABLE {table} ADD COLUMN {column} {decl};"))?;
+    }
+    Ok(())
+}
+
+/// Settings as migration 1 left them: one row each, booleans as "true",
+/// hidden ids comma-joined, the portal flag as "1". Only migration 2 reads this.
+fn read_legacy_settings(conn: &Connection) -> DbResult<AppSettings> {
+    let get = |key: &str| -> DbResult<Option<String>> {
+        conn.query_row("SELECT value FROM settings WHERE key = ?1", params![key], |row| row.get(0))
+            .optional()
+            .map_err(Into::into)
+    };
+    let defaults = AppSettings::default();
+    Ok(AppSettings {
+        theme: get("theme")?.unwrap_or(defaults.theme),
+        notifications_enabled: get("notifications_enabled")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.notifications_enabled),
+        sound_enabled: get("sound_enabled")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.sound_enabled),
+        halfway_tick: get("halfway_tick")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.halfway_tick),
+        default_technique_id: get("default_technique_id")?
+            .unwrap_or(defaults.default_technique_id),
+        start_minimized: get("start_minimized")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.start_minimized),
+        working_on: get("working_on")?
+            .unwrap_or(defaults.working_on),
+        locale: get("locale")?.unwrap_or(defaults.locale),
+        check_updates_on_launch: get("check_updates_on_launch")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.check_updates_on_launch),
+        // Comma-joined: technique ids never contain commas (see `validate_id`).
+        global_hotkeys: GlobalHotkeys {
+            toggle: get("hotkey_toggle")?.unwrap_or_default(),
+            skip: get("hotkey_skip")?.unwrap_or_default(),
+            show: get("hotkey_show")?.unwrap_or_default(),
+            portal: get("hotkey_portal")?.as_deref() == Some("1"),
+        },
+        hidden_technique_ids: get("hidden_technique_ids")?
+            .map(|v| {
+                v.split(',')
+                    .filter(|id| !id.is_empty())
+                    .map(str::to_string)
+                    .collect()
+            })
+            .unwrap_or(defaults.hidden_technique_ids),
+        auto_continue: get("auto_continue")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.auto_continue),
+        menu_bar_countdown: get("menu_bar_countdown")?
+            .as_deref()
+            .map(|v| v == "true")
+            .unwrap_or(defaults.menu_bar_countdown),
+    })
+}
+
 pub struct Database {
     conn: Connection,
 }
@@ -111,57 +257,30 @@ impl Database {
         db.migrate()?;
         db.close_orphan_sessions()?;
         db.seed_system_techniques()?;
-        db.ensure_default_settings()?;
         #[cfg(unix)]
         restrict_unix_db_files(path);
         Ok(db)
     }
 
+    /// Bring the schema up to date: run each migration the database hasn't had,
+    /// in order, each in its own transaction with the version it reaches.
     fn migrate(&self) -> DbResult<()> {
-        self.conn.execute_batch(
-            "
-            CREATE TABLE IF NOT EXISTS techniques (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                kind TEXT NOT NULL CHECK(kind IN ('system', 'custom')),
-                focus_secs INTEGER NOT NULL,
-                short_break_secs INTEGER NOT NULL,
-                long_break_secs INTEGER NOT NULL,
-                cycles_before_long INTEGER NOT NULL DEFAULT 4,
-                flow_ratio REAL,
-                accent TEXT,
-                mode TEXT NOT NULL DEFAULT 'classic',
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS settings (
-                key TEXT PRIMARY KEY,
-                value TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS sessions (
-                id TEXT PRIMARY KEY,
-                technique_id TEXT,
-                started_at TEXT NOT NULL,
-                ended_at TEXT,
-                focus_secs_completed INTEGER NOT NULL DEFAULT 0,
-                completed_cycles INTEGER NOT NULL DEFAULT 0,
-                interrupted INTEGER NOT NULL DEFAULT 0,
-                FOREIGN KEY(technique_id) REFERENCES techniques(id) ON DELETE SET NULL
-            );
-
-            CREATE INDEX IF NOT EXISTS idx_sessions_started ON sessions(started_at);
-            ",
-        )?;
-        self.conn.execute_batch(
-            "DELETE FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n');",
-        )?;
-        // What each session was on: added after release, so older databases get them here.
-        self.add_column_if_missing("sessions", "label", "TEXT NOT NULL DEFAULT ''")?;
-        self.add_column_if_missing("sessions", "technique_name", "TEXT")?;
-        // When the session last saved progress: where a crash cut it off.
-        self.add_column_if_missing("sessions", "last_seen_at", "TEXT")?;
+        let current: usize = self
+            .conn
+            .pragma_query_value(None, "user_version", |row| row.get::<_, i64>(0))?
+            .try_into()
+            .unwrap_or(0);
+        if current > MIGRATIONS.len() {
+            // Written by a newer Tempura: leave its schema alone.
+            eprintln!("tempura: database schema {current} is newer than this build knows ({})", MIGRATIONS.len());
+            return Ok(());
+        }
+        for (done, migration) in MIGRATIONS.iter().enumerate().skip(current) {
+            let tx = self.conn.unchecked_transaction()?;
+            migration(&tx)?;
+            tx.pragma_update(None, "user_version", (done + 1) as i64)?;
+            tx.commit()?;
+        }
         Ok(())
     }
 
@@ -173,19 +292,6 @@ impl Database {
              WHERE ended_at IS NULL",
             [],
         )?;
-        Ok(())
-    }
-
-    fn add_column_if_missing(&self, table: &str, column: &str, decl: &str) -> DbResult<()> {
-        let exists: bool = self.conn.query_row(
-            &format!("SELECT COUNT(*) > 0 FROM pragma_table_info('{table}') WHERE name = ?1"),
-            params![column],
-            |row| row.get(0),
-        )?;
-        if !exists {
-            self.conn
-                .execute_batch(&format!("ALTER TABLE {table} ADD COLUMN {column} {decl};"))?;
-        }
         Ok(())
     }
 
@@ -295,149 +401,37 @@ impl Database {
         Ok(())
     }
 
-    fn ensure_default_settings(&self) -> DbResult<()> {
-        let defaults = AppSettings::default();
-        let pairs = [
-            ("theme", defaults.theme),
-            (
-                "notifications_enabled",
-                defaults.notifications_enabled.to_string(),
-            ),
-            ("sound_enabled", defaults.sound_enabled.to_string()),
-            ("halfway_tick", defaults.halfway_tick.to_string()),
-            ("default_technique_id", defaults.default_technique_id),
-            ("start_minimized", defaults.start_minimized.to_string()),
-            ("working_on", defaults.working_on),
-            ("locale", defaults.locale),
-            (
-                "check_updates_on_launch",
-                defaults.check_updates_on_launch.to_string(),
-            ),
-            ("hidden_technique_ids", String::new()),
-            ("auto_continue", defaults.auto_continue.to_string()),
-            ("menu_bar_countdown", defaults.menu_bar_countdown.to_string()),
-        ];
-        for (key, value) in pairs {
-            self.conn.execute(
-                "INSERT OR IGNORE INTO settings (key, value) VALUES (?1, ?2)",
-                params![key, value],
-            )?;
+    /// The saved settings; defaults for anything not saved yet, or if the saved
+    /// copy can't be read.
+    pub fn get_settings(&self) -> DbResult<AppSettings> {
+        let stored: Option<String> = self
+            .conn
+            .query_row("SELECT value FROM settings WHERE key = ?1", params![SETTINGS_KEY], |row| row.get(0))
+            .optional()?;
+        let mut settings = match stored.as_deref().map(serde_json::from_str::<AppSettings>) {
+            Some(Ok(settings)) => settings,
+            Some(Err(e)) => {
+                eprintln!("tempura: saved settings unreadable, using defaults: {e}");
+                AppSettings::default()
+            }
+            None => AppSettings::default(),
+        };
+        // Reserved ones saved before they were refused read as not set.
+        let hotkeys = &mut settings.global_hotkeys;
+        for value in [&mut hotkeys.toggle, &mut hotkeys.skip, &mut hotkeys.show] {
+            *value = crate::hotkeys::usable(std::mem::take(value));
         }
-        Ok(())
+        Ok(settings)
     }
 
-    fn get_setting(&self, key: &str) -> DbResult<Option<String>> {
-        self.conn
-            .query_row(
-                "SELECT value FROM settings WHERE key = ?1",
-                params![key],
-                |row| row.get(0),
-            )
-            .optional()
-            .map_err(Into::into)
-    }
-
-    fn set_setting(&self, key: &str, value: &str) -> DbResult<()> {
+    /// One row, one write: settings are saved whole or not at all.
+    pub fn update_settings(&self, settings: &AppSettings) -> DbResult<()> {
+        let json = serde_json::to_string(settings).map_err(|e| DbError::Message(e.to_string()))?;
         self.conn.execute(
             "INSERT INTO settings (key, value) VALUES (?1, ?2)
              ON CONFLICT(key) DO UPDATE SET value = excluded.value",
-            params![key, value],
+            params![SETTINGS_KEY, json],
         )?;
-        Ok(())
-    }
-
-    pub fn get_settings(&self) -> DbResult<AppSettings> {
-        let defaults = AppSettings::default();
-        Ok(AppSettings {
-            theme: self.get_setting("theme")?.unwrap_or(defaults.theme),
-            notifications_enabled: self
-                .get_setting("notifications_enabled")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.notifications_enabled),
-            sound_enabled: self
-                .get_setting("sound_enabled")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.sound_enabled),
-            halfway_tick: self
-                .get_setting("halfway_tick")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.halfway_tick),
-            default_technique_id: self
-                .get_setting("default_technique_id")?
-                .unwrap_or(defaults.default_technique_id),
-            start_minimized: self
-                .get_setting("start_minimized")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.start_minimized),
-            working_on: self
-                .get_setting("working_on")?
-                .unwrap_or(defaults.working_on),
-            locale: self.get_setting("locale")?.unwrap_or(defaults.locale),
-            check_updates_on_launch: self
-                .get_setting("check_updates_on_launch")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.check_updates_on_launch),
-            // Comma-joined: technique ids never contain commas (see `validate_id`).
-            global_hotkeys: GlobalHotkeys {
-                // Reserved ones saved before they were refused read as not set.
-                toggle: crate::hotkeys::usable(self.get_setting("hotkey_toggle")?.unwrap_or_default()),
-                skip: crate::hotkeys::usable(self.get_setting("hotkey_skip")?.unwrap_or_default()),
-                show: crate::hotkeys::usable(self.get_setting("hotkey_show")?.unwrap_or_default()),
-                portal: self.get_setting("hotkey_portal")?.as_deref() == Some("1"),
-            },
-            hidden_technique_ids: self
-                .get_setting("hidden_technique_ids")?
-                .map(|v| {
-                    v.split(',')
-                        .filter(|id| !id.is_empty())
-                        .map(str::to_string)
-                        .collect()
-                })
-                .unwrap_or(defaults.hidden_technique_ids),
-            auto_continue: self
-                .get_setting("auto_continue")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.auto_continue),
-            menu_bar_countdown: self
-                .get_setting("menu_bar_countdown")?
-                .as_deref()
-                .map(|v| v == "true")
-                .unwrap_or(defaults.menu_bar_countdown),
-        })
-    }
-
-    pub fn update_settings(&self, settings: &AppSettings) -> DbResult<()> {
-        self.set_setting("theme", &settings.theme)?;
-        self.set_setting(
-            "notifications_enabled",
-            &settings.notifications_enabled.to_string(),
-        )?;
-        self.set_setting("sound_enabled", &settings.sound_enabled.to_string())?;
-        self.set_setting("halfway_tick", &settings.halfway_tick.to_string())?;
-        self.set_setting("default_technique_id", &settings.default_technique_id)?;
-        self.set_setting("start_minimized", &settings.start_minimized.to_string())?;
-        self.set_setting("working_on", &settings.working_on)?;
-        self.set_setting("locale", &settings.locale)?;
-        self.set_setting(
-            "check_updates_on_launch",
-            &settings.check_updates_on_launch.to_string(),
-        )?;
-        self.set_setting(
-            "hidden_technique_ids",
-            &settings.hidden_technique_ids.join(","),
-        )?;
-        self.set_setting("auto_continue", &settings.auto_continue.to_string())?;
-        self.set_setting("menu_bar_countdown", &settings.menu_bar_countdown.to_string())?;
-        self.set_setting("hotkey_toggle", &settings.global_hotkeys.toggle)?;
-        self.set_setting("hotkey_skip", &settings.global_hotkeys.skip)?;
-        self.set_setting("hotkey_show", &settings.global_hotkeys.show)?;
-        self.set_setting("hotkey_portal", if settings.global_hotkeys.portal { "1" } else { "" })?;
         Ok(())
     }
 
@@ -1040,34 +1034,199 @@ mod range_stats_tests {
         let _ = std::fs::remove_file(&path);
     }
 
-    #[test]
-    fn drops_orphan_global_rhythm_settings() {
+    fn temp_path(tag: &str) -> std::path::PathBuf {
         let nanos = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_nanos();
-        let path = std::env::temp_dir().join(format!("tempura-settings-{nanos}.sqlite"));
+        let path = std::env::temp_dir().join(format!("tempura-{tag}-{nanos}.sqlite"));
         let _ = std::fs::remove_file(&path);
+        path
+    }
+
+    fn user_version(db: &Database) -> i64 {
+        db.conn.pragma_query_value(None, "user_version", |row| row.get(0)).unwrap()
+    }
+
+    fn setting_keys(db: &Database) -> Vec<String> {
+        let mut stmt = db.conn.prepare("SELECT key FROM settings ORDER BY key").unwrap();
+        stmt.query_map([], |row| row.get(0)).unwrap().collect::<Result<_, _>>().unwrap()
+    }
+
+    #[test]
+    fn a_new_database_runs_every_migration() {
+        let path = temp_path("fresh");
         let db = Database::open(&path).expect("open");
-        db.set_setting("flow_ratio", "0.25").expect("seed flow");
-        db.set_setting("long_break_every_n", "6").expect("seed n");
+        assert_eq!(user_version(&db), MIGRATIONS.len() as i64);
+        assert_eq!(setting_keys(&db), vec![SETTINGS_KEY.to_string()]);
+        let defaults = AppSettings::default();
+        let settings = db.get_settings().unwrap();
+        assert_eq!(settings.theme, defaults.theme);
+        assert!(settings.auto_continue && settings.menu_bar_countdown && settings.check_updates_on_launch);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn a_database_from_before_versioning_keeps_its_settings() {
+        // As 0.5.1 left it: no user_version, one settings row per key.
+        let path = temp_path("legacy");
+        {
+            let conn = Connection::open(&path).unwrap();
+            migrate_v1_baseline(&conn).unwrap();
+            for (key, value) in [
+                ("theme", "dusk"),
+                ("sound_enabled", "false"),
+                ("default_technique_id", "deep"),
+                ("working_on", "Thesis"),
+                ("locale", "ro"),
+                ("hidden_technique_ids", "sprint,ultradian"),
+                ("auto_continue", "false"),
+                ("hotkey_toggle", "Control+Alt+KeyP"),
+                ("hotkey_skip", "Control+KeyC"),
+                ("hotkey_portal", "1"),
+                ("flow_ratio", "0.25"),
+                ("long_break_every_n", "6"),
+            ] {
+                conn.execute("INSERT INTO settings (key, value) VALUES (?1, ?2)", params![key, value]).unwrap();
+            }
+        }
+
+        let db = Database::open(&path).expect("open");
+        assert_eq!(user_version(&db), MIGRATIONS.len() as i64);
+        assert_eq!(setting_keys(&db), vec![SETTINGS_KEY.to_string()]);
+        let s = db.get_settings().unwrap();
+        assert_eq!(s.theme, "dusk");
+        assert!(!s.sound_enabled);
+        assert!(s.notifications_enabled, "not saved before: default");
+        assert_eq!(s.default_technique_id, "deep");
+        assert_eq!(s.working_on, "Thesis");
+        assert_eq!(s.locale, "ro");
+        assert_eq!(s.hidden_technique_ids, vec!["sprint", "ultradian"]);
+        assert!(!s.auto_continue);
+        assert!(s.menu_bar_countdown, "not saved before: default");
+        assert_eq!(s.global_hotkeys.toggle, "Control+Alt+KeyP");
+        assert_eq!(s.global_hotkeys.skip, "", "reserved: reads as not set");
+        assert!(s.global_hotkeys.portal);
         drop(db);
 
+        // Opening again runs nothing and changes nothing.
         let db = Database::open(&path).expect("reopen");
-        let mut stmt = db
-            .conn
-            .prepare("SELECT key FROM settings WHERE key IN ('flow_ratio', 'long_break_every_n')")
-            .expect("query");
-        let leftover: Vec<String> = stmt
-            .query_map([], |row| row.get(0))
-            .expect("rows")
-            .collect::<Result<_, _>>()
-            .expect("collect");
-        assert!(
-            leftover.is_empty(),
-            "orphan keys still present: {leftover:?}"
-        );
-        let _ = db.get_settings().expect("settings load");
+        assert_eq!(db.get_settings().unwrap().theme, "dusk");
+        assert_eq!(setting_keys(&db), vec![SETTINGS_KEY.to_string()]);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn a_setting_missing_from_the_saved_copy_takes_its_default() {
+        let path = temp_path("partial");
+        let db = Database::open(&path).expect("open");
+        db.conn
+            .execute(
+                "UPDATE settings SET value = ?1 WHERE key = ?2",
+                params![r#"{"theme":"grove","autoContinue":false}"#, SETTINGS_KEY],
+            )
+            .unwrap();
+        let s = db.get_settings().unwrap();
+        assert_eq!(s.theme, "grove");
+        assert!(!s.auto_continue);
+        assert!(s.menu_bar_countdown);
+        assert_eq!(s.default_technique_id, AppSettings::default().default_technique_id);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn unreadable_saved_settings_fall_back_to_defaults() {
+        let path = temp_path("corrupt");
+        let db = Database::open(&path).expect("open");
+        db.conn
+            .execute("UPDATE settings SET value = 'not json' WHERE key = ?1", params![SETTINGS_KEY])
+            .unwrap();
+        assert_eq!(db.get_settings().unwrap().theme, AppSettings::default().theme);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn every_legacy_setting_carries_over() {
+        // Every key 0.5.1 wrote, each set away from its default.
+        let path = temp_path("legacy-all");
+        {
+            let conn = Connection::open(&path).unwrap();
+            migrate_v1_baseline(&conn).unwrap();
+            for (key, value) in [
+                ("theme", "sandstone"),
+                ("notifications_enabled", "false"),
+                ("sound_enabled", "false"),
+                ("halfway_tick", "true"),
+                ("default_technique_id", "sprint"),
+                ("start_minimized", "true"),
+                ("working_on", "Essay, part 2"),
+                ("locale", "ja"),
+                ("check_updates_on_launch", "false"),
+                ("hidden_technique_ids", "deep"),
+                ("auto_continue", "false"),
+                ("menu_bar_countdown", "false"),
+                ("hotkey_toggle", "Control+Alt+KeyP"),
+                ("hotkey_skip", "Control+Alt+KeyN"),
+                ("hotkey_show", "Super+Alt+KeyT"),
+                ("hotkey_portal", "1"),
+            ] {
+                conn.execute("INSERT INTO settings (key, value) VALUES (?1, ?2)", params![key, value]).unwrap();
+            }
+        }
+        let db = Database::open(&path).expect("open");
+        let s = db.get_settings().unwrap();
+        let expected = serde_json::json!({
+            "theme": "sandstone",
+            "notificationsEnabled": false,
+            "soundEnabled": false,
+            "halfwayTick": true,
+            "defaultTechniqueId": "sprint",
+            "startMinimized": true,
+            "workingOn": "Essay, part 2",
+            "locale": "ja",
+            "checkUpdatesOnLaunch": false,
+            "hiddenTechniqueIds": ["deep"],
+            "autoContinue": false,
+            "menuBarCountdown": false,
+            "globalHotkeys": {
+                "toggle": "Control+Alt+KeyP",
+                "skip": "Control+Alt+KeyN",
+                "show": "Super+Alt+KeyT",
+                "portal": true
+            }
+        });
+        // Key by key, so settings added later don't need this test changed.
+        let actual = serde_json::to_value(&s).unwrap();
+        for (key, value) in expected.as_object().unwrap() {
+            assert_eq!(&actual[key], value, "{key}");
+        }
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn a_database_from_a_newer_version_is_left_alone() {
+        let path = temp_path("newer");
+        let db = Database::open(&path).expect("open");
+        db.conn.pragma_update(None, "user_version", 99).unwrap();
+        drop(db);
+        let db = Database::open(&path).expect("reopen");
+        assert_eq!(user_version(&db), 99);
+        let _ = db.get_settings().expect("settings still load");
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn settings_round_trip_whole() {
+        let path = temp_path("roundtrip");
+        let db = Database::open(&path).expect("open");
+        let mut s = db.get_settings().unwrap();
+        s.theme = "mist".into();
+        s.halfway_tick = true;
+        s.global_hotkeys.show = "Control+Alt+KeyS".into();
+        s.hidden_technique_ids = vec!["hybrid".into()];
+        db.update_settings(&s).unwrap();
+        let back = db.get_settings().unwrap();
+        assert_eq!(serde_json::to_value(&back).unwrap(), serde_json::to_value(&s).unwrap());
         let _ = std::fs::remove_file(&path);
     }
 }
