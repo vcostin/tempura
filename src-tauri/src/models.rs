@@ -425,6 +425,9 @@ pub struct PeriodStats {
     pub hours: Vec<HourCell>,
     /// How many of each weekday the period holds (Monday first), to average `hours` per week.
     pub weekday_counts: [i64; 7],
+    /// Per technique: focus, sessions and how many ended without being cut
+    /// short, largest focus first.
+    pub techniques: Vec<TechniqueUsage>,
     /// Totals of the period it is compared with.
     pub previous: PeriodTotals,
     /// The first day with any focus or cycle ever, for an "all time" view.
@@ -440,6 +443,25 @@ pub struct HourCell {
     pub hour: u8,
     pub focus_secs: i64,
     pub cycles: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TechniqueUsage {
+    /// None once a custom technique is deleted; rows then group by name.
+    pub technique_id: Option<String>,
+    /// The name it had (most recent spelling); built-ins are named by id in the UI.
+    pub name: String,
+    /// None once the technique is deleted.
+    pub mode: Option<TechniqueMode>,
+    pub focus_secs: i64,
+    /// Sessions with focus or cycles in the period.
+    pub sessions: i64,
+    /// Of `ended`, those not stopped in the middle of a focus block or cut off
+    /// by a crash. Only meaningful for fixed intervals: Flowtime ends mid-focus.
+    pub finished: i64,
+    /// Sessions that have ended (a running one doesn't count yet).
+    pub ended: i64,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

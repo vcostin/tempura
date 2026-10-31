@@ -1,5 +1,6 @@
 use crate::models::{
-    AppSettings, DayBucket, FocusShare, GlobalHotkeys, DayStats, HourCell, PeriodTotals, PeriodStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
+    AppSettings, DayBucket, FocusShare, GlobalHotkeys, DayStats, HourCell, PeriodTotals, PeriodStats, StatsRange, Technique,
+    TechniqueUsage, TechniqueInput, TechniqueKind,
     TechniqueMode, DEFAULT_FLOW_RATIO,
 };
 use crate::export::ExportRow;
@@ -890,7 +891,6 @@ impl Database {
             None => (first - Duration::days(len), first - Duration::days(1)),
         };
         let core = self.period_core(first, last)?;
-        let prev = self.period_core(prev_first, prev_last)?;
         let first_day: Option<String> = self.conn.query_row(
             "SELECT MIN(day) FROM session_hours WHERE focus_secs > 0 OR cycles > 0",
             [],
@@ -912,19 +912,107 @@ impl Database {
             longest_streak: core.longest_streak(),
             hours: self.weekday_hours(first, last)?,
             weekday_counts,
-            previous: PeriodTotals {
-                from: day_key(prev_first),
-                to: day_key(prev_last),
-                focus_secs: prev.focus_secs,
-                completed_cycles: prev.completed_cycles,
-                sessions: prev.sessions,
-                active_days: prev.active_days(),
-            },
+            techniques: self.technique_usage(first, last)?,
+            previous: self.period_totals(prev_first, prev_last)?,
             first_day,
             buckets: core.buckets,
             by_label: core.by_label,
             by_technique: core.by_technique,
         })
+    }
+
+    /// Just the totals for `first..=last`: what a comparison needs, without the
+    /// buckets and breakdowns. Counts the same way as `period_core`.
+    fn period_totals(&self, first: NaiveDate, last: NaiveDate) -> DbResult<PeriodTotals> {
+        let (from, to) = (day_key(first), day_key(last));
+        let (focus_secs, completed_cycles): (i64, i64) = self.conn.query_row(
+            "SELECT COALESCE(SUM(focus_secs), 0), COALESCE(SUM(cycles), 0) FROM session_hours
+             WHERE day BETWEEN ?1 AND ?2",
+            params![from, to],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
+        let active_days: i64 = self.conn.query_row(
+            "SELECT COUNT(*) FROM (
+                SELECT day FROM session_hours WHERE day BETWEEN ?1 AND ?2
+                GROUP BY day HAVING SUM(focus_secs) > 0
+            )",
+            params![from, to],
+            |row| row.get(0),
+        )?;
+        let sessions: i64 = self.conn.query_row(
+            "SELECT COUNT(*) FROM (
+                SELECT session_id FROM session_hours WHERE day BETWEEN ?1 AND ?2
+                UNION
+                SELECT id FROM sessions WHERE started_at >= ?3 AND started_at < ?4
+            )",
+            params![
+                from,
+                to,
+                local_day_start_utc(first).to_rfc3339(),
+                local_day_start_utc(last + Duration::days(1)).to_rfc3339()
+            ],
+            |row| row.get(0),
+        )?;
+        Ok(PeriodTotals { from, to, focus_secs, completed_cycles, sessions, active_days })
+    }
+
+    /// Focus, sessions and finished sessions per technique over `first..=last`.
+    fn technique_usage(&self, first: NaiveDate, last: NaiveDate) -> DbResult<Vec<TechniqueUsage>> {
+        type Row = (Option<String>, String, Option<String>, i64, bool, bool);
+        let rows: Vec<Row> = self
+            .conn
+            .prepare(
+                "
+                SELECT s.technique_id, COALESCE(s.technique_name, t.name, ''), t.mode, h.focus,
+                       s.ended_at IS NOT NULL, s.interrupted != 0
+                FROM (
+                    SELECT session_id, SUM(focus_secs) AS focus FROM session_hours
+                    WHERE day BETWEEN ?1 AND ?2 GROUP BY session_id
+                ) h
+                JOIN sessions s ON s.id = h.session_id
+                LEFT JOIN techniques t ON t.id = s.technique_id
+                ORDER BY s.started_at
+                ",
+            )?
+            .query_map(params![day_key(first), day_key(last)], |row| {
+                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?))
+            })?
+            .collect::<Result<_, _>>()?;
+        let mut groups: HashMap<String, TechniqueUsage> = HashMap::new();
+        for (technique_id, name, mode, focus, ended, interrupted) in rows {
+            let name = name.trim().to_string();
+            let key = match &technique_id {
+                Some(id) => format!("id:{id}"),
+                None => format!("name:{}", name.to_lowercase()),
+            };
+            let usage = groups.entry(key).or_insert_with(|| TechniqueUsage {
+                technique_id: technique_id.clone(),
+                name: String::new(),
+                mode: None,
+                focus_secs: 0,
+                sessions: 0,
+                finished: 0,
+                ended: 0,
+            });
+            // Oldest first, so the latest name and mode win.
+            if !name.is_empty() {
+                usage.name = name;
+            }
+            if let Some(mode) = mode {
+                usage.mode = Some(TechniqueMode::from_stored(&mode));
+            }
+            usage.focus_secs += focus;
+            usage.sessions += 1;
+            if ended {
+                usage.ended += 1;
+                if !interrupted {
+                    usage.finished += 1;
+                }
+            }
+        }
+        let mut usage: Vec<TechniqueUsage> = groups.into_values().collect();
+        usage.sort_by(|a, b| b.focus_secs.cmp(&a.focus_secs).then_with(|| a.name.cmp(&b.name)));
+        Ok(usage)
     }
 
     /// Focus and cycles per weekday and hour over `first..=last`.
@@ -986,10 +1074,11 @@ impl Database {
             e.2.insert(id.clone());
             all_sessions.insert(id);
         }
+        let end_utc = local_day_start_utc(end_day + Duration::days(1)).to_rfc3339();
         let started: Vec<(String, String)> = self
             .conn
-            .prepare("SELECT id, started_at FROM sessions WHERE started_at >= ?1")?
-            .query_map(params![start_utc], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .prepare("SELECT id, started_at FROM sessions WHERE started_at >= ?1 AND started_at < ?2")?
+            .query_map(params![start_utc, end_utc], |row| Ok((row.get(0)?, row.get(1)?)))?
             .collect::<Result<_, _>>()?;
         for (id, started_at) in started {
             let Some(d) = local_date_from_rfc3339(&started_at) else { continue };
@@ -1307,6 +1396,78 @@ mod range_stats_tests {
         assert_eq!((oct.previous.from.as_str(), oct.previous.focus_secs), ("2026-09-01", 0));
         // October 2026 starts on a Thursday: Thursday to Saturday come five times.
         assert_eq!(oct.weekday_counts, [4, 4, 4, 5, 5, 5, 4]);
+    }
+
+    #[test]
+    fn comparison_totals_count_like_the_period_itself() {
+        let db = temp_db();
+        october_week(&db);
+        // Started the day after the period, with no focus yet: not in the period.
+        let late = Uuid::new_v4().to_string();
+        db.conn
+            .execute(
+                "INSERT INTO sessions (id, technique_id, started_at) VALUES (?1, 'classic', ?2)",
+                params![late, local_hms_utc(ymd(2026, 10, 12), 0, 30, 0).to_rfc3339()],
+            )
+            .unwrap();
+        for (a, b) in [((2026, 10, 5), (2026, 10, 11)), ((2026, 9, 28), (2026, 10, 4)), ((2026, 10, 1), (2026, 10, 31))] {
+            let (a, b) = (ymd(a.0, a.1, a.2), ymd(b.0, b.1, b.2));
+            let core = db.period_core(a, b).unwrap();
+            let totals = db.period_totals(a, b).unwrap();
+            assert_eq!(
+                (totals.focus_secs, totals.completed_cycles, totals.sessions, totals.active_days),
+                (core.focus_secs, core.completed_cycles, core.sessions, core.active_days()),
+                "{a}..={b}"
+            );
+        }
+        assert_eq!(db.period_totals(ymd(2026, 10, 5), ymd(2026, 10, 11)).unwrap().sessions, 4);
+        assert_eq!(db.period_totals(ymd(2026, 10, 12), ymd(2026, 10, 12)).unwrap().sessions, 1);
+    }
+
+    /// A session with a technique, ended or not, interrupted or not.
+    fn technique_session(
+        db: &Database,
+        day: u32,
+        technique: Option<&str>,
+        name: &str,
+        focus: i64,
+        ended: bool,
+        interrupted: bool,
+    ) {
+        let id = insert_session(db, local_hms_utc(ymd(2026, 10, day), 9, 0, 0), focus, 0);
+        db.conn
+            .execute(
+                "UPDATE sessions SET technique_id = ?2, technique_name = ?3,
+                    ended_at = CASE WHEN ?4 THEN started_at END, interrupted = ?5
+                 WHERE id = ?1",
+                params![id, technique, name, ended, interrupted],
+            )
+            .unwrap();
+    }
+
+    #[test]
+    fn technique_usage_counts_sessions_and_finished_ones() {
+        let db = temp_db();
+        technique_session(&db, 5, Some("classic"), "Classic", 25 * 60, true, false);
+        technique_session(&db, 6, Some("classic"), "Classic", 10 * 60, true, true);
+        technique_session(&db, 7, Some("classic"), "Classic", 5 * 60, false, false);
+        technique_session(&db, 6, Some("flowtime"), "Flowtime", 70 * 60, true, true);
+        // A deleted custom technique: no id left, grouped by name, latest spelling.
+        technique_session(&db, 5, None, "writing", 20 * 60, true, false);
+        technique_session(&db, 7, None, "Writing ", 30 * 60, true, false);
+        // Outside the period.
+        technique_session(&db, 20, Some("classic"), "Classic", 60 * 60, true, false);
+
+        let usage = db.period_stats(ymd(2026, 10, 5), ymd(2026, 10, 11), None).unwrap().techniques;
+        let row = |u: &TechniqueUsage| (u.technique_id.clone(), u.name.clone(), u.mode, u.focus_secs, u.sessions, u.finished, u.ended);
+        assert_eq!(
+            usage.iter().map(row).collect::<Vec<_>>(),
+            vec![
+                (Some("flowtime".into()), "Flowtime".into(), Some(TechniqueMode::Flowtime), 70 * 60, 1, 0, 1),
+                (None, "Writing".into(), None, 50 * 60, 2, 2, 2),
+                (Some("classic".into()), "Classic".into(), Some(TechniqueMode::Classic), 40 * 60, 3, 1, 2),
+            ]
+        );
     }
 
     #[test]

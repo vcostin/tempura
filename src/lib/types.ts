@@ -132,6 +132,8 @@ export interface PeriodStats {
   hours: HourCell[];
   /** How many of each weekday the period holds, Monday first. */
   weekdayCounts: [number, number, number, number, number, number, number];
+  /** Per technique, largest focus first. */
+  techniques: TechniqueUsage[];
   /** Totals of the period it is compared with. */
   previous: PeriodTotals;
   /** The first day with any focus or cycle ever, for an "all time" view. */
@@ -145,6 +147,21 @@ export interface HourCell {
   hour: number;
   focusSecs: number;
   cycles: number;
+}
+
+export interface TechniqueUsage {
+  /** Null once a custom technique is deleted; rows then group by name. */
+  techniqueId: string | null;
+  name: string;
+  /** Null once the technique is deleted. */
+  mode: TechniqueMode | null;
+  focusSecs: number;
+  /** Sessions with focus or cycles in the period. */
+  sessions: number;
+  /** Of `ended`, those not stopped mid-focus or cut off by a crash. Fixed intervals only. */
+  finished: number;
+  /** Sessions that have ended. */
+  ended: number;
 }
 
 export interface PeriodTotals {
