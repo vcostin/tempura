@@ -1146,6 +1146,64 @@ mod range_stats_tests {
     }
 
     #[test]
+    fn every_legacy_setting_carries_over() {
+        // Every key 0.5.1 wrote, each set away from its default.
+        let path = temp_path("legacy-all");
+        {
+            let conn = Connection::open(&path).unwrap();
+            migrate_v1_baseline(&conn).unwrap();
+            for (key, value) in [
+                ("theme", "sandstone"),
+                ("notifications_enabled", "false"),
+                ("sound_enabled", "false"),
+                ("halfway_tick", "true"),
+                ("default_technique_id", "sprint"),
+                ("start_minimized", "true"),
+                ("working_on", "Essay, part 2"),
+                ("locale", "ja"),
+                ("check_updates_on_launch", "false"),
+                ("hidden_technique_ids", "deep"),
+                ("auto_continue", "false"),
+                ("menu_bar_countdown", "false"),
+                ("hotkey_toggle", "Control+Alt+KeyP"),
+                ("hotkey_skip", "Control+Alt+KeyN"),
+                ("hotkey_show", "Super+Alt+KeyT"),
+                ("hotkey_portal", "1"),
+            ] {
+                conn.execute("INSERT INTO settings (key, value) VALUES (?1, ?2)", params![key, value]).unwrap();
+            }
+        }
+        let db = Database::open(&path).expect("open");
+        let s = db.get_settings().unwrap();
+        let expected = serde_json::json!({
+            "theme": "sandstone",
+            "notificationsEnabled": false,
+            "soundEnabled": false,
+            "halfwayTick": true,
+            "defaultTechniqueId": "sprint",
+            "startMinimized": true,
+            "workingOn": "Essay, part 2",
+            "locale": "ja",
+            "checkUpdatesOnLaunch": false,
+            "hiddenTechniqueIds": ["deep"],
+            "autoContinue": false,
+            "menuBarCountdown": false,
+            "globalHotkeys": {
+                "toggle": "Control+Alt+KeyP",
+                "skip": "Control+Alt+KeyN",
+                "show": "Super+Alt+KeyT",
+                "portal": true
+            }
+        });
+        // Key by key, so settings added later don't need this test changed.
+        let actual = serde_json::to_value(&s).unwrap();
+        for (key, value) in expected.as_object().unwrap() {
+            assert_eq!(&actual[key], value, "{key}");
+        }
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
     fn a_database_from_a_newer_version_is_left_alone() {
         let path = temp_path("newer");
         let db = Database::open(&path).expect("open");
