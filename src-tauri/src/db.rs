@@ -180,7 +180,10 @@ fn migrate_v3_focus_by_day(conn: &Connection) -> DbResult<()> {
         .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
         .collect::<Result<_, _>>()?;
     for (id, started_at, focus) in sessions {
-        let Some(day) = local_date_from_rfc3339(&started_at) else { continue };
+        let Some(day) = local_date_from_rfc3339(&started_at) else {
+            eprintln!("tempura: session {id} has an unreadable start time; its focus stays off the daily stats");
+            continue;
+        };
         conn.execute(
             "INSERT INTO session_days (session_id, day, focus_secs) VALUES (?1, ?2, ?3)",
             params![id, day_key(day), focus],
@@ -691,11 +694,11 @@ impl Database {
                 completed_cycles = ?3,
                 interrupted = ?4,
                 label = ?5
-            WHERE id = ?6
+            WHERE id = ?6 AND ended_at IS NULL
             ",
             params![
                 now,
-                focus_secs,
+                focus_secs.max(0),
                 completed_cycles,
                 if interrupted { 1 } else { 0 },
                 label,
@@ -727,7 +730,7 @@ impl Database {
                 last_seen_at = ?4
             WHERE id = ?5 AND ended_at IS NULL
             ",
-            params![focus_secs, completed_cycles, label, now, session_id],
+            params![focus_secs.max(0), completed_cycles, label, now, session_id],
         )?;
         if changed > 0 {
             record_focus(&tx, session_id, focus_secs, Local::now().date_naive())?;
@@ -1056,6 +1059,37 @@ mod range_stats_tests {
         db.bump_session_progress(&id, 60, 0, "").unwrap();
         let total: i64 = days_of(&db, &id).iter().map(|(_, f)| f).sum();
         assert_eq!(total, 900);
+    }
+
+    #[test]
+    fn ending_a_session_twice_changes_nothing() {
+        let db = temp_db();
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.end_session(&id, 900, 1, false, "").unwrap();
+        db.end_session(&id, 60, 0, true, "").unwrap();
+        let rows = db.export_rows().unwrap();
+        assert_eq!((rows[0].focus_secs, rows[0].completed_cycles, rows[0].interrupted), (900, 1, false));
+        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), 900);
+    }
+
+    #[test]
+    fn days_add_up_to_the_total_after_a_crash_and_reopen() {
+        let path = std::env::temp_dir().join(format!("tempura-days-crash-{}.sqlite", Uuid::new_v4()));
+        let db = Database::open(&path).expect("open");
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.bump_session_progress(&id, 1200, 0, "").unwrap();
+        db.bump_session_progress(&id, 1500, 1, "").unwrap();
+        drop(db);
+        let db = Database::open(&path).expect("reopen");
+        let total: i64 = db
+            .conn
+            .query_row("SELECT focus_secs_completed FROM sessions WHERE id = ?1", params![id], |r| r.get(0))
+            .unwrap();
+        assert_eq!(total, 1500);
+        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), total);
+        let _ = std::fs::remove_file(&path);
     }
 
     #[test]
