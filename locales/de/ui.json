@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "Befehl für {{action}} kopieren",
     "hotkeyClear": "Kürzel für {{action}} entfernen",
     "hotkeyNeedsModifier": "Nimm Strg, Alt oder Super dazu, damit das Tippen in anderen Apps nicht gestört wird.",
+    "hotkeyReserved": "Apps brauchen dieses Kürzel etwa zum Kopieren oder Einfügen, daher übernimmt Tempura es nicht. Wähle ein anderes.",
     "hotkeyTaken": "Schon für „{{action}}“ vergeben.",
     "hotkeyInUse": "Eine andere App nutzt dieses Kürzel bereits, daher hat Tempura es nicht übernommen. Wähle ein anderes."
   },

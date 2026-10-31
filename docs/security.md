@@ -37,7 +37,7 @@ Rust**, plus **how updates are chosen and verified**.
 autostart on/off, updater check/install (still needs a valid ed25519
 sig), relaunch, quit, timer/settings/stats, open the pinned GitHub
 discussion, open the native save dialog for a session export (the user
-still picks the path), register up to three global shortcuts (see L7),
+still picks the path), register up to three global shortcuts (not the common ones; see L7),
 and ask the Wayland portal to bind or reconfigure them (the desktop shows
 its own dialog). Debug builds also expose a test notification. That is
 annoying, not “unsigned update.”
@@ -187,46 +187,49 @@ concatenated into a shell string. Linux was already absolute
 **Evidence.** [`src-tauri/src/open_url.rs`](../src-tauri/src/open_url.rs)
 `MACOS_OPEN`, `windows_cmd_exe`, `open_in_host_browser`.
 
-#### L7 — Global shortcuts can take common combinations
+#### L7 — Global shortcuts could take common combinations
 
-**Status.** Open.
+**Status.** Addressed. `hotkeys::check` refuses common editing, window,
+and tab shortcuts: Ctrl or Cmd/Super alone with A, C, F, H, L, M, N, O,
+P, Q, R, S, T, V, W, X, Y, Z, Tab, or Space; the same with Shift and C,
+N, T, V, W, Z, or Tab; and Alt+Tab, Alt+Shift+Tab, Alt+F4, Alt+Space.
+Adding Alt (or a second of Ctrl/Super) makes any of them available. The
+Settings recorder applies the same rule (`isReserved`) and says why; a
+unit test keeps its key lists equal to the Rust ones. Reserved shortcuts
+saved before this read as not set, and `update_settings` clears them
+instead of failing, so other settings still save.
 
-**Impact.** Settings accept any shortcut with Ctrl, Alt, or Super
-(`hotkeys::check`), so `Control+KeyC` or `Control+KeyV` pass validation.
-Registered globally, they stop copy or paste from reaching other apps on
-X11, Windows, and macOS until the shortcut is cleared. A user can do this
-by mistake; XSS could do it through `update_settings`. Presses only run
-the three timer actions; no key or other app's input is sent to the
-webview, so this is a nuisance, not a keylogger. Keys another app has
-already registered are reported, never taken, but plain editing
-shortcuts are usually not registered by anyone.
+**Was.** Settings accepted any shortcut with Ctrl, Alt, or Super, so
+`Control+KeyC` or `Control+KeyV` passed. Registered globally, they
+stopped copy or paste reaching other apps on X11, Windows, and macOS. A
+user could do this by mistake; XSS could do it through
+`update_settings`. Presses only ran the three timer actions; no key or
+other app's input reached the webview, so it was a nuisance, not a
+keylogger.
 
 **Evidence.** [`src-tauri/src/hotkeys.rs`](../src-tauri/src/hotkeys.rs)
-`check`, `on_shortcut`; [`src-tauri/src/models.rs`](../src-tauri/src/models.rs)
-`AppSettings::validated`.
+`check`, `reserved`, `usable`; [`src-tauri/src/models.rs`](../src-tauri/src/models.rs)
+`AppSettings::validated`; [`src-tauri/src/db.rs`](../src-tauri/src/db.rs)
+`get_settings`; [`src/lib/hotkeys.ts`](../src/lib/hotkeys.ts) `isReserved`;
+[`tests/unit/hotkeys.test.ts`](../tests/unit/hotkeys.test.ts).
 
-**Fix sketch.** Refuse the common editing and system combinations
-(copy, paste, cut, undo, select all, save, quit, close, tab switching), or
-require two modifiers, in `hotkeys::check`, with a Settings message that
-says why.
+#### L8 — Portal desktop entry: `Exec` quoting did not cover newlines
 
-#### L8 — Portal desktop entry: `Exec` quoting does not cover newlines
+**Status.** Addressed. `desktop_entry` returns nothing when the command
+has a control character, so the entry is not written (the failure is
+logged and binding goes on without it, as when the data folder is
+missing).
 
-**Status.** Open (informational in practice).
-
-**Impact.** When the user sets up Wayland shortcuts, Tempura writes a
-hidden `app.tempura.focus.desktop` (and icon) under `~/.local/share` if
-no system entry exists. `exec_argument` follows the Desktop Entry quoting
+**Was.** When the user set up Wayland shortcuts, Tempura wrote a hidden
+`app.tempura.focus.desktop` (and icon) under `~/.local/share` if no
+system entry existed. `exec_argument` follows the Desktop Entry quoting
 rules for `"`, `` ` ``, `$`, `\`, and `%`, but a newline in the path
-would end the `Exec` line and could add keys. The path comes from
-`$APPIMAGE` or the running executable, both set by the same user, so
-there is no attacker in the middle; it is a correctness gap.
+would have ended the `Exec` line and could add keys. The path comes from
+`$APPIMAGE` or the running executable, both set by the same user, so it
+was a correctness gap rather than an attack.
 
 **Evidence.** [`src-tauri/src/portal.rs`](../src-tauri/src/portal.rs)
 `ensure_desktop_entry`, `desktop_entry`, `exec_argument`.
-
-**Fix sketch.** Refuse to write the entry (and report a portal problem)
-when the command contains a control character.
 
 ### Info
 
@@ -260,7 +263,8 @@ These are easy to misread as stronger guarantees than they are.
 - **Global shortcut and dialog plugins** are used from Rust only. Neither
   appears in [`capabilities/default.json`](../src-tauri/capabilities/default.json),
   so page JS cannot call them directly; it can only change the recorded
-  shortcuts through `update_settings` (L7).
+  shortcuts through `update_settings`, which refuses the common ones
+  (L7, addressed).
 - **Portal files persist.** The hidden desktop entry and icon written for
   Wayland shortcuts (L8) stay in `~/.local/share` after uninstall. Only
   written once portal shortcuts are enabled in settings (by the user, or
@@ -318,11 +322,10 @@ notification IPC is debug-only; no `window.open` fallback; Unix DB
 modes; absolute opener binaries; Pages i18n is `textContent` only).
 Remaining:
 
-1. **L7** — refuse common editing/system combinations as global
-   shortcuts (small code change in `hotkeys::check`).
-2. **L8** — refuse control characters in the portal desktop entry's
-   command (small code change in `portal.rs`).
-3. **M2** — Authenticode / notarization. Backlog: it costs money for
+**L7** and **L8** are done too (common shortcuts refused; no desktop
+entry for a command with control characters).
+
+1. **M2** — Authenticode / notarization. Backlog: it costs money for
    certificates and developer accounts, and is not planned for now. The
    README warns about SmartScreen and Gatekeeper on first open.
 

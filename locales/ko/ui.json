@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "{{action}} 명령 복사",
     "hotkeyClear": "{{action}} 단축키 지우기",
     "hotkeyNeedsModifier": "다른 앱에서 입력에 방해되지 않도록 Ctrl, Alt 또는 Super를 함께 눌러 주세요.",
+    "hotkeyReserved": "이 단축키는 복사나 붙여넣기 같은 데 앱들이 쓰고 있어서 Tempura는 가져가지 않아요. 다른 단축키를 골라 주세요.",
     "hotkeyTaken": "이미 “{{action}}”에 쓰이고 있어요.",
     "hotkeyInUse": "다른 앱이 이미 이 단축키를 쓰고 있어서 Tempura는 건드리지 않았어요. 다른 단축키를 골라 주세요."
   },

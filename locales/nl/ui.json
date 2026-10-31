@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "Opdracht voor {{action}} kopiëren",
     "hotkeyClear": "Sneltoets voor {{action}} wissen",
     "hotkeyNeedsModifier": "Voeg Ctrl, Alt of Super toe, zodat typen in andere apps niet verstoord wordt.",
+    "hotkeyReserved": "Apps gebruiken deze sneltoets voor dingen als kopiëren of plakken, dus Tempura neemt hem niet over. Kies een andere.",
     "hotkeyTaken": "Al in gebruik voor ‘{{action}}’.",
     "hotkeyInUse": "Een andere app gebruikt deze sneltoets al, dus Tempura heeft hem niet overgenomen. Kies een andere."
   },

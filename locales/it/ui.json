@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "Copia il comando per {{action}}",
     "hotkeyClear": "Rimuovi la scorciatoia per {{action}}",
     "hotkeyNeedsModifier": "Aggiungi Ctrl, Alt o Super, così la digitazione nelle altre app non ne risente.",
+    "hotkeyReserved": "Le app usano questa scorciatoia per cose come copiare o incollare, quindi Tempura non la prende. Scegline un’altra.",
     "hotkeyTaken": "Già usata per «{{action}}».",
     "hotkeyInUse": "Un’altra app usa già questa scorciatoia, quindi Tempura l’ha lasciata stare. Scegline un’altra."
   },

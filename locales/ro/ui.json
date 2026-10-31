@@ -121,6 +121,7 @@
     "hotkeyCopyAria": "Copiază comanda pentru {{action}}",
     "hotkeyClear": "Șterge scurtătura pentru {{action}}",
     "hotkeyNeedsModifier": "Adaugă Ctrl, Alt sau Super, ca să nu încurci scrisul în alte aplicații.",
+    "hotkeyReserved": "Aplicațiile folosesc scurtătura asta pentru copiere, lipire și altele, așa că Tempura n-o ia. Alege alta.",
     "hotkeyTaken": "Deja folosită pentru „{{action}}”.",
     "hotkeyInUse": "O altă aplicație folosește deja scurtătura, așa că Tempura n-a luat-o. Alege alta."
   },

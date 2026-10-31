@@ -384,9 +384,10 @@ impl Database {
                 .unwrap_or(defaults.check_updates_on_launch),
             // Comma-joined: technique ids never contain commas (see `validate_id`).
             global_hotkeys: GlobalHotkeys {
-                toggle: self.get_setting("hotkey_toggle")?.unwrap_or_default(),
-                skip: self.get_setting("hotkey_skip")?.unwrap_or_default(),
-                show: self.get_setting("hotkey_show")?.unwrap_or_default(),
+                // Reserved ones saved before they were refused read as not set.
+                toggle: crate::hotkeys::usable(self.get_setting("hotkey_toggle")?.unwrap_or_default()),
+                skip: crate::hotkeys::usable(self.get_setting("hotkey_skip")?.unwrap_or_default()),
+                show: crate::hotkeys::usable(self.get_setting("hotkey_show")?.unwrap_or_default()),
                 portal: self.get_setting("hotkey_portal")?.as_deref() == Some("1"),
             },
             hidden_technique_ids: self

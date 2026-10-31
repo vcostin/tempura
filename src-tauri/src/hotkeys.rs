@@ -1,7 +1,8 @@
 //! Opt-in global hotkeys: keys that act on the timer while Tempura is in the
 //! background. Nothing is registered until the user records a shortcut, every
-//! shortcut needs Ctrl, Alt or Super (so typing is never captured), and a key
-//! another app already owns is reported, never taken.
+//! shortcut needs Ctrl, Alt or Super (so typing is never captured), common
+//! editing, window and tab shortcuts are refused (so copy or paste keep working
+//! everywhere), and a key another app already owns is reported, never taken.
 //!
 //! The plugin can't grab keys on Wayland; there Tempura asks the desktop through
 //! its GlobalShortcuts portal (see `portal.rs`), and where no portal exists the
@@ -13,7 +14,7 @@ use parking_lot::Mutex;
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_global_shortcut::{
-    GlobalShortcutExt, Modifiers, Shortcut, ShortcutEvent, ShortcutState,
+    Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutEvent, ShortcutState,
 };
 
 use crate::actions::{self, Action};
@@ -25,6 +26,9 @@ pub enum HotkeyProblem {
     Invalid,
     /// No Ctrl, Alt or Super: it would swallow ordinary typing.
     NeedsModifier,
+    /// A shortcut other apps rely on, like copy or paste: taking it system-wide
+    /// would stop it working everywhere else.
+    Reserved,
 }
 
 /// Parse a recorded shortcut ("Control+Alt+KeyP") and check it leaves typing alone.
@@ -34,7 +38,57 @@ pub fn check(accelerator: &str) -> Result<Shortcut, HotkeyProblem> {
     if !shortcut.mods.intersects(typing_safe) {
         return Err(HotkeyProblem::NeedsModifier);
     }
+    if reserved(&shortcut) {
+        return Err(HotkeyProblem::Reserved);
+    }
     Ok(shortcut)
+}
+
+/// Ctrl or Cmd/Super alone with these: copy, paste, cut, undo, redo, select all,
+/// save, open, new, find, print, reload, quit, close, new tab, address bar,
+/// hide, minimize, switch tabs, input or launcher switching.
+const PRIMARY_KEYS: &[Code] = &[
+    Code::KeyA, Code::KeyC, Code::KeyF, Code::KeyH, Code::KeyL, Code::KeyM, Code::KeyN,
+    Code::KeyO, Code::KeyP, Code::KeyQ, Code::KeyR, Code::KeyS, Code::KeyT, Code::KeyV,
+    Code::KeyW, Code::KeyX, Code::KeyY, Code::KeyZ, Code::Tab, Code::Space,
+];
+
+/// Ctrl or Cmd/Super with Shift: terminal copy and paste, redo, reopen tab,
+/// new private window, close window, switch tabs back.
+const PRIMARY_SHIFT_KEYS: &[Code] = &[
+    Code::KeyC, Code::KeyN, Code::KeyT, Code::KeyV, Code::KeyW, Code::KeyZ, Code::Tab,
+];
+
+/// The common editing, window and tab shortcuts no app should take system-wide.
+/// The same rule as `isReserved` in `src/lib/hotkeys.ts`.
+fn reserved(shortcut: &Shortcut) -> bool {
+    let mods = shortcut.mods;
+    let alt = mods.contains(Modifiers::ALT);
+    let shift = mods.contains(Modifiers::SHIFT);
+    let primary = mods & (Modifiers::CONTROL | Modifiers::SUPER | Modifiers::META);
+    let key = &shortcut.key;
+    if alt {
+        // Alt+Tab, Alt+Shift+Tab, Alt+F4, Alt+Space (window menu).
+        return primary.is_empty()
+            && (*key == Code::Tab || (!shift && matches!(key, Code::F4 | Code::Space)));
+    }
+    if primary.bits().count_ones() != 1 {
+        return false;
+    }
+    if shift {
+        PRIMARY_SHIFT_KEYS.contains(key)
+    } else {
+        PRIMARY_KEYS.contains(key)
+    }
+}
+
+/// A saved shortcut, or nothing if it is one of the reserved ones: kept from
+/// before they were refused, or set without going through the recorder.
+pub fn usable(accelerator: String) -> String {
+    match check(&accelerator) {
+        Err(HotkeyProblem::Reserved) => String::new(),
+        _ => accelerator,
+    }
 }
 
 /// The recorded shortcuts with their actions, skipping the empty ones.
@@ -196,6 +250,37 @@ mod tests {
         assert_eq!(check("KeyP"), Err(HotkeyProblem::NeedsModifier));
         assert_eq!(check("Shift+KeyP"), Err(HotkeyProblem::NeedsModifier));
         assert_eq!(check("Space"), Err(HotkeyProblem::NeedsModifier));
+    }
+
+    #[test]
+    fn refuses_shortcuts_other_apps_rely_on() {
+        for taken in [
+            "Control+KeyC", "Control+KeyV", "Control+KeyX", "Control+KeyZ", "Control+KeyS",
+            "Super+KeyC", "Super+KeyQ", "Super+Space", "Control+Tab",
+            "Control+Shift+KeyC", "Control+Shift+KeyV", "Control+Shift+KeyZ", "Super+Shift+KeyT",
+            "Alt+Tab", "Alt+Shift+Tab", "Alt+F4", "Alt+Space",
+        ] {
+            assert_eq!(check(taken), Err(HotkeyProblem::Reserved), "{taken}");
+        }
+    }
+
+    #[test]
+    fn allows_the_same_keys_with_more_modifiers() {
+        for free in [
+            "Control+Alt+KeyC", "Control+Super+KeyV", "Control+Shift+KeyP", "Super+KeyJ",
+            "Alt+KeyC", "Alt+Shift+F4", "Control+Alt+Tab", "Control+Alt+Space",
+        ] {
+            assert!(check(free).is_ok(), "{free}");
+        }
+    }
+
+    #[test]
+    fn saved_reserved_shortcuts_read_as_not_set() {
+        assert_eq!(usable("Control+KeyC".into()), "");
+        assert_eq!(usable("Control+Alt+KeyP".into()), "Control+Alt+KeyP");
+        assert_eq!(usable(String::new()), "");
+        // Other problems are left for validation to report.
+        assert_eq!(usable("KeyP".into()), "KeyP");
     }
 
     #[test]

@@ -204,7 +204,8 @@ fn ensure_desktop_entry() -> std::io::Result<()> {
     std::fs::write(icon_dir.join(format!("{APP_ID}.png")), include_bytes!("../icons/128x128.png"))?;
     let apps = data_home.join("applications");
     std::fs::create_dir_all(&apps)?;
-    let entry = desktop_entry(&hotkeys::launch_command());
+    let entry = desktop_entry(&hotkeys::launch_command())
+        .ok_or_else(|| std::io::Error::other("the launch path has a control character"))?;
     let path = apps.join(&file);
     if std::fs::read_to_string(&path).ok().as_deref() != Some(entry.as_str()) {
         std::fs::write(path, entry)?;
@@ -213,11 +214,16 @@ fn ensure_desktop_entry() -> std::io::Result<()> {
 }
 
 /// A hidden menu entry (no duplicate in the app menu) that names and pictures Tempura.
-pub fn desktop_entry(command: &str) -> String {
-    format!(
+/// None when the command has a control character: no quoting keeps a newline from
+/// ending the `Exec` line, so the entry isn't written at all.
+pub fn desktop_entry(command: &str) -> Option<String> {
+    if command.chars().any(char::is_control) {
+        return None;
+    }
+    Some(format!(
         "[Desktop Entry]\nType=Application\nName=Tempura\nComment=Focus timer\nExec={}\nIcon={APP_ID}\nTerminal=false\nNoDisplay=true\n",
         exec_argument(command)
-    )
+    ))
 }
 
 /// Quote one Exec argument per the Desktop Entry spec: escape for the quoted
@@ -392,7 +398,7 @@ mod tests {
 
     #[test]
     fn desktop_entry_names_tempura_and_quotes_the_command() {
-        let entry = desktop_entry("/home/me/My Apps/Tempura.AppImage");
+        let entry = desktop_entry("/home/me/My Apps/Tempura.AppImage").unwrap();
         assert!(entry.starts_with("[Desktop Entry]\n"));
         assert!(entry.contains("\nName=Tempura\n"));
         assert!(entry.contains("\nExec=\"/home/me/My Apps/Tempura.AppImage\"\n"));
@@ -402,6 +408,13 @@ mod tests {
         assert_eq!(exec_argument("/opt/a$b"), r#""/opt/a\\$b""#);
         assert_eq!(exec_argument(r"/opt/a\b"), r#""/opt/a\\\\b""#);
         assert_eq!(exec_argument("/opt/100%"), r#""/opt/100%%""#);
+    }
+
+    #[test]
+    fn no_desktop_entry_for_a_command_with_control_characters() {
+        assert_eq!(desktop_entry("/tmp/a\nExec=/bin/evil"), None);
+        assert_eq!(desktop_entry("/tmp/a\rb"), None);
+        assert_eq!(desktop_entry("/tmp/a\tb"), None);
     }
 
     #[test]

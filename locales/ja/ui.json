@@ -120,6 +120,7 @@
     "hotkeyCopyAria": "{{action}}のコマンドをコピー",
     "hotkeyClear": "{{action}} のショートカットを削除",
     "hotkeyNeedsModifier": "他のアプリでの入力を妨げないよう、Ctrl・Alt・Super のいずれかを加えてください。",
+    "hotkeyReserved": "このショートカットはコピーや貼り付けなどでアプリが使うため、Tempura では登録しません。別のものを選んでください。",
     "hotkeyTaken": "「{{action}}」で使用中です。",
     "hotkeyInUse": "別のアプリがこのショートカットを使っているため、Tempura は登録しませんでした。別のものを選んでください。"
   },

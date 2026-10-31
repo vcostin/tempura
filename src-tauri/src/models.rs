@@ -277,7 +277,7 @@ impl AppSettings {
 
         let hotkeys = &mut self.global_hotkeys;
         for value in [&mut hotkeys.toggle, &mut hotkeys.skip, &mut hotkeys.show] {
-            *value = value.trim().to_string();
+            *value = crate::hotkeys::usable(value.trim().to_string());
             if !value.is_empty() && crate::hotkeys::check(value).is_err() {
                 return Err("invalid global shortcut".into());
             }
@@ -517,6 +517,14 @@ mod tests {
     fn settings_reject_typing_keys_and_duplicate_hotkeys() {
         assert!(with_hotkeys("KeyP", "", "").validated().is_err());
         assert!(with_hotkeys("Control+Alt+KeyP", "Control+Alt+KeyP", "").validated().is_err());
+    }
+
+    #[test]
+    fn settings_clear_reserved_hotkeys_instead_of_failing() {
+        // Saved before they were refused: other settings must still save.
+        let v = with_hotkeys("Control+KeyC", "Control+Alt+KeyS", "").validated().unwrap();
+        assert_eq!(v.global_hotkeys.toggle, "");
+        assert_eq!(v.global_hotkeys.skip, "Control+Alt+KeyS");
     }
 
     #[test]
