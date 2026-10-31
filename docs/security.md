@@ -10,9 +10,9 @@ accounts, no telemetry, no extra update server. Host access is real
 
 | | |
 | --- | --- |
-| **App version** | 0.5.1 |
-| **Tree** | `43214c9` (`main` as of 2026-10-31). Earlier pass: 0.3.2 at `a46d817` (2026-09-19). |
-| **Scope** | Tauri 2 config, Rust commands, opener, SQLite, updater CI, download site; since 0.3.2 also session export, global shortcuts, the Wayland shortcuts portal, and command-line actions |
+| **App version** | 0.7.0 (pre-release audit; tree still reports 0.6.0 in `tauri.conf.json` / `Cargo.toml` until the version bump) |
+| **Tree** | `8d43876` (`main` as of 2026-11-01). Earlier: 0.5.1 at `43214c9` (2026-10-31); 0.3.2 at `a46d817` (2026-09-19). |
+| **Scope** | Diff since 0.5.1 (`v0.5.1..main`): technique mode enum, schema versioning + JSON settings, per-day/per-hour session accounting, `get_period_stats`, Stats/report UI + CSV/JSON export; re-check of capabilities, CSP, opener, hotkeys/portal, updater CI, download site, and dependency advisories (OSV; `cargo audit` unavailable in this environment) |
 | **Critical / High** | None found |
 
 Related: [releasing.md](releasing.md) (ed25519 updater signing).
@@ -35,11 +35,13 @@ Rust**, plus **how updates are chosen and verified**.
 
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
-sig), relaunch, quit, timer/settings/stats, open the pinned GitHub
+sig), relaunch, quit, timer/settings/stats (including
+`get_period_stats` over any ≤3660-day window), open the pinned GitHub
 discussion, open the native save dialog for a session export (the user
-still picks the path), register up to three global shortcuts (not the common ones; see L7),
-and ask the Wayland portal to bind or reconfigure them (the desktop shows
-its own dialog). Debug builds also expose a test notification. That is
+still picks the path; dialog title is IPC-controlled), register up to
+three global shortcuts (not the common ones; see L7), and ask the
+Wayland portal to bind or reconfigure them (the desktop shows its own
+dialog). Debug builds also expose a test notification. That is
 annoying, not “unsigned update.”
 
 ## Findings
@@ -231,6 +233,31 @@ was a correctness gap rather than an attack.
 **Evidence.** [`src-tauri/src/portal.rs`](../src-tauri/src/portal.rs)
 `ensure_desktop_entry`, `desktop_entry`, `exec_argument`.
 
+#### L9 — CSV formula neutralization misses leading space / Unicode prefixes
+
+**Status.** Open (new in 0.7.0 pass).
+
+**Impact.** Session CSV export prefixes labels and technique names that
+start with `=`, `+`, `-`, `@`, tab, or CR with a leading `'` so Excel /
+LibreOffice do not treat them as formulas. A “Working on” label (or a
+technique name) that starts with a **space**, **BOM** (`U+FEFF`), or
+**zero-width** character before `=` still ships as a live formula cell.
+The user (or XSS via `update_settings` / technique APIs) chooses those
+strings; opening the export in a spreadsheet is the trigger. Same class
+as classic CSV injection; blast radius is the spreadsheet, not the
+Tempura process.
+
+**Evidence.** [`src-tauri/src/export.rs`](../src-tauri/src/export.rs)
+`csv_field` (prefix check only on the first character); settings
+`working_on` allows space/tab and strips other controls
+([`models.rs`](../src-tauri/src/models.rs)); technique names reject
+controls but not spaces or format characters.
+
+**Fix sketch.** After NFC (optional), strip leading BOM / format /
+whitespace, then apply the existing formula-prefix check (or always
+write text fields as quoted `'…` cells). Extend the unit test that
+already covers `=SUM(A1)`.
+
 ### Info
 
 These are easy to misread as stronger guarantees than they are.
@@ -256,10 +283,9 @@ These are easy to misread as stronger guarantees than they are.
   dialog or fs plugin: the webview passes only the format and the dialog
   title. Rust renders the rows and shows a native save dialog modal to
   the main window; the file goes where the user picks, and gets the
-  format's extension if the chosen name has none. CSV text fields (labels
-  and technique names) starting like a formula (`=`, `+`, `-`, `@`, tab,
-  CR) are defused. XSS could open the dialog with a misleading title, but
-  the contents are always session history.
+  format's extension if the chosen name has none. CSV text fields are
+  partially defused (L9). XSS could open the dialog with a misleading
+  title, but the contents are always session history.
 - **Global shortcut and dialog plugins** are used from Rust only. Neither
   appears in [`capabilities/default.json`](../src-tauri/capabilities/default.json),
   so page JS cannot call them directly; it can only change the recorded
@@ -276,9 +302,33 @@ These are easy to misread as stronger guarantees than they are.
 - **Hotkey report** includes the path Tempura was launched from (to show
   the command for system shortcuts). That is visible to page JS; it is
   the user's own path, not a secret.
-- **Session accounting (0.5.1)** saves progress once a minute during
-  focus and closes sessions a crash left open. Same database, same
-  `0600` mode; no new data leaves the machine.
+- **Period stats (`get_period_stats`, 0.6→0.7).** Dates are parsed as
+  strict `YYYY-MM-DD`; both the primary and compare windows go through
+  `check_period` (max 3660 days); SQL in `period_core` /
+  `period_totals` / `technique_usage` / `weekday_hours` is parameterized.
+  Fine for the webview→Rust boundary.
+- **Stats / report UI.** User-controlled labels and technique names are
+  React text / `title` attributes ([`StatsView.tsx`](../src/components/StatsView.tsx)),
+  not `dangerouslySetInnerHTML`. App i18n uses `escapeValue: false`
+  because React escapes JSX; keep it that way.
+- **Schema versioning + JSON settings.** Append-only `MIGRATIONS` in
+  [`db.rs`](../src-tauri/src/db.rs); `update_settings` still runs
+  `AppSettings::validated`. A DB written by a newer build is left alone
+  (warn on stderr). Same Unix modes as L3.
+- **Download site asset hrefs** come from the GitHub Releases API
+  (`browser_download_url`) without a host allowlist
+  ([`website/download.js`](../website/download.js)). That matches the
+  existing trust in GitHub for first install and updater metadata; a
+  host allowlist (`github.com` / `*.githubusercontent.com`) would be
+  defense in depth only.
+- **Dependency advisories (2026-11-01).** OSV on locked versions:
+  `tauri` 2.11.5, updater plugin, `rusqlite` 0.32.1, and
+  `react-router` 7.18.4 reported clean for this tree. `vite` 7.3.6 has
+  several GHSA entries that apply to the **dev server** (and Windows
+  `launch-editor`), not the packaged app. Transitive `tokio` carries
+  RUSTSEC-2026-0386 (`AsyncFd` I/O safety); Tempura’s Linux `tokio`
+  feature set is `time` only. Re-run `cargo audit` when the toolchain
+  wrapper in CI/dev allows it.
 - **Notification plugin** is permission-grant only. Phase banners go
   through Rust (`notify.rs`), not `notification:allow-notify`.
 
@@ -296,14 +346,14 @@ Worth keeping; do not “fix” these into something weaker.
   dialog assigns them.
 - **Parameterized SQL** throughout [`db.rs`](../src-tauri/src/db.rs);
   [`models.rs`](../src-tauri/src/models.rs) validates technique ids,
-  durations, themes, locale, accent.
+  durations, themes, locale, accent; technique **mode** is an enum on
+  the wire (unknown values fail deserialize).
 - **Updater pubkey pinned** in `tauri.conf.json`; Release workflow
   **fails** if `TAURI_SIGNING_PRIVATE_KEY` is missing; AppImage
   **strip then re-sign**; `latest.json` prefers that raw AppImage;
   `uploadUpdaterJson: false` so matrix legs cannot race `latest.json`;
-  one job runs `build-updater-json.ts`.
-- **Locks frozen** (`deno.lock`, `Cargo.lock`); Actions pinned by
-  commit SHA in `.github/workflows/*`; `.gitignore` has
+  one job runs `build-updater-json.ts`. Actions remain commit-SHA pinned.
+- **Locks frozen** (`deno.lock`, `Cargo.lock`); `.gitignore` has
   `src-tauri/.keys/`; no private key files in the tree.
 - **Opener** opens `FEEDBACK_URL` only (no IPC URL argument; no
   `window.open` fallback). Host binaries are absolute paths (Linux,
@@ -313,26 +363,24 @@ Worth keeping; do not “fix” these into something weaker.
   uses host libs (availability fix, not a privilege drop).
 - **Download site i18n** — locale strings go in via `textContent`;
   interpolated values are escaped. No `innerHTML` from catalogs.
+- **Period cap + dated IPC** — `MAX_PERIOD_DAYS` / `check_period` keep
+  stats queries bounded; frontend `report.ts` mirrors the same ceiling.
 
 ## Recommended fix order
 
-**M1**, **L2**, **L1**, **L4**, **L3**, **L6**, and **L5** are done (raw
-AppImage in `latest.json`; feedback opener is Discussion #5 only; test
-notification IPC is debug-only; no `window.open` fallback; Unix DB
-modes; absolute opener binaries; Pages i18n is `textContent` only).
-Remaining:
+**M1**, **L2**, **L1**, **L4**, **L3**, **L6**, **L5**, **L7**, and
+**L8** are done. Remaining before / around 0.7.0:
 
-**L7** and **L8** are done too (common shortcuts refused; no desktop
-entry for a command with control characters).
-
-1. **M2** — Authenticode / notarization. Backlog: it costs money for
+1. **L9** — harden `csv_field` (strip BOM / format / leading whitespace,
+   then formula-prefix). Small, ship with the export path that 0.7
+   leans on.
+2. **M2** — Authenticode / notarization. Backlog: it costs money for
    certificates and developer accounts, and is not planned for now. The
    README warns about SmartScreen and Gatekeeper on first open.
 
 ## Out of scope here
 
-- Implementing the items above.
-- Full dependency advisory dump (lockfiles + SHA-pinned Actions are
-  the current control; re-check with `cargo audit` / GitHub’s
-  dependency graph when you next bump crates).
-- Cutting a release.
+- Implementing the items above (except documenting them).
+- Cutting a release / bumping the crate version to 0.7.0.
+- Full `cargo audit` dump in environments where rustup’s toolchain
+  proxy is broken (OSV pass above is the substitute for this refresh).
