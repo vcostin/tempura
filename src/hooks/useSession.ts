@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import { ensureNotificationPermission, isTauri } from "../lib/platform";
@@ -155,24 +155,57 @@ export function useSession() {
     setTechniques(await api.listTechniques());
   }, []);
 
-  return {
-    ready,
-    snapshot,
-    techniques,
-    selectedId,
-    setSelectedId,
-    stats,
-    hybridBell,
-    start,
-    pause,
-    resume,
-    skip,
-    reset,
-    stop,
-    continueFlow,
-    countAway,
-    dismissAway,
-    reloadTechniques,
-    refreshStats,
-  };
+  // The engine ticks every 250 ms while a session runs. Only the clock needs every
+  // tick, so the live snapshot is returned on its own and `session` keeps a stable
+  // identity until something coarser changes (running, paused, phase, techniques…).
+  const { running, paused, awaitingStart, phase } = snapshot;
+  const session = useMemo(
+    () => ({
+      ready,
+      running,
+      paused,
+      awaitingStart,
+      phase,
+      techniques,
+      selectedId,
+      setSelectedId,
+      stats,
+      hybridBell,
+      start,
+      pause,
+      resume,
+      skip,
+      reset,
+      stop,
+      continueFlow,
+      countAway,
+      dismissAway,
+      reloadTechniques,
+      refreshStats,
+    }),
+    [
+      ready,
+      running,
+      paused,
+      awaitingStart,
+      phase,
+      techniques,
+      selectedId,
+      stats,
+      hybridBell,
+      start,
+      pause,
+      resume,
+      skip,
+      reset,
+      stop,
+      continueFlow,
+      countAway,
+      dismissAway,
+      reloadTechniques,
+      refreshStats,
+    ],
+  );
+
+  return { snapshot, session };
 }
