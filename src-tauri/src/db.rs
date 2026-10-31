@@ -95,7 +95,7 @@ type Migration = fn(&Connection) -> DbResult<()>;
 
 /// Schema changes in order; `PRAGMA user_version` counts how many have run.
 /// Append new ones at the end and never change one that has shipped.
-const MIGRATIONS: &[Migration] = &[migrate_v1_baseline, migrate_v2_settings_json];
+const MIGRATIONS: &[Migration] = &[migrate_v1_baseline, migrate_v2_settings_json, migrate_v3_focus_by_day];
 
 /// The schema as it stood before versioning. Every step tolerates a database
 /// that already has it, so pre-versioning databases pass through unchanged.
@@ -157,6 +157,92 @@ fn migrate_v2_settings_json(conn: &Connection) -> DbResult<()> {
         "INSERT INTO settings (key, value) VALUES (?1, ?2)",
         params![SETTINGS_KEY, json],
     )?;
+    Ok(())
+}
+
+/// Focus per local day for each session, so a session that runs past midnight
+/// counts on both days. Sessions from before get their focus on the day they
+/// started, which is where stats showed it until now.
+fn migrate_v3_focus_by_day(conn: &Connection) -> DbResult<()> {
+    conn.execute_batch(
+        "
+        CREATE TABLE session_days (
+            session_id TEXT NOT NULL REFERENCES sessions(id) ON DELETE CASCADE,
+            day TEXT NOT NULL,
+            focus_secs INTEGER NOT NULL,
+            PRIMARY KEY (session_id, day)
+        );
+        CREATE INDEX idx_session_days_day ON session_days(day);
+        ",
+    )?;
+    let sessions: Vec<(String, String, i64)> = conn
+        .prepare("SELECT id, started_at, focus_secs_completed FROM sessions WHERE focus_secs_completed > 0")?
+        .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))?
+        .collect::<Result<_, _>>()?;
+    for (id, started_at, focus) in sessions {
+        let Some(day) = local_date_from_rfc3339(&started_at) else {
+            eprintln!("tempura: session {id} has an unreadable start time; its focus stays off the daily stats");
+            continue;
+        };
+        conn.execute(
+            "INSERT INTO session_days (session_id, day, focus_secs) VALUES (?1, ?2, ?3)",
+            params![id, day_key(day), focus],
+        )?;
+    }
+    Ok(())
+}
+
+/// How `session_days` writes a day: sorts and compares as text.
+fn day_key(day: NaiveDate) -> String {
+    day.format("%Y-%m-%d").to_string()
+}
+
+/// Bring a session's per-day focus up to `total`. No time ranges: whatever
+/// changed since the last save goes to `day`, the day of this save. Saves come
+/// at least once a minute during focus, so at most that much lands on the wrong
+/// side of midnight. Focus taken back (a reset focus) comes off the latest days
+/// first. Afterwards the days add up to `total`.
+fn record_focus(conn: &Connection, session_id: &str, total: i64, day: NaiveDate) -> DbResult<()> {
+    let recorded: i64 = conn.query_row(
+        "SELECT COALESCE(SUM(focus_secs), 0) FROM session_days WHERE session_id = ?1",
+        params![session_id],
+        |row| row.get(0),
+    )?;
+    let change = total.max(0) - recorded;
+    if change > 0 {
+        conn.execute(
+            "INSERT INTO session_days (session_id, day, focus_secs) VALUES (?1, ?2, ?3)
+             ON CONFLICT(session_id, day) DO UPDATE SET focus_secs = focus_secs + excluded.focus_secs",
+            params![session_id, day_key(day), change],
+        )?;
+        return Ok(());
+    }
+    let mut take_back = -change;
+    if take_back == 0 {
+        return Ok(());
+    }
+    let days: Vec<(String, i64)> = conn
+        .prepare("SELECT day, focus_secs FROM session_days WHERE session_id = ?1 ORDER BY day DESC")?
+        .query_map(params![session_id], |row| Ok((row.get(0)?, row.get(1)?)))?
+        .collect::<Result<_, _>>()?;
+    for (day, focus) in days {
+        let cut = focus.min(take_back);
+        if cut == focus {
+            conn.execute(
+                "DELETE FROM session_days WHERE session_id = ?1 AND day = ?2",
+                params![session_id, day],
+            )?;
+        } else {
+            conn.execute(
+                "UPDATE session_days SET focus_secs = focus_secs - ?3 WHERE session_id = ?1 AND day = ?2",
+                params![session_id, day, cut],
+            )?;
+        }
+        take_back -= cut;
+        if take_back == 0 {
+            break;
+        }
+    }
     Ok(())
 }
 
@@ -599,7 +685,8 @@ impl Database {
         label: &str,
     ) -> DbResult<()> {
         let now = Utc::now().to_rfc3339();
-        self.conn.execute(
+        let tx = self.conn.unchecked_transaction()?;
+        let changed = tx.execute(
             "
             UPDATE sessions SET
                 ended_at = ?1,
@@ -607,17 +694,21 @@ impl Database {
                 completed_cycles = ?3,
                 interrupted = ?4,
                 label = ?5
-            WHERE id = ?6
+            WHERE id = ?6 AND ended_at IS NULL
             ",
             params![
                 now,
-                focus_secs,
+                focus_secs.max(0),
                 completed_cycles,
                 if interrupted { 1 } else { 0 },
                 label,
                 session_id
             ],
         )?;
+        if changed > 0 {
+            record_focus(&tx, session_id, focus_secs, Local::now().date_naive())?;
+        }
+        tx.commit()?;
         Ok(())
     }
 
@@ -629,7 +720,8 @@ impl Database {
         label: &str,
     ) -> DbResult<()> {
         let now = Utc::now().to_rfc3339();
-        self.conn.execute(
+        let tx = self.conn.unchecked_transaction()?;
+        let changed = tx.execute(
             "
             UPDATE sessions SET
                 focus_secs_completed = ?1,
@@ -638,8 +730,12 @@ impl Database {
                 last_seen_at = ?4
             WHERE id = ?5 AND ended_at IS NULL
             ",
-            params![focus_secs, completed_cycles, label, now, session_id],
+            params![focus_secs.max(0), completed_cycles, label, now, session_id],
         )?;
+        if changed > 0 {
+            record_focus(&tx, session_id, focus_secs, Local::now().date_naive())?;
+        }
+        tx.commit()?;
         Ok(())
     }
 
@@ -647,19 +743,18 @@ impl Database {
         let today = Local::now().date_naive();
         let start_utc = local_day_start_utc(today).to_rfc3339();
 
-        let (focus_secs_today, completed_cycles_today, sessions_today): (i64, i64, i64) =
-            self.conn.query_row(
-                "
-                SELECT
-                    COALESCE(SUM(focus_secs_completed), 0),
-                    COALESCE(SUM(completed_cycles), 0),
-                    COUNT(*)
-                FROM sessions
-                WHERE started_at >= ?1
-                ",
-                params![start_utc],
-                |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
-            )?;
+        // Sessions and cycles count on the day a session started; focus on the
+        // days it happened.
+        let (completed_cycles_today, sessions_today): (i64, i64) = self.conn.query_row(
+            "SELECT COALESCE(SUM(completed_cycles), 0), COUNT(*) FROM sessions WHERE started_at >= ?1",
+            params![start_utc],
+            |row| Ok((row.get(0)?, row.get(1)?)),
+        )?;
+        let focus_secs_today: i64 = self.conn.query_row(
+            "SELECT COALESCE(SUM(focus_secs), 0) FROM session_days WHERE day = ?1",
+            params![day_key(today)],
+            |row| row.get(0),
+        )?;
 
         let streak_days = self.compute_streak(today)?;
 
@@ -678,40 +773,64 @@ impl Database {
         let start_day = today - Duration::days(days - 1);
         let start_utc = local_day_start_utc(start_day).to_rfc3339();
 
-        // Oldest first: the grouping shows each label's most recent spelling.
-        let mut stmt = self.conn.prepare(
-            "
-            SELECT s.started_at, s.focus_secs_completed, s.completed_cycles, s.label,
-                   s.technique_id, COALESCE(s.technique_name, t.name, '')
-            FROM sessions s
-            LEFT JOIN techniques t ON t.id = s.technique_id
-            WHERE s.started_at >= ?1
-            ORDER BY s.started_at
-            ",
-        )?;
-        type Row = (String, i64, i64, String, Option<String>, String);
-        let rows: Vec<Row> = stmt
-            .query_map(params![start_utc], |row| {
-                Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?, row.get(4)?, row.get(5)?))
-            })?
-            .collect::<Result<Vec<_>, _>>()?;
-
+        // Sessions and cycles count on the day a session started.
+        let started: Vec<(String, i64)> = self
+            .conn
+            .prepare("SELECT started_at, completed_cycles FROM sessions WHERE started_at >= ?1")?
+            .query_map(params![start_utc], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect::<Result<_, _>>()?;
         let mut map: HashMap<NaiveDate, (i64, i64, i64)> = HashMap::new();
-        let mut labels = Vec::new();
-        let mut techniques = Vec::new();
-        for (started_at, focus, cycles, label, technique_id, technique_name) in rows {
+        for (started_at, cycles) in started {
             let Some(d) = local_date_from_rfc3339(&started_at) else {
                 continue;
             };
             if d < start_day || d > today {
                 continue;
             }
-            labels.push(FocusRow { id: None, name: label, focus_secs: focus });
-            techniques.push(FocusRow { id: technique_id, name: technique_name, focus_secs: focus });
             let e = map.entry(d).or_insert((0, 0, 0));
-            e.0 += focus;
             e.1 += cycles;
             e.2 += 1;
+        }
+
+        // Focus counts on the days it happened, including a session that started
+        // before the window and ran into it.
+        let (first, last) = (day_key(start_day), day_key(today));
+        let focus_days: Vec<(String, i64)> = self
+            .conn
+            .prepare(
+                "SELECT day, SUM(focus_secs) FROM session_days WHERE day BETWEEN ?1 AND ?2 GROUP BY day",
+            )?
+            .query_map(params![first, last], |row| Ok((row.get(0)?, row.get(1)?)))?
+            .collect::<Result<_, _>>()?;
+        for (day, focus) in focus_days {
+            if let Ok(d) = NaiveDate::parse_from_str(&day, "%Y-%m-%d") {
+                map.entry(d).or_insert((0, 0, 0)).0 += focus;
+            }
+        }
+
+        // Each session's focus inside the window, oldest first: the grouping shows
+        // each label's most recent spelling.
+        type Share = (String, Option<String>, String, i64);
+        let shares: Vec<Share> = self
+            .conn
+            .prepare(
+                "
+                SELECT s.label, s.technique_id, COALESCE(s.technique_name, t.name, ''), SUM(d.focus_secs)
+                FROM session_days d
+                JOIN sessions s ON s.id = d.session_id
+                LEFT JOIN techniques t ON t.id = s.technique_id
+                WHERE d.day BETWEEN ?1 AND ?2
+                GROUP BY s.id
+                ORDER BY s.started_at
+                ",
+            )?
+            .query_map(params![first, last], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?, row.get(3)?)))?
+            .collect::<Result<_, _>>()?;
+        let mut labels = Vec::new();
+        let mut techniques = Vec::new();
+        for (label, technique_id, technique_name, focus) in shares {
+            labels.push(FocusRow { id: None, name: label, focus_secs: focus });
+            techniques.push(FocusRow { id: technique_id, name: technique_name, focus_secs: focus });
         }
 
         let mut buckets = Vec::with_capacity(days as usize);
@@ -746,22 +865,16 @@ impl Database {
     }
 
     fn compute_streak(&self, today: NaiveDate) -> DbResult<i64> {
+        // Days with any focus, newest first.
         let mut stmt = self.conn.prepare(
-            "
-            SELECT started_at
-            FROM sessions
-            WHERE focus_secs_completed > 0
-            ",
+            "SELECT DISTINCT day FROM session_days WHERE focus_secs > 0 ORDER BY day DESC",
         )?;
-        let mut dates: Vec<NaiveDate> = stmt
+        let dates: Vec<NaiveDate> = stmt
             .query_map([], |row| row.get::<_, String>(0))?
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
-            .filter_map(|s| local_date_from_rfc3339(&s))
+            .filter_map(|d| NaiveDate::parse_from_str(&d, "%Y-%m-%d").ok())
             .collect();
-        dates.sort_unstable();
-        dates.dedup();
-        dates.reverse();
 
         if dates.is_empty() {
             return Ok(0);
@@ -871,7 +984,9 @@ mod range_stats_tests {
         naive_to_local(day.and_hms_opt(hour, min, sec).expect("hms")).with_timezone(&Utc)
     }
 
-    fn insert_session(db: &Database, started: DateTime<Utc>, focus: i64, cycles: i64) {
+    /// A finished session with all its focus on the day it started.
+    fn insert_session(db: &Database, started: DateTime<Utc>, focus: i64, cycles: i64) -> String {
+        let id = Uuid::new_v4().to_string();
         db.conn
             .execute(
                 "
@@ -879,9 +994,115 @@ mod range_stats_tests {
                     id, technique_id, started_at, focus_secs_completed, completed_cycles, interrupted
                 ) VALUES (?1, 'classic', ?2, ?3, ?4, 0)
                 ",
-                params![Uuid::new_v4().to_string(), started.to_rfc3339(), focus, cycles],
+                params![id, started.to_rfc3339(), focus, cycles],
             )
             .expect("insert session");
+        let day = started.with_timezone(&Local).date_naive();
+        record_focus(&db.conn, &id, focus, day).expect("record focus");
+        id
+    }
+
+    fn days_of(db: &Database, id: &str) -> Vec<(String, i64)> {
+        let mut stmt = db
+            .conn
+            .prepare("SELECT day, focus_secs FROM session_days WHERE session_id = ?1 ORDER BY day")
+            .unwrap();
+        stmt.query_map(params![id], |row| Ok((row.get(0)?, row.get(1)?))).unwrap().collect::<Result<_, _>>().unwrap()
+    }
+
+    #[test]
+    fn focus_goes_to_the_day_of_each_save() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let yesterday = today - Duration::days(1);
+        // Started at 23:00 yesterday: saves before midnight, then after.
+        let id = insert_session(&db, local_hms_utc(yesterday, 23, 0, 0), 0, 0);
+        record_focus(&db.conn, &id, 50 * 60, yesterday).unwrap();
+        record_focus(&db.conn, &id, 60 * 60, yesterday).unwrap();
+        record_focus(&db.conn, &id, 61 * 60, today).unwrap();
+        record_focus(&db.conn, &id, 90 * 60, today).unwrap();
+        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 60 * 60), (day_key(today), 30 * 60)]);
+
+        let range = db.range_stats(2).unwrap();
+        assert_eq!(range.buckets[0].focus_secs, 60 * 60);
+        assert_eq!(range.buckets[1].focus_secs, 30 * 60);
+        assert_eq!(range.focus_secs, 90 * 60);
+        // The session itself still counts once, on the day it started.
+        assert_eq!((range.buckets[0].sessions, range.buckets[1].sessions), (1, 0));
+        assert_eq!(db.day_stats().unwrap().focus_secs_today, 30 * 60);
+        assert_eq!(range.streak_days, 2);
+    }
+
+    #[test]
+    fn focus_taken_back_comes_off_the_latest_days() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let yesterday = today - Duration::days(1);
+        let id = insert_session(&db, local_hms_utc(yesterday, 23, 0, 0), 0, 0);
+        record_focus(&db.conn, &id, 40 * 60, yesterday).unwrap();
+        record_focus(&db.conn, &id, 50 * 60, today).unwrap();
+        // A reset focus: back to 35 minutes, more than today had.
+        record_focus(&db.conn, &id, 35 * 60, today).unwrap();
+        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 35 * 60)]);
+        // Same total again: nothing changes.
+        record_focus(&db.conn, &id, 35 * 60, today).unwrap();
+        assert_eq!(days_of(&db, &id), vec![(day_key(yesterday), 35 * 60)]);
+    }
+
+    #[test]
+    fn saving_progress_records_focus_by_day_and_stops_after_the_end() {
+        let db = temp_db();
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.bump_session_progress(&id, 600, 0, "").unwrap();
+        db.end_session(&id, 900, 1, false, "").unwrap();
+        db.bump_session_progress(&id, 60, 0, "").unwrap();
+        let total: i64 = days_of(&db, &id).iter().map(|(_, f)| f).sum();
+        assert_eq!(total, 900);
+    }
+
+    #[test]
+    fn ending_a_session_twice_changes_nothing() {
+        let db = temp_db();
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.end_session(&id, 900, 1, false, "").unwrap();
+        db.end_session(&id, 60, 0, true, "").unwrap();
+        let rows = db.export_rows().unwrap();
+        assert_eq!((rows[0].focus_secs, rows[0].completed_cycles, rows[0].interrupted), (900, 1, false));
+        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), 900);
+    }
+
+    #[test]
+    fn days_add_up_to_the_total_after_a_crash_and_reopen() {
+        let path = std::env::temp_dir().join(format!("tempura-days-crash-{}.sqlite", Uuid::new_v4()));
+        let db = Database::open(&path).expect("open");
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        let id = db.start_session(&tech, "").unwrap();
+        db.bump_session_progress(&id, 1200, 0, "").unwrap();
+        db.bump_session_progress(&id, 1500, 1, "").unwrap();
+        drop(db);
+        let db = Database::open(&path).expect("reopen");
+        let total: i64 = db
+            .conn
+            .query_row("SELECT focus_secs_completed FROM sessions WHERE id = ?1", params![id], |r| r.get(0))
+            .unwrap();
+        assert_eq!(total, 1500);
+        assert_eq!(days_of(&db, &id).iter().map(|(_, f)| f).sum::<i64>(), total);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn a_session_from_before_the_window_counts_its_focus_inside_it() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let start_day = today - Duration::days(6);
+        let id = insert_session(&db, local_hms_utc(start_day - Duration::days(1), 23, 0, 0), 30 * 60, 1);
+        record_focus(&db.conn, &id, 50 * 60, start_day).unwrap();
+        let range = db.range_stats(7).unwrap();
+        assert_eq!(range.focus_secs, 20 * 60);
+        assert_eq!(range.sessions, 0, "it started before the window");
+        assert_eq!(range.by_technique.first().map(|s| s.focus_secs), Some(20 * 60));
     }
 
     #[test]
@@ -1142,6 +1363,37 @@ mod range_stats_tests {
             .execute("UPDATE settings SET value = 'not json' WHERE key = ?1", params![SETTINGS_KEY])
             .unwrap();
         assert_eq!(db.get_settings().unwrap().theme, AppSettings::default().theme);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn sessions_from_before_count_their_focus_on_the_day_they_started() {
+        let path = temp_path("backfill");
+        let started = Utc::now() - Duration::days(3);
+        {
+            let conn = Connection::open(&path).unwrap();
+            migrate_v1_baseline(&conn).unwrap();
+            migrate_v2_settings_json(&conn).unwrap();
+            conn.pragma_update(None, "user_version", 2).unwrap();
+            for (id, focus) in [("a", 1500), ("b", 0)] {
+                conn.execute(
+                    "INSERT INTO sessions (id, started_at, ended_at, focus_secs_completed) VALUES (?1, ?2, ?2, ?3)",
+                    params![id, started.to_rfc3339(), focus],
+                )
+                .unwrap();
+            }
+        }
+        let db = Database::open(&path).expect("open");
+        let day = day_key(started.with_timezone(&Local).date_naive());
+        let rows: Vec<(String, String, i64)> = db
+            .conn
+            .prepare("SELECT session_id, day, focus_secs FROM session_days")
+            .unwrap()
+            .query_map([], |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)))
+            .unwrap()
+            .collect::<Result<_, _>>()
+            .unwrap();
+        assert_eq!(rows, vec![("a".to_string(), day, 1500)]);
         let _ = std::fs::remove_file(&path);
     }
 
