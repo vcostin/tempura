@@ -2,7 +2,7 @@ use crate::db::Database;
 use crate::engine::EngineHandle;
 use crate::export::ExportFormat;
 use crate::models::{
-    validate_id, AppInfo, AppSettings, DayStats, PeriodStats, StatsRange, Technique, TechniqueInput, TimerSnapshot,
+    validate_id, AppInfo, AppSettings, DayStats, PeriodStats, Technique, TechniqueInput, TimerSnapshot,
 };
 use parking_lot::Mutex;
 use tauri::{AppHandle, Emitter, State};
@@ -217,11 +217,6 @@ pub fn get_period_stats(
         .lock()
         .period_stats(day(&from)?, day(&to)?, compare)
         .map_err(|e| e.to_string())
-}
-
-#[tauri::command]
-pub fn get_stats_range(state: State<'_, AppState>, days: i64) -> Result<StatsRange, String> {
-    state.db.lock().range_stats(days).map_err(|e| e.to_string())
 }
 
 /// Save every session as CSV or JSON where the user picks. `None` when they cancel.

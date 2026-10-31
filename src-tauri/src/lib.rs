@@ -77,7 +77,6 @@ pub fn run() {
                 commands::get_system_locale,
                 commands::update_settings,
                 commands::get_stats,
-                commands::get_stats_range,
                 commands::get_period_stats,
                 commands::export_sessions,
                 commands::get_app_info,
