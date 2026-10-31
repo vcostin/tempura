@@ -123,5 +123,3 @@ export function useUpdater(options: Options) {
     hasOffer: status.kind === "available" && !skipped,
   };
 }
-
-export type UpdaterApi = ReturnType<typeof useUpdater>;

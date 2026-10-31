@@ -8,7 +8,7 @@ import {
   isTauri,
   setAutostart,
 } from "../lib/platform";
-import type { AppInfo, AppSettings, Technique, TechniqueInput } from "../lib/types";
+import type { AppInfo, AppSettings, TechniqueInput } from "../lib/types";
 import { THEMES } from "../lib/types";
 
 /** For the browser preview; the app gets its defaults from the backend. */
@@ -167,7 +167,3 @@ export function useSettings() {
     deleteTechnique,
   };
 }
-
-export type SettingsApi = ReturnType<typeof useSettings> & {
-  techniques: Technique[];
-};

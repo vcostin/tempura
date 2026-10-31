@@ -1,5 +1,5 @@
 use crate::models::{
-    AppSettings, DayBucket, FocusShare, GlobalHotkeys, DayStats, HourCell, PeriodTotals, PeriodStats, StatsRange, Technique,
+    AppSettings, DayBucket, FocusShare, GlobalHotkeys, DayStats, HourCell, PeriodTotals, PeriodStats, Technique,
     TechniqueUsage, TechniqueInput, TechniqueKind,
     TechniqueMode, DEFAULT_FLOW_RATIO,
 };
@@ -857,23 +857,6 @@ impl Database {
         })
     }
 
-    /// Inclusive local-day window ending today (`days` = 1 today, 7 last week, 30 last month).
-    pub fn range_stats(&self, days: i64) -> DbResult<StatsRange> {
-        let days = days.clamp(1, 366);
-        let today = Local::now().date_naive();
-        let core = self.period_core(today - Duration::days(days - 1), today)?;
-        Ok(StatsRange {
-            days,
-            focus_secs: core.focus_secs,
-            completed_cycles: core.completed_cycles,
-            sessions: core.sessions,
-            streak_days: self.compute_streak(today)?,
-            buckets: core.buckets,
-            by_label: core.by_label,
-            by_technique: core.by_technique,
-        })
-    }
-
     /// Stats for the local days `first..=last`, compared with `compare` (also
     /// inclusive), or by default with the same number of days just before.
     pub fn period_stats(
@@ -1255,7 +1238,7 @@ impl PeriodCore {
 }
 
 #[cfg(test)]
-mod range_stats_tests {
+mod stats_tests {
     use super::*;
     use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -1285,22 +1268,19 @@ mod range_stats_tests {
         assert!(db.get_settings().unwrap().hidden_technique_ids.is_empty());
     }
 
-    #[test]
-    fn range_stats_fills_empty_days() {
-        let db = temp_db();
-        let range = db.range_stats(7).expect("range");
-        assert_eq!(range.days, 7);
-        assert_eq!(range.buckets.len(), 7);
-        assert_eq!(range.focus_secs, 0);
-        assert_eq!(range.sessions, 0);
+    /// Stats for the `days` local days ending today.
+    fn last_days(db: &Database, days: i64) -> PeriodStats {
+        let today = Local::now().date_naive();
+        db.period_stats(today - Duration::days(days - 1), today, None).expect("period")
     }
 
     #[test]
-    fn range_stats_clamps_days() {
+    fn period_stats_fills_empty_days() {
         let db = temp_db();
-        assert_eq!(db.range_stats(0).unwrap().days, 1);
-        assert_eq!(db.range_stats(400).unwrap().days, 366);
-        assert_eq!(db.range_stats(400).unwrap().buckets.len(), 366);
+        let range = last_days(&db, 7);
+        assert_eq!(range.buckets.len(), 7);
+        assert_eq!(range.focus_secs, 0);
+        assert_eq!(range.sessions, 0);
     }
 
     fn local_hms_utc(day: NaiveDate, hour: u32, min: u32, sec: u32) -> DateTime<Utc> {
@@ -1518,19 +1498,19 @@ mod range_stats_tests {
             ]
         );
 
-        let range = db.range_stats(2).unwrap();
+        let range = last_days(&db, 2);
         assert_eq!((range.buckets[0].focus_secs, range.buckets[1].focus_secs), (80 * 60, 30 * 60));
         assert_eq!((range.buckets[0].completed_cycles, range.buckets[1].completed_cycles), (1, 1));
         // Active on both days, so it counts on both, and once in the total.
         assert_eq!((range.buckets[0].sessions, range.buckets[1].sessions), (1, 1));
         assert_eq!(range.sessions, 1);
         assert_eq!(range.focus_secs, 110 * 60);
-        assert_eq!(range.streak_days, 2);
         let today_stats = db.day_stats().unwrap();
         assert_eq!(
             (today_stats.focus_secs_today, today_stats.completed_cycles_today, today_stats.sessions_today),
             (30 * 60, 1, 1)
         );
+        assert_eq!(today_stats.streak_days, 2);
     }
 
     #[test]
@@ -1571,7 +1551,7 @@ mod range_stats_tests {
         db.start_session(&tech, "").unwrap();
         let stats = db.day_stats().unwrap();
         assert_eq!((stats.sessions_today, stats.focus_secs_today), (1, 0));
-        assert_eq!(db.range_stats(1).unwrap().sessions, 1);
+        assert_eq!(last_days(&db, 1).sessions, 1);
     }
 
     #[test]
@@ -1629,7 +1609,7 @@ mod range_stats_tests {
         let start_day = today - Duration::days(6);
         let id = insert_session(&db, local_hms_utc(start_day - Duration::days(1), 23, 0, 0), 30 * 60, 1);
         record_progress(&db.conn, &id, 50 * 60, 1, at(start_day, 0, 20)).unwrap();
-        let range = db.range_stats(7).unwrap();
+        let range = last_days(&db, 7);
         assert_eq!(range.focus_secs, 20 * 60);
         assert_eq!(range.completed_cycles, 0, "the cycle finished before the window");
         assert_eq!(range.sessions, 1, "active inside the window");
@@ -1637,20 +1617,20 @@ mod range_stats_tests {
     }
 
     #[test]
-    fn range_stats_buckets_by_local_day_not_utc_prefix() {
+    fn period_stats_buckets_by_local_day_not_utc_prefix() {
         let db = temp_db();
         let today = Local::now().date_naive();
         // Late evening local time is the next UTC date west of UTC.
         insert_session(&db, local_hms_utc(today, 23, 30, 0), 600, 1);
 
-        let range = db.range_stats(1).expect("range");
+        let range = last_days(&db, 1);
         assert_eq!(range.sessions, 1);
         assert_eq!(range.focus_secs, 600);
         assert_eq!(range.completed_cycles, 1);
         assert_eq!(range.buckets.len(), 1);
         assert_eq!(range.buckets[0].date, today.format("%Y-%m-%d").to_string());
         assert_eq!(range.buckets[0].focus_secs, 600);
-        assert_eq!(range.streak_days, 1);
+        assert_eq!(db.day_stats().unwrap().streak_days, 1);
         assert_eq!(
             range.focus_secs,
             range.buckets.iter().map(|b| b.focus_secs).sum::<i64>()
@@ -1658,7 +1638,7 @@ mod range_stats_tests {
     }
 
     #[test]
-    fn range_stats_excludes_session_before_window_and_fills_gaps() {
+    fn period_stats_excludes_session_before_window_and_fills_gaps() {
         let db = temp_db();
         let today = Local::now().date_naive();
         let start_day = today - Duration::days(6);
@@ -1670,7 +1650,7 @@ mod range_stats_tests {
         );
         insert_session(&db, local_hms_utc(today, 9, 0, 0), 300, 2);
 
-        let range = db.range_stats(7).expect("range");
+        let range = last_days(&db, 7);
         assert_eq!(range.buckets.len(), 7);
         assert_eq!(range.sessions, 1);
         assert_eq!(range.focus_secs, 300);
@@ -1703,8 +1683,8 @@ mod range_stats_tests {
         // Zero-focus session today must not keep the streak alive.
         insert_session(&db, local_hms_utc(today, 12, 0, 0), 0, 0);
 
-        let range = db.range_stats(7).expect("range");
-        assert_eq!(range.streak_days, 2);
+        assert_eq!(db.day_stats().unwrap().streak_days, 2);
+        let range = last_days(&db, 7);
         assert_eq!(range.sessions, 3);
         assert_eq!(range.focus_secs, 240);
     }
