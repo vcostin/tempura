@@ -167,8 +167,6 @@ export function TimerLayout() {
   const inEditor = location.pathname.startsWith("/techniques/");
   // Opened from Help & About or Settings as well as the timer: Back returns there.
   const onShortcuts = location.pathname === "/shortcuts";
-  // Opened from Stats: Esc and Back return there.
-  const onReport = location.pathname === "/report";
 
   useLayoutEffect(() => {
     if (!onTimer) return;
@@ -227,18 +225,18 @@ export function TimerLayout() {
   // The key handler reads the latest render through a ref. A listener re-registered
   // in an effect would lag one paint behind navigation: an Esc pressed right after
   // a panel opens would still act as if the previous route were showing.
-  const keyState = useRef({ session, onTimer, inEditor, onShortcuts, onReport, hideToTray, openPanel, closePanel, goBack, toast, dismissToast });
-  keyState.current = { session, onTimer, inEditor, onShortcuts, onReport, hideToTray, openPanel, closePanel, goBack, toast, dismissToast };
+  const keyState = useRef({ session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast });
+  keyState.current = { session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast };
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      const { session, onTimer, inEditor, onShortcuts, onReport, hideToTray, openPanel, closePanel, goBack, toast, dismissToast } =
+      const { session, onTimer, inEditor, onShortcuts, hideToTray, openPanel, closePanel, goBack, toast, dismissToast } =
         keyState.current;
       if (e.key === "Escape") {
         if (e.defaultPrevented) return;
         if (!onTimer) {
           e.preventDefault();
-          if (inEditor || onShortcuts || onReport) goBack();
+          if (inEditor || onShortcuts) goBack();
           else closePanel();
         } else if (!isTypingTarget(e.target)) {
           void hideToTray();

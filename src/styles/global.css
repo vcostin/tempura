@@ -916,13 +916,6 @@ button {
   font-size: 0.8rem;
 }
 
-.stats-strip--page {
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;
-  padding: 0.5rem 0 1rem;
-}
-
 .stats-strip strong {
   display: block;
   color: var(--ink);
@@ -1007,11 +1000,7 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.stats-report-link {
-  margin: 0.25rem 0 1.25rem;
-}
-
-/* Full report: the panel fills the window, so the page can use a wide window. */
+/* Stats: the panel fills the window, so the page can use a wide window. */
 .report {
   max-width: 64rem;
   margin-inline: auto;
@@ -1025,12 +1014,6 @@ button {
   --heat-5: var(--ring);
 }
 
-.report .brand-actions {
-  display: flex;
-  gap: 0.4rem;
-}
-
-[dir="rtl"] .report-back svg,
 [dir="rtl"] .report-chevron {
   transform: scaleX(-1);
 }
@@ -1729,13 +1712,6 @@ button {
   padding: 0.75rem 0;
   color: var(--ink-muted);
   font-size: 0.8rem;
-}
-
-.stats-strip--page {
-  justify-content: flex-start;
-  flex-wrap: wrap;
-  gap: 1.5rem 2rem;
-  padding: 0.5rem 0 1rem;
 }
 
 .stats-strip strong {

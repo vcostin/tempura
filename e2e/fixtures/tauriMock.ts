@@ -87,17 +87,6 @@ export async function installTauriMock(page: Page) {
       { action: "skip", trigger: "" },
       { action: "show", trigger: "Super+T" },
     ];
-    // An empty range, until a test sets one.
-    let statsRange: Record<string, unknown> = {
-      days: 7,
-      focusSecs: 0,
-      completedCycles: 0,
-      sessions: 0,
-      streakDays: 0,
-      buckets: [],
-      byLabel: [],
-      byTechnique: [],
-    };
     // Report data, until a test sets it: an empty period.
     let periodStats: Record<string, unknown> = {
       focusSecs: 0,
@@ -154,7 +143,6 @@ export async function installTauriMock(page: Page) {
       },
       get_system_locale: () => "en",
       get_stats: () => ({ focusSecsToday: 0, completedCyclesToday: 0, sessionsToday: 0, streakDays: 0 }),
-      get_stats_range: (a) => ({ ...statsRange, days: a.days }),
       get_period_stats: (a) => ({ ...periodStats, from: a.from, to: a.to }),
       export_sessions: (a) => {
         if (exportResult instanceof Error) throw exportResult;
@@ -213,9 +201,6 @@ export async function installTauriMock(page: Page) {
       setSnapshot(partial: Record<string, unknown>) {
         snapshot = { ...snapshot, ...partial } as typeof snapshot;
         emit("timer-tick", snapshot);
-      },
-      setStatsRange(range: Record<string, unknown>) {
-        statsRange = { ...statsRange, ...range };
       },
       setPeriodStats(stats: Record<string, unknown>) {
         periodStats = { ...periodStats, ...stats };

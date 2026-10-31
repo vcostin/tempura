@@ -8,7 +8,6 @@ import {
   type AppSettings,
   type DayStats,
   type PeriodStats,
-  type StatsRange,
   type ExportFormat,
   type Technique,
   type TechniqueInput,
@@ -44,7 +43,6 @@ export const api = {
   getSystemLocale: () => invoke<string>("get_system_locale"),
 
   getStats: () => invoke<DayStats>("get_stats"),
-  getStatsRange: (days: number) => invoke<StatsRange>("get_stats_range", { days }),
   /** Local days `from..=to` (`YYYY-MM-DD`); compared with `compare`, else the same number of days before. */
   getPeriodStats: (from: string, to: string, compare?: { from: string; to: string }) =>
     invoke<PeriodStats>("get_period_stats", {

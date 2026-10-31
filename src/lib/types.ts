@@ -86,19 +86,6 @@ export interface DayBucket {
   sessions: number;
 }
 
-export interface StatsRange {
-  days: number;
-  focusSecs: number;
-  completedCycles: number;
-  sessions: number;
-  streakDays: number;
-  buckets: DayBucket[];
-  /** Focus time per "Working on" label, largest first. */
-  byLabel: FocusShare[];
-  /** Focus time per technique, largest first. */
-  byTechnique: FocusShare[];
-}
-
 export interface FocusShare {
   /** The label or technique name; empty for "other" and "none". */
   name: string;
@@ -107,8 +94,6 @@ export interface FocusShare {
   focusSecs: number;
   kind: "named" | "other" | "none";
 }
-
-export type StatsPeriod = 1 | 7 | 30;
 
 /** Stats for any span of local days (`get_period_stats`). */
 export interface PeriodStats {
