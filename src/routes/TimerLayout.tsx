@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ComponentProps } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate, useOutletContext } from "react-router";
 import { getCurrentWindow } from "@tauri-apps/api/window";
@@ -9,7 +9,7 @@ import { useUpdater } from "../hooks/useUpdater";
 import { api } from "../lib/api";
 import { isDebugAccessEnabled } from "../lib/debugAccess";
 import { isDesktopShell, isTauri } from "../lib/platform";
-import { useSessionContext, useSettingsContext } from "../state/AppState";
+import { useSessionContext, useSettingsContext, useTimerSnapshot } from "../state/AppState";
 import { useTechniqueVisibility } from "../state/techniqueVisibility";
 
 export type Panel = "settings" | "stats" | "techniques" | "debug" | "about" | "shortcuts";
@@ -58,6 +58,15 @@ function isButtonish(el: EventTarget | null): boolean {
   if (tag === "BUTTON" || tag === "A" || tag === "SUMMARY") return true;
   const role = el.getAttribute("role");
   return role === "button" || role === "switch" || role === "radio" || role === "option" || role === "tab";
+}
+
+/** The live timer: the only part of the shell that follows every tick. */
+function LiveTimerView(props: Omit<ComponentProps<typeof TimerView>, "snapshot">) {
+  return <TimerView {...props} snapshot={useTimerSnapshot()} />;
+}
+
+function LiveSessionAnnouncer() {
+  return <SessionAnnouncer snapshot={useTimerSnapshot()} />;
 }
 
 /** Root route: the timer stays mounted and panel routes render over it. */
@@ -247,12 +256,12 @@ export function TimerLayout() {
       if (e.code === "Space") {
         if (!onTimer || isButtonish(e.target)) return;
         e.preventDefault();
-        if (!session.snapshot.running) void session.start();
-        else if (session.snapshot.paused) void session.resume();
+        if (!session.running) void session.start();
+        else if (session.paused) void session.resume();
         else void session.pause();
       } else if (e.key === "s" || e.key === "S") {
         if (!onTimer) return;
-        if (session.snapshot.running) void session.skip();
+        if (session.running) void session.skip();
       } else if (e.key === "," || ((e.ctrlKey || e.metaKey) && e.key === ",")) {
         e.preventDefault();
         openPanel("settings");
@@ -293,10 +302,9 @@ export function TimerLayout() {
       data-hidden={windowHidden ? "true" : "false"}
       data-panel={onTimer ? "closed" : "open"}
     >
-      <SessionAnnouncer snapshot={session.snapshot} />
+      <LiveSessionAnnouncer />
       <div className="timer-root" inert={!onTimer || undefined}>
-        <TimerView
-          snapshot={session.snapshot}
+        <LiveTimerView
           techniques={session.techniques}
           visibleTechniques={visibility.visible}
           selectedId={session.selectedId}
