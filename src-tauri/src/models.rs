@@ -401,6 +401,58 @@ pub struct StatsRange {
     pub by_technique: Vec<FocusShare>,
 }
 
+/// Stats for any span of local days, for the stats screen and the report.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PeriodStats {
+    /// First local day, `YYYY-MM-DD`, inclusive.
+    pub from: String,
+    /// Last local day, `YYYY-MM-DD`, inclusive.
+    pub to: String,
+    pub focus_secs: i64,
+    pub completed_cycles: i64,
+    /// Sessions active in the period or started in it, each counted once.
+    pub sessions: i64,
+    /// Days with any focus.
+    pub active_days: i64,
+    /// Most consecutive days with focus inside the period.
+    pub longest_streak: i64,
+    /// One bucket per day, oldest first, empty days included.
+    pub buckets: Vec<DayBucket>,
+    pub by_label: Vec<FocusShare>,
+    pub by_technique: Vec<FocusShare>,
+    /// Focus and cycles per weekday and local hour; only cells with any.
+    pub hours: Vec<HourCell>,
+    /// How many of each weekday the period holds (Monday first), to average `hours` per week.
+    pub weekday_counts: [i64; 7],
+    /// Totals of the period it is compared with.
+    pub previous: PeriodTotals,
+    /// The first day with any focus or cycle ever, for an "all time" view.
+    pub first_day: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HourCell {
+    /// 0 = Monday … 6 = Sunday.
+    pub weekday: u8,
+    /// Local hour, 0–23.
+    pub hour: u8,
+    pub focus_secs: i64,
+    pub cycles: i64,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PeriodTotals {
+    pub from: String,
+    pub to: String,
+    pub focus_secs: i64,
+    pub completed_cycles: i64,
+    pub sessions: i64,
+    pub active_days: i64,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ShareKind {

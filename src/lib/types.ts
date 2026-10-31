@@ -110,6 +110,52 @@ export interface FocusShare {
 
 export type StatsPeriod = 1 | 7 | 30;
 
+/** Stats for any span of local days (`get_period_stats`). */
+export interface PeriodStats {
+  /** First local day, `YYYY-MM-DD`, inclusive. */
+  from: string;
+  /** Last local day, `YYYY-MM-DD`, inclusive. */
+  to: string;
+  focusSecs: number;
+  completedCycles: number;
+  /** Sessions active in the period or started in it, each counted once. */
+  sessions: number;
+  /** Days with any focus. */
+  activeDays: number;
+  /** Most consecutive days with focus inside the period. */
+  longestStreak: number;
+  /** One bucket per day, oldest first, empty days included. */
+  buckets: DayBucket[];
+  byLabel: FocusShare[];
+  byTechnique: FocusShare[];
+  /** Focus and cycles per weekday and local hour; only cells with any. */
+  hours: HourCell[];
+  /** How many of each weekday the period holds, Monday first. */
+  weekdayCounts: [number, number, number, number, number, number, number];
+  /** Totals of the period it is compared with. */
+  previous: PeriodTotals;
+  /** The first day with any focus or cycle ever, for an "all time" view. */
+  firstDay: string | null;
+}
+
+export interface HourCell {
+  /** 0 = Monday … 6 = Sunday. */
+  weekday: number;
+  /** Local hour, 0–23. */
+  hour: number;
+  focusSecs: number;
+  cycles: number;
+}
+
+export interface PeriodTotals {
+  from: string;
+  to: string;
+  focusSecs: number;
+  completedCycles: number;
+  sessions: number;
+  activeDays: number;
+}
+
 export interface AppInfo {
   name: string;
   version: string;

@@ -78,6 +78,7 @@ pub fn run() {
                 commands::update_settings,
                 commands::get_stats,
                 commands::get_stats_range,
+                commands::get_period_stats,
                 commands::export_sessions,
                 commands::get_app_info,
                 commands::open_feedback_url,
