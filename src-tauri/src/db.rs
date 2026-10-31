@@ -1,6 +1,6 @@
 use crate::models::{
     AppSettings, DayBucket, GlobalHotkeys, DayStats, StatsRange, Technique, TechniqueInput, TechniqueKind,
-    DEFAULT_FLOW_RATIO,
+    TechniqueMode, DEFAULT_FLOW_RATIO,
 };
 use crate::export::ExportRow;
 use crate::stats::{group_focus, FocusRow, TOP_SHARES};
@@ -12,7 +12,7 @@ use thiserror::Error;
 use uuid::Uuid;
 
 /// id, name, focus, short break, long break, cycles before long, flow ratio, accent, mode
-type SystemSeed<'a> = (&'a str, &'a str, i64, i64, i64, i64, Option<f64>, &'a str, &'a str);
+type SystemSeed<'a> = (&'a str, &'a str, i64, i64, i64, i64, Option<f64>, &'a str, TechniqueMode);
 
 #[derive(Debug, Error)]
 pub enum DbError {
@@ -201,7 +201,7 @@ impl Database {
                 4,
                 None,
                 "#6B8F71",
-                "classic",
+                TechniqueMode::Classic,
             ),
             (
                 "sprint",
@@ -212,7 +212,7 @@ impl Database {
                 4,
                 None,
                 "#C17B4A",
-                "classic",
+                TechniqueMode::Classic,
             ),
             (
                 "deep",
@@ -223,7 +223,7 @@ impl Database {
                 3,
                 None,
                 "#4A6FA5",
-                "classic",
+                TechniqueMode::Classic,
             ),
             (
                 "fifty-two-seventeen",
@@ -234,7 +234,7 @@ impl Database {
                 2,
                 None,
                 "#7A6B8F",
-                "classic",
+                TechniqueMode::Classic,
             ),
             (
                 "ultradian",
@@ -245,7 +245,7 @@ impl Database {
                 2,
                 None,
                 "#3D7A6E",
-                "classic",
+                TechniqueMode::Classic,
             ),
             (
                 "flowtime",
@@ -256,7 +256,7 @@ impl Database {
                 1,
                 Some(DEFAULT_FLOW_RATIO),
                 "#B08968",
-                "flowtime",
+                TechniqueMode::Flowtime,
             ),
             (
                 "hybrid",
@@ -267,7 +267,7 @@ impl Database {
                 4,
                 Some(DEFAULT_FLOW_RATIO),
                 "#8B6B61",
-                "hybrid",
+                TechniqueMode::Hybrid,
             ),
         ];
 
@@ -499,7 +499,7 @@ impl Database {
     pub fn create_technique(&self, input: TechniqueInput) -> DbResult<Technique> {
         let id = format!("custom-{}", Uuid::new_v4());
         let now = Utc::now().to_rfc3339();
-        let mode = input.mode.unwrap_or_else(|| "classic".into());
+        let mode = input.mode.unwrap_or_default();
         self.conn.execute(
             "
             INSERT INTO techniques (

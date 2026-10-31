@@ -3,6 +3,9 @@ import type { GlobalHotkeys } from "./hotkeys";
 export type Phase = "idle" | "focus" | "short_break" | "long_break";
 export type TechniqueKind = "system" | "custom";
 
+/** How a technique runs its focus. The same names as `TechniqueMode` in Rust. */
+export type TechniqueMode = "classic" | "flowtime" | "hybrid";
+
 export interface Technique {
   id: string;
   name: string;
@@ -13,7 +16,7 @@ export interface Technique {
   cyclesBeforeLong: number;
   flowRatio: number | null;
   accent: string | null;
-  mode: string;
+  mode: TechniqueMode;
   createdAt: string;
   updatedAt: string;
 }
@@ -26,7 +29,7 @@ export interface TechniqueInput {
   cyclesBeforeLong: number;
   flowRatio?: number | null;
   accent?: string | null;
-  mode?: string;
+  mode?: TechniqueMode;
 }
 
 export interface AppSettings {
@@ -59,7 +62,7 @@ export interface TimerSnapshot {
   cycle: number;
   techniqueId: string | null;
   techniqueName: string | null;
-  mode: string;
+  mode: TechniqueMode;
   isFlow: boolean;
   hybridSwitched: boolean;
   workingOn: string;
