@@ -30,7 +30,7 @@ Rust**, plus **how updates are chosen and verified**.
 | Webview is untrusted relative to Rust | CSP + `freezePrototype` reduce XSS. They do not replace command allowlists. Anything the frontend can `invoke` is available to a capable window. |
 | Updater authenticity ≠ first-run authenticity | In-app updates require an ed25519 signature that matches the pubkey baked into the binary. First install is whatever the user downloaded (SmartScreen / Gatekeeper may warn; see M2). |
 | Signing secret stays off the tree | Release CI fails without `TAURI_SIGNING_PRIVATE_KEY`. Private keys are gitignored. Losing or rotating the key breaks in-app updates for already-shipped builds. |
-| Other processes of the same user are trusted | `tempura --toggle` / `--skip` / `--show` reach the running app through the single-instance plugin. Anything running as you can start, pause, skip, or show the timer; nothing else is accepted on that path. |
+| Other processes of the same user are trusted | `tempura --toggle` / `--skip` / `--show` reach the running app through the single-instance plugin. Anything running as you can start, pause, skip, or show/hide the window; nothing else is accepted on that path. |
 | Locale catalogs are maintainer-trusted | GitHub Pages copies `locales/` onto the download site. Strings are assigned with `textContent` (L5). A locale PR can change copy, not inject HTML. |
 
 **XSS blast radius (if someone ever got script in the webview):**
@@ -252,8 +252,9 @@ These are easy to misread as stronger guarantees than they are.
 - **Session export** (`export_sessions`) is a Rust command, not the
   dialog or fs plugin: the webview passes only the format and the dialog
   title. Rust renders the rows and shows a native save dialog modal to
-  the main window; the file goes where the user picks, with the format's
-  extension. CSV labels starting like a formula (`=`, `+`, `-`, `@`, tab,
+  the main window; the file goes where the user picks, and gets the
+  format's extension if the chosen name has none. CSV text fields (labels
+  and technique names) starting like a formula (`=`, `+`, `-`, `@`, tab,
   CR) are defused. XSS could open the dialog with a misleading title, but
   the contents are always session history.
 - **Global shortcut and dialog plugins** are used from Rust only. Neither
@@ -262,7 +263,12 @@ These are easy to misread as stronger guarantees than they are.
   shortcuts through `update_settings` (L7).
 - **Portal files persist.** The hidden desktop entry and icon written for
   Wayland shortcuts (L8) stay in `~/.local/share` after uninstall. Only
-  written after the user opts in to portal shortcuts.
+  written once portal shortcuts are enabled in settings (by the user, or
+  by XSS through `update_settings`). On portals too old to reconfigure,
+  Tempura opens the desktop's own shortcuts page (`systemsettings` or
+  `gnome-control-center`). Program names and arguments are fixed, but
+  they are found through `PATH`, unlike the feedback opener's absolute
+  paths (L6); `PATH` is the user's own, so this is consistency, not risk.
 - **Hotkey report** includes the path Tempura was launched from (to show
   the command for system shortcuts). That is visible to page JS; it is
   the user's own path, not a secret.
