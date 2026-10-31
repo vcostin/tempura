@@ -280,8 +280,8 @@ fn record_progress(conn: &Connection, session_id: &str, focus: i64, cycles: i64,
     let cycles_change = cycles.max(0) - recorded_cycles;
     let (day, hour) = (day_key(at.date()), at.hour() as i64);
     add_to_hour(conn, session_id, &day, hour, focus_change.max(0), cycles_change.max(0))?;
-    take_back(conn, session_id, "focus_secs", -focus_change)?;
-    take_back(conn, session_id, "cycles", -cycles_change)?;
+    take_back(conn, session_id, Tally::Focus, -focus_change)?;
+    take_back(conn, session_id, Tally::Cycles, -cycles_change)?;
     conn.execute(
         "DELETE FROM session_hours WHERE session_id = ?1 AND focus_secs = 0 AND cycles = 0",
         params![session_id],
@@ -289,11 +289,28 @@ fn record_progress(conn: &Connection, session_id: &str, focus: i64, cycles: i64,
     Ok(())
 }
 
-/// Take `amount` of `column` back from a session's latest hours first.
-fn take_back(conn: &Connection, session_id: &str, column: &str, mut amount: i64) -> DbResult<()> {
+/// What `session_hours` counts per hour.
+#[derive(Clone, Copy)]
+enum Tally {
+    Focus,
+    Cycles,
+}
+
+impl Tally {
+    fn column(self) -> &'static str {
+        match self {
+            Tally::Focus => "focus_secs",
+            Tally::Cycles => "cycles",
+        }
+    }
+}
+
+/// Take `amount` of `tally` back from a session's latest hours first.
+fn take_back(conn: &Connection, session_id: &str, tally: Tally, mut amount: i64) -> DbResult<()> {
     if amount <= 0 {
         return Ok(());
     }
+    let column = tally.column();
     let hours: Vec<(String, i64, i64)> = conn
         .prepare(&format!(
             "SELECT day, hour, {column} FROM session_hours
@@ -1150,6 +1167,31 @@ mod range_stats_tests {
         // Same totals again: nothing changes.
         record_progress(&db.conn, &id, 35 * 60, 1, at(today, 0, 12)).unwrap();
         assert_eq!(hours_of(&db, &id), vec![(day_key(yesterday), 23, 35 * 60, 1)]);
+    }
+
+    #[test]
+    fn cycles_taken_back_come_off_the_latest_hours() {
+        let db = temp_db();
+        let today = Local::now().date_naive();
+        let yesterday = today - Duration::days(1);
+        let id = insert_session(&db, local_hms_utc(yesterday, 22, 0, 0), 0, 0);
+        record_progress(&db.conn, &id, 30 * 60, 1, at(yesterday, 22, 30)).unwrap();
+        record_progress(&db.conn, &id, 60 * 60, 3, at(today, 0, 30)).unwrap();
+        record_progress(&db.conn, &id, 60 * 60, 1, at(today, 0, 31)).unwrap();
+        assert_eq!(
+            hours_of(&db, &id),
+            vec![(day_key(yesterday), 22, 30 * 60, 1), (day_key(today), 0, 30 * 60, 0)]
+        );
+    }
+
+    #[test]
+    fn a_session_started_today_counts_before_any_focus() {
+        let db = temp_db();
+        let tech = db.get_technique("classic").unwrap().unwrap();
+        db.start_session(&tech, "").unwrap();
+        let stats = db.day_stats().unwrap();
+        assert_eq!((stats.sessions_today, stats.focus_secs_today), (1, 0));
+        assert_eq!(db.range_stats(1).unwrap().sessions, 1);
     }
 
     #[test]
