@@ -75,6 +75,10 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
       setProblem({ action, message: t("settings.hotkeyNeedsModifier") });
       return;
     }
+    if (result.kind === "reserved") {
+      setProblem({ action, message: t("settings.hotkeyReserved") });
+      return;
+    }
     const other = takenBy(hotkeys, action, result.accelerator);
     if (other) {
       setProblem({ action, message: t("settings.hotkeyTaken", { action: t(HOTKEY_LABEL_KEYS[other]) }) });

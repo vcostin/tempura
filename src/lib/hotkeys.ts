@@ -50,18 +50,44 @@ const MODIFIER_CODES = /^(Control|Shift|Alt|Meta|OS|Super|Hyper|Fn)(Left|Right)?
 export type RecordResult =
   | { kind: "pending" }
   | { kind: "needsModifier" }
+  | { kind: "reserved" }
   | { kind: "shortcut"; accelerator: string };
 
 type KeyInfo = Pick<KeyboardEvent, "code" | "ctrlKey" | "altKey" | "shiftKey" | "metaKey">;
 
+/** Ctrl or Cmd/Super alone with these: copy, paste, cut, undo, save, quit, close, tabs… */
+export const PRIMARY_KEYS = new Set([
+  "KeyA", "KeyC", "KeyF", "KeyH", "KeyL", "KeyM", "KeyN", "KeyO", "KeyP", "KeyQ",
+  "KeyR", "KeyS", "KeyT", "KeyV", "KeyW", "KeyX", "KeyY", "KeyZ", "Tab", "Space",
+]);
+
+/** Ctrl or Cmd/Super with Shift: terminal copy and paste, redo, reopen tab… */
+export const PRIMARY_SHIFT_KEYS = new Set(["KeyC", "KeyN", "KeyT", "KeyV", "KeyW", "KeyZ", "Tab"]);
+
+/**
+ * Common editing, window and tab shortcuts no app should take system-wide.
+ * The same rule as `reserved` in `src-tauri/src/hotkeys.rs`.
+ */
+export function isReserved(e: KeyInfo): boolean {
+  if (e.altKey) {
+    // Alt+Tab, Alt+Shift+Tab, Alt+F4, Alt+Space (window menu).
+    return !e.ctrlKey && !e.metaKey &&
+      (e.code === "Tab" || (!e.shiftKey && (e.code === "F4" || e.code === "Space")));
+  }
+  if (e.ctrlKey === e.metaKey) return false; // neither, or both
+  return (e.shiftKey ? PRIMARY_SHIFT_KEYS : PRIMARY_KEYS).has(e.code);
+}
+
 /**
  * Turn a key press into an accelerator the backend understands ("Control+Alt+KeyP").
  * Modifier presses alone are still pending; keys without Ctrl, Alt or Super are
- * refused, since they would swallow ordinary typing in every app.
+ * refused, since they would swallow ordinary typing in every app, and so are
+ * shortcuts like copy or paste, which would stop working everywhere else.
  */
 export function recordKey(e: KeyInfo): RecordResult {
   if (!e.code || MODIFIER_CODES.test(e.code)) return { kind: "pending" };
   if (!e.ctrlKey && !e.altKey && !e.metaKey) return { kind: "needsModifier" };
+  if (isReserved(e)) return { kind: "reserved" };
   const parts = [
     e.ctrlKey && "Control",
     e.altKey && "Alt",

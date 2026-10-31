@@ -131,6 +131,7 @@
     "hotkeyCopyAria": "Copy the command for {{action}}",
     "hotkeyClear": "Clear the shortcut for {{action}}",
     "hotkeyNeedsModifier": "Add Ctrl, Alt or Super, so typing in other apps isn’t affected.",
+    "hotkeyReserved": "Apps rely on this one for things like copy or paste, so Tempura won’t take it. Pick another.",
     "hotkeyTaken": "Already used for “{{action}}”.",
     "hotkeyInUse": "Another app already uses this shortcut, so Tempura left it alone. Pick another."
   },
