@@ -144,3 +144,9 @@ Deno.test("the finished share is only for fixed-interval rhythms with ended sess
 Deno.test("weekdays count from Monday like the backend", () => {
   assertEquals([weekdayOf("2026-10-05"), weekdayOf("2026-10-11")], [0, 6]);
 });
+
+Deno.test("a span after today never compares backwards", () => {
+  const p = reportPeriod("month", parseDay("2026-12-10"), opts);
+  assertEquals([p.from, p.to], ["2026-12-01", "2026-12-01"]);
+  assertEquals(p.compare, { from: "2026-11-01", to: "2026-11-01" });
+});

@@ -135,7 +135,8 @@ export function reportPeriod(
     return { ...span, full: span };
   }
   const [start, end] = calendarSpan(range, anchor, opts.weekStart);
-  const to = end > today ? today : end;
+  // A span entirely after today (paging can't get there) shows its first day.
+  const to = end > today ? (today < start ? start : today) : end;
   const [prevStart, prevEnd] = previousSpan(range, start, opts.weekStart);
   // A whole span compares with the whole span before (all of a leap February,
   // all 366 days of a leap year); only a span cut at today matches lengths.
@@ -146,7 +147,7 @@ export function reportPeriod(
   }
   return {
     from: dayKey(start),
-    to: dayKey(to < start ? start : to),
+    to: dayKey(to),
     full: { from: dayKey(start), to: dayKey(end) },
     compare: { from: dayKey(prevStart), to: dayKey(prevTo) },
   };

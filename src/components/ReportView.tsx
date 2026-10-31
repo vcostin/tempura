@@ -100,6 +100,8 @@ export function ReportView({ onBack, onClose }: Props) {
   useEffect(() => {
     let cancelled = false;
     setLoading(true);
+    // A new range gets a fresh try: don't keep showing the last one's error.
+    setFailed(false);
     api
       .getPeriodStats(period.from, period.to, period.compare)
       .then((next) => {
