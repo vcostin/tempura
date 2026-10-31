@@ -27,6 +27,49 @@ pub enum TechniqueKind {
     Custom,
 }
 
+/// How a technique runs its focus: a countdown, a count-up (Flowtime), or a
+/// countdown whose bell offers to keep flowing (Hybrid).
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum TechniqueMode {
+    #[default]
+    Classic,
+    Flowtime,
+    Hybrid,
+}
+
+impl TechniqueMode {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            TechniqueMode::Classic => "classic",
+            TechniqueMode::Flowtime => "flowtime",
+            TechniqueMode::Hybrid => "hybrid",
+        }
+    }
+
+    /// The stored name; anything else reads as Classic, so one odd row can't
+    /// keep the techniques list from loading.
+    pub fn from_stored(value: &str) -> Self {
+        match value {
+            "flowtime" => TechniqueMode::Flowtime,
+            "hybrid" => TechniqueMode::Hybrid,
+            _ => TechniqueMode::Classic,
+        }
+    }
+}
+
+impl rusqlite::ToSql for TechniqueMode {
+    fn to_sql(&self) -> rusqlite::Result<rusqlite::types::ToSqlOutput<'_>> {
+        Ok(self.as_str().into())
+    }
+}
+
+impl rusqlite::types::FromSql for TechniqueMode {
+    fn column_result(value: rusqlite::types::ValueRef<'_>) -> rusqlite::types::FromSqlResult<Self> {
+        value.as_str().map(TechniqueMode::from_stored)
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Technique {
@@ -39,7 +82,7 @@ pub struct Technique {
     pub cycles_before_long: i64,
     pub flow_ratio: Option<f64>,
     pub accent: Option<String>,
-    pub mode: String,
+    pub mode: TechniqueMode,
     pub created_at: String,
     pub updated_at: String,
 }
@@ -54,7 +97,8 @@ pub struct TechniqueInput {
     pub cycles_before_long: i64,
     pub flow_ratio: Option<f64>,
     pub accent: Option<String>,
-    pub mode: Option<String>,
+    /// Classic when not given.
+    pub mode: Option<TechniqueMode>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,7 +166,6 @@ impl Default for AppSettings {
 }
 
 pub const THEME_IDS: &[&str] = &["batter", "mist", "grove", "dusk", "sandstone"];
-pub const TECHNIQUE_MODES: &[&str] = &["classic", "flowtime", "hybrid"];
 const NAME_MAX: usize = 80;
 const ID_MAX: usize = 64;
 const WORKING_ON_MAX: usize = 200;
@@ -188,16 +231,9 @@ impl TechniqueInput {
         }
         reject_control(&self.name, "name")?;
 
-        let mode = self
-            .mode
-            .as_deref()
-            .unwrap_or("classic")
-            .trim()
-            .to_ascii_lowercase();
-        if !TECHNIQUE_MODES.contains(&mode.as_str()) {
-            return Err("mode must be classic, flowtime, or hybrid".into());
-        }
-        let allow_zero = mode == "flowtime";
+        // An unknown mode never gets this far: it fails to deserialize.
+        let mode = self.mode.unwrap_or_default();
+        let allow_zero = mode == TechniqueMode::Flowtime;
         self.mode = Some(mode);
 
         self.focus_secs = validate_secs(self.focus_secs, "focus", allow_zero)?;
@@ -306,7 +342,7 @@ pub struct TimerSnapshot {
     pub cycle: i64,
     pub technique_id: Option<String>,
     pub technique_name: Option<String>,
-    pub mode: String,
+    pub mode: TechniqueMode,
     pub is_flow: bool,
     pub hybrid_switched: bool,
     pub working_on: String,
@@ -328,7 +364,7 @@ impl Default for TimerSnapshot {
             cycle: 0,
             technique_id: None,
             technique_name: None,
-            mode: "classic".into(),
+            mode: TechniqueMode::Classic,
             is_flow: false,
             hybrid_switched: false,
             working_on: String::new(),
@@ -421,7 +457,7 @@ mod tests {
             cycles_before_long: 4,
             flow_ratio: None,
             accent: Some("#6B8F71".into()),
-            mode: Some("classic".into()),
+            mode: Some(TechniqueMode::Classic),
         }
     }
 
@@ -429,7 +465,7 @@ mod tests {
     fn technique_accepts_normal_custom() {
         let v = classic_input().validated().unwrap();
         assert_eq!(v.name, "Deep work");
-        assert_eq!(v.mode.as_deref(), Some("classic"));
+        assert_eq!(v.mode, Some(TechniqueMode::Classic));
     }
 
     #[test]
@@ -441,9 +477,30 @@ mod tests {
 
     #[test]
     fn technique_rejects_unknown_mode() {
+        let mut json = serde_json::to_value(classic_input()).unwrap();
+        json["mode"] = "shell".into();
+        assert!(serde_json::from_value::<TechniqueInput>(json).is_err());
+    }
+
+    #[test]
+    fn technique_mode_is_classic_when_not_given() {
         let mut input = classic_input();
-        input.mode = Some("shell".into());
-        assert!(input.validated().is_err());
+        input.mode = None;
+        assert_eq!(input.validated().unwrap().mode, Some(TechniqueMode::Classic));
+    }
+
+    #[test]
+    fn technique_modes_keep_their_wire_names() {
+        for (mode, name) in [
+            (TechniqueMode::Classic, "classic"),
+            (TechniqueMode::Flowtime, "flowtime"),
+            (TechniqueMode::Hybrid, "hybrid"),
+        ] {
+            assert_eq!(serde_json::to_value(mode).unwrap(), name);
+            assert_eq!(mode.as_str(), name);
+            assert_eq!(TechniqueMode::from_stored(name), mode);
+        }
+        assert_eq!(TechniqueMode::from_stored("odd"), TechniqueMode::Classic);
     }
 
     #[test]
@@ -456,7 +513,7 @@ mod tests {
             cycles_before_long: 1,
             flow_ratio: Some(DEFAULT_FLOW_RATIO),
             accent: None,
-            mode: Some("flowtime".into()),
+            mode: Some(TechniqueMode::Flowtime),
         };
         assert!(input.validated().is_ok());
     }

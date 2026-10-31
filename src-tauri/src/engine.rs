@@ -1,5 +1,5 @@
 use crate::db::Database;
-use crate::models::{AppSettings, Phase, Technique, TimerSnapshot, DEFAULT_FLOW_RATIO};
+use crate::models::{AppSettings, Phase, Technique, TechniqueMode, TimerSnapshot, DEFAULT_FLOW_RATIO};
 use parking_lot::Mutex;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
@@ -182,8 +182,8 @@ impl EngineHandle {
             cycle: 0,
             technique_id: Some(technique.id.clone()),
             technique_name: Some(technique.name.clone()),
-            mode: technique.mode.clone(),
-            is_flow: technique.mode == "flowtime",
+            mode: technique.mode,
+            is_flow: technique.mode == TechniqueMode::Flowtime,
             hybrid_switched: false,
             working_on: eng.settings.working_on.clone(),
             awaiting_start: false,
@@ -273,7 +273,7 @@ impl EngineHandle {
         let snap = self.snapshot();
         if snap.running
             && snap.paused
-            && snap.mode == "hybrid"
+            && snap.mode == TechniqueMode::Hybrid
             && snap.phase == Phase::Focus
             && snap.remaining_secs == 0
             && !snap.hybrid_switched
@@ -383,7 +383,7 @@ impl EngineHandle {
         if !in_focus {
             return (eng.focus_secs_completed, snap.cycle, false);
         }
-        let at_hybrid_bell = snap.mode == "hybrid"
+        let at_hybrid_bell = snap.mode == TechniqueMode::Hybrid
             && !snap.hybrid_switched
             && snap.paused
             && snap.remaining_secs == 0
@@ -398,7 +398,7 @@ impl EngineHandle {
     /// Hybrid: continue past focus bell → switch to flowtime count-up
     pub fn continue_as_flow(&self, app: &AppHandle) -> Result<TimerSnapshot, String> {
         let mut eng = self.inner.lock();
-        if eng.snapshot.mode != "hybrid" || eng.snapshot.phase != Phase::Focus {
+        if eng.snapshot.mode != TechniqueMode::Hybrid || eng.snapshot.phase != Phase::Focus {
             return Err("continue-as-flow only applies during hybrid focus".into());
         }
         if eng.snapshot.hybrid_switched && eng.snapshot.is_flow {
@@ -588,7 +588,7 @@ impl EngineHandle {
         let previous = eng.snapshot.phase;
         // Hybrid: at the focus bell, pause at zero. "Keep flowing" switches to
         // Flowtime (continue_as_flow); "Take a break" skips to the break.
-        if previous == Phase::Focus && eng.snapshot.mode == "hybrid" && !eng.snapshot.hybrid_switched {
+        if previous == Phase::Focus && eng.snapshot.mode == TechniqueMode::Hybrid && !eng.snapshot.hybrid_switched {
             eng.snapshot.remaining_secs = 0;
             eng.phase_deadline = None;
             eng.snapshot.paused = true;
@@ -705,7 +705,7 @@ impl EngineHandle {
         eng.halfway_sent = false;
         Self::mark_clocks(eng);
 
-        if tech.mode == "flowtime" || eng.snapshot.hybrid_switched {
+        if tech.mode == TechniqueMode::Flowtime || eng.snapshot.hybrid_switched {
             eng.snapshot.phase = Phase::Focus;
             eng.snapshot.is_flow = true;
             eng.snapshot.duration_secs = 0;
@@ -762,7 +762,7 @@ impl EngineHandle {
                     .unwrap_or(DEFAULT_FLOW_RATIO)
                     .clamp(1.0 / 9.0, 1.0 / 3.0);
 
-                if eng.snapshot.is_flow || tech.mode == "flowtime" || eng.snapshot.hybrid_switched {
+                if eng.snapshot.is_flow || tech.mode == TechniqueMode::Flowtime || eng.snapshot.hybrid_switched {
                     let break_secs = ((focus_done as f64) * ratio).round() as i64;
                     eng.flow_break_secs = break_secs.max(60);
                     eng.snapshot.hybrid_switched = false;
@@ -780,7 +780,7 @@ impl EngineHandle {
             }
             Phase::ShortBreak | Phase::LongBreak => {
                 // Next focus
-                if tech.mode == "flowtime" {
+                if tech.mode == TechniqueMode::Flowtime {
                     eng.snapshot.is_flow = true;
                     eng.snapshot.hybrid_switched = false;
                 }
@@ -907,7 +907,7 @@ mod tests {
     use super::*;
     use crate::models::TechniqueKind;
 
-    fn technique(mode: &str) -> Technique {
+    fn technique(mode: TechniqueMode) -> Technique {
         Technique {
             id: "t".into(),
             name: "Test".into(),
@@ -918,7 +918,7 @@ mod tests {
             cycles_before_long: 4,
             flow_ratio: None,
             accent: None,
-            mode: mode.into(),
+            mode,
             created_at: String::new(),
             updated_at: String::new(),
         }
@@ -928,8 +928,8 @@ mod tests {
     fn started(tech: Technique) -> Engine {
         let mut eng = Engine::default();
         eng.snapshot.running = true;
-        eng.snapshot.mode = tech.mode.clone();
-        eng.snapshot.is_flow = tech.mode == "flowtime";
+        eng.snapshot.mode = tech.mode;
+        eng.snapshot.is_flow = tech.mode == TechniqueMode::Flowtime;
         eng.technique = Some(tech);
         EngineHandle::enter_focus(&mut eng);
         eng
@@ -937,7 +937,7 @@ mod tests {
 
     #[test]
     fn classic_focus_is_a_countdown() {
-        let eng = started(technique("classic"));
+        let eng = started(technique(TechniqueMode::Classic));
         assert_eq!(eng.snapshot.phase, Phase::Focus);
         assert!(!eng.snapshot.is_flow);
         assert_eq!(eng.snapshot.duration_secs, 25 * 60);
@@ -947,7 +947,7 @@ mod tests {
 
     #[test]
     fn finished_focus_credits_full_block_and_enters_short_break() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
         assert_eq!(eng.snapshot.duration_secs, 5 * 60);
@@ -957,7 +957,7 @@ mod tests {
 
     #[test]
     fn skipped_focus_credits_only_elapsed() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.elapsed_secs = 600;
         EngineHandle::complete_phase(&mut eng, true);
         assert_eq!(eng.focus_secs_completed, 600);
@@ -966,7 +966,7 @@ mod tests {
 
     #[test]
     fn break_returns_to_focus() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.phase, Phase::Focus);
@@ -975,7 +975,7 @@ mod tests {
 
     #[test]
     fn long_break_every_n_cycles() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let mut breaks = Vec::new();
         for _ in 0..8 {
             EngineHandle::complete_phase(&mut eng, false); // focus -> break
@@ -990,7 +990,7 @@ mod tests {
 
     #[test]
     fn one_cycle_before_long_means_every_break_is_long() {
-        let mut tech = technique("classic");
+        let mut tech = technique(TechniqueMode::Classic);
         tech.cycles_before_long = 1;
         let mut eng = started(tech);
         EngineHandle::complete_phase(&mut eng, false);
@@ -1000,7 +1000,7 @@ mod tests {
 
     #[test]
     fn flowtime_focus_counts_up() {
-        let eng = started(technique("flowtime"));
+        let eng = started(technique(TechniqueMode::Flowtime));
         assert_eq!(eng.snapshot.phase, Phase::Focus);
         assert!(eng.snapshot.is_flow);
         assert_eq!(eng.snapshot.duration_secs, 0);
@@ -1010,7 +1010,7 @@ mod tests {
 
     #[test]
     fn flowtime_break_follows_default_ratio() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 50 * 60;
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
@@ -1021,7 +1021,7 @@ mod tests {
 
     #[test]
     fn flowtime_ratio_is_clamped() {
-        let mut tech = technique("flowtime");
+        let mut tech = technique(TechniqueMode::Flowtime);
         tech.flow_ratio = Some(0.9);
         let mut eng = started(tech);
         eng.snapshot.elapsed_secs = 60 * 60;
@@ -1031,7 +1031,7 @@ mod tests {
 
     #[test]
     fn flowtime_break_is_at_least_a_minute() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 30;
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.duration_secs, 60);
@@ -1039,7 +1039,7 @@ mod tests {
 
     #[test]
     fn flowtime_break_returns_to_count_up_focus() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 25 * 60;
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
@@ -1049,7 +1049,7 @@ mod tests {
 
     #[test]
     fn hybrid_switched_focus_takes_a_flow_break_then_resets() {
-        let mut eng = started(technique("hybrid"));
+        let mut eng = started(technique(TechniqueMode::Hybrid));
         assert!(!eng.snapshot.is_flow);
         eng.snapshot.hybrid_switched = true;
         eng.snapshot.is_flow = true;
@@ -1075,7 +1075,7 @@ mod tests {
 
     #[test]
     fn hold_keeps_next_break_at_its_start() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::hold_at_start(&mut eng);
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
@@ -1087,7 +1087,7 @@ mod tests {
 
     #[test]
     fn hold_keeps_flowtime_focus_at_zero() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 25 * 60;
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
@@ -1098,7 +1098,7 @@ mod tests {
 
     #[test]
     fn skipping_a_waiting_phase_starts_the_next_one() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::hold_at_start(&mut eng);
         EngineHandle::complete_phase(&mut eng, true);
@@ -1109,7 +1109,7 @@ mod tests {
 
     #[test]
     fn menu_bar_shows_time_left_while_a_phase_runs() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.remaining_secs = 24 * 60 + 5;
         assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot).as_deref(), Some("24:05"));
         eng.snapshot.paused = true;
@@ -1118,14 +1118,14 @@ mod tests {
 
     #[test]
     fn menu_bar_counts_up_in_flow_focus() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 61;
         assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot).as_deref(), Some("01:01"));
     }
 
     #[test]
     fn menu_bar_is_blank_when_idle_or_waiting() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.awaiting_start = true;
         assert_eq!(EngineHandle::menu_bar_title(&eng.snapshot), None);
         eng.snapshot.running = false;
@@ -1145,7 +1145,7 @@ mod tests {
 
     #[test]
     fn expiry_with_auto_continue_runs_the_break() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let expiry = EngineHandle::expire_phase(&mut eng);
         assert_eq!(
             expiry,
@@ -1157,7 +1157,7 @@ mod tests {
 
     #[test]
     fn expiry_without_auto_continue_holds_the_break() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.settings.auto_continue = false;
         let expiry = EngineHandle::expire_phase(&mut eng);
         assert_eq!(
@@ -1170,7 +1170,7 @@ mod tests {
 
     #[test]
     fn expiry_without_auto_continue_holds_focus_after_a_break() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.settings.auto_continue = false;
         EngineHandle::expire_phase(&mut eng);
         // What resume() does to a held phase, minus the clock.
@@ -1187,7 +1187,7 @@ mod tests {
     #[test]
     fn hybrid_bell_rings_whatever_auto_continue_says() {
         for auto in [true, false] {
-            let mut eng = started(technique("hybrid"));
+            let mut eng = started(technique(TechniqueMode::Hybrid));
             eng.settings.auto_continue = auto;
             assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
             assert_eq!(eng.snapshot.phase, Phase::Focus);
@@ -1226,7 +1226,7 @@ mod tests {
     #[test]
     fn gap_the_monotonic_clock_also_saw_is_not_taken_twice() {
         // A stalled tick thread, or a platform whose Instant runs through sleep.
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         let deadline = eng.phase_deadline;
         let now = eng.last_wall + Duration::from_secs(60);
@@ -1238,7 +1238,7 @@ mod tests {
 
     #[test]
     fn only_the_part_instant_missed_is_compensated() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let deadline = eng.phase_deadline.unwrap();
         let now = eng.last_wall + Duration::from_secs(60);
         let instant = eng.last_instant + Duration::from_secs(20);
@@ -1248,7 +1248,7 @@ mod tests {
 
     #[test]
     fn stopping_mid_focus_counts_it_and_is_an_interruption() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
         eng.snapshot.elapsed_secs = 24 * 60;
@@ -1257,14 +1257,14 @@ mod tests {
 
     #[test]
     fn stopping_mid_flowtime_counts_the_time_so_far() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 300;
         assert_eq!(EngineHandle::stop_tally(&eng), (300, 0, true));
     }
 
     #[test]
     fn stopping_paused_by_sleep_counts_only_up_to_the_sleep() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.elapsed_secs = 5 * 60;
         eng.snapshot.remaining_secs = 20 * 60;
         let now = eng.last_wall + Duration::from_secs(42 * 60);
@@ -1276,7 +1276,7 @@ mod tests {
     #[test]
     fn stopping_after_a_pause_counts_up_to_the_pause() {
         // No tick since the start: the pause itself brings the snapshot up to date.
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let at = eng.phase_deadline.unwrap() - Duration::from_secs(20 * 60);
         EngineHandle::freeze(&mut eng, at);
         assert_eq!(eng.snapshot.remaining_secs, 20 * 60);
@@ -1286,7 +1286,7 @@ mod tests {
 
     #[test]
     fn stopping_a_paused_flowtime_counts_up_to_the_pause() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         let at = eng.phase_started.unwrap() + Duration::from_secs(7 * 60);
         EngineHandle::freeze(&mut eng, at);
         assert_eq!(eng.paused_remaining, Some(Duration::from_secs(7 * 60)));
@@ -1295,14 +1295,14 @@ mod tests {
 
     #[test]
     fn stopping_in_a_break_is_not_an_interruption() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(EngineHandle::stop_tally(&eng), (25 * 60, 1, false));
     }
 
     #[test]
     fn stopping_before_a_held_focus_starts_is_not_an_interruption() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.settings.auto_continue = false;
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::expire_phase(&mut eng);
@@ -1313,7 +1313,7 @@ mod tests {
 
     #[test]
     fn stopping_at_the_hybrid_bell_keeps_the_whole_focus_and_its_cycle() {
-        let mut eng = started(technique("hybrid"));
+        let mut eng = started(technique(TechniqueMode::Hybrid));
         eng.snapshot.remaining_secs = 0;
         eng.snapshot.elapsed_secs = 25 * 60;
         assert_eq!(EngineHandle::expire_phase(&mut eng), Expiry::HybridBell);
@@ -1322,7 +1322,7 @@ mod tests {
 
     #[test]
     fn running_focus_saves_its_progress_every_minute() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let t0 = eng.last_saved;
         eng.snapshot.elapsed_secs = 59;
         assert_eq!(EngineHandle::focus_save_due(&eng, t0 + Duration::from_secs(59)), None);
@@ -1336,7 +1336,7 @@ mod tests {
 
     #[test]
     fn saved_progress_adds_the_focus_so_far_to_finished_ones() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         EngineHandle::complete_phase(&mut eng, false);
         EngineHandle::complete_phase(&mut eng, false);
         eng.focus_secs_completed = 40 * 60;
@@ -1347,7 +1347,7 @@ mod tests {
 
     #[test]
     fn breaks_and_pauses_do_not_save_on_the_clock() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let later = eng.last_saved + SAVE_EVERY;
         eng.snapshot.paused = true;
         assert_eq!(EngineHandle::focus_save_due(&eng, later), None);
@@ -1359,7 +1359,7 @@ mod tests {
 
     #[test]
     fn small_wall_gap_is_ignored() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let deadline = eng.phase_deadline;
         let now = eng.last_wall + Duration::from_secs(2);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1370,7 +1370,7 @@ mod tests {
 
     #[test]
     fn short_focus_gap_pulls_deadline_forward() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let deadline = eng.phase_deadline.unwrap();
         let now = eng.last_wall + Duration::from_secs(60);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1381,7 +1381,7 @@ mod tests {
 
     #[test]
     fn sleep_during_a_break_lets_the_break_run() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         EngineHandle::complete_phase(&mut eng, false);
         assert_eq!(eng.snapshot.phase, Phase::ShortBreak);
         let deadline = eng.phase_deadline.unwrap();
@@ -1395,7 +1395,7 @@ mod tests {
 
     #[test]
     fn sleep_during_countdown_focus_pauses_where_it_stood() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.remaining_secs = 20 * 60;
         let now = eng.last_wall + Duration::from_secs(42 * 60);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1409,7 +1409,7 @@ mod tests {
 
     #[test]
     fn sleep_during_flowtime_is_not_counted() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 300;
         let now = eng.last_wall + Duration::from_secs(2 * 60);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1421,7 +1421,7 @@ mod tests {
 
     #[test]
     fn counting_away_time_grows_flowtime() {
-        let mut eng = started(technique("flowtime"));
+        let mut eng = started(technique(TechniqueMode::Flowtime));
         eng.snapshot.elapsed_secs = 300;
         let now = eng.last_wall + Duration::from_secs(600);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1434,7 +1434,7 @@ mod tests {
 
     #[test]
     fn counting_away_time_shrinks_a_countdown() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.remaining_secs = 20 * 60;
         let now = eng.last_wall + Duration::from_secs(15 * 60);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1447,7 +1447,7 @@ mod tests {
 
     #[test]
     fn counting_away_time_past_the_end_finishes_focus() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.remaining_secs = 10 * 60;
         let now = eng.last_wall + Duration::from_secs(42 * 60);
         let still = eng.last_instant; // Instant stopped while asleep
@@ -1462,7 +1462,7 @@ mod tests {
 
     #[test]
     fn nothing_to_count_without_an_away_gap() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         eng.snapshot.paused = true;
         assert_eq!(EngineHandle::credit_away(&mut eng), None);
         assert_eq!(eng.snapshot.away_secs, 0);
@@ -1470,7 +1470,7 @@ mod tests {
 
     #[test]
     fn resuming_clears_the_away_gap() {
-        let mut eng = started(technique("classic"));
+        let mut eng = started(technique(TechniqueMode::Classic));
         let now = eng.last_wall + Duration::from_secs(600);
         let still = eng.last_instant; // Instant stopped while asleep
         EngineHandle::compensate_wall_jump(&mut eng, now, still);

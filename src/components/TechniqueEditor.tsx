@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { formatTechniqueRhythm } from "../lib/api";
 import { techniqueDisplayName } from "../lib/techniqueGuide";
-import type { Technique, TechniqueInput } from "../lib/types";
+import type { Technique, TechniqueInput, TechniqueMode } from "../lib/types";
 import { DEFAULT_FLOW_RATIO } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
@@ -24,7 +24,7 @@ type Draft = {
   shortMins: number;
   longMins: number;
   cycles: number;
-  mode: string;
+  mode: TechniqueMode;
   flowPct: number;
 };
 

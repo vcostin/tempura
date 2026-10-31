@@ -9,21 +9,21 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 
-export interface SelectOption {
-  value: string;
+export interface SelectOption<T extends string = string> {
+  value: T;
   label: string;
 }
 
-interface Props {
+interface Props<T extends string> {
   id?: string;
-  value: string;
-  options: SelectOption[];
-  onChange: (value: string) => void;
+  value: T;
+  options: SelectOption<T>[];
+  onChange: (value: T) => void;
   disabled?: boolean;
 }
 
 /** In-DOM listbox so bundled fonts apply. Native <select> popups use GTK fonts on Linux. */
-export function Select({ id, value, options, onChange, disabled }: Props) {
+export function Select<T extends string>({ id, value, options, onChange, disabled }: Props<T>) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -38,7 +38,7 @@ export function Select({ id, value, options, onChange, disabled }: Props) {
   const close = useCallback(() => setOpen(false), []);
 
   const pick = useCallback(
-    (next: string) => {
+    (next: T) => {
       onChange(next);
       setOpen(false);
       buttonRef.current?.focus();
