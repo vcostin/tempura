@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "Einstellungen",
-    "line": "Dieser Rechner.",
     "close": "Einstellungen schließen",
     "language": "Sprache",
     "theme": "Thema",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "Hilfe & Über",
-    "line": "Hilfe & Über · lokal, auf diesem Rechner.",
     "close": "Schließen",
     "feedbackOpened": "Im Browser geöffnet — schau dort nach, falls kein Tab nach vorn kam.",
     "feedbackLinkHint": "Falls kein Tab erscheint, öffne oder kopiere diese Seite:",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "Statistik",
-    "line": "Dein Fokus · nur lokal.",
     "close": "Schließen",
     "focusTime": "Fokuszeit",
     "cyclesFinished": "Zyklen fertig",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "Techniken",
-    "line": "Deine Rhythmen und die Klassiker.",
     "close": "Schließen",
     "new": "Neu",
     "tabMine": "Meine",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "Technik-Editor",
-    "line": "Techniken · gestalte deinen eigenen Rhythmus.",
     "back": "Zurück",
     "preview": "Rhythmus",
     "copyName": "{{name}} (Kopie)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Tastenkürzel",
-    "line": "Jede Taste, auf die Tempura hört.",
     "close": "Schließen",
     "meta": "Leertaste, S, Esc und mehr",
     "open": "Tastenkürzel…",

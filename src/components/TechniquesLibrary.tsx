@@ -6,6 +6,7 @@ import type { Technique } from "../lib/types";
 import type { HideBlock } from "../state/techniqueVisibility";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { CloseIcon } from "./CloseIcon";
 
 export type LibraryTab = "mine" | "builtin";
 
@@ -98,7 +99,7 @@ export function TechniquesLibrary(props: Props) {
   return (
     <ScrollPanel label={t("library.panel")}>
       <BrandHeader
-        line={t("library.line")}
+        line={t("library.panel")}
         actions={
           <>
             <button
@@ -116,7 +117,7 @@ export function TechniquesLibrary(props: Props) {
               aria-label={t("library.close")}
               onClick={props.onClose}
             >
-              ✕
+              <CloseIcon />
             </button>
           </>
         }

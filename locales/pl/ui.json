@@ -70,7 +70,6 @@
   },
   "settings": {
     "panel": "Ustawienia",
-    "line": "Ten komputer.",
     "close": "Zamknij ustawienia",
     "language": "Język",
     "theme": "Motyw",
@@ -131,7 +130,6 @@
   },
   "about": {
     "panel": "Pomoc i informacje",
-    "line": "Pomoc i informacje · lokalnie, na tej maszynie.",
     "close": "Zamknij",
     "feedbackOpened": "Otwarto w przeglądarce — sprawdź tam, jeśli karta nie wysunęła się na wierzch.",
     "feedbackLinkHint": "Jeśli karta się nie pojawi, otwórz lub skopiuj tę stronę:",
@@ -159,7 +157,6 @@
   },
   "stats": {
     "panel": "Statystyki",
-    "line": "Twój fokus · tylko lokalnie.",
     "close": "Zamknij",
     "focusTime": "czas skupienia",
     "cyclesFinished": "ukończone cykle",
@@ -224,7 +221,6 @@
   },
   "library": {
     "panel": "Techniki",
-    "line": "Twoje rytmy i klasyki.",
     "close": "Zamknij",
     "new": "Nowa",
     "tabMine": "Moje",
@@ -253,7 +249,6 @@
   },
   "editor": {
     "panel": "Edytor techniki",
-    "line": "Techniki · ułóż własny rytm.",
     "back": "Wstecz",
     "preview": "Rytm",
     "copyName": "{{name}} (kopia)"
@@ -393,7 +388,6 @@
   },
   "shortcuts": {
     "panel": "Skróty klawiszowe",
-    "line": "Każdy klawisz, na który reaguje Tempura.",
     "close": "Zamknij",
     "meta": "Spacja, S, Esc i pozostałe",
     "open": "Skróty klawiszowe…",

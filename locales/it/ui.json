@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "Impostazioni",
-    "line": "Questo computer.",
     "close": "Chiudi impostazioni",
     "language": "Lingua",
     "theme": "Tema",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "Aiuto e info",
-    "line": "Aiuto e info · locale, su questa macchina.",
     "close": "Chiudi",
     "feedbackOpened": "Aperto nel browser — controlla lì se la scheda non è venuta in primo piano.",
     "feedbackLinkHint": "Se non compare una scheda, apri o copia questa pagina:",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "Statistiche",
-    "line": "Il tuo focus · solo locale.",
     "close": "Chiudi",
     "focusTime": "tempo di focus",
     "cyclesFinished": "cicli completati",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "Tecniche",
-    "line": "I tuoi ritmi e i classici.",
     "close": "Chiudi",
     "new": "Nuova",
     "tabMine": "Mie",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "Editor delle tecniche",
-    "line": "Tecniche · crea il tuo ritmo.",
     "back": "Indietro",
     "preview": "Ritmo",
     "copyName": "{{name}} (copia)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Scorciatoie da tastiera",
-    "line": "Ogni tasto che Tempura ascolta.",
     "close": "Chiudi",
     "meta": "Spazio, S, Esc e gli altri",
     "open": "Scorciatoie da tastiera…",

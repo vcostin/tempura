@@ -5,6 +5,7 @@ import { ensureNotificationPermission, isDesktopShell, isTauri } from "../lib/pl
 import type { AppInfo } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   info: AppInfo | null;
@@ -56,7 +57,7 @@ export function DebugView(props: Props) {
   return (
     <ScrollPanel label="Debug">
       <BrandHeader
-        line="Debug · tools for verifying the shell."
+        line="Debug"
         actions={
           <button
             type="button"
@@ -65,7 +66,7 @@ export function DebugView(props: Props) {
             aria-label="Close debug"
             onClick={props.onClose}
           >
-            ✕
+            <CloseIcon />
           </button>
         }
       />

@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "Configurações",
-    "line": "Este computador.",
     "close": "Fechar configurações",
     "language": "Idioma",
     "theme": "Tema",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "Ajuda e sobre",
-    "line": "Ajuda e sobre · local, nesta máquina.",
     "close": "Fechar",
     "feedbackOpened": "Aberto no navegador — olhe lá se a aba não veio para a frente.",
     "feedbackLinkHint": "Se nenhuma aba aparecer, abra ou copie esta página:",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "Estatísticas",
-    "line": "Seu foco · só local.",
     "close": "Fechar",
     "focusTime": "tempo de foco",
     "cyclesFinished": "ciclos concluídos",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "Técnicas",
-    "line": "Seus ritmos e os clássicos.",
     "close": "Fechar",
     "new": "Nova",
     "tabMine": "Minhas",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "Editor de técnicas",
-    "line": "Técnicas · crie seu próprio ritmo.",
     "back": "Voltar",
     "preview": "Ritmo",
     "copyName": "{{name}} (cópia)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Atalhos de teclado",
-    "line": "Todas as teclas que o Tempura escuta.",
     "close": "Fechar",
     "meta": "Espaço, S, Esc e o resto",
     "open": "Atalhos de teclado…",
