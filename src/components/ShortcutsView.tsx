@@ -68,12 +68,14 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
                   {item.keys.map((combo, i) => (
                     <Fragment key={i}>
                       {i > 0 && <span className="shortcut-or">{t("shortcuts.or")}</span>}
-                      {combo.map((key, j) => (
-                        <Fragment key={j}>
-                          {j > 0 && <span aria-hidden="true">+</span>}
-                          <kbd>{keyLabel(key, mac, name)}</kbd>
-                        </Fragment>
-                      ))}
+                      <span className="key-combo" dir="ltr">
+                        {combo.map((key, j) => (
+                          <Fragment key={j}>
+                            {j > 0 && <span aria-hidden="true">+</span>}
+                            <kbd>{keyLabel(key, mac, name)}</kbd>
+                          </Fragment>
+                        ))}
+                      </span>
                     </Fragment>
                   ))}
                 </dt>
@@ -91,12 +93,14 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
             {systemWide.map(({ action, caps }) => (
               <div key={action} className="shortcut-row">
                 <dt className="shortcut-keys">
-                  {caps.map((cap, i) => (
-                    <Fragment key={i}>
-                      {i > 0 && <span aria-hidden="true">+</span>}
-                      <kbd>{cap}</kbd>
-                    </Fragment>
-                  ))}
+                  <span className="key-combo" dir="ltr">
+                    {caps.map((cap, i) => (
+                      <Fragment key={i}>
+                        {i > 0 && <span aria-hidden="true">+</span>}
+                        <kbd>{cap}</kbd>
+                      </Fragment>
+                    ))}
+                  </span>
                 </dt>
                 <dd>{t(HOTKEY_LABEL_KEYS[action])}</dd>
               </div>

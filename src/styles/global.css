@@ -422,10 +422,20 @@ button {
   margin: 0;
 }
 
+/* Past an hour (1:12:34) the clock has seven characters, not five: smaller type
+   so it stays inside the ring. */
+.clock--long {
+  font-size: min(clamp(2.5rem, 11.5vw, 3.4rem), 22cqmin);
+}
+
 /* A ring squeezed by a short window: smaller type so it stays inside the stroke. */
 @container (max-height: 200px) {
   .clock {
     font-size: 26cqmin;
+  }
+
+  .clock--long {
+    font-size: 18cqmin;
   }
 
   .ring-center {
@@ -2061,6 +2071,15 @@ button {
 
 .shortcut-row dd {
   margin: 0;
+}
+
+/* A key combo is one unit: it reads left to right in every locale (Ctrl + Z,
+   not Z + Ctrl in RTL) and never breaks across lines. */
+.key-combo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .shortcut-or {
