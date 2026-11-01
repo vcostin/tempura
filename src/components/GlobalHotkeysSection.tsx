@@ -173,7 +173,7 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
                     onClick={() => void setUpPortal()}
                   >
                     <span id={`hotkey-${action}-value`}>
-                      {trigger ? <kbd>{trigger}</kbd> : t("settings.hotkeyNotSet")}
+                      {trigger ? <kbd dir="ltr">{trigger}</kbd> : t("settings.hotkeyNotSet")}
                     </span>
                   </button>
                 </li>
@@ -241,7 +241,11 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
                 onBlur={() => isRecording && setRecording(null)}
                 onKeyDown={(e) => onRecordKey(action, e)}
               >
-                <span id={`hotkey-${action}-value`}>
+                <span
+                  id={`hotkey-${action}-value`}
+                  className={!isRecording && caps.length ? "key-combo" : undefined}
+                  dir={!isRecording && caps.length ? "ltr" : undefined}
+                >
                   {isRecording ? (
                     t("settings.hotkeyPress")
                   ) : caps.length ? (

@@ -50,6 +50,7 @@ export function TimerView(props: Props) {
   const displaySecs =
     s.isFlow && s.phase === "focus" ? s.elapsedSecs : s.running ? s.remainingSecs : 0;
   const showClock = s.running || s.phase !== "idle";
+  const clockText = showClock ? formatClock(displaySecs) : "––:––";
   const selected =
     props.techniques.find((tech) => tech.id === props.selectedId) ??
     props.techniques.find((tech) => tech.id === s.techniqueId) ??
@@ -153,8 +154,8 @@ export function TimerView(props: Props) {
             <h2 className="phase-label is-enter" key={s.phase}>
               {phaseText}
             </h2>
-            <p className="clock" aria-hidden={showClock ? undefined : true}>
-              {fixedDigits(showClock ? formatClock(displaySecs) : "––:––")}
+            <p className={clockText.length > 5 ? "clock clock--long" : "clock"} aria-hidden={showClock ? undefined : true}>
+              {fixedDigits(clockText)}
             </p>
             {(shownName || selected) && (
               <p className="technique-name">
