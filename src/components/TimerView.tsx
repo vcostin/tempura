@@ -9,6 +9,7 @@ import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
 import { RhythmCard } from "./RhythmCard";
 import { TechniqueSheet } from "./TechniqueSheet";
+import { TodayHours } from "./TodayHours";
 import type { HideBlock } from "../state/techniqueVisibility";
 
 interface Props {
@@ -19,6 +20,8 @@ interface Props {
   selectedId: string;
   onSelectTechnique: (id: string) => void;
   stats: DayStats | null;
+  /** Focus seconds per local hour today; null until loaded. */
+  todayHours: number[] | null;
   hybridBell: boolean;
   workingOn: string;
   onWorkingOn: (value: string) => void;
@@ -267,7 +270,7 @@ export function TimerView(props: Props) {
       {props.stats && (
         <aside className="stats-strip" aria-label={t("timer.todayGlance")}>
           <div>
-            <strong>{Math.round(props.stats.focusSecsToday / 60)}m</strong>
+            <strong>{formatMinutes(props.stats.focusSecsToday, t)}</strong>
             {t("timer.focusedToday")}
           </div>
           <div>
@@ -278,6 +281,7 @@ export function TimerView(props: Props) {
             <strong>{props.stats.streakDays}</strong>
             {t("timer.dayStreak")}
           </div>
+          {props.todayHours && <TodayHours hours={props.todayHours} />}
         </aside>
       )}
       </main>

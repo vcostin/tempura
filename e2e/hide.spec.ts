@@ -54,7 +54,7 @@ test.describe("hide techniques from the timer", () => {
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
     await expect(page.locator(".rhythm-card")).toBeFocused();
-    await expect(page).toHaveURL(/:1420\/(#\/)?$/);
+    await expect(page).toHaveURL(/:\d+\/(#\/)?$/);
   });
 
   test("N hidden opens the library with hidden first; the eye toggle shows it again", async ({ page }) => {

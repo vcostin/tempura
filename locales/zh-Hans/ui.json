@@ -59,6 +59,10 @@
     "sheetTitle": "选择节奏",
     "sheetLine": "不同的工作适合不同的节奏。"
   },
+  "today": {
+    "byHour": "今天按小时的专注：{{list}}。",
+    "noneYet": "今天还没有专注记录。"
+  },
   "scroll": {
     "more": "向下滚动看更多"
   },

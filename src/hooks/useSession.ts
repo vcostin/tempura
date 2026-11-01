@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { api } from "../lib/api";
 import { ensureNotificationPermission, isTauri } from "../lib/platform";
+import { dayKey } from "../lib/report";
+import { hourlyFocus } from "../lib/todayHours";
 import type { DayStats, PhaseEvent, Technique, TimerSnapshot } from "../lib/types";
 
 const idleSnap: TimerSnapshot = {
@@ -27,6 +29,8 @@ export function useSession() {
   const [techniques, setTechniques] = useState<Technique[]>([]);
   const [selectedId, setSelectedId] = useState<string>("classic");
   const [stats, setStats] = useState<DayStats | null>(null);
+  /** Focus seconds per local hour today, for the timer's 24-hour strip. */
+  const [todayHours, setTodayHours] = useState<number[] | null>(null);
   const [hybridBell, setHybridBell] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -37,7 +41,25 @@ export function useSession() {
     } catch {
       /* ignore */
     }
+    try {
+      const today = dayKey(new Date());
+      setTodayHours(hourlyFocus((await api.getPeriodStats(today, today)).hours));
+    } catch {
+      /* ignore */
+    }
   }, []);
+
+  // Past midnight, "today" starts over even if nothing was saved since.
+  useEffect(() => {
+    let day = dayKey(new Date());
+    const id = window.setInterval(() => {
+      const now = dayKey(new Date());
+      if (now === day) return;
+      day = now;
+      void refreshStats();
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, [refreshStats]);
 
   useEffect(() => {
     // Cleanup can run before boot has registered anything (StrictMode, hot reload):
@@ -170,6 +192,7 @@ export function useSession() {
       selectedId,
       setSelectedId,
       stats,
+      todayHours,
       hybridBell,
       start,
       pause,
@@ -192,6 +215,7 @@ export function useSession() {
       techniques,
       selectedId,
       stats,
+      todayHours,
       hybridBell,
       start,
       pause,

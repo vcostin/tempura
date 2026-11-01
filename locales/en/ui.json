@@ -70,6 +70,10 @@
     "sheetTitle": "Choose a rhythm",
     "sheetLine": "Different work wants a different pace."
   },
+  "today": {
+    "byHour": "Focus by hour today: {{list}}.",
+    "noneYet": "No focus recorded today yet."
+  },
   "scroll": {
     "more": "Scroll for more"
   },

@@ -60,6 +60,10 @@
     "sheetTitle": "Alege un ritm",
     "sheetLine": "Fiecare muncă are ritmul ei."
   },
+  "today": {
+    "byHour": "Focus pe ore azi: {{list}}.",
+    "noneYet": "Încă nu s-a înregistrat focus azi."
+  },
   "scroll": {
     "more": "Derulează pentru mai mult"
   },

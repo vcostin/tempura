@@ -59,6 +59,10 @@
     "sheetTitle": "리듬 선택",
     "sheetLine": "일마다 맞는 속도가 다릅니다."
   },
+  "today": {
+    "byHour": "오늘 시간별 집중: {{list}}.",
+    "noneYet": "오늘은 아직 기록된 집중이 없습니다."
+  },
   "scroll": {
     "more": "더 보려면 스크롤"
   },
