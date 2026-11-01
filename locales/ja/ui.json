@@ -11,8 +11,6 @@
     "paused": "一時停止"
   },
   "timer": {
-    "guideAria": "テクニック",
-    "guideTitle": "各テクニックの向き",
     "statsAria": "今日の統計",
     "statsTitle": "統計",
     "settingsAria": "設定",
@@ -32,8 +30,8 @@
     "resume": "再開",
     "pause": "一時停止",
     "skip": "スキップ",
-    "reset": "リセット",
-    "stop": "停止",
+    "restartPhase": "このフェーズをやり直す",
+    "endSession": "セッションを終了",
     "todayGlance": "今日のひと目",
     "focusedToday": "今日のフォーカス",
     "cycles_one": "サイクル",

@@ -11,8 +11,6 @@
     "paused": "En pausa"
   },
   "timer": {
-    "guideAria": "Técnicas",
-    "guideTitle": "Para qué sirve cada técnica",
     "statsAria": "Estadísticas de hoy",
     "statsTitle": "Estadísticas",
     "settingsAria": "Ajustes",
@@ -32,8 +30,8 @@
     "resume": "Reanudar",
     "pause": "Pausar",
     "skip": "Saltar",
-    "reset": "Reiniciar",
-    "stop": "Parar",
+    "restartPhase": "Reiniciar fase",
+    "endSession": "Terminar sesión",
     "todayGlance": "Hoy de un vistazo",
     "focusedToday": "de foco hoy",
     "cycles_one": "ciclo",

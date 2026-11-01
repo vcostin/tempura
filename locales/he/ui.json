@@ -11,8 +11,6 @@
     "paused": "מושהה"
   },
   "timer": {
-    "guideAria": "טכניקות",
-    "guideTitle": "למה כל טכניקה טובה",
     "statsAria": "סטטיסטיקות היום",
     "statsTitle": "סטטיסטיקות",
     "settingsAria": "הגדרות",
@@ -32,8 +30,8 @@
     "resume": "המשך",
     "pause": "השהיה",
     "skip": "דילוג",
-    "reset": "איפוס",
-    "stop": "עצירה",
+    "restartPhase": "התחלת השלב מחדש",
+    "endSession": "סיום הסשן",
     "todayGlance": "היום במבט",
     "focusedToday": "מיקוד היום",
     "cycles_one": "מחזור",

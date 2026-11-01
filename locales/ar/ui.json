@@ -11,8 +11,6 @@
     "paused": "متوقف"
   },
   "timer": {
-    "guideAria": "التقنيات",
-    "guideTitle": "ما الذي تجيده كل تقنية",
     "statsAria": "إحصاءات اليوم",
     "statsTitle": "إحصاءات",
     "settingsAria": "الإعدادات",
@@ -32,8 +30,8 @@
     "resume": "استأنف",
     "pause": "إيقاف مؤقت",
     "skip": "تخطَّ",
-    "reset": "إعادة",
-    "stop": "إيقاف",
+    "restartPhase": "إعادة المرحلة",
+    "endSession": "إنهاء الجلسة",
     "todayGlance": "اليوم لمحة",
     "focusedToday": "تركيز اليوم",
     "cycles_zero": "دورة",

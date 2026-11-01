@@ -11,8 +11,6 @@
     "paused": "Gepauzeerd"
   },
   "timer": {
-    "guideAria": "Technieken",
-    "guideTitle": "Waar elke techniek goed voor is",
     "statsAria": "Statistieken van vandaag",
     "statsTitle": "Statistieken",
     "settingsAria": "Instellingen",
@@ -32,8 +30,8 @@
     "resume": "Hervatten",
     "pause": "Pauze",
     "skip": "Overslaan",
-    "reset": "Reset",
-    "stop": "Stop",
+    "restartPhase": "Fase opnieuw starten",
+    "endSession": "Sessie beëindigen",
     "todayGlance": "Vandaag in één oogopslag",
     "focusedToday": "vandaag gefocust",
     "cycles_one": "cyclus",

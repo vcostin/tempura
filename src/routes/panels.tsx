@@ -66,12 +66,13 @@ export function SettingsRoute() {
 
 export function AboutRoute() {
   const settingsApi = useSettingsContext();
-  const { updater, setDebugEnabled, openPanel, closePanel } = useShell();
+  const { updater, debugEnabled, setDebugEnabled, openPanel, closePanel } = useShell();
   return (
     <AboutView
       info={settingsApi.info}
       onClose={closePanel}
       onOpenShortcuts={() => openPanel("shortcuts")}
+      onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
       onDebugUnlocked={() => {
         setDebugEnabled(true);
         openPanel("debug");

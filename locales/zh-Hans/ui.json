@@ -11,8 +11,6 @@
     "paused": "已暂停"
   },
   "timer": {
-    "guideAria": "技巧",
-    "guideTitle": "每种技法适合什么",
     "statsAria": "今日统计",
     "statsTitle": "统计",
     "settingsAria": "设置",
@@ -32,8 +30,8 @@
     "resume": "继续",
     "pause": "暂停",
     "skip": "跳过",
-    "reset": "重置",
-    "stop": "停止",
+    "restartPhase": "重新开始此阶段",
+    "endSession": "结束会话",
     "todayGlance": "今日一览",
     "focusedToday": "今日专注",
     "cycles_one": "轮",

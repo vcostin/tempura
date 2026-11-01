@@ -18,7 +18,8 @@ const PANEL_OPENER: Record<Panel, string> = {
   settings: '[data-open-panel="settings"]',
   stats: '[data-open-panel="stats"]',
   techniques: '[data-open-panel="techniques"]',
-  debug: '[data-open-panel="debug"]',
+  // Debug opens from Help & About, so focus goes back to that button.
+  debug: '[data-open-panel="about"]',
   about: '[data-open-panel="about"]',
   // Opened with "?" from the timer; the Help & About button is the nearest opener.
   shortcuts: '[data-open-panel="about"]',
@@ -340,7 +341,6 @@ export function TimerLayout() {
             openPanel("techniques", focusId ? `?focus=${encodeURIComponent(focusId)}` : "")
           }
           onOpenAbout={() => openPanel("about")}
-          onOpenDebug={debugEnabled ? () => openPanel("debug") : undefined}
         />
       </div>
 

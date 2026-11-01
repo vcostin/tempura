@@ -11,8 +11,6 @@
     "paused": "일시정지"
   },
   "timer": {
-    "guideAria": "기법",
-    "guideTitle": "각 기법이 좋은 이유",
     "statsAria": "오늘의 통계",
     "statsTitle": "통계",
     "settingsAria": "설정",
@@ -32,8 +30,8 @@
     "resume": "재개",
     "pause": "일시정지",
     "skip": "건너뛰기",
-    "reset": "리셋",
-    "stop": "정지",
+    "restartPhase": "이 단계 다시 시작",
+    "endSession": "세션 종료",
     "todayGlance": "오늘 한눈에",
     "focusedToday": "오늘 집중",
     "cycles_one": "사이클",

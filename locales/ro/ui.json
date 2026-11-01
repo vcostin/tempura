@@ -11,8 +11,6 @@
     "paused": "Pauză"
   },
   "timer": {
-    "guideAria": "Tehnici",
-    "guideTitle": "La ce e bună fiecare tehnică",
     "statsAria": "Statisticile de azi",
     "statsTitle": "Statistici",
     "settingsAria": "Setări",
@@ -32,8 +30,8 @@
     "resume": "Reia",
     "pause": "Pauză",
     "skip": "Sari",
-    "reset": "Resetează",
-    "stop": "Stop",
+    "restartPhase": "Reia faza",
+    "endSession": "Încheie sesiunea",
     "todayGlance": "Azi dintr-o privire",
     "focusedToday": "focusat azi",
     "cycles_one": "ciclu",

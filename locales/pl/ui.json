@@ -11,8 +11,6 @@
     "paused": "Pauza"
   },
   "timer": {
-    "guideAria": "Techniki",
-    "guideTitle": "Do czego każda technika się nadaje",
     "statsAria": "Dzisiejsze statystyki",
     "statsTitle": "Statystyki",
     "settingsAria": "Ustawienia",
@@ -32,8 +30,8 @@
     "resume": "Wznów",
     "pause": "Pauza",
     "skip": "Pomiń",
-    "reset": "Reset",
-    "stop": "Stop",
+    "restartPhase": "Zacznij fazę od nowa",
+    "endSession": "Zakończ sesję",
     "todayGlance": "Dziś w skrócie",
     "focusedToday": "skupienia dziś",
     "cycles_one": "cykl",

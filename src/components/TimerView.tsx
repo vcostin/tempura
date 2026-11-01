@@ -41,7 +41,6 @@ interface Props {
   /** Opens the techniques library, optionally at one technique. */
   onOpenTechniques: (focusId?: string) => void;
   onOpenAbout: () => void;
-  onOpenDebug?: () => void;
 }
 
 export function TimerView(props: Props) {
@@ -78,17 +77,6 @@ export function TimerView(props: Props) {
             <button
               type="button"
               className="icon-btn"
-              data-open-panel="techniques"
-              aria-haspopup="dialog"
-              aria-label={t("timer.guideAria")}
-              onClick={() => props.onOpenTechniques()}
-              title={t("timer.guideTitle")}
-            >
-              <GuideIcon />
-            </button>
-            <button
-              type="button"
-              className="icon-btn"
               data-open-panel="stats"
               aria-haspopup="dialog"
               aria-label={t("timer.statsAria")}
@@ -119,19 +107,6 @@ export function TimerView(props: Props) {
             >
               <AboutIcon />
             </button>
-            {props.onOpenDebug && (
-              <button
-                type="button"
-                className="icon-btn"
-                data-open-panel="debug"
-                aria-haspopup="dialog"
-                aria-label="Debug"
-                onClick={props.onOpenDebug}
-                title="Debug"
-              >
-                <BugIcon />
-              </button>
-            )}
           </>
         }
       />
@@ -233,51 +208,66 @@ export function TimerView(props: Props) {
       </div>
 
       <div className="controls">
+        {s.running && !s.awaitingStart ? (
+          <button
+            type="button"
+            className="round-btn controls-before"
+            aria-label={t("timer.restartPhase")}
+            title={t("timer.restartPhase")}
+            onClick={props.onReset}
+          >
+            <RestartIcon />
+          </button>
+        ) : null}
         {!s.running ? (
-          <button type="button" className="btn btn-primary" onClick={props.onStart}>
+          <button type="button" className="btn btn-primary btn-main" aria-keyshortcuts="Space" onClick={props.onStart}>
             {t("timer.start")}
           </button>
+        ) : s.paused ? (
+          <button type="button" className="btn btn-primary btn-main" aria-keyshortcuts="Space" onClick={props.onResume}>
+            {s.awaitingStart ? t(startPhaseKey(s.phase)) : t("timer.resume")}
+          </button>
         ) : (
-          <>
-            {s.paused ? (
-              <button type="button" className="btn btn-primary" onClick={props.onResume}>
-                {s.awaitingStart ? t(startPhaseKey(s.phase)) : t("timer.resume")}
-              </button>
-            ) : (
-              <button type="button" className="btn btn-primary" onClick={props.onPause}>
-                {t("timer.pause")}
-              </button>
-            )}
-            <button type="button" className="btn btn-ghost" onClick={props.onSkip}>
-              {t("timer.skip")}
-            </button>
-            {!s.awaitingStart && (
-              <button type="button" className="btn btn-ghost" onClick={props.onReset}>
-                {t("timer.reset")}
-              </button>
-            )}
-            <button type="button" className="btn btn-danger" onClick={props.onStop}>
-              {t("timer.stop")}
-            </button>
-          </>
+          <button type="button" className="btn btn-primary btn-main" aria-keyshortcuts="Space" onClick={props.onPause}>
+            {t("timer.pause")}
+          </button>
         )}
+        {s.running ? (
+          <button
+            type="button"
+            className="round-btn controls-after"
+            aria-label={t("timer.skip")}
+            title={t("timer.skip")}
+            aria-keyshortcuts="S"
+            onClick={props.onSkip}
+          >
+            <SkipIcon />
+          </button>
+        ) : null}
       </div>
 
-      <label className="auto-continue">
-        <button
-          type="button"
-          className="toggle toggle--small"
-          role="switch"
-          aria-checked={props.autoContinue}
-          aria-labelledby={`${autoContinueId}-label`}
-          aria-describedby={`${autoContinueId}-hint`}
-          onClick={() => props.onAutoContinue(!props.autoContinue)}
-        />
-        <span id={`${autoContinueId}-label`}>{t("timer.autoContinue")}</span>
-        <span id={`${autoContinueId}-hint`} role="tooltip" className="hint-tooltip">
-          {t("timer.autoContinueHint")}
-        </span>
-      </label>
+      <div className="session-row">
+        <label className="auto-continue">
+          <button
+            type="button"
+            className="toggle toggle--small"
+            role="switch"
+            aria-checked={props.autoContinue}
+            aria-labelledby={`${autoContinueId}-label`}
+            aria-describedby={`${autoContinueId}-hint`}
+            onClick={() => props.onAutoContinue(!props.autoContinue)}
+          />
+          <span id={`${autoContinueId}-label`}>{t("timer.autoContinue")}</span>
+          <span id={`${autoContinueId}-hint`} role="tooltip" className="hint-tooltip">
+            {t("timer.autoContinueHint")}
+          </span>
+        </label>
+        {s.running && (
+          <button type="button" className="end-session" onClick={props.onStop}>
+            {t("timer.endSession")}
+          </button>
+        )}
+      </div>
 
       {props.stats && (
         <aside className="stats-strip" aria-label={t("timer.todayGlance")}>
@@ -297,16 +287,6 @@ export function TimerView(props: Props) {
       )}
       </main>
     </>
-  );
-}
-
-function GuideIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 10.5v6" strokeLinecap="round" />
-      <circle cx="12" cy="7.25" r="0.9" fill="currentColor" stroke="none" />
-    </svg>
   );
 }
 
@@ -337,15 +317,21 @@ function StatsIcon() {
   );
 }
 
-function BugIcon() {
+function RestartIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
-      <path
-        d="M8 9.5C8 7 9.8 5 12 5s4 2 4 4.5v5c0 2.5-1.8 4.5-4 4.5s-4-2-4-4.5v-5Z"
-        strokeLinecap="round"
-      />
-      <path d="M12 5V3M8.5 8H5M18.5 8H15M8.5 12H4M20 12h-4.5M9 16.5 6.5 19M15 16.5 17.5 19" strokeLinecap="round" />
-      <path d="M10 10.5h4M10 13.5h4" strokeLinecap="round" />
+      <path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3" strokeLinecap="round" />
+      <path d="M4.5 4.5v4h4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/** Points along the reading direction, so it mirrors in RTL (see `.icon-flip`). */
+function SkipIcon() {
+  return (
+    <svg className="icon-flip" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" aria-hidden="true" focusable="false">
+      <path d="M6.5 6.5v11l8-5.5-8-5.5Z" strokeLinejoin="round" />
+      <path d="M17.5 6.5v11" strokeLinecap="round" />
     </svg>
   );
 }

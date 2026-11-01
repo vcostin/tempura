@@ -22,8 +22,6 @@
     "ready_long_break": "Long break is ready to start."
   },
   "timer": {
-    "guideAria": "Techniques",
-    "guideTitle": "Your techniques and the built-ins",
     "statsAria": "Today’s stats",
     "statsTitle": "Stats",
     "settingsAria": "Settings",
@@ -43,8 +41,8 @@
     "resume": "Resume",
     "pause": "Pause",
     "skip": "Skip",
-    "reset": "Reset",
-    "stop": "Stop",
+    "restartPhase": "Restart phase",
+    "endSession": "End session",
     "todayGlance": "Today at a glance",
     "focusedToday": "focused today",
     "cycles_one": "cycle",

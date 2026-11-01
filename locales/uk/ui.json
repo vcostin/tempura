@@ -11,8 +11,6 @@
     "paused": "Пауза"
   },
   "timer": {
-    "guideAria": "Техніки",
-    "guideTitle": "Для чого кожна техніка",
     "statsAria": "Сьогоднішня статистика",
     "statsTitle": "Статистика",
     "settingsAria": "Налаштування",
@@ -32,8 +30,8 @@
     "resume": "Продовжити",
     "pause": "Пауза",
     "skip": "Пропустити",
-    "reset": "Скинути",
-    "stop": "Стоп",
+    "restartPhase": "Почати фазу знову",
+    "endSession": "Завершити сесію",
     "todayGlance": "Сьогодні одним поглядом",
     "focusedToday": "у фокусі сьогодні",
     "cycles_one": "цикл",
