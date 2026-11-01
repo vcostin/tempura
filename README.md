@@ -10,9 +10,9 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-yellow.svg" alt="MIT license" /></a>
 </p>
 
-Premium focus-rhythm timer for desktop — structured intervals, flexible flow techniques, local-first, tray-native.
+Desktop focus-rhythm timer — Classic, Sprint, Deep, 52/17, Ultradian, Flowtime, Hybrid, or your own. Local-first, tray-native.
 
-Timing matters. Tempura stays calm, polished, and entirely on your machine: **no accounts, no cloud, no sync.**
+Not another single-interval Pomodoro clone: pick the rhythm that fits the work. Tempura stays calm and entirely on your machine — **no accounts, no cloud, no sync.**
 
 **[Download the latest desktop build](https://vcostin.github.io/tempura/)** for Linux, Windows, or macOS.
 

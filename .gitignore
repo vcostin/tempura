@@ -18,6 +18,9 @@ src-tauri/target
 # Updater ed25519 private key — never commit
 src-tauri/.keys/
 
+# Local launch / positioning notes — keep off the public tree
+docs/launch.md
+
 # Tauri CLI downloads minisign binaries into the repo cwd when signing
 minisign-linux/
 
