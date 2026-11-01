@@ -407,7 +407,12 @@ button {
   }
 }
 
+/* Each digit is its own inline-block (see .clock-digit), and in an RTL page
+   inline-blocks are laid out right to left one by one: 12:19 read as 91:21.
+   A time reads left to right in every locale, so pin the clock to LTR. */
 .clock {
+  direction: ltr;
+  unicode-bidi: isolate;
   font-family: var(--font-serif);
   font-weight: 500;
   font-size: min(clamp(3.5rem, 16vw, 4.75rem), 31cqmin);
