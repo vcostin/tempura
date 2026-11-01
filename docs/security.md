@@ -98,7 +98,7 @@ rotating the Tauri updater key.
 **Status.** Addressed. The command is `#[cfg(debug_assertions)]` and is
 only added to `generate_handler!` in debug builds, matching
 `AppInfo.debug`. The Debug page still exists after five About clicks in
-release (build info, hide beetle) but does not offer a dead test-send
+release (build info, hide the Debug entry) but does not offer a dead test-send
 button.
 
 **Was.** The Debug page was a UI gate (`localStorage` + five version

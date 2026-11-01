@@ -6,8 +6,11 @@ import type { Page } from "@playwright/test";
  * techniques in memory, and emits `techniques-updated` like `commands.rs`.
  * `window.__tempuraMock` lets a test push timer states and backend events.
  */
-export async function installTauriMock(page: Page) {
-  await page.addInitScript(() => {
+export async function installTauriMock(
+  page: Page,
+  options: { settings?: Record<string, unknown> } = {},
+) {
+  await page.addInitScript((options) => {
     const now = "2026-01-01T00:00:00Z";
     const sys = (
       id: string,
@@ -55,6 +58,7 @@ export async function installTauriMock(page: Page) {
       autoContinue: true,
       menuBarCountdown: true,
       globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
+      ...options.settings,
     };
     let snapshot = {
       phase: "idle",
@@ -119,6 +123,12 @@ export async function installTauriMock(page: Page) {
       get_timer_state: () => snapshot,
       timer_resume: () => {
         snapshot = { ...snapshot, paused: false, awaitingStart: false, awaySecs: 0 };
+        return snapshot;
+      },
+      timer_reset: () => snapshot,
+      timer_skip: () => snapshot,
+      timer_stop: () => {
+        snapshot = { ...snapshot, running: false, paused: false, awaitingStart: false, phase: "idle" };
         return snapshot;
       },
       timer_count_away: () => {
@@ -238,5 +248,5 @@ export async function installTauriMock(page: Page) {
       },
       convertFileSrc: (path: string) => path,
     };
-  });
+  }, options);
 }

@@ -53,12 +53,12 @@ test.describe("a phase waiting to start (auto-continue off)", () => {
     cycle: 1,
   };
 
-  test("names the phase, offers to start it, and hides Reset", async ({ page }) => {
+  test("names the phase, offers to start it, and hides Restart phase", async ({ page }) => {
     await pushState(page, waiting);
     await expect(page.locator(".phase-label")).toHaveText("Short break");
     await expect(page.locator(".clock")).toHaveText("05:00");
     await expect(page.getByRole("button", { name: "Start short break" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Reset" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "Restart phase" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Skip" })).toBeVisible();
     await expect(page.locator(".visually-hidden[role=status]")).toHaveText(
       "Short break is ready to start.",
@@ -76,16 +76,16 @@ test.describe("a phase waiting to start (auto-continue off)", () => {
     await pushState(page, waiting);
     await page.getByRole("button", { name: "Start short break" }).click();
     await expect(page.getByRole("button", { name: "Pause" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Reset" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Restart phase" })).toBeVisible();
     const calls = await page.evaluate(() => (window as any).__tempuraMock.calls as string[]);
     expect(calls).toContain("timer_resume");
   });
 
-  test("a real pause still reads as Paused with Resume and Reset", async ({ page }) => {
+  test("a real pause still reads as Paused with Resume and Restart phase", async ({ page }) => {
     await pushState(page, { ...waiting, awaitingStart: false });
     await expect(page.locator(".phase-label")).toHaveText("Paused");
     await expect(page.getByRole("button", { name: "Resume" })).toBeVisible();
-    await expect(page.getByRole("button", { name: "Reset" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Restart phase" })).toBeVisible();
   });
 
   test("a change made in the tray shows up on the switch", async ({ page }) => {

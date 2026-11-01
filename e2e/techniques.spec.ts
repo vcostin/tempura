@@ -1,5 +1,16 @@
-import { test, expect } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 import { installTauriMock } from "./fixtures/tauriMock.ts";
+
+/**
+ * Opens the whole library, as a route. The timer's own way in ("Learn more") opens
+ * it at the selected technique, and only built-ins have one.
+ */
+async function openLibrary(page: Page) {
+  await page.evaluate(() => {
+    location.hash = "#/techniques";
+  });
+  await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
+}
 
 /** Technique library and editor flows against an in-page mock of the Rust commands. */
 test.describe("techniques library and editor", () => {
@@ -10,7 +21,7 @@ test.describe("techniques library and editor", () => {
   });
 
   test("library opens on Built-in with no custom techniques; tabs follow arrow keys", async ({ page }) => {
-    await page.locator('[data-open-panel="techniques"]').first().click();
+    await page.getByRole("button", { name: "Learn more" }).click();
     await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
 
     const builtIn = page.getByRole("tab", { name: /Built-in/ });
@@ -26,7 +37,7 @@ test.describe("techniques library and editor", () => {
   });
 
   test("customize a built-in, save, and land on Mine with it selected", async ({ page }) => {
-    await page.locator('[data-open-panel="techniques"]').first().click();
+    await openLibrary(page);
     await page.locator(".library-row-head", { hasText: "Classic" }).first().click();
     await page.getByRole("button", { name: "Customize: Classic" }).click();
 
@@ -100,7 +111,7 @@ test.describe("techniques library and editor", () => {
     await page.fill("#c-name", "Errands");
     await page.getByRole("button", { name: "Add technique" }).click();
 
-    await page.locator('[data-open-panel="techniques"]').first().click();
+    await openLibrary(page);
     await page.locator(".library-row-head", { hasText: "Errands" }).click();
     await page.getByRole("button", { name: "Delete: Errands" }).click();
     await expect(page.locator(".library-row", { hasText: "Errands" })).toHaveCount(0);

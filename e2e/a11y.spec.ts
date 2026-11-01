@@ -110,7 +110,10 @@ test.describe("a11y dialogs and landmarks", () => {
     );
     expect(restoredStats).toBe("stats");
 
-    await page.locator('[data-open-panel="techniques"]').click();
+    // No backend here, so no techniques and no "Learn more": open the route itself.
+    await page.evaluate(() => {
+      location.hash = "#/techniques";
+    });
     await page.waitForSelector('[role="dialog"]');
     const library = await page.evaluate(
       () => document.querySelector('[role="dialog"]')?.getAttribute("aria-label"),

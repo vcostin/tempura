@@ -12,6 +12,8 @@ interface Props {
   info: AppInfo | null;
   onClose: () => void;
   onOpenShortcuts: () => void;
+  /** Shown once debug access is on (five clicks on the version, or a debug build). */
+  onOpenDebug?: () => void;
   /** After unlocking debug access in a release build. */
   onDebugUnlocked?: () => void;
   updater?: {
@@ -71,6 +73,17 @@ export function AboutView(props: Props) {
             ›
           </span>
         </button>
+        {props.onOpenDebug && (
+          <button type="button" className="link-row" data-open-panel="debug" onClick={props.onOpenDebug}>
+            <span>
+              <span className="link-row-title">Debug</span>
+              <span className="link-row-meta">Build, notifications, access</span>
+            </span>
+            <span className="link-row-chevron" aria-hidden="true">
+              ›
+            </span>
+          </button>
+        )}
       </section>
 
       <section className="section">

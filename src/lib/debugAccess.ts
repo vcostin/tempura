@@ -21,7 +21,7 @@ function writeFlag(key: string, on: boolean): void {
   }
 }
 
-/** True when the beetle / Debug view should be available. */
+/** True when Help & About should list the Debug view. */
 export function isDebugAccessEnabled(infoDebug?: boolean | null): boolean {
   if (readFlag(HIDDEN_KEY)) return false;
   if (import.meta.env.DEV) return true;
