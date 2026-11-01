@@ -158,7 +158,6 @@ export function StatsView({ onClose, onExport, streakDays }: Props) {
     <ScrollPanel label={t("stats.panel")} className="panel--report">
       <div className="report">
         <BrandHeader
-          eyebrow={t("stats.panel")}
           line={t("stats.line")}
           actions={
             <button type="button" className="icon-btn" data-dialog-close aria-label={t("stats.close")} onClick={onClose}>
