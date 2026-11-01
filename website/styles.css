@@ -743,7 +743,7 @@ a:hover {
     transform: rotate(6deg);
   }
 
-  /* Fan toward the copy: settings sits on the copy side in both dirs. */
+  /* Fan toward the copy: the technique sheet sits on the copy side in both dirs. */
   [dir="rtl"] .shot--techniques {
     left: auto;
     right: 4%;
