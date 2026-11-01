@@ -28,8 +28,6 @@
     "settingsTitle": "Settings",
     "aboutAria": "Help & About",
     "aboutTitle": "Help & About",
-    "bestFor": "Best for: {{value}}",
-    "learnMore": "Learn more",
     "cycle": " · cycle {{count}}",
     "flowing": " · flowing",
     "hybridBell": "Focus bell — take a break, or keep flowing.",
@@ -58,13 +56,19 @@
     "dontCountAway": "Don't count it"
   },
   "picker": {
-    "aria": "Focus technique",
     "newTechnique": "New technique",
     "hidden": "{{n}} hidden",
     "hiddenAria": "Hidden techniques: {{n}}",
     "hide": "Hide from timer",
     "keepSelected": "The selected technique stays on the timer.",
     "keepOne": "Keep at least one technique on the timer."
+  },
+  "rhythm": {
+    "change": "Change",
+    "leftInSet": "{{time}} left in this set",
+    "openEnded": "open-ended",
+    "sheetTitle": "Choose a rhythm",
+    "sheetLine": "Different work wants a different pace."
   },
   "scroll": {
     "more": "Scroll for more"
@@ -398,7 +402,7 @@
     "openSettings": "Open settings",
     "closePanel": "Close a panel or go back",
     "undo": "Undo a delete or hide while its message shows",
-    "chipMenu": "Open a technique’s menu from its chip",
+    "techniqueMenu": "Open a technique’s menu in the technique list",
     "moveInMenu": "Move through a menu",
     "switchTabs": "Switch tabs in the technique library",
     "key_space": "Space",

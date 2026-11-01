@@ -17,8 +17,6 @@
     "settingsTitle": "Réglages",
     "aboutAria": "Aide et à propos",
     "aboutTitle": "Aide et à propos",
-    "bestFor": "Idéal pour : {{value}}",
-    "learnMore": "En savoir plus",
     "cycle": " · cycle {{count}}",
     "flowing": " · en flow",
     "hybridBell": "Gong de focus — prenez une pause, ou continuez dans le flow.",
@@ -47,13 +45,19 @@
     "dontCountAway": "Ne pas le compter"
   },
   "picker": {
-    "aria": "Technique de focus",
     "newTechnique": "Nouvelle technique",
     "hidden": "Masquées : {{n}}",
     "hiddenAria": "Techniques masquées : {{n}}",
     "hide": "Masquer du minuteur",
     "keepSelected": "La technique choisie reste sur le minuteur.",
     "keepOne": "Gardez au moins une technique sur le minuteur."
+  },
+  "rhythm": {
+    "change": "Changer",
+    "leftInSet": "encore {{time}} dans cette série",
+    "openEnded": "ouvert",
+    "sheetTitle": "Choisir un rythme",
+    "sheetLine": "Chaque travail a son propre tempo."
   },
   "scroll": {
     "more": "Faire défiler pour voir plus"
@@ -398,7 +402,7 @@
     "openSettings": "Ouvrir les réglages",
     "closePanel": "Fermer un panneau ou revenir",
     "undo": "Annuler une suppression ou un masquage tant que le message est affiché",
-    "chipMenu": "Ouvrir le menu d’une technique depuis sa puce",
+    "techniqueMenu": "Ouvrir le menu d’une technique dans la liste des techniques",
     "moveInMenu": "Se déplacer dans un menu",
     "switchTabs": "Changer d’onglet dans la bibliothèque de techniques",
     "key_space": "Espace",

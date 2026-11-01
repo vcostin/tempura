@@ -6,7 +6,7 @@ test.describe("keyboard shortcuts page", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   const dialog = (page: import("@playwright/test").Page) =>

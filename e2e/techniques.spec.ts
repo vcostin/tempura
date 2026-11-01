@@ -1,28 +1,31 @@
 import { test, expect, type Page } from "@playwright/test";
 import { installTauriMock } from "./fixtures/tauriMock.ts";
 
-/**
- * Opens the whole library, as a route. The timer's own way in ("Learn more") opens
- * it at the selected technique, and only built-ins have one.
- */
+/** The timer's way in: the rhythm card's sheet, then Manage techniques. */
 async function openLibrary(page: Page) {
-  await page.evaluate(() => {
-    location.hash = "#/techniques";
-  });
+  await page.locator(".rhythm-card").click();
+  await page.getByRole("button", { name: "Manage techniques" }).click();
   await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
 }
+
+async function newTechnique(page: Page) {
+  await page.locator(".rhythm-card").click();
+  await page.locator('[data-open-panel="technique-new"]').click();
+}
+
+/** The technique on the timer: the card shows it. */
+const onTimer = (page: Page) => page.locator(".rhythm-card-name");
 
 /** Technique library and editor flows against an in-page mock of the Rust commands. */
 test.describe("techniques library and editor", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   test("library opens on Built-in with no custom techniques; tabs follow arrow keys", async ({ page }) => {
-    await page.getByRole("button", { name: "Learn more" }).click();
-    await page.waitForSelector('[role="dialog"][aria-label="Techniques"]');
+    await openLibrary(page);
 
     const builtIn = page.getByRole("tab", { name: /Built-in/ });
     await expect(builtIn).toHaveAttribute("aria-selected", "true");
@@ -53,20 +56,14 @@ test.describe("techniques library and editor", () => {
     await expect(row).toContainText("Selected");
 
     await page.keyboard.press("Escape");
-    await expect(page.locator(".picker .chip", { hasText: "Classic (copy)" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(onTimer(page)).toHaveText("Classic (copy)");
   });
 
   test("edit and delete from the library; selection falls back, Undo restores it", async ({ page }) => {
-    await page.locator('[data-open-panel="technique-new"]').click();
+    await newTechnique(page);
     await page.fill("#c-name", "Writing");
     await page.getByRole("button", { name: "Add technique" }).click();
-    await expect(page.locator(".picker .chip", { hasText: "Writing" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(onTimer(page)).toHaveText("Writing");
 
     await page.locator('[data-open-panel="settings"]').click();
     await page.getByRole("button", { name: /Manage techniques/ }).click();
@@ -80,34 +77,27 @@ test.describe("techniques library and editor", () => {
     await expect(page.locator(".library-empty")).toBeVisible();
     await expect(page.locator(".toast")).toContainText("Writing deleted");
     await page.keyboard.press("Escape");
-    await expect(page.locator(".picker .chip", { hasText: "Writing" })).toHaveCount(0);
-    await expect(page.locator(".picker .chip", { hasText: "Classic" }).first()).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(onTimer(page)).toHaveText("Classic");
 
     // Undo brings it back, selected again.
     await page.locator(".toast").getByRole("button", { name: "Undo" }).click();
     await expect(page.locator(".toast")).toHaveCount(0);
-    await expect(page.locator(".picker .chip", { hasText: "Writing" })).toHaveAttribute(
-      "aria-pressed",
-      "true",
-    );
+    await expect(onTimer(page)).toHaveText("Writing");
   });
 
   test("Ctrl+Z undoes a delete", async ({ page }) => {
-    await page.locator('[data-open-panel="technique-new"]').click();
+    await newTechnique(page);
     await page.fill("#c-name", "Reading");
     await page.getByRole("button", { name: "Add technique" }).click();
     await page.goto("/#/techniques/custom-1/edit");
     await page.getByRole("button", { name: "Delete" }).click();
     await expect(page.locator(".toast")).toContainText("Reading deleted");
     await page.keyboard.press("Control+z");
-    await expect(page.locator(".picker .chip", { hasText: "Reading" })).toHaveCount(1);
+    await expect(onTimer(page)).toHaveText("Reading");
   });
 
   test("delete from the library row, then Undo", async ({ page }) => {
-    await page.locator('[data-open-panel="technique-new"]').click();
+    await newTechnique(page);
     await page.fill("#c-name", "Errands");
     await page.getByRole("button", { name: "Add technique" }).click();
 
@@ -119,12 +109,6 @@ test.describe("techniques library and editor", () => {
 
     await page.locator(".toast").getByRole("button", { name: "Undo" }).click();
     await expect(page.locator(".library-row", { hasText: "Errands" })).toHaveCount(1);
-  });
-
-  test("Learn more opens the library at the selected technique", async ({ page }) => {
-    await page.getByRole("button", { name: "Learn more" }).click();
-    await expect(page).toHaveURL(/#\/techniques\?focus=classic$/);
-    await expect(page.locator(".library-row.is-open")).toContainText("Classic");
   });
 
   test("panels swap inside one long-lived layer, which slides in only from the timer", async ({ page }) => {

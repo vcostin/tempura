@@ -6,7 +6,7 @@ test.describe("global shortcuts", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   const openSettings = async (page: Page) => {

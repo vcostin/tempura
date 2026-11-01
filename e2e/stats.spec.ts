@@ -18,7 +18,7 @@ test.describe("stats", () => {
     await page.clock.setFixedTime(new Date(2026, 9, 15, 12));
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
     const stats = {
         focusSecs: 10 * 3600,
         completedCycles: 18,

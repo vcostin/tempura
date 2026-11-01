@@ -17,8 +17,6 @@
     "settingsTitle": "设置",
     "aboutAria": "帮助与关于",
     "aboutTitle": "帮助与关于",
-    "bestFor": "适合：{{value}}",
-    "learnMore": "了解更多",
     "cycle": " · 第 {{count}} 轮",
     "flowing": " · 心流中",
     "hybridBell": "专注铃 — 休息，或继续流动。",
@@ -47,13 +45,19 @@
     "dontCountAway": "不计入"
   },
   "picker": {
-    "aria": "专注技法",
     "newTechnique": "新建技巧",
     "hidden": "已隐藏：{{n}}",
     "hiddenAria": "已隐藏的技巧：{{n}}",
     "hide": "从计时器隐藏",
     "keepSelected": "所选技巧会保留在计时器上。",
     "keepOne": "计时器上至少保留一个技巧。"
+  },
+  "rhythm": {
+    "change": "更换",
+    "leftInSet": "本组还剩 {{time}}",
+    "openEnded": "不限时",
+    "sheetTitle": "选择节奏",
+    "sheetLine": "不同的工作适合不同的节奏。"
   },
   "scroll": {
     "more": "向下滚动看更多"
@@ -398,7 +402,7 @@
     "openSettings": "打开设置",
     "closePanel": "关闭面板或返回",
     "undo": "提示消息显示时撤销删除或隐藏",
-    "chipMenu": "从标签打开方法菜单",
+    "techniqueMenu": "在方法列表中打开方法菜单",
     "moveInMenu": "在菜单中移动",
     "switchTabs": "切换方法库的标签页",
     "key_space": "空格",

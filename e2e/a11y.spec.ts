@@ -17,7 +17,6 @@ test.describe("a11y dialogs and landmarks", () => {
       const h1 = document.querySelector("h1.brand");
       const h2 = document.querySelector("h2.phase-label");
       const clock = document.querySelector(".clock");
-      const picker = document.querySelector(".picker");
       const announcer = document.querySelector('[role="status"][aria-live="polite"]');
       const ring = document.querySelector(".ring-wrap svg");
       return {
@@ -26,7 +25,6 @@ test.describe("a11y dialogs and landmarks", () => {
         h1: h1?.textContent?.replace(/\s+/g, " ").trim() ?? null,
         h2: h2?.textContent?.trim() ?? null,
         clockLive: clock?.getAttribute("aria-live"),
-        pickerRole: picker?.getAttribute("role"),
         announcer: Boolean(announcer),
         ringHidden: ring?.getAttribute("aria-hidden"),
       };
@@ -37,7 +35,6 @@ test.describe("a11y dialogs and landmarks", () => {
     expect(landmarks.h1 ?? "").toContain("Tempura");
     expect(landmarks.h2).toBe("Ready");
     expect(landmarks.clockLive).toBeNull();
-    expect(landmarks.pickerRole).toBe("group");
     expect(landmarks.announcer).toBe(true);
     expect(landmarks.ringHidden).toBe("true");
   });
@@ -173,25 +170,7 @@ test.describe("a11y dialogs and landmarks", () => {
     await page.waitForSelector('[role="dialog"]', { state: "detached" });
   });
 
-  test("+ chip opens the technique editor; Esc returns focus to it", async ({ page }) => {
-    const add = page.locator('[data-open-panel="technique-new"]');
-    await add.focus();
-    await add.click();
-    await page.waitForSelector('[role="dialog"][aria-label="Technique editor"]');
-    await expect(page).toHaveURL(/#\/techniques\/new$/);
-
-    await page.fill("#c-focus", "40");
-    await expect(page.locator(".editor-preview")).toContainText("40");
-
-    await page.keyboard.press("Escape");
-    await page.waitForSelector('[role="dialog"]', { state: "detached" });
-    const opener = await page.evaluate(() =>
-      document.activeElement?.getAttribute("data-open-panel"),
-    );
-    expect(opener).toBe("technique-new");
-  });
-
-    test("comma opens settings", async ({ page }) => {
+  test("comma opens settings", async ({ page }) => {
     await page.locator("body").click();
     await page.keyboard.press(",");
     await page.waitForSelector('[role="dialog"]');

@@ -17,8 +17,6 @@
     "settingsTitle": "Einstellungen",
     "aboutAria": "Hilfe & Über",
     "aboutTitle": "Hilfe & Über",
-    "bestFor": "Gut für: {{value}}",
-    "learnMore": "Mehr erfahren",
     "cycle": " · Zyklus {{count}}",
     "flowing": " · im Fluss",
     "hybridBell": "Fokus-Gong — Pause machen oder weiterfließen.",
@@ -47,13 +45,19 @@
     "dontCountAway": "Nicht zählen"
   },
   "picker": {
-    "aria": "Fokustechnik",
     "newTechnique": "Neue Technik",
     "hidden": "Ausgeblendet: {{n}}",
     "hiddenAria": "Ausgeblendete Techniken: {{n}}",
     "hide": "Vom Timer ausblenden",
     "keepSelected": "Die gewählte Technik bleibt auf dem Timer.",
     "keepOne": "Mindestens eine Technik muss auf dem Timer bleiben."
+  },
+  "rhythm": {
+    "change": "Ändern",
+    "leftInSet": "noch {{time}} in diesem Satz",
+    "openEnded": "offen",
+    "sheetTitle": "Rhythmus wählen",
+    "sheetLine": "Jede Arbeit hat ihr eigenes Tempo."
   },
   "scroll": {
     "more": "Weiter scrollen"
@@ -398,7 +402,7 @@
     "openSettings": "Einstellungen öffnen",
     "closePanel": "Bereich schließen oder zurück",
     "undo": "Löschen oder Ausblenden rückgängig machen, solange die Meldung sichtbar ist",
-    "chipMenu": "Menü einer Technik über ihren Chip öffnen",
+    "techniqueMenu": "Menü einer Technik in der Technikliste öffnen",
     "moveInMenu": "Durch ein Menü bewegen",
     "switchTabs": "Tabs in der Technikbibliothek wechseln",
     "key_space": "Leertaste",

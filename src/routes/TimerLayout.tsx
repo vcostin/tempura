@@ -17,7 +17,8 @@ export type Panel = "settings" | "stats" | "techniques" | "debug" | "about" | "s
 const PANEL_OPENER: Record<Panel, string> = {
   settings: '[data-open-panel="settings"]',
   stats: '[data-open-panel="stats"]',
-  techniques: '[data-open-panel="techniques"]',
+  // Techniques and the editor open from the sheet, which hands focus to the card.
+  techniques: ".rhythm-card",
   // Debug opens from Help & About, so focus goes back to that button.
   debug: '[data-open-panel="about"]',
   about: '[data-open-panel="about"]',
@@ -25,7 +26,7 @@ const PANEL_OPENER: Record<Panel, string> = {
   shortcuts: '[data-open-panel="about"]',
 };
 
-const NEW_TECHNIQUE_OPENER = '[data-open-panel="technique-new"]';
+const NEW_TECHNIQUE_OPENER = ".rhythm-card";
 
 /** What the timer shell hands to panel routes. */
 export interface Shell {
@@ -337,9 +338,7 @@ export function TimerLayout() {
           onEditTechnique={(id) => openTechniqueEditor({ id })}
           onOpenSettings={() => openPanel("settings")}
           onOpenStats={() => openPanel("stats")}
-          onOpenTechniques={(focusId) =>
-            openPanel("techniques", focusId ? `?focus=${encodeURIComponent(focusId)}` : "")
-          }
+          onOpenTechniques={() => openPanel("techniques")}
           onOpenAbout={() => openPanel("about")}
         />
       </div>

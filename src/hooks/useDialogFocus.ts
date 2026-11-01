@@ -18,6 +18,8 @@ export function getFocusable(container: HTMLElement): HTMLElement[] {
 }
 
 function firstControl(container: HTMLElement): HTMLElement {
+  const chosen = container.querySelector<HTMLElement>("[data-autofocus]");
+  if (chosen) return chosen;
   const closeBtn = container.querySelector<HTMLElement>("[data-dialog-close]");
   if (closeBtn) return closeBtn;
   const heading = container.querySelector<HTMLElement>("h1, h2");

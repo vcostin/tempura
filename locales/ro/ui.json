@@ -17,8 +17,6 @@
     "settingsTitle": "Setări",
     "aboutAria": "Ajutor și despre",
     "aboutTitle": "Ajutor și despre",
-    "bestFor": "Bun pentru: {{value}}",
-    "learnMore": "Află mai mult",
     "cycle": " · ciclul {{count}}",
     "flowing": " · în flux",
     "hybridBell": "Gongul de focus — ia o pauză sau continuă fluxul.",
@@ -48,13 +46,19 @@
     "dontCountAway": "Nu socoti"
   },
   "picker": {
-    "aria": "Tehnică de focus",
     "newTechnique": "Tehnică nouă",
     "hidden": "Ascunse: {{n}}",
     "hiddenAria": "Tehnici ascunse: {{n}}",
     "hide": "Ascunde din cronometru",
     "keepSelected": "Tehnica selectată rămâne pe cronometru.",
     "keepOne": "Păstrează cel puțin o tehnică pe cronometru."
+  },
+  "rhythm": {
+    "change": "Schimbă",
+    "leftInSet": "mai sunt {{time}} din acest set",
+    "openEnded": "deschis",
+    "sheetTitle": "Alege un ritm",
+    "sheetLine": "Fiecare muncă are ritmul ei."
   },
   "scroll": {
     "more": "Derulează pentru mai mult"
@@ -399,7 +403,7 @@
     "openSettings": "Deschide setările",
     "closePanel": "Închide un panou sau înapoi",
     "undo": "Anulează o ștergere sau ascundere cât timp se vede mesajul",
-    "chipMenu": "Deschide meniul unei tehnici din eticheta ei",
+    "techniqueMenu": "Deschide meniul unei tehnici din lista de tehnici",
     "moveInMenu": "Mută-te printr-un meniu",
     "switchTabs": "Schimbă filele în biblioteca de tehnici",
     "key_space": "Spațiu",

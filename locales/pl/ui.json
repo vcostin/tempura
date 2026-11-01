@@ -17,8 +17,6 @@
     "settingsTitle": "Ustawienia",
     "aboutAria": "Pomoc i informacje",
     "aboutTitle": "Pomoc i informacje",
-    "bestFor": "Najlepsze do: {{value}}",
-    "learnMore": "Więcej",
     "cycle": " · cykl {{count}}",
     "flowing": " · w przepływie",
     "hybridBell": "Gong skupienia — zrób przerwę albo płyń dalej.",
@@ -49,13 +47,19 @@
     "dontCountAway": "Nie licz"
   },
   "picker": {
-    "aria": "Technika skupienia",
     "newTechnique": "Nowa technika",
     "hidden": "Ukryte: {{n}}",
     "hiddenAria": "Ukryte techniki: {{n}}",
     "hide": "Ukryj na minutniku",
     "keepSelected": "Wybrana technika zostaje na minutniku.",
     "keepOne": "Zostaw na minutniku co najmniej jedną technikę."
+  },
+  "rhythm": {
+    "change": "Zmień",
+    "leftInSet": "zostało {{time}} w tej serii",
+    "openEnded": "bez limitu",
+    "sheetTitle": "Wybierz rytm",
+    "sheetLine": "Każda praca ma swoje tempo."
   },
   "scroll": {
     "more": "Przewiń po więcej"
@@ -400,7 +404,7 @@
     "openSettings": "Otwarcie ustawień",
     "closePanel": "Zamknięcie panelu lub powrót",
     "undo": "Cofnięcie usunięcia lub ukrycia, póki widać komunikat",
-    "chipMenu": "Otwarcie menu techniki z jej chipu",
+    "techniqueMenu": "Otwarcie menu techniki na liście technik",
     "moveInMenu": "Poruszanie się po menu",
     "switchTabs": "Przełączanie kart w bibliotece technik",
     "key_space": "Spacja",

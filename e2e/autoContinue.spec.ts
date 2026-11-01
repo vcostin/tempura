@@ -6,7 +6,7 @@ test.describe("auto-continue switch", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   test("is on by default, explains itself, and toggles", async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe("a phase waiting to start (auto-continue off)", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   const pushState = (page: import("@playwright/test").Page, state: Record<string, unknown>) =>

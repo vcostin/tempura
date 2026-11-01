@@ -6,12 +6,14 @@ interface Props {
   actions?: ReactNode;
   /** Optional page label shown above the brand line (small caps). */
   eyebrow?: string;
+  /** Out of reach while a sheet covers the page. */
+  inert?: boolean;
 }
 
 /** Shared Tempura brand lockup used on every surface. */
-export function BrandHeader({ line, actions, eyebrow }: Props) {
+export function BrandHeader({ line, actions, eyebrow, inert }: Props) {
   return (
-    <header className="top-bar brand-header">
+    <header className="top-bar brand-header" inert={inert || undefined}>
       <div className="brand-lockup">
         {eyebrow && <p className="brand-eyebrow">{eyebrow}</p>}
         <h1 className="brand">

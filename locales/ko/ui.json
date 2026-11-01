@@ -17,8 +17,6 @@
     "settingsTitle": "설정",
     "aboutAria": "도움말 및 정보",
     "aboutTitle": "도움말 및 정보",
-    "bestFor": "적합한 경우: {{value}}",
-    "learnMore": "더 보기",
     "cycle": " · 사이클 {{count}}",
     "flowing": " · 플로 중",
     "hybridBell": "집중 벨 — 쉬거나 계속 흐르세요.",
@@ -47,13 +45,19 @@
     "dontCountAway": "계산하지 않기"
   },
   "picker": {
-    "aria": "집중 기법",
     "newTechnique": "새 기법",
     "hidden": "숨김: {{n}}",
     "hiddenAria": "숨긴 기법: {{n}}",
     "hide": "타이머에서 숨기기",
     "keepSelected": "선택한 기법은 타이머에 남습니다.",
     "keepOne": "타이머에 기법을 하나 이상 남겨 두세요."
+  },
+  "rhythm": {
+    "change": "변경",
+    "leftInSet": "이 세트 {{time}} 남음",
+    "openEnded": "시간 제한 없음",
+    "sheetTitle": "리듬 선택",
+    "sheetLine": "일마다 맞는 속도가 다릅니다."
   },
   "scroll": {
     "more": "더 보려면 스크롤"
@@ -398,7 +402,7 @@
     "openSettings": "설정 열기",
     "closePanel": "패널 닫기 또는 뒤로",
     "undo": "메시지가 보이는 동안 삭제나 숨기기 취소",
-    "chipMenu": "칩에서 기법 메뉴 열기",
+    "techniqueMenu": "기법 목록에서 기법 메뉴 열기",
     "moveInMenu": "메뉴에서 이동",
     "switchTabs": "기법 라이브러리 탭 전환",
     "key_space": "스페이스",
