@@ -151,7 +151,8 @@ body {
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* The window never scrolls: the timer's shell and each panel scroll themselves. */
+  overflow: hidden;
 }
 
 body::before {
@@ -207,6 +208,11 @@ button {
 /* A fixed height, not a minimum: the timer's ring takes whatever is left over
    (see .ring-wrap), so the timer fits the window instead of scrolling. */
 .app-shell {
+  /* The one scroller for the timer. Positioned, so absolutely placed bits inside
+     it (screen-reader-only text, tooltips) are measured against it, not #root:
+     otherwise they stuck out below a scrolled timer and the window scrolled too. */
+  position: relative;
+  overflow-x: hidden;
   height: 100dvh;
   height: 100svh;
   padding: max(1rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right))
