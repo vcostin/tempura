@@ -81,7 +81,7 @@ test.describe("rhythm card and technique sheet", () => {
     await page.locator(".rhythm-card").click();
     await page.keyboard.press(",");
     await page.keyboard.press("?");
-    await expect(page).toHaveURL(/:1420\/(#\/)?$/);
+    await expect(page).toHaveURL(/:\d+\/(#\/)?$/);
     await expect(sheet(page)).toBeVisible();
 
     // Tab stays inside the sheet.

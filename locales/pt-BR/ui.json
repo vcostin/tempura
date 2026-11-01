@@ -59,6 +59,10 @@
     "sheetTitle": "Escolha um ritmo",
     "sheetLine": "Cada trabalho pede um ritmo diferente."
   },
+  "today": {
+    "byHour": "Foco por hora hoje: {{list}}.",
+    "noneYet": "Nenhum foco registrado hoje ainda."
+  },
   "scroll": {
     "more": "Role para ver mais"
   },

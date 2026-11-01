@@ -59,6 +59,10 @@
     "sheetTitle": "Kies een ritme",
     "sheetLine": "Elk werk vraagt om een eigen tempo."
   },
+  "today": {
+    "byHour": "Focus per uur vandaag: {{list}}.",
+    "noneYet": "Vandaag nog geen focus vastgelegd."
+  },
   "scroll": {
     "more": "Scroll voor meer"
   },

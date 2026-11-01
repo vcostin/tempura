@@ -61,6 +61,10 @@
     "sheetTitle": "Wybierz rytm",
     "sheetLine": "Każda praca ma swoje tempo."
   },
+  "today": {
+    "byHour": "Skupienie według godzin dzisiaj: {{list}}.",
+    "noneYet": "Dziś nie zapisano jeszcze skupienia."
+  },
   "scroll": {
     "more": "Przewiń po więcej"
   },

@@ -59,6 +59,10 @@
     "sheetTitle": "Rhythmus wählen",
     "sheetLine": "Jede Arbeit hat ihr eigenes Tempo."
   },
+  "today": {
+    "byHour": "Fokus nach Stunden heute: {{list}}.",
+    "noneYet": "Heute noch kein Fokus erfasst."
+  },
   "scroll": {
     "more": "Weiter scrollen"
   },

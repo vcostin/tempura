@@ -1222,17 +1222,21 @@ button.rhythm-card:hover {
 }
 
 /* Stats: the panel fills the window, so the page can use a wide window. */
-.report {
-  max-width: 64rem;
-  margin-inline: auto;
-  /* One hue, light to dark, from each theme's ring colour (decorative: the
-     numbers are in tables for screen readers). */
+/* One hue, light to dark, from each theme's ring colour (decorative: the numbers
+   are in tables, or a sentence, for screen readers). Stats and today's hours. */
+.report,
+.today-hours {
   --heat-0: color-mix(in srgb, var(--ink) 7%, transparent);
   --heat-1: color-mix(in oklab, var(--ring) 22%, var(--surface-solid));
   --heat-2: color-mix(in oklab, var(--ring) 42%, var(--surface-solid));
   --heat-3: color-mix(in oklab, var(--ring) 62%, var(--surface-solid));
   --heat-4: color-mix(in oklab, var(--ring) 81%, var(--surface-solid));
   --heat-5: var(--ring);
+}
+
+.report {
+  max-width: 64rem;
+  margin-inline: auto;
 }
 
 [dir="rtl"] .report-chevron {
@@ -1246,6 +1250,35 @@ button.rhythm-card:hover {
   justify-content: space-between;
   gap: 0.5rem 1rem;
   margin: 0.5rem 0 1rem;
+}
+
+.today-hours {
+  flex-basis: 100%;
+}
+
+.today-hours-cells {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: 2px;
+  margin-top: 0.15rem;
+}
+
+.today-hours-cell {
+  height: 6px;
+  border-radius: 2px;
+  background: var(--heat-0);
+}
+
+.today-hours-cell[data-level="1"] { background: var(--heat-1); }
+.today-hours-cell[data-level="2"] { background: var(--heat-2); }
+.today-hours-cell[data-level="3"] { background: var(--heat-3); }
+.today-hours-cell[data-level="4"] { background: var(--heat-4); }
+.today-hours-cell[data-level="5"] { background: var(--heat-5); }
+
+/* Now: an outline, so the hour reads even when it is still empty. */
+.today-hours-cell[data-now] {
+  outline: 1.5px solid var(--ink);
+  outline-offset: 1px;
 }
 
 .report-controls .stats-period {

@@ -317,6 +317,7 @@ export function TimerLayout() {
             }
           }}
           stats={session.stats}
+          todayHours={session.todayHours}
           hybridBell={session.hybridBell}
           workingOn={workingOn}
           onWorkingOn={setWorkingOn}
