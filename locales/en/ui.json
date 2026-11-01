@@ -79,7 +79,6 @@
   },
   "settings": {
     "panel": "Settings",
-    "line": "This machine.",
     "close": "Close settings",
     "language": "Language",
     "theme": "Theme",
@@ -140,7 +139,6 @@
   },
   "about": {
     "panel": "Help & About",
-    "line": "Help & About · local, on this machine.",
     "close": "Close",
     "feedbackOpened": "Opened in your browser — check there if a tab didn’t come forward.",
     "feedbackLinkHint": "If a tab didn’t appear, open or copy this page:",
@@ -168,7 +166,6 @@
   },
   "stats": {
     "panel": "Stats",
-    "line": "Your focus · local only.",
     "close": "Close",
     "focusTime": "focus time",
     "cyclesFinished": "cycles finished",
@@ -233,7 +230,6 @@
   },
   "library": {
     "panel": "Techniques",
-    "line": "Your rhythms and the classics.",
     "close": "Close",
     "new": "New",
     "tabMine": "Mine",
@@ -262,7 +258,6 @@
   },
   "editor": {
     "panel": "Technique editor",
-    "line": "Techniques · shape your own rhythm.",
     "back": "Back",
     "preview": "Rhythm",
     "copyName": "{{name}} (copy)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Keyboard shortcuts",
-    "line": "Every key Tempura listens to.",
     "close": "Close",
     "meta": "Space, S, Esc and the rest",
     "open": "Keyboard shortcuts…",

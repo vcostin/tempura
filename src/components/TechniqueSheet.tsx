@@ -7,6 +7,7 @@ import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
 import type { Technique } from "../lib/types";
 import type { HideBlock } from "../state/techniqueVisibility";
 import { RhythmStrip } from "./RhythmStrip";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   /** Techniques shown on the timer (hidden ones already left out). */
@@ -199,7 +200,7 @@ export function TechniqueSheet(props: Props) {
             </p>
           </div>
           <button type="button" className="icon-btn sheet-close" aria-label={t("library.close")} onClick={props.onClose}>
-            ✕
+            <CloseIcon />
           </button>
         </div>
 

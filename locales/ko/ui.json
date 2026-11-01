@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "설정",
-    "line": "이 기기.",
     "close": "설정 닫기",
     "language": "언어",
     "theme": "테마",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "도움말 및 정보",
-    "line": "도움말 및 정보 · 이 기기에 남습니다.",
     "close": "닫기",
     "feedbackOpened": "브라우저에서 열었습니다. 앞으로 나오지 않으면 브라우저를 확인하세요.",
     "feedbackLinkHint": "탭이 나타나지 않으면 이 페이지를 열거나 복사하세요:",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "통계",
-    "line": "당신의 집중 · 로컬만.",
     "close": "닫기",
     "focusTime": "집중 시간",
     "cyclesFinished": "완료한 사이클",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "기법",
-    "line": "나만의 리듬과 기본 기법.",
     "close": "닫기",
     "new": "새로 만들기",
     "tabMine": "내 기법",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "기법 편집기",
-    "line": "기법 · 나만의 리듬을 만드세요.",
     "back": "뒤로",
     "preview": "리듬",
     "copyName": "{{name}} (사본)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "키보드 단축키",
-    "line": "Tempura가 반응하는 모든 키.",
     "close": "닫기",
     "meta": "스페이스, S, Esc 등",
     "open": "키보드 단축키…",

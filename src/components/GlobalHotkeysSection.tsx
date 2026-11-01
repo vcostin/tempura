@@ -13,6 +13,7 @@ import {
   type HotkeyReport,
 } from "../lib/hotkeys";
 import { isMacPlatform } from "../lib/shortcuts";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   hotkeys: GlobalHotkeys;
@@ -265,7 +266,7 @@ export function GlobalHotkeysSection({ hotkeys, onChange }: Props) {
                     void save(action, "");
                   }}
                 >
-                  ✕
+                  <CloseIcon size={16} />
                 </button>
               )}
               {message && (

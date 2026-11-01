@@ -7,6 +7,7 @@ import { isMacPlatform, keyLabel, SHORTCUT_GROUPS } from "../lib/shortcuts";
 import { HOTKEY_LABEL_KEYS } from "./GlobalHotkeysSection";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   /** The user's system-wide shortcuts, listed when any is set. */
@@ -44,7 +45,7 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
   return (
     <ScrollPanel label={t("shortcuts.panel")}>
       <BrandHeader
-        line={t("shortcuts.line")}
+        line={t("shortcuts.panel")}
         actions={
           <button
             type="button"
@@ -53,7 +54,7 @@ export function ShortcutsView({ globalHotkeys, onOpenSettings, onClose }: Props)
             aria-label={t("shortcuts.close")}
             onClick={onClose}
           >
-            ✕
+            <CloseIcon />
           </button>
         }
       />

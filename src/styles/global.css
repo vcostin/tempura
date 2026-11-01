@@ -312,15 +312,6 @@ button {
   line-height: 1.35;
 }
 
-.brand-eyebrow {
-  margin: 0 0 0.2rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-muted);
-}
-
 /* Never narrower than the wordmark: squeezed below it, "Tempura" would spill into
    the header icons (it did in RTL). The tagline wraps instead. */
 .brand-lockup {

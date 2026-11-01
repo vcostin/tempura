@@ -7,6 +7,7 @@ import type { UpdateUiStatus } from "../lib/updates";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 import { UpdatesSection } from "./UpdatesSection";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   info: AppInfo | null;
@@ -49,7 +50,7 @@ export function AboutView(props: Props) {
   return (
     <ScrollPanel label={t("about.panel")}>
       <BrandHeader
-        line={t("about.line")}
+        line={t("about.panel")}
         actions={
           <button
             type="button"
@@ -58,7 +59,7 @@ export function AboutView(props: Props) {
             aria-label={t("about.close")}
             onClick={props.onClose}
           >
-            ✕
+            <CloseIcon />
           </button>
         }
       />

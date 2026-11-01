@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "Instellingen",
-    "line": "Deze machine.",
     "close": "Instellingen sluiten",
     "language": "Taal",
     "theme": "Thema",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "Help & over",
-    "line": "Help & over · lokaal, op deze machine.",
     "close": "Sluiten",
     "feedbackOpened": "Geopend in je browser — kijk daar als het tabblad niet naar voren kwam.",
     "feedbackLinkHint": "Als er geen tabblad verschijnt, open of kopieer deze pagina:",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "Statistieken",
-    "line": "Jouw focus · alleen lokaal.",
     "close": "Sluiten",
     "focusTime": "focustijd",
     "cyclesFinished": "cycli klaar",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "Technieken",
-    "line": "Je eigen ritmes en de klassiekers.",
     "close": "Sluiten",
     "new": "Nieuw",
     "tabMine": "Mijn",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "Techniekeditor",
-    "line": "Technieken · vorm je eigen ritme.",
     "back": "Terug",
     "preview": "Ritme",
     "copyName": "{{name}} (kopie)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Sneltoetsen",
-    "line": "Elke toets waar Tempura naar luistert.",
     "close": "Sluiten",
     "meta": "Spatie, S, Esc en de rest",
     "open": "Sneltoetsen…",

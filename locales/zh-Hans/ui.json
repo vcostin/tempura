@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "设置",
-    "line": "这台设备。",
     "close": "关闭设置",
     "language": "语言",
     "theme": "主题",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "帮助与关于",
-    "line": "帮助与关于 · 数据留在这台机器上。",
     "close": "关闭",
     "feedbackOpened": "已在浏览器中打开。如果没有跳到前台，请去浏览器里查看。",
     "feedbackLinkHint": "如果没有出现新标签页，请打开或复制此页面：",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "统计",
-    "line": "你的专注 · 仅本地。",
     "close": "关闭",
     "focusTime": "专注时间",
     "cyclesFinished": "完成的轮次",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "技巧",
-    "line": "你的节奏与经典技巧。",
     "close": "关闭",
     "new": "新建",
     "tabMine": "我的",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "技巧编辑器",
-    "line": "技巧 · 打造你自己的节奏。",
     "back": "返回",
     "preview": "节奏",
     "copyName": "{{name}}（副本）"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "键盘快捷键",
-    "line": "Tempura 响应的每一个按键。",
     "close": "关闭",
     "meta": "空格、S、Esc 等",
     "open": "键盘快捷键…",

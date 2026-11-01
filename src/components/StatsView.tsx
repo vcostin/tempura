@@ -28,6 +28,7 @@ import type { ExportFormat, FocusShare, PeriodStats, TechniqueUsage } from "../l
 import { barPercent } from "../lib/statsBars";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   onClose: () => void;
@@ -158,10 +159,10 @@ export function StatsView({ onClose, onExport, streakDays }: Props) {
     <ScrollPanel label={t("stats.panel")} className="panel--report">
       <div className="report">
         <BrandHeader
-          line={t("stats.line")}
+          line={t("stats.panel")}
           actions={
             <button type="button" className="icon-btn" data-dialog-close aria-label={t("stats.close")} onClick={onClose}>
-              ✕
+              <CloseIcon />
             </button>
           }
         />

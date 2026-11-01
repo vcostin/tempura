@@ -7,6 +7,7 @@ import { BrandHeader } from "./BrandHeader";
 import { GlobalHotkeysSection } from "./GlobalHotkeysSection";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   settings: AppSettings;
@@ -31,7 +32,7 @@ export function SettingsView(props: Props) {
   return (
     <ScrollPanel label={t("settings.panel")}>
       <BrandHeader
-        line={t("settings.line")}
+        line={t("settings.panel")}
         actions={
           <button
             type="button"
@@ -40,7 +41,7 @@ export function SettingsView(props: Props) {
             aria-label={t("settings.close")}
             onClick={props.onClose}
           >
-            ✕
+            <CloseIcon />
           </button>
         }
       />

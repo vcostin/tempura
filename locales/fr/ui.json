@@ -68,7 +68,6 @@
   },
   "settings": {
     "panel": "Réglages",
-    "line": "Cet appareil.",
     "close": "Fermer les réglages",
     "language": "Langue",
     "theme": "Thème",
@@ -129,7 +128,6 @@
   },
   "about": {
     "panel": "Aide et à propos",
-    "line": "Aide et à propos · local, sur cette machine.",
     "close": "Fermer",
     "feedbackOpened": "Ouvert dans votre navigateur — allez y voir si l’onglet n’est pas passé au premier plan.",
     "feedbackLinkHint": "Si aucun onglet n’apparaît, ouvrez ou copiez cette page :",
@@ -157,7 +155,6 @@
   },
   "stats": {
     "panel": "Stats",
-    "line": "Votre focus · local seulement.",
     "close": "Fermer",
     "focusTime": "temps de focus",
     "cyclesFinished": "cycles terminés",
@@ -222,7 +219,6 @@
   },
   "library": {
     "panel": "Techniques",
-    "line": "Vos rythmes et les classiques.",
     "close": "Fermer",
     "new": "Nouvelle",
     "tabMine": "Les miennes",
@@ -251,7 +247,6 @@
   },
   "editor": {
     "panel": "Éditeur de technique",
-    "line": "Techniques · façonnez votre propre rythme.",
     "back": "Retour",
     "preview": "Rythme",
     "copyName": "{{name}} (copie)"
@@ -391,7 +386,6 @@
   },
   "shortcuts": {
     "panel": "Raccourcis clavier",
-    "line": "Toutes les touches qu’écoute Tempura.",
     "close": "Fermer",
     "meta": "Espace, S, Échap et les autres",
     "open": "Raccourcis clavier…",

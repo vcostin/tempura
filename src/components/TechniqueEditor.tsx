@@ -7,6 +7,7 @@ import { DEFAULT_FLOW_RATIO } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ScrollPanel } from "./ScrollPanel";
 import { Select } from "./Select";
+import { CloseIcon } from "./CloseIcon";
 
 interface Props {
   /** The custom technique being edited; absent when creating. */
@@ -104,8 +105,7 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
   return (
     <ScrollPanel label={t("editor.panel")}>
       <BrandHeader
-        eyebrow={editing ? t("settings.editTechnique") : t("settings.newTechnique")}
-        line={t("editor.line")}
+        line={editing ? t("settings.editTechnique") : t("settings.newTechnique")}
         actions={
           <button
             type="button"
@@ -114,7 +114,7 @@ export function TechniqueEditor({ editing, source, onSave, onDelete, onClose }: 
             aria-label={t("editor.back")}
             onClick={onClose}
           >
-            ✕
+            <CloseIcon />
           </button>
         }
       />
