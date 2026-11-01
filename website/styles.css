@@ -481,7 +481,7 @@ a:hover {
   animation: rise 1s var(--ease) both;
 }
 
-.shot--settings,
+.shot--techniques,
 .shot--stats {
   display: none;
 }
@@ -706,7 +706,7 @@ a:hover {
     display: block;
   }
 
-  .shot--settings,
+  .shot--techniques,
   .shot--stats {
     display: block;
     width: 210px;
@@ -721,14 +721,14 @@ a:hover {
     animation: rise 1s var(--ease) 0.22s both;
   }
 
-  .shot--settings {
+  .shot--techniques {
     left: 4%;
     top: 88px;
     z-index: 1;
     animation: rise 1s var(--ease) 0.08s both;
   }
 
-  .shot--settings .tilt {
+  .shot--techniques .tilt {
     transform: rotate(-7deg);
   }
 
@@ -743,8 +743,8 @@ a:hover {
     transform: rotate(6deg);
   }
 
-  /* Fan toward the copy: settings sits on the copy side in both dirs. */
-  [dir="rtl"] .shot--settings {
+  /* Fan toward the copy: the technique sheet sits on the copy side in both dirs. */
+  [dir="rtl"] .shot--techniques {
     left: auto;
     right: 4%;
   }
@@ -754,7 +754,7 @@ a:hover {
     left: 6%;
   }
 
-  [dir="rtl"] .shot--settings .tilt {
+  [dir="rtl"] .shot--techniques .tilt {
     transform: rotate(7deg);
   }
 
@@ -802,7 +802,7 @@ a:hover {
     transition: none !important;
   }
 
-  .shot--settings .tilt,
+  .shot--techniques .tilt,
   .shot--stats .tilt {
     transform: none;
   }
