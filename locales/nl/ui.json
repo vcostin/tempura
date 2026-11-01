@@ -17,8 +17,6 @@
     "settingsTitle": "Instellingen",
     "aboutAria": "Help & over",
     "aboutTitle": "Help & over",
-    "bestFor": "Goed voor: {{value}}",
-    "learnMore": "Meer weten",
     "cycle": " · cyclus {{count}}",
     "flowing": " · in flow",
     "hybridBell": "Focusbel — pauze nemen of blijven stromen.",
@@ -47,13 +45,19 @@
     "dontCountAway": "Niet tellen"
   },
   "picker": {
-    "aria": "Focustechniek",
     "newTechnique": "Nieuwe techniek",
     "hidden": "Verborgen: {{n}}",
     "hiddenAria": "Verborgen technieken: {{n}}",
     "hide": "Verbergen op timer",
     "keepSelected": "De gekozen techniek blijft op de timer.",
     "keepOne": "Houd minstens één techniek op de timer."
+  },
+  "rhythm": {
+    "change": "Wijzigen",
+    "leftInSet": "nog {{time}} in deze reeks",
+    "openEnded": "open",
+    "sheetTitle": "Kies een ritme",
+    "sheetLine": "Elk werk vraagt om een eigen tempo."
   },
   "scroll": {
     "more": "Scroll voor meer"
@@ -398,7 +402,7 @@
     "openSettings": "Instellingen openen",
     "closePanel": "Paneel sluiten of teruggaan",
     "undo": "Verwijderen of verbergen ongedaan maken zolang de melding zichtbaar is",
-    "chipMenu": "Menu van een techniek openen vanaf de chip",
+    "techniqueMenu": "Menu van een techniek openen in de lijst met technieken",
     "moveInMenu": "Door een menu bewegen",
     "switchTabs": "Tabbladen wisselen in de techniekbibliotheek",
     "key_space": "Spatie",

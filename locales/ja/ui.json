@@ -17,8 +17,6 @@
     "settingsTitle": "設定",
     "aboutAria": "ヘルプとこのアプリについて",
     "aboutTitle": "ヘルプとこのアプリについて",
-    "bestFor": "向いていること: {{value}}",
-    "learnMore": "もっと見る",
     "cycle": " · サイクル {{count}}",
     "flowing": " · フロー中",
     "hybridBell": "フォーカスのベル — 休憩するか、流れ続けるか。",
@@ -47,13 +45,19 @@
     "dontCountAway": "含めない"
   },
   "picker": {
-    "aria": "フォーカスタクニック",
     "newTechnique": "新しいテクニック",
     "hidden": "非表示: {{n}}",
     "hiddenAria": "非表示のテクニック: {{n}}",
     "hide": "タイマーから非表示",
     "keepSelected": "選択中のテクニックはタイマーに残ります。",
     "keepOne": "タイマーには少なくとも1つのテクニックを残してください。"
+  },
+  "rhythm": {
+    "change": "変更",
+    "leftInSet": "このセットの残り {{time}}",
+    "openEnded": "時間制限なし",
+    "sheetTitle": "リズムを選ぶ",
+    "sheetLine": "仕事によって合うペースは違います。"
   },
   "scroll": {
     "more": "スクロールして続き"
@@ -398,7 +402,7 @@
     "openSettings": "設定を開く",
     "closePanel": "パネルを閉じる・戻る",
     "undo": "メッセージ表示中に削除や非表示を取り消す",
-    "chipMenu": "チップからテクニックのメニューを開く",
+    "techniqueMenu": "テクニック一覧でテクニックのメニューを開く",
     "moveInMenu": "メニュー内を移動",
     "switchTabs": "テクニックライブラリのタブを切り替え",
     "key_space": "スペース",

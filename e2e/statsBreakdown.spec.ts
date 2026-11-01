@@ -6,7 +6,7 @@ test.describe("stats: what the focus time was on", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   const share = (kind: string, name: string, focusSecs: number, techniqueId: string | null = null) => ({

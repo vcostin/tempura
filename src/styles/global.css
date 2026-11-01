@@ -572,10 +572,6 @@ button {
     margin-bottom: 0.75rem;
   }
 
-  .timer-root .rhythm-best .linkish {
-    min-height: 28px;
-  }
-
   .timer-stage {
     padding-bottom: 0.5rem;
   }
@@ -683,13 +679,6 @@ button {
   background: transparent;
 }
 
-.picker {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0.15rem 0 0.35rem;
-  width: 100%;
-}
 
 .chip {
   flex: 0 0 auto;
@@ -704,33 +693,10 @@ button {
   transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
-.chip-add {
-  min-width: 36px;
-  padding-inline: 0.6rem;
-  color: var(--accent);
-  font-size: 1rem;
-  line-height: 1;
-  border: 1px dashed color-mix(in srgb, var(--accent) 45%, transparent);
-  background: transparent;
-}
 
-.chip-add:hover {
-  background: var(--accent-soft);
-}
 
-.chip-hidden {
-  color: var(--ink-muted);
-  border: 1px dashed color-mix(in srgb, var(--ink) 25%, transparent);
-  background: transparent;
-}
 
-.chip-hidden:hover {
-  background: var(--surface);
-}
 
-.picker {
-  position: relative;
-}
 
 .chip-menu {
   position: absolute;
@@ -777,32 +743,285 @@ button {
   border-color: color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-.rhythm-summary {
-  margin: 0 0 0.5rem;
-  font-size: 0.8rem;
-  line-height: 1.35;
-  color: var(--ink-muted);
-  text-align: center;
-}
 
-.rhythm-block {
+
+
+
+/* The current technique: name, rhythm numbers and its set as a strip. Idle, a
+   button that opens the technique sheet; running, where you are in the set. */
+.rhythm-card {
+  display: block;
+  width: 100%;
   margin-bottom: 0.35rem;
+  padding: 0.6rem 0.8rem 0.7rem;
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--ink) 7%, transparent);
+  background: var(--surface);
+  color: var(--ink);
+  text-align: start;
+  backdrop-filter: blur(8px);
+  transition: background 0.2s ease;
 }
 
-.rhythm-block .rhythm-summary {
-  margin-bottom: 0.25rem;
+button.rhythm-card:hover {
+  background: color-mix(in srgb, var(--accent-soft) 60%, var(--surface));
 }
 
-.rhythm-best {
-  margin: 0;
+.rhythm-card-top {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.45rem;
+  min-width: 0;
+}
+
+.rhythm-card-name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.rhythm-card-meta {
+  flex: 1;
   font-size: 0.78rem;
   color: var(--ink-muted);
-  text-align: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  white-space: nowrap;
+}
+
+.rhythm-card-change {
+  display: inline-flex;
   align-items: center;
-  gap: 0.35rem 0.55rem;
+  gap: 0.15rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+}
+
+/* One set: each segment as wide as it is long. */
+.strip {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+}
+
+.strip-seg {
+  --seg: var(--ring);
+  position: relative;
+  flex: 1 1 0;
+  min-width: 3px;
+  height: 6px;
+  border-radius: 2px;
+  overflow: hidden;
+  background: var(--seg);
+}
+
+.strip-seg--short {
+  --seg: color-mix(in srgb, var(--ring) 32%, transparent);
+}
+
+.strip-seg--long {
+  --seg: color-mix(in srgb, var(--ring) 58%, transparent);
+}
+
+/* Open-ended focus fades out toward its end. */
+.strip-seg--flow {
+  background: linear-gradient(to right, var(--ring), color-mix(in srgb, var(--ring) 15%, transparent));
+}
+
+[dir="rtl"] .strip-seg--flow {
+  background: linear-gradient(to left, var(--ring), color-mix(in srgb, var(--ring) 15%, transparent));
+}
+
+/* Running: what's left is faint, the current segment fills as it goes. */
+.strip-seg[data-state="todo"],
+.strip-seg[data-state="now"] {
+  background: color-mix(in srgb, var(--ink) 9%, transparent);
+}
+
+.strip-fill {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 0;
+  background: var(--seg);
+}
+
+.strip-seg--flow .strip-fill {
+  background: var(--ring);
+}
+
+/* The technique sheet: a modal over the timer, anchored to the bottom. */
+.sheet-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.sheet-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 20, 0.38);
+  animation: fadeIn 0.2s ease both;
+}
+
+.sheet {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 480px;
+  max-height: 86%;
+  padding: 0.85rem 1rem max(0.9rem, env(safe-area-inset-bottom));
+  border-radius: 18px 18px 0 0;
+  background: var(--surface-solid);
+  color: var(--ink);
+  box-shadow: 0 -10px 30px -10px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.28s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sheet,
+  .sheet-scrim {
+    animation: none;
+  }
+}
+
+.sheet-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+
+.sheet-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.sheet-line {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+
+.sheet-close {
+  background: transparent;
+}
+
+.sheet-scroll {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin-inline: -0.35rem;
+  padding: 0.1rem 0.35rem;
+}
+
+.sheet-group {
+  margin: 0.7rem 0.6rem 0.2rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted);
+}
+
+.sheet-option {
+  display: grid;
+  grid-template-columns: 1.1rem 1fr;
+  gap: 0.3rem 0.6rem;
+  align-items: center;
+  padding: 0.55rem 0.6rem;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.sheet-option:hover {
+  background: color-mix(in srgb, var(--ink) 5%, transparent);
+}
+
+.sheet-option[aria-selected="true"] {
+  background: var(--accent-soft);
+}
+
+.sheet-option:focus-visible {
+  outline-offset: -2px;
+}
+
+.sheet-radio {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px solid color-mix(in srgb, var(--ink) 40%, transparent);
+}
+
+.sheet-option[aria-selected="true"] .sheet-radio {
+  border: 5px solid var(--ring);
+}
+
+.sheet-option-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.sheet-option-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.sheet-option-numbers {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.sheet-option .strip,
+.sheet-option-best {
+  grid-column: 2;
+}
+
+.sheet-option-best {
+  font-size: 0.75rem;
+  color: var(--ink-muted);
+}
+
+.sheet-menu {
+  inset-inline-start: 2.2rem;
+}
+
+.sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.sheet-hidden {
+  align-self: center;
+  min-height: 32px;
+}
+
+.sheet-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sheet-buttons .btn {
+  flex: 1;
+  min-height: 44px;
+  padding-inline: 0.75rem;
 }
 
 .linkish {
@@ -1570,6 +1789,12 @@ button {
   border-radius: 999px;
   background: var(--surface);
   backdrop-filter: blur(8px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
 }
 
 @keyframes slideUp {

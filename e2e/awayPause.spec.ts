@@ -6,7 +6,7 @@ test.describe("focus paused while away", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
   });
 
   const pushState = (page: import("@playwright/test").Page, state: Record<string, unknown>) =>

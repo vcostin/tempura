@@ -6,7 +6,7 @@ test.describe("stats: export", () => {
   test.beforeEach(async ({ page }) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
     await page.locator('[data-open-panel="stats"]').click();
   });
 

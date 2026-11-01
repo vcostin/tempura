@@ -1,12 +1,14 @@
-import { useId } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { formatClock, formatMinutes, formatTechniqueRhythm, phaseLabel } from "../lib/api";
-import { guideForTechnique, techniqueDisplayName } from "../lib/techniqueGuide";
+import { formatClock, formatMinutes, phaseLabel } from "../lib/api";
+import { techniqueDisplayName } from "../lib/techniqueGuide";
 import { offersToCountAway, showsPaused, startPhaseKey } from "../lib/timerLabels";
 import type { DayStats, Technique, TimerSnapshot } from "../lib/types";
 import { BrandHeader } from "./BrandHeader";
 import { ProgressRing } from "./ProgressRing";
-import { TechniquePicker } from "./TechniquePicker";
+import { RhythmCard } from "./RhythmCard";
+import { TechniqueSheet } from "./TechniqueSheet";
 import type { HideBlock } from "../state/techniqueVisibility";
 
 interface Props {
@@ -38,8 +40,8 @@ interface Props {
   onEditTechnique: (id: string) => void;
   onOpenSettings: () => void;
   onOpenStats: () => void;
-  /** Opens the techniques library, optionally at one technique. */
-  onOpenTechniques: (focusId?: string) => void;
+  /** Opens the techniques library. */
+  onOpenTechniques: () => void;
   onOpenAbout: () => void;
 }
 
@@ -55,8 +57,23 @@ export function TimerView(props: Props) {
     props.techniques.find((tech) => tech.id === props.selectedId) ??
     props.techniques.find((tech) => tech.id === s.techniqueId) ??
     null;
-  const rhythm = selected ? formatTechniqueRhythm(selected) : null;
-  const guide = selected ? guideForTechnique(selected) : null;
+  // While a session runs, the card follows the running technique.
+  const cardTechnique =
+    (s.running && props.techniques.find((tech) => tech.id === s.techniqueId)) || selected;
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const cardRef = useRef<HTMLButtonElement>(null);
+
+  // A session started elsewhere (tray, hotkey) closes the sheet: no switching mid-session.
+  useEffect(() => {
+    if (s.running) setSheetOpen(false);
+  }, [s.running]);
+
+  /** Close the sheet and put focus back on the card, so panels opened from the sheet return there. */
+  function closeSheet() {
+    // Synchronously, so the timer is no longer inert when the card takes focus.
+    flushSync(() => setSheetOpen(false));
+    cardRef.current?.focus({ preventScroll: true });
+  }
   const shownName = selected
     ? techniqueDisplayName(selected)
     : s.techniqueId
@@ -72,6 +89,7 @@ export function TimerView(props: Props) {
   return (
     <>
       <BrandHeader
+        inert={sheetOpen}
         line={t("brand.tagline")}
         actions={
           <>
@@ -112,39 +130,15 @@ export function TimerView(props: Props) {
         }
       />
 
-      <main id="timer-main">
-      <TechniquePicker
-        techniques={props.visibleTechniques}
-        selectedId={props.selectedId}
-        onSelect={props.onSelectTechnique}
-        onCreate={props.onNewTechnique}
-        disabled={s.running}
-        hiddenCount={props.techniques.length - props.visibleTechniques.length}
-        onShowHidden={props.onShowHiddenTechniques}
-        hideBlock={props.hideBlock}
-        onHide={props.onHideTechnique}
-        onEdit={props.onEditTechnique}
-      />
-      {rhythm && (
-        <div className="rhythm-block">
-          <p className="rhythm-summary">
-            {rhythm}
-          </p>
-          {guide && (
-            <p className="rhythm-best" title={guide.blurb}>
-              {t("timer.bestFor", { value: guide.bestFor })}
-              <button
-                type="button"
-                className="linkish"
-                data-open-panel="techniques"
-                aria-haspopup="dialog"
-                onClick={() => props.onOpenTechniques(selected?.id)}
-              >
-                {t("timer.learnMore")}
-              </button>
-            </p>
-          )}
-        </div>
+      <main id="timer-main" inert={sheetOpen || undefined}>
+      {cardTechnique && (
+        <RhythmCard
+          ref={cardRef}
+          technique={cardTechnique}
+          snapshot={s}
+          sheetOpen={sheetOpen}
+          onOpenSheet={() => setSheetOpen(true)}
+        />
       )}
 
       <div className="timer-stage">
@@ -287,6 +281,36 @@ export function TimerView(props: Props) {
         </aside>
       )}
       </main>
+      {sheetOpen && (
+        <TechniqueSheet
+          techniques={props.visibleTechniques}
+          selectedId={props.selectedId}
+          onSelect={(id) => {
+            props.onSelectTechnique(id);
+            closeSheet();
+          }}
+          onClose={closeSheet}
+          onCreate={() => {
+            closeSheet();
+            props.onNewTechnique();
+          }}
+          onManage={() => {
+            closeSheet();
+            props.onOpenTechniques();
+          }}
+          hiddenCount={props.techniques.length - props.visibleTechniques.length}
+          onShowHidden={() => {
+            closeSheet();
+            props.onShowHiddenTechniques();
+          }}
+          hideBlock={props.hideBlock}
+          onHide={props.onHideTechnique}
+          onEdit={(id) => {
+            closeSheet();
+            props.onEditTechnique(id);
+          }}
+        />
+      )}
     </>
   );
 }

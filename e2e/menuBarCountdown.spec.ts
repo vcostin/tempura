@@ -6,7 +6,7 @@ test.describe("menu bar countdown", () => {
   const open = async (page: Page) => {
     await installTauriMock(page);
     await page.goto("/");
-    await page.waitForSelector(".picker .chip");
+    await page.waitForSelector(".rhythm-card");
     await page.locator('[data-open-panel="settings"]').click();
     await expect(page.getByRole("heading", { name: "Desktop" })).toBeVisible();
   };

@@ -41,7 +41,7 @@ export const SHORTCUT_GROUPS: ShortcutGroup[] = [
   {
     title: "groupTechniques",
     items: [
-      { keys: [["shift", "F10"], ["menu"]], action: "chipMenu" },
+      { keys: [["shift", "F10"], ["menu"]], action: "techniqueMenu" },
       { keys: [["up"], ["down"], ["Home"], ["End"]], action: "moveInMenu" },
       { keys: [["left"], ["right"], ["Home"], ["End"]], action: "switchTabs" },
     ],
