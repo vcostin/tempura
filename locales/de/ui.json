@@ -386,7 +386,7 @@
     "statsPoint3": "Wofür die Stunden draufgingen, Aufgabe für Aufgabe",
     "statsPoint4": "Heute, Stunde für Stunde, direkt unter dem Timer",
     "statsPoint5": "Export als CSV oder JSON, wann immer du willst",
-    "statsAlt": "Tempura-Statistik: eine Woche Fokus nach Tag und Stunde, mit den genutzten Rhythmen und wofür die Zeit verwendet wurde",
+    "statsAlt": "Tempura-Statistik: eine Woche Fokus mit Summen und einer Karte aus Wochentag × Stunde, wann du fokussierst",
     "featKeysTitle": "Tastatur zuerst",
     "featKeysBody": "Leertaste startet und pausiert, S überspringt, Esc blendet aus. Optionale globale Tastenkürzel wirken aus jeder App, und ein Screenreader sagt jede Phase an.",
     "featNotifyTitle": "Sanfte Hinweise",

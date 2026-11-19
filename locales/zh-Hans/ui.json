@@ -386,7 +386,7 @@
     "statsPoint3": "时间花在了什么上，逐项任务列出",
     "statsPoint4": "今天的专注逐小时显示，就在计时器下方",
     "statsPoint5": "随时导出为 CSV 或 JSON",
-    "statsAlt": "Tempura 统计：按天和按小时显示一周的专注，以及使用的节奏和时间去向",
+    "statsAlt": "Tempura 统计：一周专注的汇总，以及显示你何时专注的星期 × 小时热力图",
     "featKeysTitle": "键盘优先",
     "featKeysBody": "空格开始和暂停，S 跳过，Esc 隐藏。可选的全局快捷键在任何应用中都能用，屏幕阅读器会播报每个阶段。",
     "featNotifyTitle": "温和的提醒",

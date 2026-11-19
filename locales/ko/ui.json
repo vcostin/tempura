@@ -386,7 +386,7 @@
     "statsPoint3": "시간이 어디에 쓰였는지 작업별로",
     "statsPoint4": "오늘의 집중을 시간대별로, 타이머 바로 아래에",
     "statsPoint5": "언제든 CSV나 JSON으로 내보내기",
-    "statsAlt": "Tempura 통계: 일주일의 집중을 요일별·시간별로 보여 주고, 사용한 리듬과 시간의 쓰임도 표시한 화면",
+    "statsAlt": "Tempura 통계: 일주일 집중 합계와 언제 집중하는지 보여 주는 요일 × 시간 지도",
     "featKeysTitle": "키보드 우선",
     "featKeysBody": "Space로 시작과 일시정지, S로 건너뛰기, Esc로 숨기기. 선택형 전역 단축키는 어떤 앱에서도 작동하고, 화면 낭독기가 각 단계를 알려 줍니다.",
     "featNotifyTitle": "부드러운 알림",

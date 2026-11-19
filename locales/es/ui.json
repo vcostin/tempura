@@ -386,7 +386,7 @@
     "statsPoint3": "En qué se fueron las horas, tarea por tarea",
     "statsPoint4": "Hoy, hora a hora, justo debajo del temporizador",
     "statsPoint5": "Exporta a CSV o JSON cuando quieras",
-    "statsAlt": "Estadísticas de Tempura: una semana de enfoque por día y por hora, con los ritmos usados y en qué se fue el tiempo",
+    "statsAlt": "Estadísticas de Tempura: una semana de enfoque con totales y un mapa de día × hora de cuándo te concentras",
     "featKeysTitle": "Teclado primero",
     "featKeysBody": "Espacio inicia y pausa, S salta, Esc oculta. Los atajos globales opcionales funcionan desde cualquier app, y un lector de pantalla anuncia cada fase.",
     "featNotifyTitle": "Avisos suaves",

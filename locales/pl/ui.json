@@ -388,7 +388,7 @@
     "statsPoint3": "Na co poszły godziny, zadanie po zadaniu",
     "statsPoint4": "Dzisiaj, godzina po godzinie, tuż pod timerem",
     "statsPoint5": "Eksport do CSV lub JSON, kiedy chcesz",
-    "statsAlt": "Statystyki Tempury: tydzień skupienia według dni i godzin, z użytymi rytmami i tym, na co poszedł czas",
+    "statsAlt": "Statystyki Tempury: tydzień skupienia z podsumowaniem i mapą dzień tygodnia × godzina, kiedy się skupiasz",
     "featKeysTitle": "Najpierw klawiatura",
     "featKeysBody": "Spacja startuje i pauzuje, S pomija, Esc chowa. Opcjonalne skróty globalne działają z każdej aplikacji, a czytnik ekranu ogłasza każdą fazę.",
     "featNotifyTitle": "Łagodne przypomnienia",
