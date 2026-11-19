@@ -6,7 +6,7 @@
  */
 import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert@1";
 import { loadCatalogs, renderSite } from "../../scripts/build-website.ts";
-import { esc, localeSlug, localeUrl, ORIGIN, renderPage, sha256Base64 } from "../../scripts/website/page.ts";
+import { esc, localeSlug, localeUrl, ORIGIN, renderPage, sha256Base64, SHOT_FILES } from "../../scripts/website/page.ts";
 
 const catalogs = await loadCatalogs();
 const site = await renderSite();
@@ -34,7 +34,8 @@ Deno.test("each page has lang/dir, self canonical, hreflang to all, share metas"
     }
     for (const needle of [
       `name="twitter:card" content="summary_large_image"`,
-      `name="twitter:image" content="${ORIGIN}shots/timer.png"`,
+      `name="twitter:image" content="${ORIGIN}shots/${meta.code}/og.jpg"`,
+      `property="og:image" content="${ORIGIN}shots/${meta.code}/og.jpg"`,
       `"@type":"SoftwareApplication"`,
       `"@type":"FAQPage"`,
       "releases/latest",
@@ -135,5 +136,64 @@ Deno.test("site.installLinux is plain text in every locale", () => {
     for (const token of ["chmod +x", ".deb", ".rpm"]) {
       assertStringIncludes(blurb, token, `${meta.code} site.installLinux is missing ${token}`);
     }
+  }
+});
+
+/* ---------- Screenshots per language (checked by file name, so nobody has to look) ---------- */
+
+const SHOTS = new URL("../../website/shots/", import.meta.url);
+const MAGIC: Record<string, (b: Uint8Array) => boolean> = {
+  webp: (b) => new TextDecoder().decode(b.slice(0, 4)) === "RIFF" && new TextDecoder().decode(b.slice(8, 12)) === "WEBP",
+  jpg: (b) => b[0] === 0xff && b[1] === 0xd8,
+};
+
+Deno.test("every locale has its own screenshot set, and nothing else is in website/shots/", async () => {
+  const codes = catalogs.map((c) => c.meta.code).sort();
+  const dirs: string[] = [];
+  for await (const e of Deno.readDir(SHOTS)) {
+    assert(e.isDirectory, `website/shots/${e.name}: only per-locale folders belong here`);
+    dirs.push(e.name);
+  }
+  assertEquals(dirs.sort(), codes, "website/shots/ folders must match locales/manifest.json (run deno task website:shots)");
+  for (const code of codes) {
+    const files: string[] = [];
+    for await (const e of Deno.readDir(new URL(`${code}/`, SHOTS))) files.push(e.name);
+    assertEquals(files.sort(), [...SHOT_FILES].sort(), `website/shots/${code}/`);
+    for (const name of SHOT_FILES) {
+      const bytes = await Deno.readFile(new URL(`${code}/${name}`, SHOTS));
+      const ext = name.split(".").pop()!;
+      assert(bytes.length > 2000 && MAGIC[ext](bytes), `website/shots/${code}/${name} is not a real .${ext}`);
+    }
+  }
+});
+
+Deno.test("no locale reuses another locale's screenshot bytes (e.g. English copied over)", async () => {
+  const seen = new Map<string, string>();
+  for (const { meta } of catalogs) {
+    for (const name of SHOT_FILES) {
+      const bytes = await Deno.readFile(new URL(`${meta.code}/${name}`, SHOTS));
+      const hash = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))));
+      const other = seen.get(`${name}:${hash}`);
+      assert(!other, `website/shots/${meta.code}/${name} is identical to ${other}'s; re-run deno task website:shots`);
+      seen.set(`${name}:${hash}`, meta.code);
+    }
+  }
+});
+
+Deno.test("each page shows only screenshots in its own language", () => {
+  for (const { meta } of catalogs) {
+    const html = site.get(`${localeSlug(meta.code)}index.html`)!;
+    const refs = [...html.matchAll(/shots\/([^/"\s]+)\//g)].map((m) => m[1]);
+    assert(refs.length >= 6, `${meta.code}: expected screenshot references`);
+    for (const ref of refs) assertEquals(ref, meta.code, `${meta.code} page references shots/${ref}/`);
+  }
+});
+
+Deno.test("screenshot sample data exists for every locale and matches the timer alt text", async () => {
+  const sample = JSON.parse(await Deno.readTextFile(new URL("../../e2e/shots/sample.json", import.meta.url)));
+  assertEquals(Object.keys(sample).sort(), catalogs.map((c) => c.meta.code).sort());
+  for (const { meta, ui } of catalogs) {
+    const alt = (ui.site as Record<string, string>).timerAlt;
+    assertStringIncludes(alt, sample[meta.code].task, `${meta.code} site.timerAlt should name the sample task shown in the shot`);
   }
 });

@@ -397,7 +397,7 @@
     "statsPoint3": "What the hours went to, task by task",
     "statsPoint4": "Today, hour by hour, right under the timer",
     "statsPoint5": "Export to CSV or JSON whenever you like",
-    "statsAlt": "Tempura Stats: a week of focus by day and by hour, with the rhythms used and what the time went to",
+    "statsAlt": "Tempura Stats: a week of focus with totals and a weekday × hour map of when you focus",
     "featKeysTitle": "Keyboard first",
     "featKeysBody": "Space starts and pauses, S skips, Esc hides. Optional global shortcuts work from any app, and a screen reader announces every phase.",
     "featNotifyTitle": "Gentle nudges",

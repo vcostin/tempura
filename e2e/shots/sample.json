@@ -1,0 +1,17 @@
+{
+  "en": { "task": "Learning Tauri", "thesis": "Thesis, chapter 3", "writing": "Writing" },
+  "de": { "task": "Tauri lernen", "thesis": "Abschlussarbeit, Kapitel 3", "writing": "Schreiben" },
+  "es": { "task": "Aprender Tauri", "thesis": "Tesis, capítulo 3", "writing": "Escritura" },
+  "fr": { "task": "Apprendre Tauri", "thesis": "Mémoire, chapitre 3", "writing": "Écriture" },
+  "it": { "task": "Imparare Tauri", "thesis": "Tesi, capitolo 3", "writing": "Scrittura" },
+  "pt-BR": { "task": "Aprender Tauri", "thesis": "TCC, capítulo 3", "writing": "Escrita" },
+  "ro": { "task": "Învăț Tauri", "thesis": "Licență, capitolul 3", "writing": "Scriere" },
+  "uk": { "task": "Вивчаю Tauri", "thesis": "Дипломна, розділ 3", "writing": "Письмо" },
+  "pl": { "task": "Nauka Tauri", "thesis": "Praca magisterska, rozdział 3", "writing": "Pisanie" },
+  "nl": { "task": "Tauri leren", "thesis": "Scriptie, hoofdstuk 3", "writing": "Schrijven" },
+  "ja": { "task": "Tauri の学習", "thesis": "卒論 第3章", "writing": "執筆" },
+  "zh-Hans": { "task": "学习 Tauri", "thesis": "论文第 3 章", "writing": "写作" },
+  "ko": { "task": "Tauri 공부", "thesis": "논문 3장", "writing": "글쓰기" },
+  "ar": { "task": "تعلّم Tauri", "thesis": "الأطروحة، الفصل 3", "writing": "الكتابة" },
+  "he": { "task": "ללמוד Tauri", "thesis": "עבודת גמר, פרק 3", "writing": "כתיבה" }
+}
