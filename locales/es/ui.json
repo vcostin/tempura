@@ -414,7 +414,9 @@
     "finalTitle": "Listo cuando hierva el agua.",
     "finalBody": "Gratis para Linux, Windows y macOS. Sin registro, nada que configurar antes.",
     "finalCta": "Descargar Tempura",
-    "footerLanguages": "Idiomas"
+    "footerLanguages": "Idiomas",
+    "suggestLanguage": "Leer esta página en español",
+    "suggestDismiss": "No, gracias"
   },
   "announce": {
     "focus": "Foco iniciado.",

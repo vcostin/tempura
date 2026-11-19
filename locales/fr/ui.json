@@ -414,7 +414,9 @@
     "finalTitle": "Prêt quand la bouilloire chante.",
     "finalBody": "Gratuit pour Linux, Windows et macOS. Pas d’inscription, rien à configurer avant.",
     "finalCta": "Télécharger Tempura",
-    "footerLanguages": "Langues"
+    "footerLanguages": "Langues",
+    "suggestLanguage": "Lire cette page en français",
+    "suggestDismiss": "Non merci"
   },
   "announce": {
     "focus": "Focus démarré.",

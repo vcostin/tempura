@@ -315,11 +315,9 @@ These are easy to misread as stronger guarantees than they are.
   `AppSettings::validated`. A DB written by a newer build is left alone
   (warn on stderr). Same Unix modes as L3.
 - **Download site asset hrefs** come from the GitHub Releases API
-  (`browser_download_url`) without a host allowlist
-  ([`website/site.js`](../website/site.js)). That matches the
-  existing trust in GitHub for first install and updater metadata; a
-  host allowlist (`github.com` / `*.githubusercontent.com`) would be
-  defense in depth only.
+  (`browser_download_url`, `html_url`) and only become links when they are
+  `https:` on `github.com` or `*.githubusercontent.com`; anything else falls
+  back to the releases page ([`website/site.js`](../website/site.js) `githubUrl`).
 - **Dependency advisories (2026-11-01).** OSV on locked versions:
   `tauri` 2.11.5, updater plugin, `rusqlite` 0.32.1, and
   `react-router` 7.18.4 reported clean for this tree. `vite` 7.3.6 has

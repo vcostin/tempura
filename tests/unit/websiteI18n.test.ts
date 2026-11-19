@@ -62,6 +62,37 @@ Deno.test("only the root page auto-redirects by language", () => {
   }
 });
 
+Deno.test("only the root page offers other languages, one per non-English locale", () => {
+  for (const [path, html] of site) {
+    if (!path.endsWith(".html")) continue;
+    assertEquals(html.includes('id="lang-suggest"'), path === "index.html", path);
+  }
+  const data = JSON.parse(site.get("index.html")!.match(/id="site-data">([\s\S]*?)<\/script>/)![1]);
+  assertEquals(Object.keys(data.suggestions).sort(), catalogs.map((c) => c.meta.code).filter((c) => c !== "en").sort());
+  assertEquals(data.suggestions["pt-BR"].href, "./pt-br/");
+});
+
+Deno.test("nav targets exist: techniques, features (the cards), faq, download", () => {
+  const html = site.get("index.html")!;
+  for (const id of ["techniques", "features", "faq", "download"]) {
+    assertStringIncludes(html, `href="#${id}"`);
+    assertStringIncludes(html, `id="${id}"`);
+  }
+  assertStringIncludes(html, 'class="features" id="features"');
+});
+
+Deno.test("a _meta.json dir other than ltr/rtl fails the build", async () => {
+  const bad = structuredClone(en);
+  bad.meta.dir = 'rtl" onclick="alert(1)' as never;
+  let threw = false;
+  try {
+    await renderPage({ catalog: bad, en, locales: [bad.meta], version: "1.0.0" });
+  } catch {
+    threw = true;
+  }
+  assert(threw, "renderPage accepted an invalid dir");
+});
+
 Deno.test("redirect.js knows exactly the manifest locales", async () => {
   const js = await Deno.readTextFile(new URL("../../website/redirect.js", import.meta.url));
   const codes = JSON.parse(js.match(/var CODES = (\[[^\]]*\])/)![1]);
@@ -84,6 +115,8 @@ Deno.test("locale strings are escaped, never injected as HTML", async () => {
 Deno.test("site.js only assigns strings with textContent", async () => {
   const js = await Deno.readTextFile(new URL("../../website/site.js", import.meta.url));
   assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write/.test(js));
+  // Every href taken from the GitHub API goes through the host allowlist.
+  assert(!/\.href = (?!githubUrl\()(?:chosen|asset|sums|release)/.test(js), "API URL assigned without githubUrl()");
 });
 
 Deno.test("site.installLinux is plain text in every locale", () => {

@@ -416,7 +416,9 @@
     "finalTitle": "Готово, щойно закипить чайник.",
     "finalBody": "Безкоштовно для Linux, Windows і macOS. Без реєстрації, нічого не треба налаштовувати заздалегідь.",
     "finalCta": "Завантажити Tempura",
-    "footerLanguages": "Мови"
+    "footerLanguages": "Мови",
+    "suggestLanguage": "Читати цю сторінку українською",
+    "suggestDismiss": "Ні, дякую"
   },
   "announce": {
     "focus": "Фокус розпочато.",

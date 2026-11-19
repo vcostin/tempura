@@ -414,7 +414,9 @@
     "finalTitle": "Bereit, wenn der Kessel pfeift.",
     "finalBody": "Kostenlos für Linux, Windows und macOS. Keine Anmeldung, nichts vorher einzurichten.",
     "finalCta": "Tempura herunterladen",
-    "footerLanguages": "Sprachen"
+    "footerLanguages": "Sprachen",
+    "suggestLanguage": "Diese Seite auf Deutsch lesen",
+    "suggestDismiss": "Nein, danke"
   },
   "announce": {
     "focus": "Fokus gestartet.",

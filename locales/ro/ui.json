@@ -415,7 +415,9 @@
     "finalTitle": "Gata când fierbe ceainicul.",
     "finalBody": "Gratuit pentru Linux, Windows și macOS. Fără înregistrare, nimic de configurat înainte.",
     "finalCta": "Descarcă Tempura",
-    "footerLanguages": "Limbi"
+    "footerLanguages": "Limbi",
+    "suggestLanguage": "Citește această pagină în română",
+    "suggestDismiss": "Nu, mulțumesc"
   },
   "announce": {
     "focus": "Focus început.",

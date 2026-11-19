@@ -414,7 +414,9 @@
     "finalTitle": "やかんが沸いたら、始めましょう。",
     "finalBody": "Linux・Windows・macOS 向けに無料。登録も、事前の設定も不要です。",
     "finalCta": "Tempura をダウンロード",
-    "footerLanguages": "言語"
+    "footerLanguages": "言語",
+    "suggestLanguage": "このページを日本語で読む",
+    "suggestDismiss": "いいえ、結構です"
   },
   "announce": {
     "focus": "フォーカスを開始しました。",

@@ -414,7 +414,9 @@
     "finalTitle": "주전자가 끓으면, 시작할 준비 완료.",
     "finalBody": "Linux, Windows, macOS에서 무료. 가입도, 미리 설정할 것도 없습니다.",
     "finalCta": "Tempura 다운로드",
-    "footerLanguages": "언어"
+    "footerLanguages": "언어",
+    "suggestLanguage": "이 페이지를 한국어로 보기",
+    "suggestDismiss": "괜찮아요"
   },
   "announce": {
     "focus": "집중을 시작했습니다.",

@@ -595,11 +595,12 @@ a:hover {
   margin: 0;
 }
 
+/* Ink, not accent: gold on the card surface is ~3:1, short of AA for small text. */
 .technique-best {
   margin: 0.2rem 0 0.9rem;
   font-size: 0.86rem;
-  font-weight: 500;
-  color: var(--accent);
+  font-weight: 600;
+  color: var(--ink-muted);
 }
 
 /* One full set, drawn on a shared time scale. Time runs with the reading direction. */
@@ -856,6 +857,48 @@ a:hover {
 
 .cta--quiet {
   padding-inline-end: 1.35rem;
+}
+
+/* ---------- Language suggestion (root page) ---------- */
+
+.lang-suggest {
+  position: relative;
+  z-index: 11;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem 0.9rem;
+  padding: 0.55rem 1rem;
+  background: var(--accent-soft);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  font-size: 0.88rem;
+}
+
+.lang-suggest[hidden] {
+  display: none;
+}
+
+.lang-suggest a {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.lang-suggest button {
+  font: inherit;
+  color: var(--ink-muted);
+  background: none;
+  border: 0;
+  padding: 0.2rem 0.4rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.lang-suggest button:hover {
+  color: var(--ink);
+  background: color-mix(in srgb, var(--surface-solid) 70%, transparent);
 }
 
 /* ---------- Footer languages ---------- */
