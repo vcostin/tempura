@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Screenshots for the website (`deno task website:shots`), not tests: they render
- * the app against the e2e mock with sample data and write website/shots/*.png.
+ * the app against the e2e mock with sample data and write website/shots/<locale>/*.{webp,jpg}.
  * Own port and server, so a running dev server can't be picked up by mistake.
  */
 export default defineConfig({

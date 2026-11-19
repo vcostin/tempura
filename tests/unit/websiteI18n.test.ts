@@ -167,6 +167,19 @@ Deno.test("every locale has its own screenshot set, and nothing else is in websi
   }
 });
 
+Deno.test("no locale reuses another locale's screenshot bytes (e.g. English copied over)", async () => {
+  const seen = new Map<string, string>();
+  for (const { meta } of catalogs) {
+    for (const name of SHOT_FILES) {
+      const bytes = await Deno.readFile(new URL(`${meta.code}/${name}`, SHOTS));
+      const hash = btoa(String.fromCharCode(...new Uint8Array(await crypto.subtle.digest("SHA-256", bytes))));
+      const other = seen.get(`${name}:${hash}`);
+      assert(!other, `website/shots/${meta.code}/${name} is identical to ${other}'s; re-run deno task website:shots`);
+      seen.set(`${name}:${hash}`, meta.code);
+    }
+  }
+});
+
 Deno.test("each page shows only screenshots in its own language", () => {
   for (const { meta } of catalogs) {
     const html = site.get(`${localeSlug(meta.code)}index.html`)!;

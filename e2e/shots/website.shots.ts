@@ -12,6 +12,16 @@ const LOCALES: string[] = JSON.parse(readFileSync(new URL("../../locales/manifes
 const SAMPLE: Record<string, { task: string; thesis: string; writing: string }> = JSON.parse(
   readFileSync(new URL("./sample.json", import.meta.url), "utf8"),
 );
+const missing = LOCALES.filter((l) => !SAMPLE[l]);
+if (missing.length) throw new Error(`e2e/shots/sample.json has no sample data for: ${missing.join(", ")}`);
+
+/** Settle before a capture: fonts loaded (CJK/Arabic/Hebrew are bundled with the app), two frames painted. */
+async function settle(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
+}
 const SIZE = { width: 420, height: 813 };
 // Thursday 15 October 2026, mid-afternoon.
 const NOW = new Date(2026, 9, 15, 15, 20);
@@ -125,7 +135,12 @@ for (const locale of LOCALES) {
           running: true, phase: "focus", remainingSecs: 6 * 60 + 20, durationSecs: 15 * 60, cycle: 2,
           techniqueId: "sprint", techniqueName: "Sprint", workingOn: task,
         }), SAMPLE[locale].task);
-      await page.waitForTimeout(300);
+      // The task name is the value of the "working on" field, not text.
+      await page.waitForFunction(
+        (task) => [...document.querySelectorAll<HTMLInputElement>(".timer-root input")].some((i) => i.value === task),
+        SAMPLE[locale].task,
+      );
+      await settle(page);
       await save(page, locale, "timer");
     });
 
@@ -139,7 +154,8 @@ for (const locale of LOCALES) {
       await page.locator(".sheet-option").first().hover();
       await page.mouse.move(0, 0);
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-      await page.waitForTimeout(300);
+      await page.locator(".sheet-option").getByText(SAMPLE[locale].writing).first().waitFor();
+      await settle(page);
       await save(page, locale, "techniques");
     });
 
@@ -148,8 +164,11 @@ for (const locale of LOCALES) {
       await page.evaluate((stats) => (window as any).__tempuraMock.setPeriodStats(stats), statsFor(locale));
       await page.locator('[data-open-panel="stats"]').click();
       await page.waitForSelector('[role="dialog"]');
+      // Top of the panel: period picker, totals and the weekday × hour map (what the website copy leads with).
+      // The localized task names render further down; wait for them so the data is in place.
+      await page.locator(".stats-bars").getByText(SAMPLE[locale].task).first().waitFor();
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-      await page.waitForTimeout(400);
+      await settle(page);
       await save(page, locale, "stats");
     });
   });
