@@ -348,7 +348,7 @@
     "couldNotReach": "تعذر الوصول إلى GitHub. استخدم صفحة الإصدارات.",
     "checksumFile": "ملف المجموع الكامل: ",
     "shaTitle": "SHA-256 {{hash}}",
-    "timerAlt": "مؤقت تمبورا على سبرنت: تبقى 6:20، يعمل على Learning Tauri",
+    "timerAlt": "مؤقت تمبورا على سبرنت: تبقى 6:20، يعمل على «تعلّم Tauri»",
     "rhythmsHeading": "تقنيات في المقلاة",
     "techniqueNote": "إيقاعات عمل للمكتب — ليست تشخيصًا وليست نصيحة طبية.",
     "pointClockTitle": "Rust يمسك الساعة",

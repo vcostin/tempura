@@ -70,6 +70,10 @@ const RHYTHMS: Record<string, { focus: number; short: number; long: number; cycl
 };
 export const TECHNIQUE_IDS = Object.keys(RHYTHMS);
 
+/** Files every locale needs under website/shots/<code>/ (checked in CI by websiteI18n.test.ts). */
+export const SHOT_NAMES = ["timer", "techniques", "stats"] as const;
+export const SHOT_FILES = [...SHOT_NAMES.map((n) => `${n}.webp`), "og.jpg"];
+
 /** The longest built-in set (Ultradian: 2 × 90 + 20 + 30 min) fills the bar. */
 const SCALE_MIN = 230;
 const BAR_W = 300;
@@ -187,7 +191,9 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
   const title = site("title");
   const description = site("description");
   const ogDescription = site("ogDescription");
-  const ogImage = `${ORIGIN}shots/timer.png`;
+  /** Screenshots in this page's own language (rendered by `deno task website:shots`). */
+  const shotsDir = `shots/${meta.code}/`;
+  const ogImage = `${ORIGIN}${shotsDir}og.jpg`;
 
   const jsonLd = scriptJson({
     "@context": "https://schema.org",
@@ -203,7 +209,7 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
         softwareVersion: version,
         downloadUrl: LATEST_URL,
         image: ogImage,
-        screenshot: ["timer", "techniques", "stats"].map((s) => `${ORIGIN}shots/${s}.png`),
+        screenshot: SHOT_NAMES.map((s) => `${ORIGIN}${shotsDir}${s}.webp`),
         license: "https://opensource.org/licenses/MIT",
         isAccessibleForFree: true,
         offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -255,7 +261,7 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
   const shotWindow = (src: string, alt: string, lazy = false) => `<div class="bezel">
                 <div class="window">
                   <div class="titlebar"><span></span><span></span><span></span></div>
-                  <img src="${base}shots/${src}.png" alt="${alt}" width="420" height="813"${lazy ? ' loading="lazy" decoding="async"' : ""} />
+                  <img src="${base}${shotsDir}${src}.webp" alt="${alt}" width="420" height="813"${lazy ? ' loading="lazy" decoding="async"' : ""} />
                 </div>
               </div>`;
 

@@ -344,7 +344,7 @@
     "couldNotReach": "GitHub に届きません。リリースページを使ってください。",
     "checksumFile": "完全なチェックサムファイル: ",
     "shaTitle": "SHA-256 {{hash}}",
-    "timerAlt": "スプリントの Tempura タイマー: 残り 6:20、Learning Tauri に取り組中",
+    "timerAlt": "スプリントの Tempura タイマー: 残り 6:20、「Tauri の学習」に取り組み中",
     "rhythmsHeading": "フライパンの中のテクニック",
     "techniqueNote": "机のための仕事リズム — 診断でも医療アドバイスでもありません。",
     "pointClockTitle": "Rust が時計を持つ",
