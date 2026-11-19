@@ -1549,6 +1549,8 @@ button.rhythm-card:hover {
 .report-table tbody th {
   font-weight: 600;
   white-space: normal;
+  /* Custom technique names can be one long word (up to 80 chars): break it rather than hide columns. */
+  overflow-wrap: anywhere;
 }
 
 .report-table__focus {
@@ -1577,8 +1579,23 @@ button.rhythm-card:hover {
     display: none;
   }
 
-  .report-table thead th {
+  /* Narrow window: let headers and long durations ("6 Std. 30 Min.") wrap so every
+     column fits; nothing hides behind the table's horizontal scroll. */
+  .report-table thead th,
+  .report-table td {
     white-space: normal;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding-inline: 0.25rem;
+  }
+
+  /* Sentence case (as in RTL) instead of spaced capitals: long headings like
+     "Sitzungen" then fit without hyphenation. */
+  .report-table thead th {
+    text-transform: none;
+    letter-spacing: normal;
   }
 }
 
