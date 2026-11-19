@@ -194,6 +194,8 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
   /** Screenshots in this page's own language (rendered by `deno task website:shots`). */
   const shotsDir = `shots/${meta.code}/`;
   const ogImage = `${ORIGIN}${shotsDir}og.jpg`;
+  /** The social card shows the wordmark, tagline and pitch beside the timer; its alt is that text. */
+  const cardAlt = `Tempura — ${site("lede")} ${ogDescription}`;
 
   const jsonLd = scriptJson({
     "@context": "https://schema.org",
@@ -290,12 +292,17 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
     <meta property="og:description" content="${esc(ogDescription)}" />
     <meta property="og:url" content="${self}" />
     <meta property="og:image" content="${ogImage}" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${esc(cardAlt)}" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="${esc(meta.code.replace("-", "_"))}" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="${esc(title)}" />
     <meta name="twitter:description" content="${esc(ogDescription)}" />
     <meta name="twitter:image" content="${ogImage}" />
+    <meta name="twitter:image:alt" content="${esc(cardAlt)}" />
     <script type="application/ld+json">${jsonLd}</script>
     <script type="application/json" id="site-data">${runtime}</script>${
     meta.code === "en" ? `\n    <script src="./redirect.js"></script>` : ""

@@ -57,7 +57,101 @@ async function save(page: Page, locale: string, name: string) {
   mkdirSync(dir, { recursive: true });
   const png = await page.screenshot();
   writeFileSync(`${dir}${name}.webp`, await toWebp(page, png));
-  if (name === "timer") await page.screenshot({ path: `${dir}og.jpg`, type: "jpeg", quality: 82 });
+}
+
+/**
+ * The social preview (og.jpg, 1200×630): wordmark, tagline and pitch in this locale beside the
+ * timer shot. Drawn inside the app page so it uses the app's bundled fonts (Noto for CJK/Arabic/Hebrew).
+ */
+async function socialCard(page: Page, locale: string) {
+  const ui = JSON.parse(readFileSync(new URL(`../../locales/${locale}/ui.json`, import.meta.url), "utf8"));
+  const dir = JSON.parse(readFileSync(new URL(`../../locales/${locale}/_meta.json`, import.meta.url), "utf8")).dir;
+  const shot = readFileSync(`${SHOTS}${locale}/timer.webp`).toString("base64");
+  const site = ui.site;
+  await page.setViewportSize({ width: 1200, height: 630 });
+  await page.evaluate(
+    ({ dir, lang, lede, pitch, facts, shot }) => {
+      const style = document.createElement("style");
+      style.textContent = `
+        html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+        .og { box-sizing: border-box; width: 1200px; height: 630px; display: grid;
+          grid-template-columns: 1fr 360px; gap: 40px; padding: 64px 72px 0;
+          color: #1e2a32; font-family: var(--font-sans);
+          background: radial-gradient(ellipse at 28% 18%, rgba(196,122,44,.22), transparent 55%),
+            radial-gradient(ellipse at 82% 78%, rgba(184,90,106,.14), transparent 50%),
+            linear-gradient(165deg, #d8e2da 0%, #c5d1c8 100%); }
+        .og-copy { align-self: start; padding-top: 28px; }
+        .og-brand { margin: 0; font-family: var(--font-serif); font-weight: 600; font-size: 112px;
+          letter-spacing: -0.035em; line-height: .92; direction: ltr; unicode-bidi: isolate; }
+        [dir="rtl"] .og-brand { text-align: right; }
+        .og-brand span { color: #c47a2c; }
+        .og-lede { margin: 22px 0 0; font-family: var(--font-serif); font-weight: 500; font-size: 40px; color: #c47a2c; }
+        .og-pitch { margin: 22px 0 0; font-size: 27px; line-height: 1.4; color: #3d4c50; max-width: 640px; }
+        .og-facts { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 30px 0 0; padding: 0; list-style: none;
+          font-size: 21px; font-weight: 500; color: #5a6b66; }
+        .og-facts li { display: inline-flex; align-items: center; gap: 10px; }
+        .og-facts li::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: #c47a2c; }
+        .og-shot { align-self: start; margin-top: 10px; padding: 8px; border-radius: 28px;
+          background: rgba(30,42,50,.05); border: 1px solid rgba(30,42,50,.06);
+          box-shadow: 0 30px 60px rgba(30,42,50,.16); transform: rotate(3deg); }
+        [dir="rtl"] .og-shot { transform: rotate(-3deg); }
+        .og-shot img { display: block; width: 100%; border-radius: 20px; }`;
+      const root = document.createElement("div");
+      root.className = "og";
+      root.dir = dir;
+      root.lang = lang;
+      const copy = document.createElement("div");
+      copy.className = "og-copy";
+      const brand = document.createElement("p");
+      brand.className = "og-brand";
+      brand.append("Tem");
+      const accent = document.createElement("span");
+      accent.textContent = "pura";
+      brand.append(accent);
+      const ledeEl = document.createElement("p");
+      ledeEl.className = "og-lede";
+      ledeEl.textContent = lede;
+      const pitchEl = document.createElement("p");
+      pitchEl.className = "og-pitch";
+      pitchEl.textContent = pitch;
+      const list = document.createElement("ul");
+      list.className = "og-facts";
+      for (const f of facts) {
+        const li = document.createElement("li");
+        li.textContent = f;
+        list.append(li);
+      }
+      copy.append(brand, ledeEl, pitchEl, list);
+      const fig = document.createElement("div");
+      fig.className = "og-shot";
+      const img = document.createElement("img");
+      img.src = `data:image/webp;base64,${shot}`;
+      fig.append(img);
+      root.append(copy, fig);
+      document.head.append(style);
+      document.body.replaceChildren(root);
+      return img.decode();
+    },
+    {
+      dir,
+      lang: locale,
+      lede: site.lede,
+      pitch: site.ogDescription,
+      facts: [site.factFree, site.factNoAccount, `${site.osLinux} · ${site.osWindows} · ${site.osMacos}`],
+      shot,
+    },
+  );
+  await settle(page);
+  // Longer future copy must not be silently clipped by the fixed 1200×630 frame.
+  const clipped = await page.evaluate(() => {
+    const card = document.querySelector(".og")!.getBoundingClientRect();
+    return [...document.querySelectorAll(".og-copy > *")]
+      .map((el) => [el.className, el.getBoundingClientRect()] as const)
+      .filter(([, r]) => r.bottom > card.bottom - 24 || r.right > card.right || r.left < card.left)
+      .map(([name]) => name);
+  });
+  if (clipped.length) throw new Error(`${locale} social card: copy doesn't fit (${clipped.join(", ")})`);
+  await page.screenshot({ path: `${SHOTS}${locale}/og.jpg`, type: "jpeg", quality: 84 });
 }
 
 async function open(page: Page, locale: string) {
@@ -97,6 +191,7 @@ for (const locale of LOCALES) {
       );
       await settle(page);
       await save(page, locale, "timer");
+      await socialCard(page, locale);
     });
 
     test("technique sheet", async ({ page }) => {
