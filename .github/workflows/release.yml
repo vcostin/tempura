@@ -86,6 +86,12 @@ jobs:
             exit 1
           fi
 
+      # On a cache miss the action installs from the image's package index, which goes
+      # stale (404s on superseded .debs). Refresh it first.
+      - name: Refresh apt index
+        if: matrix.platform == 'ubuntu-22.04'
+        run: sudo apt-get update
+
       # Cache .debs so Linux build deps are not re-downloaded each release.
       # Bump `version` when the packages list or ubuntu-22.04 image generation changes.
       - uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
