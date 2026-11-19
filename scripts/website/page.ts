@@ -233,9 +233,12 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
     `<link rel="alternate" hreflang="x-default" href="${ORIGIN}" />`,
   ].join("\n    ");
 
+  /** Links to English carry ?lang=en: an explicit choice the root page must not redirect away from. */
+  const langHref = (code: string) => base + localeSlug(code) + (code === "en" ? "?lang=en" : "");
+
   const options = locales
     .map((l) => {
-      const href = base + localeSlug(l.code);
+      const href = langHref(l.code);
       const sel = l.code === meta.code ? " selected" : "";
       return `<option value="${esc(href)}" data-locale="${esc(l.code)}" lang="${esc(l.code)}"${sel}>${esc(l.nativeName)}</option>`;
     })
@@ -245,7 +248,7 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
     .map((l) =>
       l.code === meta.code
         ? `<li><span aria-current="page" lang="${esc(l.code)}">${esc(l.nativeName)}</span></li>`
-        : `<li><a href="${esc(base + localeSlug(l.code))}" hreflang="${esc(l.code)}" lang="${esc(l.code)}" data-locale="${esc(l.code)}">${esc(l.nativeName)}</a></li>`
+        : `<li><a href="${esc(langHref(l.code))}" hreflang="${esc(l.code)}" lang="${esc(l.code)}" data-locale="${esc(l.code)}">${esc(l.nativeName)}</a></li>`
     )
     .join("");
 
@@ -295,7 +298,7 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>${
-    suggestions ? `\n    <div class="lang-suggest" id="lang-suggest" hidden></div>` : ""
+    suggestions ? `\n    <div class="lang-suggest" id="lang-suggest" role="region" aria-live="polite" hidden></div>` : ""
   }
     <a class="skip" href="#download">${t("skip")}</a>
 

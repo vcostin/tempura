@@ -888,7 +888,7 @@ a:hover {
 
 .lang-suggest button {
   font: inherit;
-  color: var(--ink-muted);
+  color: var(--ink);
   background: none;
   border: 0;
   padding: 0.2rem 0.4rem;

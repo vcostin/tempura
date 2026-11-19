@@ -34,8 +34,23 @@
     /* storage blocked: no remembered choice */
   }
 
-  // Arrived from another page of this site (a language link, even opened in a new tab):
-  // that is a choice of English.
+  // A link to English (?lang=en, from the switcher or footer) is an explicit choice,
+  // however it was opened. Remember it and drop the parameter from the address bar.
+  var params = new URLSearchParams(location.search);
+  if (params.get("lang") === "en") {
+    store("en");
+    params.delete("lang");
+    var qs = params.toString();
+    try {
+      history.replaceState(null, "", location.pathname + (qs ? "?" + qs : "") + location.hash);
+    } catch (e) {
+      /* keep the parameter */
+    }
+    return;
+  }
+
+  // Arrived from another page of this site: also a choice of English (backstop for
+  // older links without ?lang=en).
   var base = location.pathname.replace(/index\.html$/, "");
   var ref = null;
   try {

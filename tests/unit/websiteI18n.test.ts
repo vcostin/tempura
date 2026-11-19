@@ -72,6 +72,15 @@ Deno.test("only the root page offers other languages, one per non-English locale
   assertEquals(data.suggestions["pt-BR"].href, "./pt-br/");
 });
 
+Deno.test("links to English carry ?lang=en; hreflang and canonical stay clean", () => {
+  const de = site.get("de/index.html")!;
+  assertStringIncludes(de, 'value="../?lang=en"');
+  assertStringIncludes(de, 'href="../?lang=en" hreflang="en"');
+  assert(!/rel="(?:canonical|alternate)"[^>]*\?lang=/.test(site.get("index.html")! + de), "SEO links must not carry ?lang");
+  assert(!site.get("sitemap.xml")!.includes("?lang"));
+  assertStringIncludes(site.get("index.html")!, 'id="lang-suggest" role="region" aria-live="polite"');
+});
+
 Deno.test("nav targets exist: techniques, features (the cards), faq, download", () => {
   const html = site.get("index.html")!;
   for (const id of ["techniques", "features", "faq", "download"]) {

@@ -70,6 +70,7 @@ const suggestCode = /** @type {any} */ (window).tempuraSuggestedLocale;
 const suggestion = suggestCode ? data.suggestions?.[suggestCode] : null;
 if (suggestEl && suggestion) {
   suggestEl.lang = suggestCode;
+  suggestEl.setAttribute("aria-label", suggestion.text);
   suggestEl.dir = suggestion.dir === "rtl" ? "rtl" : "ltr";
   const go = document.createElement("a");
   go.href = suggestion.href + location.hash;
@@ -82,6 +83,7 @@ if (suggestEl && suggestion) {
   no.addEventListener("click", () => {
     remember("en");
     suggestEl.hidden = true;
+    langSelect?.focus();
   });
   suggestEl.replaceChildren(go, no);
   suggestEl.hidden = false;
