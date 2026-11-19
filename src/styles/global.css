@@ -1329,7 +1329,6 @@ button.rhythm-card:hover {
 }
 
 .report-kpi {
-  container-type: inline-size;
   padding: 0.65rem 0.8rem;
   border-radius: 12px;
   background: var(--surface);
@@ -1341,11 +1340,22 @@ button.rhythm-card:hover {
   display: block;
   color: var(--ink);
   font-family: var(--font-serif);
-  /* One line, shrinking with the card: "12 Std. 40 Min." must not split. */
-  font-size: min(1.45rem, 10.5cqi);
+  font-size: 1.45rem;
   font-weight: 550;
   line-height: 1.15;
-  white-space: nowrap;
+}
+
+/* One line, shrinking with the card: "12 Std. 40 Min." must not split. Older webviews
+   without container units (macOS < 13, WebKitGTK < 2.46) keep the size above and may wrap. */
+@supports (font-size: 1cqi) {
+  .report-kpi {
+    container-type: inline-size;
+  }
+
+  .report-kpi strong {
+    font-size: min(1.45rem, 10.5cqi);
+    white-space: nowrap;
+  }
 }
 
 .report-card {
@@ -1620,6 +1630,38 @@ button.rhythm-card:hover {
   }
 }
 
+/* The same rules by the table's own width: in the wide two-column Stats (window ≥ 760 px)
+   each card is narrow although the window isn't. The window-width rule above stays as the
+   fallback for webviews without container queries (macOS < 13, WebKitGTK < 2.46). */
+.report-table-wrap {
+  container-type: inline-size;
+}
+
+@container (max-width: 480px) {
+  .report-table__bar {
+    display: none;
+  }
+
+  /* Narrow window: let headers and long durations ("6 Std. 30 Min.") wrap so every
+     column fits; nothing hides behind the table's horizontal scroll. */
+  .report-table thead th,
+  .report-table td {
+    white-space: normal;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding-inline: 0.25rem;
+  }
+
+  /* Sentence case (as in RTL) instead of spaced capitals: long headings like
+     "Sitzungen" then fit without hyphenation. */
+  .report-table thead th {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
 .report-hint {
   margin: 0.5rem 0 0;
   font-size: 0.75rem;
@@ -1739,13 +1781,31 @@ button.rhythm-card:hover {
   gap: 0.4rem;
 }
 
+/* Fallback (no subgrid: macOS < 13): every row uses the same fixed columns, so tracks
+   still line up; the value column fits durations up to "12 Std. 40 Min.". */
 .stats-bars__row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) 7rem;
   align-items: center;
   gap: 0.55rem;
   font-size: 0.8rem;
   color: var(--ink-muted);
+}
+
+/* Rows share the list's columns (subgrid), so the tracks line up while the value column
+   grows to the longest duration: "1 Std. 56 Min." never wraps. Long names truncate; the
+   title shows them whole. */
+@supports (grid-template-columns: subgrid) {
+  .stats-bars__list {
+    display: grid;
+    grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) max-content;
+    column-gap: 0.55rem;
+  }
+
+  .stats-bars__row {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
 }
 
 .stats-bars__day {
@@ -2325,20 +2385,6 @@ button.rhythm-card:hover {
 
 .away-banner {
   margin-bottom: 0.25rem;
-}
-
-/* Rows share the list's columns (subgrid), so the tracks line up while the value column
-   grows to the longest duration: "1 Std. 56 Min." never wraps. Long names truncate; the
-   title shows them whole. */
-.stats-bars__list {
-  display: grid;
-  grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) max-content;
-  column-gap: 0.55rem;
-}
-
-.stats-bars__row {
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
 }
 
 .stats-bars__day {

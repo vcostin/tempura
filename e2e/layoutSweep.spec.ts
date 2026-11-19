@@ -21,6 +21,13 @@ async function scan(page: Page): Promise<Finding[]> {
       document.querySelector(".sheet, [role='dialog']") ??
       document.querySelector(".timer-root")) as HTMLElement;
     const vw = window.innerWidth;
+    /** Rendered text lines: line-box tops more than 2 px apart (mixed scripts differ by < 1 px). */
+    const lineCount = (el: Element) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      const tops = [...range.getClientRects()].map((q) => q.top).sort((a, b) => a - b);
+      return tops.filter((t, i) => i === 0 || t - tops[i - 1] > 2).length;
+    };
     const label = (el: Element) => {
       const cls = (el.getAttribute("class") || "").split(" ").filter(Boolean)[0];
       const txt = (el.textContent || "").trim().replace(/\s+/g, " ").slice(0, 40);
@@ -47,9 +54,18 @@ async function scan(page: Page): Promise<Finding[]> {
         out.push({ kind: "name-truncated", what: label(el), px: el.scrollWidth - el.clientWidth });
       // Values that must stay on one line (Stats totals, bar durations, built-in technique names).
       if (el.matches(".report-kpi strong, .stats-bars__value")) {
-        const range = document.createRange();
-        range.selectNodeContents(el);
-        if (new Set([...range.getClientRects()].map((q) => Math.round(q.top))).size > 1) out.push({ kind: "value-wraps", what: label(el), px: 0 });
+        if (lineCount(el) > 1) out.push({ kind: "value-wraps", what: label(el), px: 0 });
+      }
+      // Text cut off by an ancestor that hides horizontal overflow (not an intended ellipsis).
+      if (hasText && cs.textOverflow !== "ellipsis") {
+        for (let a = el.parentElement; a && a !== scope.parentElement; a = a.parentElement) {
+          const acs = getComputedStyle(a);
+          if (acs.overflowX !== "hidden" && acs.overflowX !== "clip") continue;
+          const ar = a.getBoundingClientRect();
+          if (r.right > ar.right + 1 || r.left < ar.left - 1)
+            out.push({ kind: "clipped-by-ancestor", what: `${label(el)} in ${label(a).split(" ")[0]}`, px: Math.round(Math.max(r.right - ar.right, ar.left - r.left)) });
+          break;
+        }
       }
       // Text sticking out of its parent box (buttons, chips, cards).
       const p = el.parentElement;
@@ -83,12 +99,14 @@ const VIEWS: [string, (page: Page) => Promise<void>][] = [
       techniqueId: "ultradian", techniqueName: "Ultradian", workingOn: "Making Tempura with a long task name",
     }));
   }],
-  ["technique-sheet", async (page) => { await page.locator(".rhythm-card").click(); await page.waitForTimeout(150); }],
+  ["technique-sheet", async (page) => {
+    await page.locator(".rhythm-card").click();
+    await page.locator(".sheet-option").first().waitFor();
+  }],
   ...["settings", "stats", "techniques", "techniques/new", "about", "shortcuts"].map((p) => [p, async (page: Page) => {
     await page.evaluate((h) => { location.hash = "#/" + h; }, p);
     await page.locator('.panel-host [role="dialog"]').waitFor();
     if (p === "stats") await page.locator(".stats-bars").first().waitFor();
-    await page.waitForTimeout(150);
   }] as [string, (page: Page) => Promise<void>]),
 ];
 
@@ -112,4 +130,15 @@ for (const width of [360, 420]) {
       expect(findings, findings.join("\n")).toEqual([]);
     });
   }
+}
+
+/** Wide window: Stats spreads into two columns (≥ 760 px); totals and bars must still fit. */
+for (const locale of LOCALES) {
+  test(`layout sweep 800px Stats (${locale})`, async ({ page }) => {
+    await open(page, locale, 800);
+    await VIEWS.find(([v]) => v === "stats")![1](page);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    const findings = (await scan(page)).map((f) => `stats: ${f.kind} ${f.what} (${f.px}px)`);
+    expect(findings, findings.join("\n")).toEqual([]);
+  });
 }

@@ -60,7 +60,8 @@ for (const width of [360, 420]) {
           // Count rendered text lines (distinct line-box tops), independent of font height.
           const range = document.createRange();
           range.selectNodeContents(value);
-          const lines = new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+          const tops = [...range.getClientRects()].map((r) => r.top).sort((a, b) => a - b);
+          const lines = tops.filter((t, i) => i === 0 || t - tops[i - 1] > 2).length;
           return { lines, overflow: Math.round(Math.max(v.right - box.right, box.left - v.left)), name: Math.round(name.width) };
         })
       );
@@ -95,7 +96,8 @@ for (const width of [360, 420]) {
         ths.filter((th) => {
           const r = document.createRange();
           r.selectNodeContents(th);
-          const lines = new Set([...r.getClientRects()].map((q) => Math.round(q.top))).size;
+          const tops = [...r.getClientRects()].map((q) => q.top).sort((a, b) => a - b);
+          const lines = tops.filter((t, i) => i === 0 || t - tops[i - 1] > 2).length;
           return lines > (th.textContent ?? "").trim().split(/\s+/).length;
         }).map((th) => th.textContent)
       );
