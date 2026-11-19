@@ -425,7 +425,9 @@
     "finalTitle": "Ready when the kettle is.",
     "finalBody": "Free for Linux, Windows and macOS. No sign-up, nothing to set up first.",
     "finalCta": "Download Tempura",
-    "footerLanguages": "Languages"
+    "footerLanguages": "Languages",
+    "suggestLanguage": "Read this page in English",
+    "suggestDismiss": "No thanks"
   },
   "shortcuts": {
     "panel": "Keyboard shortcuts",

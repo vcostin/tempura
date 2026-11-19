@@ -414,7 +414,9 @@
     "finalTitle": "水开了，就开始吧。",
     "finalBody": "Linux、Windows 和 macOS 均可免费使用。无需注册，无需事先设置。",
     "finalCta": "下载 Tempura",
-    "footerLanguages": "语言"
+    "footerLanguages": "语言",
+    "suggestLanguage": "用简体中文阅读本页",
+    "suggestDismiss": "不用了"
   },
   "announce": {
     "focus": "专注已开始。",

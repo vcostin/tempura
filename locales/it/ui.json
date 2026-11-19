@@ -414,7 +414,9 @@
     "finalTitle": "Pronto quando bolle l’acqua.",
     "finalBody": "Gratis per Linux, Windows e macOS. Nessuna registrazione, niente da configurare prima.",
     "finalCta": "Scarica Tempura",
-    "footerLanguages": "Lingue"
+    "footerLanguages": "Lingue",
+    "suggestLanguage": "Leggi questa pagina in italiano",
+    "suggestDismiss": "No, grazie"
   },
   "announce": {
     "focus": "Focus avviato.",

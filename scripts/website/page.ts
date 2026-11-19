@@ -105,6 +105,15 @@ export interface PageInput {
   en: Catalog;
   locales: LocaleMeta[];
   version: string;
+  /** Root page only: per-locale "read this page in …" offers, shown by site.js. */
+  suggestions?: Record<string, LanguageSuggestion>;
+}
+
+export interface LanguageSuggestion {
+  href: string;
+  text: string;
+  dismiss: string;
+  dir: Dir;
 }
 
 export interface RenderedPage {
@@ -122,8 +131,9 @@ const RUNTIME_KEYS = [
 
 const FAQ = ["Free", "Account", "Pomodoro", "Which", "Warn", "Update", "Mobile"] as const;
 
-export async function renderPage({ catalog, en, locales, version }: PageInput): Promise<RenderedPage> {
+export async function renderPage({ catalog, en, locales, version, suggestions }: PageInput): Promise<RenderedPage> {
   const { meta } = catalog;
+  if (meta.dir !== "ltr" && meta.dir !== "rtl") throw new Error(`${meta.code}: _meta.json dir must be ltr or rtl`);
   const lookup = (dict: Dict, path: string): string | undefined => {
     let cur: string | Dict | undefined = dict;
     for (const part of path.split(".")) {
@@ -213,6 +223,7 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
 
   const runtime = scriptJson({
     locale: meta.code,
+    ...(suggestions ? { suggestions } : {}),
     // Uninterpolated: site.js fills {{tag}}, {{os}}, … itself.
     strings: Object.fromEntries(RUNTIME_KEYS.map((k) => [k, lookup(catalog.ui, `site.${k}`) ?? lookup(en.ui, `site.${k}`) ?? ""])),
   });
@@ -222,9 +233,12 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
     `<link rel="alternate" hreflang="x-default" href="${ORIGIN}" />`,
   ].join("\n    ");
 
+  /** Links to English carry ?lang=en: an explicit choice the root page must not redirect away from. */
+  const langHref = (code: string) => base + localeSlug(code) + (code === "en" ? "?lang=en" : "");
+
   const options = locales
     .map((l) => {
-      const href = base + localeSlug(l.code);
+      const href = langHref(l.code);
       const sel = l.code === meta.code ? " selected" : "";
       return `<option value="${esc(href)}" data-locale="${esc(l.code)}" lang="${esc(l.code)}"${sel}>${esc(l.nativeName)}</option>`;
     })
@@ -234,7 +248,7 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
     .map((l) =>
       l.code === meta.code
         ? `<li><span aria-current="page" lang="${esc(l.code)}">${esc(l.nativeName)}</span></li>`
-        : `<li><a href="${esc(base + localeSlug(l.code))}" hreflang="${esc(l.code)}" lang="${esc(l.code)}" data-locale="${esc(l.code)}">${esc(l.nativeName)}</a></li>`
+        : `<li><a href="${esc(langHref(l.code))}" hreflang="${esc(l.code)}" lang="${esc(l.code)}" data-locale="${esc(l.code)}">${esc(l.nativeName)}</a></li>`
     )
     .join("");
 
@@ -283,7 +297,9 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
     <link rel="stylesheet" href="${base}styles.css" />
   </head>
   <body>
-    <div class="grain" aria-hidden="true"></div>
+    <div class="grain" aria-hidden="true"></div>${
+    suggestions ? `\n    <div class="lang-suggest" id="lang-suggest" role="region" aria-live="polite" hidden></div>` : ""
+  }
     <a class="skip" href="#download">${t("skip")}</a>
 
     <header class="nav-wrap">
@@ -375,7 +391,7 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
         <p class="technique-note">${t("techniqueNote")}</p>
       </section>
 
-      <section class="spotlight" id="features" aria-labelledby="stats-heading">
+      <section class="spotlight" id="stats" aria-labelledby="stats-heading">
         <div class="spotlight-copy">
           <h2 id="stats-heading">${t("statsTitle")}</h2>
           <p class="spotlight-body">${t("statsBody")}</p>
@@ -392,7 +408,7 @@ export async function renderPage({ catalog, en, locales, version }: PageInput): 
         </figure>
       </section>
 
-      <section class="features" aria-labelledby="features-heading">
+      <section class="features" id="features" aria-labelledby="features-heading">
         <h2 class="section-title" id="features-heading">${t("featuresHeading")}</h2>
         <div class="points">
           ${card(t("pointClockTitle"), t("pointClockBody"))}

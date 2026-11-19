@@ -414,7 +414,9 @@
     "finalTitle": "Klaar als de ketel fluit.",
     "finalBody": "Gratis voor Linux, Windows en macOS. Geen aanmelding, niets vooraf in te stellen.",
     "finalCta": "Tempura downloaden",
-    "footerLanguages": "Talen"
+    "footerLanguages": "Talen",
+    "suggestLanguage": "Lees deze pagina in het Nederlands",
+    "suggestDismiss": "Nee, bedankt"
   },
   "announce": {
     "focus": "Focus gestart.",

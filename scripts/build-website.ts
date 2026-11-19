@@ -7,7 +7,7 @@
  *   deno task website:build            # writes _site/
  *   deno task website:build out-dir    # writes elsewhere
  */
-import { type Catalog, type LocaleMeta, localeSlug, renderPage, renderSitemap } from "./website/page.ts";
+import { type Catalog, type LanguageSuggestion, type LocaleMeta, localeSlug, renderPage, renderSitemap } from "./website/page.ts";
 
 const ROOT = new URL("../", import.meta.url);
 const STATIC = new URL("website/", ROOT);
@@ -40,8 +40,20 @@ export async function renderSite(): Promise<Map<string, string>> {
   const locales = catalogs.map((c) => c.meta);
   const version = await appVersion();
   const out = new Map<string, string>();
+  const suggestions: Record<string, LanguageSuggestion> = {};
+  for (const { meta, ui } of catalogs) {
+    if (meta.code === "en") continue;
+    const site = ui.site as Record<string, string>;
+    suggestions[meta.code] = {
+      href: `./${localeSlug(meta.code)}`,
+      text: site.suggestLanguage,
+      dismiss: site.suggestDismiss,
+      dir: meta.dir,
+    };
+  }
   for (const catalog of catalogs) {
-    const { html } = await renderPage({ catalog, en, locales, version });
+    const isRoot = catalog.meta.code === "en";
+    const { html } = await renderPage({ catalog, en, locales, version, suggestions: isRoot ? suggestions : undefined });
     out.set(`${localeSlug(catalog.meta.code)}index.html`, html);
   }
   out.set("sitemap.xml", renderSitemap(locales));

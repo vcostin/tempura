@@ -418,7 +418,9 @@
     "finalTitle": "جاهز حين يغلي الإبريق.",
     "finalBody": "مجاني لأنظمة Linux وWindows وmacOS. بلا تسجيل، ولا شيء لإعداده مسبقًا.",
     "finalCta": "نزّل تمبورا",
-    "footerLanguages": "اللغات"
+    "footerLanguages": "اللغات",
+    "suggestLanguage": "اقرأ هذه الصفحة بالعربية",
+    "suggestDismiss": "لا، شكرًا"
   },
   "announce": {
     "focus": "بدأ التركيز.",

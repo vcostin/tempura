@@ -415,7 +415,9 @@
     "finalTitle": "מוכנה כשהקומקום רותח.",
     "finalBody": "חינם ל-Linux, ל-Windows ול-macOS. בלי הרשמה, בלי שום דבר להגדיר מראש.",
     "finalCta": "הורדת טמפורה",
-    "footerLanguages": "שפות"
+    "footerLanguages": "שפות",
+    "suggestLanguage": "לקרוא את העמוד בעברית",
+    "suggestDismiss": "לא, תודה"
   },
   "announce": {
     "focus": "המיקוד התחיל.",

@@ -416,7 +416,9 @@
     "finalTitle": "Gotowe, gdy czajnik zagwiżdże.",
     "finalBody": "Za darmo dla Linuksa, Windowsa i macOS. Bez rejestracji, nic do ustawiania na start.",
     "finalCta": "Pobierz Tempurę",
-    "footerLanguages": "Języki"
+    "footerLanguages": "Języki",
+    "suggestLanguage": "Czytaj tę stronę po polsku",
+    "suggestDismiss": "Nie, dziękuję"
   },
   "announce": {
     "focus": "Skupienie rozpoczęte.",

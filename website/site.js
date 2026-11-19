@@ -63,6 +63,32 @@ for (const a of document.querySelectorAll(".foot-langs a[data-locale]")) {
   a.addEventListener("click", () => remember(a.getAttribute("data-locale") ?? ""));
 }
 
+/* ---------- Language suggestion (root page, first visit only; see redirect.js) ---------- */
+
+const suggestEl = document.getElementById("lang-suggest");
+const suggestCode = /** @type {any} */ (window).tempuraSuggestedLocale;
+const suggestion = suggestCode ? data.suggestions?.[suggestCode] : null;
+if (suggestEl && suggestion) {
+  suggestEl.lang = suggestCode;
+  suggestEl.setAttribute("aria-label", suggestion.text);
+  suggestEl.dir = suggestion.dir === "rtl" ? "rtl" : "ltr";
+  const go = document.createElement("a");
+  go.href = suggestion.href + location.hash;
+  go.hreflang = suggestCode;
+  go.textContent = suggestion.text;
+  go.addEventListener("click", () => remember(suggestCode));
+  const no = document.createElement("button");
+  no.type = "button";
+  no.textContent = suggestion.dismiss;
+  no.addEventListener("click", () => {
+    remember("en");
+    suggestEl.hidden = true;
+    langSelect?.focus();
+  });
+  suggestEl.replaceChildren(go, no);
+  suggestEl.hidden = false;
+}
+
 /* ---------- Download button ---------- */
 
 const SKIP = /\.(sig|json|tar\.gz)$/i; // updater sidecars: .sig, latest.json, macOS .app.tar.gz
@@ -126,6 +152,18 @@ function formatBytes(n) {
   return mb >= 10 ? `${Math.round(mb)} MB` : `${mb.toFixed(1)} MB`;
 }
 
+/** Only follow links that point at GitHub (release pages and asset downloads). */
+function githubUrl(raw, fallback = RELEASES) {
+  try {
+    const url = new URL(String(raw));
+    const host = url.hostname;
+    const ok = url.protocol === "https:" && (host === "github.com" || host.endsWith(".githubusercontent.com"));
+    return ok ? url.href : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 /** @param {{ digest?: string }} asset */
 function sha256(asset) {
   const digest = String(asset.digest ?? "");
@@ -182,7 +220,7 @@ async function paintDownloads() {
 
   if (sums?.browser_download_url) {
     const a = document.createElement("a");
-    a.href = sums.browser_download_url;
+    a.href = githubUrl(sums.browser_download_url);
     a.textContent = "SHA256SUMS";
     sumsLink.replaceChildren(t("checksumFile"), a);
     sumsLink.hidden = false;
@@ -190,7 +228,7 @@ async function paintDownloads() {
 
   if (chosen) {
     const hash = sha256(chosen);
-    primary.href = chosen.browser_download_url;
+    primary.href = githubUrl(chosen.browser_download_url);
     primaryLabel.textContent = t("downloadFor", { os: osLabel(os) });
     primaryMeta.textContent = [chosen.info.kind, archLabel(chosen.info.os, chosen.info.arch), formatBytes(chosen.size)]
       .filter(Boolean)
@@ -202,7 +240,7 @@ async function paintDownloads() {
     }
     statusEl.textContent = t("latestOther", { tag });
   } else {
-    primary.href = release.html_url ?? RELEASES;
+    primary.href = githubUrl(release.html_url);
     primaryLabel.textContent = t("choosePlatform");
     primaryMeta.textContent = `v${tag}`;
     statusEl.textContent = os === "mobile" ? t("desktopOnly") : t("latestPick", { tag });
@@ -212,7 +250,7 @@ async function paintDownloads() {
     ...assets.map((asset) => {
       const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = asset.browser_download_url;
+      a.href = githubUrl(asset.browser_download_url);
       a.textContent = [osLabel(asset.info.os), asset.info.kind, archLabel(asset.info.os, asset.info.arch)]
         .filter(Boolean)
         .join(" · ");

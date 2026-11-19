@@ -414,7 +414,9 @@
     "finalTitle": "Pronto quando a chaleira apitar.",
     "finalBody": "Grátis para Linux, Windows e macOS. Sem cadastro, nada para configurar antes.",
     "finalCta": "Baixar o Tempura",
-    "footerLanguages": "Idiomas"
+    "footerLanguages": "Idiomas",
+    "suggestLanguage": "Ler esta página em português",
+    "suggestDismiss": "Não, obrigado"
   },
   "announce": {
     "focus": "Foco iniciado.",
