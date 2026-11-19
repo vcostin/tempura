@@ -108,6 +108,14 @@ Deno.test("redirect.js knows exactly the manifest locales", async () => {
   assertEquals([...codes].sort(), catalogs.map((c) => c.meta.code).sort());
 });
 
+Deno.test("locale preference falls back to sessionStorage when localStorage is blocked", async () => {
+  const redirect = await Deno.readTextFile(new URL("../../website/redirect.js", import.meta.url));
+  const site = await Deno.readTextFile(new URL("../../website/site.js", import.meta.url));
+  assertStringIncludes(redirect, "sessionStorage.setItem");
+  assertStringIncludes(redirect, "sessionStorage.getItem");
+  assertStringIncludes(site, "sessionStorage.setItem");
+});
+
 Deno.test("locale strings are escaped, never injected as HTML", async () => {
   const evil = structuredClone(en);
   const s = evil.ui.site as Record<string, string>;

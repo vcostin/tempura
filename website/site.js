@@ -20,8 +20,19 @@ function t(key, vars = {}) {
 function remember(code) {
   try {
     localStorage.setItem(STORAGE_KEY, code);
+    try {
+      sessionStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+    return;
   } catch {
-    /* storage blocked: the URL still carries the language */
+    /* localStorage blocked: try session so a dismiss still sticks for this tab */
+  }
+  try {
+    sessionStorage.setItem(STORAGE_KEY, code);
+  } catch {
+    /* both blocked: the URL still carries the language */
   }
 }
 

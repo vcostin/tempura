@@ -22,17 +22,37 @@
   function store(code) {
     try {
       localStorage.setItem(KEY, code);
+      try {
+        sessionStorage.removeItem(KEY);
+      } catch (e2) {
+        /* ignore */
+      }
+      return;
     } catch (e) {
-      /* storage blocked */
+      /* localStorage blocked: fall through */
+    }
+    try {
+      sessionStorage.setItem(KEY, code);
+    } catch (e) {
+      /* both blocked */
     }
   }
 
-  var stored = "";
-  try {
-    stored = resolve(localStorage.getItem(KEY) || "");
-  } catch (e) {
-    /* storage blocked: no remembered choice */
+  function readStored() {
+    try {
+      var fromLocal = resolve(localStorage.getItem(KEY) || "");
+      if (fromLocal) return fromLocal;
+    } catch (e) {
+      /* localStorage blocked */
+    }
+    try {
+      return resolve(sessionStorage.getItem(KEY) || "");
+    } catch (e) {
+      return "";
+    }
   }
+
+  var stored = readStored();
 
   // A link to English (?lang=en, from the switcher or footer) is an explicit choice,
   // however it was opened. Remember it and drop the parameter from the address bar.
