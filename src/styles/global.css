@@ -779,14 +779,21 @@ button.rhythm-card:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
+  /* The name keeps its width (long custom names still truncate past 70%); the note beside it
+     gives way first, so "Ультрадіан" / "ウルトラディアン" stay whole. */
+  flex: 0 1 auto;
+  min-width: min(max-content, 70%);
+  max-width: 70%;
 }
 
 .rhythm-card-meta {
   flex: 1;
+  min-width: 0;
   font-size: 0.78rem;
   color: var(--ink-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rhythm-card-change {
@@ -1322,6 +1329,7 @@ button.rhythm-card:hover {
 }
 
 .report-kpi {
+  container-type: inline-size;
   padding: 0.65rem 0.8rem;
   border-radius: 12px;
   background: var(--surface);
@@ -1333,9 +1341,11 @@ button.rhythm-card:hover {
   display: block;
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: 1.45rem;
+  /* One line, shrinking with the card: "12 Std. 40 Min." must not split. */
+  font-size: min(1.45rem, 10.5cqi);
   font-weight: 550;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .report-card {
@@ -1549,8 +1559,19 @@ button.rhythm-card:hover {
 .report-table tbody th {
   font-weight: 600;
   white-space: normal;
-  /* Custom technique names can be one long word (up to 80 chars): break it rather than hide columns. */
+}
+
+/* A custom name can be one 80-char word: break it rather than hide columns. Only such names:
+   on everything else "anywhere" let the table squeeze "Flowtime" into "Flowtim/e". */
+.report-table tbody th.report-table__name--long {
   overflow-wrap: anywhere;
+}
+
+/* Korean separates words with spaces, so keep each word whole. (Japanese can't: keeping
+   katakana runs whole makes the table 41 px too wide at 360 px; it breaks per character.) */
+:lang(ko) .report-table th,
+:lang(ko) .report-table td {
+  word-break: keep-all;
 }
 
 .report-table__focus {
@@ -1754,6 +1775,7 @@ button.rhythm-card:hover {
 
 .stats-bars__value {
   min-width: 4.5rem;
+  white-space: nowrap;
   text-align: end;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -2305,10 +2327,18 @@ button.rhythm-card:hover {
   margin-bottom: 0.25rem;
 }
 
-/* Every stats bar list (days, labels, techniques) shares one name and value width,
-   so the tracks line up across sections. Long names truncate; the title shows them whole. */
+/* Rows share the list's columns (subgrid), so the tracks line up while the value column
+   grows to the longest duration: "1 Std. 56 Min." never wraps. Long names truncate; the
+   title shows them whole. */
+.stats-bars__list {
+  display: grid;
+  grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) max-content;
+  column-gap: 0.55rem;
+}
+
 .stats-bars__row {
-  grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
 }
 
 .stats-bars__day {
