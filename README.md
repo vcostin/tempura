@@ -32,6 +32,7 @@ deno task tauri:dev
 ```
 
 `deno task website:shots` renders the website's screenshots (`website/shots/`) from the app with sample data.
+`deno task website:serve` builds the website (one page per language, from `locales/`) into `_site/` and serves it on http://localhost:4507.
 
 If Ctrl+C leaves Vite on port 1420, `deno task free-dev-port` stops that leftover only (not whatever else might be bound there). `tauri:dev` does the same check first.
 

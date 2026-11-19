@@ -15,7 +15,8 @@ concurrency:
 jobs:
   test:
     name: Typecheck, unit, a11y
-    runs-on: ubuntu-latest
+    # Pinned: ubuntu-latest moved to 26.04, which Playwright 1.60 can't install Chromium on.
+    runs-on: ubuntu-24.04
     env:
       PW_DISABLE_TS_ESM: "1"
     steps:
@@ -53,13 +54,19 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
+      # On a cache miss the action installs from the image's package index, which goes
+      # stale (404s on superseded .debs). Refresh it first.
+      - name: Refresh apt index
+        run: sudo apt-get update
+
       # Cache .debs so WebKit/GTK deps are not re-downloaded on every PR.
-      # Bump `version` when the packages list or ubuntu-22.04 image generation changes.
+      # Bump `version` when the packages list or ubuntu-22.04 image generation changes,
+      # or when a failed install got cached (it restores as an empty ~0 MB archive).
       - uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
         id: apt-cache
         with:
           packages: libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev
-          version: 22.04-1
+          version: 22.04-2
           execute_install_scripts: true
 
       - name: Apt cache status

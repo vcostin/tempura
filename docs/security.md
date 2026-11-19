@@ -31,7 +31,7 @@ Rust**, plus **how updates are chosen and verified**.
 | Updater authenticity ≠ first-run authenticity | In-app updates require an ed25519 signature that matches the pubkey baked into the binary. First install is whatever the user downloaded (SmartScreen / Gatekeeper may warn; see M2). |
 | Signing secret stays off the tree | Release CI fails without `TAURI_SIGNING_PRIVATE_KEY`. Private keys are gitignored. Losing or rotating the key breaks in-app updates for already-shipped builds. |
 | Other processes of the same user are trusted | `tempura --toggle` / `--skip` / `--show` reach the running app through the single-instance plugin. Anything running as you can start, pause, skip, or show/hide the window; nothing else is accepted on that path. |
-| Locale catalogs are maintainer-trusted | GitHub Pages copies `locales/` onto the download site. Strings are assigned with `textContent` (L5). A locale PR can change copy, not inject HTML. |
+| Locale catalogs are maintainer-trusted | GitHub Pages renders the download site from `locales/` at build time. Strings are HTML-escaped (L5). A locale PR can change copy, not inject HTML. |
 
 **XSS blast radius (if someone ever got script in the webview):**
 autostart on/off, updater check/install (still needs a valid ed25519
@@ -159,10 +159,12 @@ webview.
 
 #### L5 — Download site `innerHTML` from locale strings
 
-**Status.** Addressed. Linux install copy uses `data-i18n` (`textContent`).
-`fillDom` has no `[data-i18n-html]` path. i18next interpolation uses
-`escapeValue: true`. `site.installLinux` is plain text in every locale
-(`chmod +x`, `.deb`, `.rpm` stay readable). Download links were already
+**Status.** Addressed. Since the per-locale site (one prerendered page per
+language), copy is rendered at build time and every locale string goes
+through `esc()`; the few strings `site.js` needs at runtime sit in a
+`<script type="application/json">` data block (with `<`, `>`, `&` escaped)
+and are assigned with `textContent`. `site.installLinux` is plain text in
+every locale (`chmod +x`, `.deb`, `.rpm` stay readable). Download links are
 `textContent` / `createElement`.
 
 **Was.** GitHub Pages (`website/`) set `el.innerHTML = i18next.t(key)`
@@ -171,8 +173,8 @@ ship in-repo. A bad translation PR could inject script into
 https://vcostin.github.io/tempura/ . Visitors cannot change those
 JSON files.
 
-**Evidence.** [`website/i18n.js`](../website/i18n.js) (`fillDom`, `escapeValue: true`);
-[`website/index.html`](../website/index.html) `data-i18n="site.installLinux"`;
+**Evidence.** [`scripts/website/page.ts`](../scripts/website/page.ts) (`esc`, `scriptJson`);
+[`website/site.js`](../website/site.js) (`textContent` only);
 [`locales/en/ui.json`](../locales/en/ui.json) `site.installLinux`;
 [`tests/unit/websiteI18n.test.ts`](../tests/unit/websiteI18n.test.ts).
 
@@ -314,7 +316,7 @@ These are easy to misread as stronger guarantees than they are.
   (warn on stderr). Same Unix modes as L3.
 - **Download site asset hrefs** come from the GitHub Releases API
   (`browser_download_url`) without a host allowlist
-  ([`website/download.js`](../website/download.js)). That matches the
+  ([`website/site.js`](../website/site.js)). That matches the
   existing trust in GitHub for first install and updater metadata; a
   host allowlist (`github.com` / `*.githubusercontent.com`) would be
   defense in depth only.
