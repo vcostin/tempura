@@ -495,7 +495,9 @@ function RhythmTable({ usage, locale, t }: { usage: TechniqueUsage[]; locale: st
               const share = finishedShare(u);
               return (
                 <tr key={u.techniqueId ?? `name:${u.name}`}>
-                  <th scope="row">{usageName(u)}</th>
+                  <th scope="row" className={/\S{14,}/.test(usageName(u)) ? "report-table__name--long" : undefined}>
+                    {usageName(u)}
+                  </th>
                   <td>
                     <span className="report-table__focus">
                       <span className="report-table__bar" aria-hidden="true">

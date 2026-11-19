@@ -779,14 +779,21 @@ button.rhythm-card:hover {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  min-width: 0;
+  /* The name keeps its width (long custom names still truncate past 70%); the note beside it
+     gives way first, so "Ультрадіан" / "ウルトラディアン" stay whole. */
+  flex: 0 1 auto;
+  min-width: min(max-content, 70%);
+  max-width: 70%;
 }
 
 .rhythm-card-meta {
   flex: 1;
+  min-width: 0;
   font-size: 0.78rem;
   color: var(--ink-muted);
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .rhythm-card-change {
@@ -1338,6 +1345,19 @@ button.rhythm-card:hover {
   line-height: 1.15;
 }
 
+/* One line, shrinking with the card: "12 Std. 40 Min." must not split. Older webviews
+   without container units (macOS < 13, WebKitGTK < 2.46) keep the size above and may wrap. */
+@supports (font-size: 1cqi) {
+  .report-kpi {
+    container-type: inline-size;
+  }
+
+  .report-kpi strong {
+    font-size: min(1.45rem, 10.5cqi);
+    white-space: nowrap;
+  }
+}
+
 .report-card {
   margin-bottom: 1rem;
   padding: 0.9rem 1rem;
@@ -1549,8 +1569,19 @@ button.rhythm-card:hover {
 .report-table tbody th {
   font-weight: 600;
   white-space: normal;
-  /* Custom technique names can be one long word (up to 80 chars): break it rather than hide columns. */
+}
+
+/* A custom name can be one 80-char word: break it rather than hide columns. Only such names:
+   on everything else "anywhere" let the table squeeze "Flowtime" into "Flowtim/e". */
+.report-table tbody th.report-table__name--long {
   overflow-wrap: anywhere;
+}
+
+/* Korean separates words with spaces, so keep each word whole. (Japanese can't: keeping
+   katakana runs whole makes the table 41 px too wide at 360 px; it breaks per character.) */
+:lang(ko) .report-table th,
+:lang(ko) .report-table td {
+  word-break: keep-all;
 }
 
 .report-table__focus {
@@ -1575,6 +1606,38 @@ button.rhythm-card:hover {
 }
 
 @media (max-width: 520px) {
+  .report-table__bar {
+    display: none;
+  }
+
+  /* Narrow window: let headers and long durations ("6 Std. 30 Min.") wrap so every
+     column fits; nothing hides behind the table's horizontal scroll. */
+  .report-table thead th,
+  .report-table td {
+    white-space: normal;
+  }
+
+  .report-table th,
+  .report-table td {
+    padding-inline: 0.25rem;
+  }
+
+  /* Sentence case (as in RTL) instead of spaced capitals: long headings like
+     "Sitzungen" then fit without hyphenation. */
+  .report-table thead th {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+}
+
+/* The same rules by the table's own width: in the wide two-column Stats (window ≥ 760 px)
+   each card is narrow although the window isn't. The window-width rule above stays as the
+   fallback for webviews without container queries (macOS < 13, WebKitGTK < 2.46). */
+.report-table-wrap {
+  container-type: inline-size;
+}
+
+@container (max-width: 480px) {
   .report-table__bar {
     display: none;
   }
@@ -1718,13 +1781,31 @@ button.rhythm-card:hover {
   gap: 0.4rem;
 }
 
+/* Fallback (no subgrid: macOS < 13): every row uses the same fixed columns, so tracks
+   still line up; the value column fits durations up to "12 Std. 40 Min.". */
 .stats-bars__row {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) 7rem;
   align-items: center;
   gap: 0.55rem;
   font-size: 0.8rem;
   color: var(--ink-muted);
+}
+
+/* Rows share the list's columns (subgrid), so the tracks line up while the value column
+   grows to the longest duration: "1 Std. 56 Min." never wraps. Long names truncate; the
+   title shows them whole. */
+@supports (grid-template-columns: subgrid) {
+  .stats-bars__list {
+    display: grid;
+    grid-template-columns: minmax(0, 7.5rem) minmax(3rem, 1fr) max-content;
+    column-gap: 0.55rem;
+  }
+
+  .stats-bars__row {
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
 }
 
 .stats-bars__day {
@@ -1754,6 +1835,7 @@ button.rhythm-card:hover {
 
 .stats-bars__value {
   min-width: 4.5rem;
+  white-space: nowrap;
   text-align: end;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -2303,12 +2385,6 @@ button.rhythm-card:hover {
 
 .away-banner {
   margin-bottom: 0.25rem;
-}
-
-/* Every stats bar list (days, labels, techniques) shares one name and value width,
-   so the tracks line up across sections. Long names truncate; the title shows them whole. */
-.stats-bars__row {
-  grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem;
 }
 
 .stats-bars__day {
