@@ -187,6 +187,15 @@ async function socialCard(page: Page, locale: string) {
     },
   );
   await settle(page);
+  // Longer future copy must not be silently clipped by the fixed 1200×630 frame.
+  const clipped = await page.evaluate(() => {
+    const card = document.querySelector(".og")!.getBoundingClientRect();
+    return [...document.querySelectorAll(".og-copy > *")]
+      .map((el) => [el.className, el.getBoundingClientRect()] as const)
+      .filter(([, r]) => r.bottom > card.bottom - 24 || r.right > card.right || r.left < card.left)
+      .map(([name]) => name);
+  });
+  if (clipped.length) throw new Error(`${locale} social card: copy doesn't fit (${clipped.join(", ")})`);
   await page.screenshot({ path: `${SHOTS}${locale}/og.jpg`, type: "jpeg", quality: 84 });
 }
 

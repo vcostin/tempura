@@ -180,13 +180,18 @@ Deno.test("no locale reuses another locale's screenshot bytes (e.g. English copi
   }
 });
 
-/** Width × height from a baseline/progressive JPEG's SOF marker. */
+/** Width × height from a JPEG's start-of-frame (any SOFn), skipping fill bytes and other segments. */
 function jpegSize(b: Uint8Array): [number, number] {
-  for (let i = 2; i < b.length - 9; ) {
+  let i = 2; // after SOI
+  while (i < b.length - 9) {
     if (b[i] !== 0xff) return [0, 0];
+    while (b[i + 1] === 0xff && i < b.length - 9) i++; // fill bytes
     const marker = b[i + 1];
-    if (marker === 0xc0 || marker === 0xc2) return [(b[i + 7] << 8) | b[i + 8], (b[i + 5] << 8) | b[i + 6]];
-    i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+    const isSof = marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc;
+    if (isSof) return [(b[i + 7] << 8) | b[i + 8], (b[i + 5] << 8) | b[i + 6]];
+    const len = (b[i + 2] << 8) | b[i + 3];
+    if (len < 2) return [0, 0];
+    i += 2 + len;
   }
   return [0, 0];
 }
@@ -198,6 +203,11 @@ Deno.test("every social preview (og.jpg) is a 1200×630 landscape card", async (
     const html = site.get(`${localeSlug(meta.code)}index.html`)!;
     assertStringIncludes(html, '<meta property="og:image:width" content="1200" />');
     assertStringIncludes(html, '<meta property="og:image:height" content="630" />');
+    assertStringIncludes(html, '<meta property="og:image:type" content="image/jpeg" />');
+    const strings = catalogs.find((c) => c.meta.code === meta.code)!.ui.site as Record<string, string>;
+    const alt = esc(`Tempura — ${strings.lede} ${strings.ogDescription}`);
+    assertStringIncludes(html, `<meta property="og:image:alt" content="${alt}" />`);
+    assertStringIncludes(html, `<meta name="twitter:image:alt" content="${alt}" />`);
   }
 });
 
