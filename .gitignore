@@ -40,3 +40,6 @@ minisign-linux/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Built website (deno task website:build)
+/_site/

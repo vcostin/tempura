@@ -14,6 +14,8 @@
     "playwright:install": "deno run -A npm:@playwright/test@1.60.0/cli install chromium",
     "test:a11y": "PW_DISABLE_TS_ESM=1 deno run -A npm:@playwright/test@1.60.0/cli test",
     "website:shots": "PW_DISABLE_TS_ESM=1 deno run -A npm:@playwright/test@1.60.0/cli test --config e2e/shots/playwright.config.ts",
+    "website:build": "deno run --allow-read --allow-write ./scripts/build-website.ts",
+    "website:serve": "deno task website:build && deno run --allow-net --allow-read jsr:@std/http@1/file-server _site --port 4507",
     "test": "deno task test:unit && deno task test:a11y"
   },
   "compilerOptions": {

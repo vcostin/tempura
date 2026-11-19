@@ -1,89 +1,97 @@
 /// <reference lib="deno.ns" />
 /**
- * GitHub Pages must not inject locale strings as HTML (security.md L5).
+ * The download site is prerendered per locale (scripts/build-website.ts). Locale strings
+ * must land as text, never markup (security.md L5), and every language needs its own
+ * crawlable URL with matching hreflang, canonical and CSP.
  */
-import { extractCspSha256Tokens, jsonLdCspHash } from "../../scripts/sync-website-csp.ts";
+import { assert, assertEquals, assertStringIncludes } from "jsr:@std/assert@1";
+import { loadCatalogs, renderSite } from "../../scripts/build-website.ts";
+import { esc, localeSlug, localeUrl, ORIGIN, renderPage, sha256Base64 } from "../../scripts/website/page.ts";
 
-Deno.test("download site does not innerHTML locale strings", async () => {
-  const i18n = await Deno.readTextFile(new URL("../../website/i18n.js", import.meta.url));
-  const html = await Deno.readTextFile(new URL("../../website/index.html", import.meta.url));
+const catalogs = await loadCatalogs();
+const site = await renderSite();
+const en = catalogs.find((c) => c.meta.code === "en")!;
 
-  if (html.includes("data-i18n-html")) {
-    throw new Error("website/index.html must not use data-i18n-html");
+Deno.test("one page per manifest locale, English at the root", async () => {
+  const manifest = JSON.parse(await Deno.readTextFile(new URL("../../locales/manifest.json", import.meta.url)));
+  for (const code of manifest.languages as string[]) {
+    assert(site.has(`${localeSlug(code)}index.html`), `missing page for ${code}`);
   }
-  if (i18n.includes("data-i18n-html")) {
-    throw new Error("website/i18n.js must not read data-i18n-html");
-  }
-  if (/innerHTML\s*=\s*i18next/.test(i18n)) {
-    throw new Error("website/i18n.js must not assign i18next output to innerHTML");
-  }
-  if (/escapeValue:\s*false/.test(i18n)) {
-    throw new Error("website i18next interpolation must not disable HTML escaping");
-  }
-  if (!/data-i18n="site\.installLinux"/.test(html)) {
-    throw new Error("Linux install blurb must use data-i18n (textContent)");
-  }
+  assertEquals(localeSlug("en"), "");
+  assertEquals(localeSlug("pt-BR"), "pt-br/");
+  assert(site.has("sitemap.xml"));
 });
 
-Deno.test("CSP sha256 matches the JSON-LD script body", async () => {
-  const html = await Deno.readTextFile(new URL("../../website/index.html", import.meta.url));
-  const token = await jsonLdCspHash(html);
-  const allow = extractCspSha256Tokens(html);
-  if (!allow.includes(token)) {
-    throw new Error(
-      `CSP script-src sha256 does not match the JSON-LD body (got ${
-        allow.map((t) => `'sha256-${t}'`).join(" ") || "none"
-      }, expected 'sha256-${token}'). update the CSP sha256 in website/index.html (or run scripts/sync-website-csp.ts)`,
-    );
-  }
-});
-
-Deno.test("download site has canonical, share, and twitter metas", async () => {
-  const html = await Deno.readTextFile(new URL("../../website/index.html", import.meta.url));
-  const i18n = await Deno.readTextFile(new URL("../../website/i18n.js", import.meta.url));
-  const origin = "https://vcostin.github.io/tempura/";
-  for (const needle of [
-    `rel="canonical" href="${origin}"`,
-    `property="og:url" content="${origin}"`,
-    `name="twitter:card" content="summary_large_image"`,
-    `name="twitter:title"`,
-    `name="twitter:description"`,
-    `name="twitter:image" content="https://vcostin.github.io/tempura/shots/timer.png"`,
-    `type="application/ld+json"`,
-  ]) {
-    if (!html.includes(needle)) {
-      throw new Error(`website/index.html is missing ${needle}`);
+Deno.test("each page has lang/dir, self canonical, hreflang to all, share metas", () => {
+  for (const { meta } of catalogs) {
+    const html = site.get(`${localeSlug(meta.code)}index.html`)!;
+    assertStringIncludes(html, `<html lang="${meta.code}" dir="${meta.dir}">`);
+    assertStringIncludes(html, `rel="canonical" href="${localeUrl(meta.code)}"`);
+    assertStringIncludes(html, `property="og:url" content="${localeUrl(meta.code)}"`);
+    assertStringIncludes(html, `hreflang="x-default" href="${ORIGIN}"`);
+    for (const other of catalogs) {
+      assertStringIncludes(html, `hreflang="${other.meta.code}" href="${localeUrl(other.meta.code)}"`);
     }
-  }
-  if (!html.includes("SoftwareApplication") || !html.includes("releases/latest")) {
-    throw new Error("JSON-LD should be SoftwareApplication with latest Releases downloadUrl");
-  }
-  if (!i18n.includes('meta[name="twitter:title"]') || !i18n.includes('meta[name="twitter:description"]')) {
-    throw new Error("i18n.js must update twitter title and description on locale change");
+    for (const needle of [
+      `name="twitter:card" content="summary_large_image"`,
+      `name="twitter:image" content="${ORIGIN}shots/timer.png"`,
+      `"@type":"SoftwareApplication"`,
+      `"@type":"FAQPage"`,
+      "releases/latest",
+    ]) {
+      assertStringIncludes(html, needle, `${meta.code} is missing ${needle}`);
+    }
+    // Every {{placeholder}} got a value.
+    assert(!/\{\{\s*\w+\s*\}\}/.test(html.replace(/<script type="application\/json"[\s\S]*?<\/script>/, "")), `${meta.code} has an unfilled placeholder`);
   }
 });
 
-Deno.test("site.installLinux is plain text in every locale", async () => {
-  const root = new URL("../../locales/", import.meta.url);
-  const tagged: string[] = [];
-  for await (const dir of Deno.readDir(root)) {
-    if (!dir.isDirectory) continue;
-    let ui: { site?: { installLinux?: string } };
-    try {
-      ui = JSON.parse(await Deno.readTextFile(new URL(`${dir.name}/ui.json`, root)));
-    } catch {
-      continue;
-    }
-    const blurb = ui.site?.installLinux;
-    if (typeof blurb !== "string") continue;
-    if (/<[^>]+>/.test(blurb)) tagged.push(`${dir.name}: ${blurb}`);
+Deno.test("CSP sha256 matches each page's JSON-LD body", async () => {
+  for (const [path, html] of site) {
+    if (!path.endsWith(".html")) continue;
+    const body = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1];
+    assert(body, `${path} has no JSON-LD`);
+    assertStringIncludes(html, `'sha256-${await sha256Base64(body)}'`, `${path} CSP hash is stale`);
+  }
+});
+
+Deno.test("only the root page auto-redirects by language", () => {
+  for (const [path, html] of site) {
+    if (!path.endsWith(".html")) continue;
+    assertEquals(html.includes("redirect.js"), path === "index.html", path);
+  }
+});
+
+Deno.test("redirect.js knows exactly the manifest locales", async () => {
+  const js = await Deno.readTextFile(new URL("../../website/redirect.js", import.meta.url));
+  const codes = JSON.parse(js.match(/var CODES = (\[[^\]]*\])/)![1]);
+  assertEquals([...codes].sort(), catalogs.map((c) => c.meta.code).sort());
+});
+
+Deno.test("locale strings are escaped, never injected as HTML", async () => {
+  const evil = structuredClone(en);
+  const s = evil.ui.site as Record<string, string>;
+  s.deck = `<img src=x onerror=alert(1)>`;
+  s.faqFreeA = `</script><script>alert(1)</script>`;
+  s.downloadFor = `</script><b>{{os}}</b>`;
+  const { html } = await renderPage({ catalog: evil, en, locales: [evil.meta], version: "1.0.0" });
+  assert(!html.includes("<img src=x"), "deck was injected as markup");
+  assertStringIncludes(html, esc(s.deck));
+  assertEquals(html.match(/<script/g)?.length, html.match(/<\/script>/g)?.length);
+  assert(!html.includes("<script>alert"), "a string closed a <script> element");
+});
+
+Deno.test("site.js only assigns strings with textContent", async () => {
+  const js = await Deno.readTextFile(new URL("../../website/site.js", import.meta.url));
+  assert(!/innerHTML|outerHTML|insertAdjacentHTML|document\.write/.test(js));
+});
+
+Deno.test("site.installLinux is plain text in every locale", () => {
+  for (const { meta, ui } of catalogs) {
+    const blurb = (ui.site as Record<string, string>).installLinux;
+    assert(!/<[^>]+>/.test(blurb), `${meta.code} site.installLinux must not contain HTML tags`);
     for (const token of ["chmod +x", ".deb", ".rpm"]) {
-      if (!blurb.includes(token)) {
-        throw new Error(`${dir.name} site.installLinux is missing ${token}`);
-      }
+      assertStringIncludes(blurb, token, `${meta.code} site.installLinux is missing ${token}`);
     }
-  }
-  if (tagged.length) {
-    throw new Error(`site.installLinux must not contain HTML tags:\n${tagged.join("\n")}`);
   }
 });
