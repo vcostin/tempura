@@ -180,6 +180,27 @@ Deno.test("no locale reuses another locale's screenshot bytes (e.g. English copi
   }
 });
 
+/** Width × height from a baseline/progressive JPEG's SOF marker. */
+function jpegSize(b: Uint8Array): [number, number] {
+  for (let i = 2; i < b.length - 9; ) {
+    if (b[i] !== 0xff) return [0, 0];
+    const marker = b[i + 1];
+    if (marker === 0xc0 || marker === 0xc2) return [(b[i + 7] << 8) | b[i + 8], (b[i + 5] << 8) | b[i + 6]];
+    i += 2 + ((b[i + 2] << 8) | b[i + 3]);
+  }
+  return [0, 0];
+}
+
+Deno.test("every social preview (og.jpg) is a 1200×630 landscape card", async () => {
+  for (const { meta } of catalogs) {
+    const size = jpegSize(await Deno.readFile(new URL(`${meta.code}/og.jpg`, SHOTS)));
+    assertEquals(size, [1200, 630], `website/shots/${meta.code}/og.jpg`);
+    const html = site.get(`${localeSlug(meta.code)}index.html`)!;
+    assertStringIncludes(html, '<meta property="og:image:width" content="1200" />');
+    assertStringIncludes(html, '<meta property="og:image:height" content="630" />');
+  }
+});
+
 Deno.test("each page shows only screenshots in its own language", () => {
   for (const { meta } of catalogs) {
     const html = site.get(`${localeSlug(meta.code)}index.html`)!;
