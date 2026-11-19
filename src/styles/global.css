@@ -1549,6 +1549,8 @@ button.rhythm-card:hover {
 .report-table tbody th {
   font-weight: 600;
   white-space: normal;
+  /* Custom technique names can be one long word (up to 80 chars): break it rather than hide columns. */
+  overflow-wrap: anywhere;
 }
 
 .report-table__focus {
