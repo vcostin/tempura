@@ -211,7 +211,7 @@ button {
 /* The window's own title bar (see WindowControls). --chrome-strip is the title
    strip's height: the scrollers start below it, so nothing scrolls up under the
    buttons. On Linux and Windows it fits the 24px corner buttons with the same 6px
-   above and below; on macOS, the traffic lights. */
+   above and below; on macOS, it centres the traffic lights. */
 :root {
   --chrome-strip: 0px;
   /* Room between the top of a scroller and its first content. */
@@ -225,7 +225,8 @@ button {
 }
 
 :root[data-chrome="mac"] {
-  --chrome-strip: 1.75rem;
+  /* The traffic lights' centre sits about 16px down, so a 32px strip centres them. */
+  --chrome-strip: 2rem;
   --chrome-pad: 0.625rem;
 }
 
