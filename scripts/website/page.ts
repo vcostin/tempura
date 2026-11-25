@@ -260,11 +260,9 @@ export async function renderPage({ catalog, en, locales, version, suggestions }:
     )
     .join("");
 
+  // The shots carry the app's own title bar and rounded window, so no drawn frame.
   const shotWindow = (src: string, alt: string, lazy = false) => `<div class="bezel">
-                <div class="window">
-                  <div class="titlebar"><span></span><span></span><span></span></div>
-                  <img src="${base}${shotsDir}${src}.webp" alt="${alt}" width="420" height="813"${lazy ? ' loading="lazy" decoding="async"' : ""} />
-                </div>
+                <img src="${base}${shotsDir}${src}.webp" alt="${alt}" width="420" height="813"${lazy ? ' loading="lazy" decoding="async"' : ""} />
               </div>`;
 
   const card = (title: string, body: string, cls = "point") =>

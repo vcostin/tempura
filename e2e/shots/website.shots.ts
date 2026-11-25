@@ -55,7 +55,8 @@ async function toWebp(page: Page, png: Buffer): Promise<Buffer> {
 async function save(page: Page, locale: string, name: string) {
   const dir = `${SHOTS}${locale}/`;
   mkdirSync(dir, { recursive: true });
-  const png = await page.screenshot();
+  // Transparent outside the window's rounded corners (the app's Linux title bar).
+  const png = await page.screenshot({ omitBackground: true });
   writeFileSync(`${dir}${name}.webp`, await toWebp(page, png));
 }
 
@@ -129,6 +130,8 @@ async function socialCard(page: Page, locale: string) {
       fig.append(img);
       root.append(copy, fig);
       document.head.append(style);
+      // The card isn't a window: drop the app's rounded frame along with its content.
+      document.documentElement.removeAttribute("data-chrome");
       document.body.replaceChildren(root);
       return img.decode();
     },

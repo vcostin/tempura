@@ -460,32 +460,10 @@ a:hover {
   border: 1px solid rgba(30, 42, 50, 0.06);
 }
 
-.window {
-  overflow: hidden;
-  border-radius: calc(1.35rem - 0.4rem);
-  background: var(--surface-solid);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
-}
-
-.titlebar {
-  display: flex;
-  gap: 0.32rem;
-  padding: 0.45rem 0.65rem 0.2rem;
-}
-
-.titlebar span {
-  width: 0.45rem;
-  height: 0.45rem;
-  border-radius: 50%;
-  background: var(--bg2);
-}
-
-.titlebar span:nth-child(2) {
-  background: color-mix(in srgb, var(--accent) 55%, var(--bg2));
-}
-
-.titlebar span:nth-child(3) {
-  background: color-mix(in srgb, var(--danger) 45%, var(--bg2));
+/* The shot is the app's window: its own title bar, rounded corners (transparent
+   outside them) and a soft shadow like a real window's. */
+.bezel img {
+  filter: drop-shadow(0 6px 14px rgba(30, 42, 50, 0.14));
 }
 
 .shot--timer {
