@@ -155,14 +155,26 @@ interface MenuState {
   onTop: boolean | null;
 }
 
+/**
+ * Whether Tempura put the window on top. Kept here rather than asked of the window:
+ * on Linux the window only learns it from a state event that X11 desktops may never
+ * send, so it kept answering "no", the check never showed, and the item couldn't
+ * switch it off. Only this menu changes it, and the window starts not on top.
+ */
+let keptOnTop = false;
+
 async function readMenuState(): Promise<MenuState> {
   const win = getCurrentWindow();
-  const [maximized, canStay, onTop] = await Promise.all([
+  const [maximized, canStay] = await Promise.all([
     win.isMaximized().catch(() => false),
     invoke<boolean>("window_can_stay_on_top").catch(() => false),
-    win.isAlwaysOnTop().catch(() => false),
   ]);
-  return { maximized: maximized === true, onTop: canStay === true ? onTop === true : null };
+  return { maximized: maximized === true, onTop: canStay === true ? keptOnTop : null };
+}
+
+async function setKeptOnTop(onTop: boolean) {
+  await getCurrentWindow().setAlwaysOnTop(onTop);
+  keptOnTop = onTop;
 }
 
 function WindowMenu({
@@ -239,7 +251,7 @@ function WindowMenu({
           role="menuitemcheckbox"
           aria-checked={state.onTop}
           tabIndex={-1}
-          onClick={run(() => win.setAlwaysOnTop(!state.onTop))}
+          onClick={run(() => setKeptOnTop(!state.onTop))}
         >
           <span className="window-menu-check" aria-hidden="true">
             {state.onTop ? "✓" : ""}

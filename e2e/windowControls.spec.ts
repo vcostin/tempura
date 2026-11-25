@@ -135,7 +135,18 @@ test("Always on top shows where the desktop allows it", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Window menu" }).click();
   const item = page.getByRole("menuitemcheckbox", { name: "Always on top" });
+  const sent = () =>
+    page.evaluate(() =>
+      ((window as any).__tempuraMock.argsLog as [string, any][])
+        .filter(([cmd]) => cmd === "plugin:window|set_always_on_top")
+        .map(([, a]) => a.value),
+    );
   await expect(item).toHaveAttribute("aria-checked", "false");
   await item.click();
-  expect(await calls(page)).toContain("plugin:window|set_always_on_top");
+  await expect.poll(sent).toEqual([true]);
+  // The window's own answer isn't trusted (Linux keeps saying "no"): the menu remembers.
+  await page.getByRole("button", { name: "Window menu" }).click();
+  await expect(item).toHaveAttribute("aria-checked", "true");
+  await item.click();
+  await expect.poll(sent).toEqual([true, false]);
 });
