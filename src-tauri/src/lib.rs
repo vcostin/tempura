@@ -83,6 +83,7 @@ pub fn run() {
                 commands::open_feedback_url,
                 commands::request_quit,
                 commands::hide_to_tray,
+                commands::window_can_stay_on_top,
                 commands::get_hotkey_report,
                 commands::setup_portal_hotkeys,
                 $($extra,)*
@@ -120,6 +121,12 @@ pub fn run() {
             {
                 if let Some(win) = app.get_webview_window("main") {
                     let _ = win.set_icon(tray::APP_ICON);
+                }
+                // Wayland ignores set_icon: the panel finds the icon through the
+                // desktop entry named like the app id (set in main.rs).
+                #[cfg(target_os = "linux")]
+                if let Err(e) = portal::ensure_desktop_entry() {
+                    eprintln!("tempura: couldn't write the desktop entry: {e}");
                 }
                 tray::setup_tray(app.handle())?;
                 notify::init(app.handle());

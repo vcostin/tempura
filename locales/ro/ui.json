@@ -461,5 +461,13 @@
     "systemWideSettings": "Setează-le în Setări",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "Meniul ferestrei",
+    "minimize": "Minimizează",
+    "maximize": "Maximizează",
+    "restore": "Restabilește",
+    "alwaysOnTop": "Mereu deasupra",
+    "close": "Închide"
   }
 }

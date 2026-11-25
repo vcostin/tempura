@@ -460,5 +460,13 @@
     "systemWideSettings": "Instellen bij Instellingen",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "Venstermenu",
+    "minimize": "Minimaliseren",
+    "maximize": "Maximaliseren",
+    "restore": "Herstellen",
+    "alwaysOnTop": "Altijd bovenop",
+    "close": "Sluiten"
   }
 }

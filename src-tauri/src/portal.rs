@@ -186,10 +186,10 @@ async fn bind(app: &AppHandle, active: &mut Option<Active>) -> Result<(), String
     Ok(())
 }
 
-/// The desktop names the shortcuts' owner, and shows its icon, from the menu entry
-/// matching our app id. Installed packages may lack one under that id (and dev
+/// The desktop names the shortcuts' owner, and shows the window's icon, from the menu
+/// entry matching our app id. Installed packages may lack one under that id (and dev
 /// builds have none), so keep a hidden one in the user's data folder.
-fn ensure_desktop_entry() -> std::io::Result<()> {
+pub fn ensure_desktop_entry() -> std::io::Result<()> {
     let data_home = std::env::var_os("XDG_DATA_HOME")
         .map(std::path::PathBuf::from)
         .or_else(|| std::env::var_os("HOME").map(|home| std::path::Path::new(&home).join(".local/share")))
