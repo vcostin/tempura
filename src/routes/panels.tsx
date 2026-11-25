@@ -88,6 +88,15 @@ export function AboutRoute() {
               status: updater.status,
               onCheck: updater.check,
               onInstall: updater.install,
+              portable: settingsApi.info?.portable
+                ? {
+                    selfUpdate: settingsApi.settings.portableSelfUpdate,
+                    onToggleSelfUpdate: () =>
+                      void settingsApi.patch({
+                        portableSelfUpdate: !settingsApi.settings.portableSelfUpdate,
+                      }),
+                  }
+                : undefined,
             }
           : undefined
       }

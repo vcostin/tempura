@@ -9,6 +9,12 @@ edition = "2021"
 name = "tempura_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+# The Windows portable exe (a plain tempura.exe, no installer). It never installs
+# updates on its own: it says a new version is out, and swaps its own file only if
+# the user turns that on. Release CI builds it once more with this flag.
+portable = []
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 

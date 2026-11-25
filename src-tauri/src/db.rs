@@ -404,6 +404,8 @@ fn read_legacy_settings(conn: &Connection) -> DbResult<AppSettings> {
             .as_deref()
             .map(|v| v == "true")
             .unwrap_or(defaults.menu_bar_countdown),
+        // Newer than the per-key rows: never saved there.
+        portable_self_update: defaults.portable_self_update,
     })
 }
 

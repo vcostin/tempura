@@ -17,6 +17,14 @@ export const REQUIRED_PLATFORMS = [
 
 export type RequiredPlatform = (typeof REQUIRED_PLATFORMS)[number];
 
+/**
+ * Written when the release has them, never required. The Windows portable exe checks
+ * its own entry (src-tauri/src/portable.rs), so installed copies never get it.
+ */
+export const OPTIONAL_PLATFORMS = ["windows-x86_64-portable"] as const;
+
+export type UpdaterPlatform = RequiredPlatform | (typeof OPTIONAL_PLATFORMS)[number];
+
 export type ReleaseAsset = {
   name: string;
   browser_download_url: string;
@@ -92,6 +100,11 @@ export function pickWindows(assets: readonly ReleaseAsset[]): PlatformFiles | un
   );
 }
 
+/** The portable exe (`…_x64-portable.exe`), from release.yml's Windows leg. */
+export function pickWindowsPortable(assets: readonly ReleaseAsset[]): PlatformFiles | undefined {
+  return pair(assets, firstMatch(assets, (n) => n.endsWith("-portable.exe")));
+}
+
 export function pickDarwinAarch64(assets: readonly ReleaseAsset[]): PlatformFiles | undefined {
   return pair(assets, firstMatch(assets, (n) => /_aarch64\.app\.tar\.gz$/.test(n)));
 }
@@ -103,8 +116,8 @@ export function pickDarwinX64(assets: readonly ReleaseAsset[]): PlatformFiles | 
   );
 }
 
-export function pickPlatforms(assets: readonly ReleaseAsset[]): Partial<Record<RequiredPlatform, PlatformFiles>> {
-  const picked: Partial<Record<RequiredPlatform, PlatformFiles>> = {};
+export function pickPlatforms(assets: readonly ReleaseAsset[]): Partial<Record<UpdaterPlatform, PlatformFiles>> {
+  const picked: Partial<Record<UpdaterPlatform, PlatformFiles>> = {};
   const linux = pickLinux(assets);
   const windows = pickWindows(assets);
   const darwinX64 = pickDarwinX64(assets);
@@ -113,11 +126,13 @@ export function pickPlatforms(assets: readonly ReleaseAsset[]): Partial<Record<R
   if (windows) picked["windows-x86_64"] = windows;
   if (darwinX64) picked["darwin-x86_64"] = darwinX64;
   if (darwinArm) picked["darwin-aarch64"] = darwinArm;
+  const portable = pickWindowsPortable(assets);
+  if (portable) picked["windows-x86_64-portable"] = portable;
   return picked;
 }
 
 export function missingPlatforms(
-  picked: Partial<Record<RequiredPlatform, PlatformFiles>>,
+  picked: Partial<Record<UpdaterPlatform, PlatformFiles>>,
 ): RequiredPlatform[] {
   return REQUIRED_PLATFORMS.filter((key) => !picked[key]);
 }
@@ -134,6 +149,9 @@ export function buildUpdaterJson(opts: {
   const platforms: UpdaterJson["platforms"] = {};
   for (const key of REQUIRED_PLATFORMS) {
     platforms[key] = opts.platforms[key];
+  }
+  for (const key of OPTIONAL_PLATFORMS) {
+    if (opts.platforms[key]) platforms[key] = opts.platforms[key];
   }
   return {
     version: opts.version.replace(/^v/, ""),
@@ -230,7 +248,8 @@ async function main(): Promise<void> {
   }
 
   const platforms: Record<string, { signature: string; url: string }> = {};
-  for (const key of REQUIRED_PLATFORMS) {
+  const keys = [...REQUIRED_PLATFORMS, ...OPTIONAL_PLATFORMS.filter((key) => picked[key])];
+  for (const key of keys) {
     const files = picked[key]!;
     const sigApi = files.sig.url ??
       (files.sig.id != null
@@ -251,7 +270,7 @@ async function main(): Promise<void> {
 
   const text = `${JSON.stringify(json, null, 2)}\n`;
   await Deno.writeTextFile(out, text);
-  console.log(`Wrote ${out} for ${tag} (${REQUIRED_PLATFORMS.join(", ")})`);
+  console.log(`Wrote ${out} for ${tag} (${keys.join(", ")})`);
 }
 
 if (import.meta.main) {

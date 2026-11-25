@@ -11,6 +11,8 @@ use std::process::{Command, Stdio};
 use std::path::PathBuf;
 
 pub const FEEDBACK_URL: &str = "https://github.com/vcostin/tempura/discussions/5";
+/// Where a portable copy's update is downloaded by hand.
+pub const DOWNLOAD_URL: &str = "https://github.com/vcostin/tempura/releases/latest";
 
 #[cfg(any(test, target_os = "macos"))]
 const MACOS_OPEN: &str = "/usr/bin/open";
@@ -29,6 +31,11 @@ fn windows_cmd_exe() -> PathBuf {
 /// Open the pinned Feedback discussion in the system browser.
 pub fn open_feedback_url() -> Result<(), String> {
     open_in_host_browser(FEEDBACK_URL)
+}
+
+/// Open the latest release in the system browser.
+pub fn open_download_page() -> Result<(), String> {
+    open_in_host_browser(DOWNLOAD_URL)
 }
 
 #[allow(clippy::needless_return)] // each platform's block is cfg-gated

@@ -8,6 +8,7 @@ mod i18n;
 mod models;
 mod notify;
 mod open_url;
+mod portable;
 #[cfg(target_os = "linux")]
 mod portal;
 mod stats;
@@ -84,6 +85,8 @@ pub fn run() {
                 commands::request_quit,
                 commands::hide_to_tray,
                 commands::window_can_stay_on_top,
+                commands::open_download_page,
+                commands::install_portable_update,
                 commands::get_hotkey_report,
                 commands::setup_portal_hotkeys,
                 $($extra,)*
@@ -116,6 +119,10 @@ pub fn run() {
             app.manage(AppState {
                 db: parking_lot::Mutex::new(database),
             });
+
+            if cfg!(feature = "portable") {
+                portable::remove_old_copy();
+            }
 
             #[cfg(desktop)]
             {

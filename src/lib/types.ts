@@ -50,6 +50,8 @@ export interface AppSettings {
   menuBarCountdown: boolean;
   /** Opt-in system-wide shortcuts; empty strings are not set. */
   globalHotkeys: GlobalHotkeys;
+  /** Windows portable copy: "Update & restart" replaces its own exe. Off: it only tells. */
+  portableSelfUpdate: boolean;
 }
 
 export interface TimerSnapshot {
@@ -166,6 +168,8 @@ export interface AppInfo {
   debug: boolean;
   /** Active desktop notification backend (Debug page). */
   notificationBackend: string;
+  /** The Windows portable exe (no installer). */
+  portable: boolean;
 }
 
 export interface PhaseEvent {

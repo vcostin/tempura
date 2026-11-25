@@ -25,7 +25,9 @@ git tag v0.2.0
 git push origin main --tags
 ```
 
-GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS), and macOS (Apple Silicon + Intel), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. `.sig` files go up with each platform; `latest.json` is written once after the matrix so the in-app updater sees every platform.
+GitHub Actions builds with Deno: Linux (AppImage + deb + rpm), Windows (MSI + NSIS, plus a portable exe), and macOS (Apple Silicon + Intel, both on one macOS runner), then attaches them to the GitHub Release. The [download page](https://vcostin.github.io/tempura/) reads that release. `.sig` files go up with each platform; `latest.json` is written once after the matrix so the in-app updater sees every platform.
+
+The portable exe (`Tempura_<version>_x64-portable.exe`) is the same app built once more with the `portable` Cargo feature, signed like the installers. It checks its own `windows-x86_64-portable` entry in `latest.json` and never runs an installer: it says a newer version is out, and swaps its own file only if the user turns that on in Settings → Updates.
 
 The first public tag is `v0.1.0`. Builds are unsigned for Authenticode / Gatekeeper, so Windows SmartScreen and macOS Gatekeeper may warn on first open.
 

@@ -153,3 +153,27 @@ Deno.test("buildUpdaterJson: requires all four platform keys", () => {
     }
   }
 });
+
+Deno.test("pickPlatforms: the portable exe gets its own entry, never the installed one", () => {
+  const picked = pickPlatforms([...V030, asset("Tempura_0.3.0_x64-portable.exe"), asset("Tempura_0.3.0_x64-portable.exe.sig")]);
+  if (picked["windows-x86_64-portable"]?.bundle.name !== "Tempura_0.3.0_x64-portable.exe") {
+    throw new Error("expected the portable exe under windows-x86_64-portable");
+  }
+  if (picked["windows-x86_64"]?.bundle.name !== "Tempura_0.3.0_x64-setup.exe") {
+    throw new Error("installed copies must still get the NSIS installer");
+  }
+});
+
+Deno.test("buildUpdaterJson: the portable entry is written when present, not required", () => {
+  const p = { signature: "s", url: "u" };
+  const base = { "linux-x86_64": p, "windows-x86_64": p, "darwin-x86_64": p, "darwin-aarch64": p };
+  const without = buildUpdaterJson({ version: "v1.0.0", notes: "", pubDate: "", platforms: base });
+  if ("windows-x86_64-portable" in without.platforms) throw new Error("no portable entry without the asset");
+  const withIt = buildUpdaterJson({
+    version: "v1.0.0",
+    notes: "",
+    pubDate: "",
+    platforms: { ...base, "windows-x86_64-portable": p },
+  });
+  if (withIt.platforms["windows-x86_64-portable"]?.url !== "u") throw new Error("portable entry missing");
+});
