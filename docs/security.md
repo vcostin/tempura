@@ -333,8 +333,10 @@ These are easy to misread as stronger guarantees than they are.
 
 Worth keeping; do not “fix” these into something weaker.
 
-- **Lean capabilities** — events, window focus, notification
-  permission, autostart, updater, relaunch. No shell, fs, http, or
+- **Lean capabilities** — events, window focus, the custom title bar's
+  window controls (drag, minimize, maximize, close, always on top, and
+  reading maximized and on-top state), notification permission,
+  autostart, updater, relaunch. No shell, fs, http, or
   opener plugins in `Cargo.toml`; the dialog and global-shortcut plugins
   added since are driven from Rust only and are not granted to the page.
 - **Global shortcuts are opt-in** — nothing is registered until the user

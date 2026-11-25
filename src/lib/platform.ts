@@ -16,6 +16,19 @@ export function isDesktopShell(): boolean {
   return true;
 }
 
+/**
+ * Who draws the title bar. "linux" and "windows" run without the system one, and
+ * Tempura draws its own buttons (on Linux it rounds the window's corners too; Windows 11
+ * rounds them itself). "mac": the system's traffic lights sit over the content.
+ * "native": a browser or a phone, where the page has no window to manage.
+ */
+export function windowChrome(): "linux" | "windows" | "mac" | "native" {
+  if (!isDesktopShell()) return "native";
+  const os = navigator.platform || navigator.userAgent;
+  if (/mac/i.test(os)) return "mac";
+  return /win/i.test(os) ? "windows" : "linux";
+}
+
 export async function ensureNotificationPermission(): Promise<boolean> {
   if (!isTauri()) return false;
   const {

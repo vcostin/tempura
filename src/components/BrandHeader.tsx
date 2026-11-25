@@ -11,11 +11,12 @@ interface Props {
 /**
  * The Tempura lockup at the top of every surface: the wordmark, one line under it
  * (on panels, the panel's name), and the actions at the end. Same height everywhere,
- * so the wordmark never jumps when a panel opens.
+ * so the wordmark never jumps when a panel opens. Dragging it moves the window;
+ * its buttons still click.
  */
 export function BrandHeader({ line, actions, inert }: Props) {
   return (
-    <header className="top-bar brand-header" inert={inert || undefined}>
+    <header className="top-bar brand-header" data-tauri-drag-region="deep" inert={inert || undefined}>
       <div className="brand-lockup">
         <h1 className="brand">
           Tem<span>pura</span>

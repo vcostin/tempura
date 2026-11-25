@@ -3,7 +3,14 @@
 
 fn main() {
     #[cfg(target_os = "linux")]
-    preload_host_wayland_for_appimage();
+    {
+        preload_host_wayland_for_appimage();
+        // The window's Wayland app id (and X11 WM_CLASS) comes from the program name.
+        // Left as the binary's "tempura", it matches no desktop entry, so the panel shows
+        // a generic icon: on Wayland the icon set in code is ignored. The entry the app
+        // writes is named after the identifier (see portal.rs), so use that.
+        glib::set_prgname(Some("app.tempura.focus"));
+    }
     tempura_lib::run()
 }
 

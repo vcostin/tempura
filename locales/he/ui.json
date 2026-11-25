@@ -461,5 +461,13 @@
     "systemWideSettings": "להגדרה בהגדרות",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "תפריט חלון",
+    "minimize": "מזעור",
+    "maximize": "הגדלה",
+    "restore": "שחזור",
+    "alwaysOnTop": "תמיד למעלה",
+    "close": "סגירה"
   }
 }

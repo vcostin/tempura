@@ -462,5 +462,13 @@
     "systemWideSettings": "Задати в налаштуваннях",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "Меню вікна",
+    "minimize": "Згорнути",
+    "maximize": "Розгорнути",
+    "restore": "Відновити",
+    "alwaysOnTop": "Завжди згори",
+    "close": "Закрити"
   }
 }

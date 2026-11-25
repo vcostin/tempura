@@ -460,5 +460,13 @@
     "systemWideSettings": "Les définir dans les réglages",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "Menu de la fenêtre",
+    "minimize": "Réduire",
+    "maximize": "Agrandir",
+    "restore": "Restaurer",
+    "alwaysOnTop": "Toujours au premier plan",
+    "close": "Fermer"
   }
 }

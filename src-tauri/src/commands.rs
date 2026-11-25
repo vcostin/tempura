@@ -289,6 +289,20 @@ pub fn open_feedback_url() -> Result<(), String> {
     crate::open_url::open_feedback_url()
 }
 
+/// Whether "Always on top" can work. Wayland gives apps no way to keep a window above
+/// others (the desktop's own window menu can), so it only works on X11 there.
+/// Not async, so it runs on the main thread, where GTK must be asked.
+#[tauri::command]
+pub fn window_can_stay_on_top() -> bool {
+    #[cfg(target_os = "linux")]
+    {
+        use gtk::glib::prelude::ObjectExt;
+        gtk::gdk::Display::default().is_some_and(|d| d.type_().name() == "GdkX11Display")
+    }
+    #[cfg(not(target_os = "linux"))]
+    true
+}
+
 #[tauri::command]
 pub fn hide_to_tray(app: AppHandle) {
     crate::tray::hide_main(&app);

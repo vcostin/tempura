@@ -37,7 +37,11 @@ mac-usernotifications = "0.3"
 objc2 = "0.6"
 objc2-app-kit = { version = "0.3", default-features = false, features = ["std", "NSFont", "NSFontDescriptor", "NSControl", "NSButton", "NSStatusBarButton", "NSStatusItem", "NSView", "NSResponder", "objc2-core-foundation"] }
 
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.61", features = ["Win32_Foundation", "Win32_Graphics_Dwm"] }
+
 [target.'cfg(target_os = "linux")'.dependencies]
+glib = "0.18"
 ashpd = { version = "0.13", default-features = false, features = ["tokio", "global_shortcuts"] }
 futures-util = { version = "0.3", default-features = false }
 gtk = "0.18"

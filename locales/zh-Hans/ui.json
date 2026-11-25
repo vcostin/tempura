@@ -460,5 +460,13 @@
     "systemWideSettings": "在设置中添加",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "窗口菜单",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "还原",
+    "alwaysOnTop": "置顶",
+    "close": "关闭"
   }
 }

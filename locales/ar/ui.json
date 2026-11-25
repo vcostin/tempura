@@ -464,5 +464,13 @@
     "systemWideSettings": "عيّنها في الإعدادات",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "قائمة النافذة",
+    "minimize": "تصغير",
+    "maximize": "تكبير",
+    "restore": "استعادة",
+    "alwaysOnTop": "دائمًا في المقدمة",
+    "close": "إغلاق"
   }
 }

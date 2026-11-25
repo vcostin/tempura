@@ -168,6 +168,9 @@ body::before {
 #root {
   position: relative;
   z-index: 1;
+  /* Keeps the timer's top margin (the title strip) inside: passed through to the
+     body, it would push the whole window frame down. */
+  display: flow-root;
 }
 
 button,
@@ -205,6 +208,164 @@ button {
   }
 }
 
+/* The window's own title bar (see WindowControls). --chrome-strip is the title
+   strip's height: the scrollers start below it, so nothing scrolls up under the
+   buttons. On Linux and Windows it fits the 24px corner buttons with the same 6px
+   above and below; on macOS, it centres the traffic lights. */
+:root {
+  --chrome-strip: 0px;
+  /* Room between the top of a scroller and its first content. */
+  --chrome-pad: 1rem;
+}
+
+:root[data-chrome="linux"],
+:root[data-chrome="windows"] {
+  --chrome-strip: 2.25rem;
+  --chrome-pad: 0.625rem;
+}
+
+:root[data-chrome="mac"] {
+  /* The traffic lights' centre sits about 16px down, so a 32px strip centres them. */
+  --chrome-strip: 2rem;
+  --chrome-pad: 0.625rem;
+}
+
+/* Linux: the window is transparent, and the body is the rounded frame. A background
+   image on html keeps the body's background on the body instead of the whole canvas;
+   clip-path also clips fixed layers (sheets, the texture) to the corners. */
+:root[data-chrome="linux"] {
+  background: linear-gradient(transparent, transparent);
+}
+
+:root[data-chrome="linux"] body {
+  height: 100vh;
+  border-radius: 12px;
+  clip-path: inset(0 round 12px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+:root[data-chrome="linux"][data-maximized="true"] body {
+  border-radius: 0;
+  clip-path: none;
+  box-shadow: none;
+}
+
+.window-drag-strip {
+  position: fixed;
+  inset: 0 0 auto;
+  height: var(--chrome-strip);
+  z-index: 70;
+  pointer-events: none;
+  /* A hairline where the title strip ends and the scrolling content begins. */
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+/* The part that drags. app-region lets WebView2 (Windows) treat it as a caption,
+   so touch and pen drag it too; elsewhere Tauri's own drag handler does. */
+.window-drag-area {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  app-region: drag;
+}
+
+/* macOS: leave the traffic lights' corner to the system buttons. */
+:root[data-chrome="mac"] .window-drag-area {
+  left: 78px;
+}
+
+/* The mark and the buttons share one inset from the top and the sides, and one
+   24px row, so the corners match. */
+.window-mark {
+  position: fixed;
+  top: 6px;
+  inset-inline-start: 6px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  cursor: pointer;
+  z-index: 71;
+  transition: background-color 0.15s ease;
+}
+
+.window-mark:hover,
+.window-mark[aria-expanded="true"] {
+  background: var(--accent-soft);
+}
+
+.window-mark:focus-visible {
+  outline-offset: 1px;
+}
+
+/* Two classes, to win over .chip-menu's absolute position and lower layer: the
+   menu has to open above panels, sheets and toasts. */
+.chip-menu.window-menu {
+  position: fixed;
+  top: 34px;
+  inset-inline-start: 6px;
+  z-index: 72;
+}
+
+/* A check column, like a system menu: every label starts after it. */
+.chip-menu.window-menu [role^="menuitem"] {
+  position: relative;
+  padding-inline-start: 1.8rem;
+}
+
+.window-menu-check {
+  position: absolute;
+  inset-inline-start: 0.65rem;
+  color: var(--accent);
+}
+
+.window-menu-sep {
+  height: 1px;
+  margin: 0.25rem 0.5rem;
+  background: color-mix(in srgb, var(--ink) 12%, transparent);
+}
+
+.window-controls {
+  position: fixed;
+  top: 6px;
+  inset-inline-end: 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 71;
+}
+
+.window-btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--ink-muted);
+  background: color-mix(in srgb, var(--surface-solid) 55%, transparent);
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.window-btn:hover {
+  color: var(--ink);
+  background: var(--accent-soft);
+}
+
+.window-btn--close:hover {
+  color: #fff;
+  background: var(--danger);
+}
+
+.window-btn:focus-visible {
+  outline-offset: 1px;
+}
+
 /* A fixed height, not a minimum: the timer's ring takes whatever is left over
    (see .ring-wrap), so the timer fits the window instead of scrolling. */
 .app-shell {
@@ -213,14 +374,15 @@ button {
      otherwise they stuck out below a scrolled timer and the window scrolled too. */
   position: relative;
   overflow-x: hidden;
-  height: 100dvh;
-  height: 100svh;
-  padding: max(1rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right))
-    max(1.25rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+  height: calc(100dvh - var(--chrome-strip));
+  height: calc(100svh - var(--chrome-strip));
+  padding: max(var(--chrome-pad), env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right)) max(1.25rem, env(safe-area-inset-bottom))
+    max(1.25rem, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   max-width: 480px;
-  margin: 0 auto;
+  margin: var(--chrome-strip) auto 0;
   transition: background-color 0.4s ease, color 0.4s ease;
   overflow-y: auto;
   scrollbar-width: thin;
@@ -708,7 +870,8 @@ button {
   box-shadow: 0 10px 30px color-mix(in srgb, var(--ink) 20%, transparent);
 }
 
-.chip-menu [role="menuitem"] {
+.chip-menu [role="menuitem"],
+.chip-menu [role="menuitemcheckbox"] {
   min-height: 36px;
   padding: 0.4rem 0.7rem;
   border-radius: 8px;
@@ -718,7 +881,9 @@ button {
 }
 
 .chip-menu [role="menuitem"]:hover:not([aria-disabled="true"]),
-.chip-menu [role="menuitem"]:focus-visible {
+.chip-menu [role="menuitem"]:focus-visible,
+.chip-menu [role="menuitemcheckbox"]:hover,
+.chip-menu [role="menuitemcheckbox"]:focus-visible {
   background: var(--accent-soft);
 }
 
@@ -1862,7 +2027,7 @@ button.rhythm-card:hover {
 
 .panel {
   position: absolute;
-  inset: 0;
+  inset: var(--chrome-strip) 0 0;
   display: flex;
   flex-direction: column;
 }
@@ -1871,8 +2036,8 @@ button.rhythm-card:hover {
   flex: 1;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: max(1rem, env(safe-area-inset-top)) max(1.25rem, env(safe-area-inset-right))
-    max(1.5rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
+  padding: max(var(--chrome-pad), env(safe-area-inset-top))
+    max(1.25rem, env(safe-area-inset-right)) max(1.5rem, env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left));
   scrollbar-width: thin;
   scrollbar-color: color-mix(in srgb, var(--ink) 28%, transparent) transparent;
 }

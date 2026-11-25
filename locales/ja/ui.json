@@ -460,5 +460,13 @@
     "systemWideSettings": "設定で登録",
     "key_alt": "Alt",
     "key_super": "Super"
+  },
+  "window": {
+    "menu": "ウィンドウメニュー",
+    "minimize": "最小化",
+    "maximize": "最大化",
+    "restore": "元のサイズに戻す",
+    "alwaysOnTop": "常に手前に表示",
+    "close": "閉じる"
   }
 }
