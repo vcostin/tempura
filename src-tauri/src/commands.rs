@@ -308,7 +308,7 @@ pub async fn install_portable_update(
     if !cfg!(feature = "portable") {
         return Err("not the portable copy".into());
     }
-    if !engine.settings().portable_self_update {
+    if !engine.portable_self_update() {
         return Err("updating this copy in place is off".into());
     }
     use tauri_plugin_updater::UpdaterExt;

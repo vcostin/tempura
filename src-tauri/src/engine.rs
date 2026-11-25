@@ -133,6 +133,10 @@ impl EngineHandle {
         self.inner.lock().settings.menu_bar_countdown
     }
 
+    pub fn portable_self_update(&self) -> bool {
+        self.inner.lock().settings.portable_self_update
+    }
+
     pub fn locale(&self) -> String {
         crate::i18n::resolve_locale(&self.inner.lock().settings.locale)
     }
