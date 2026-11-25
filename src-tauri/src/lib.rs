@@ -121,6 +121,8 @@ pub fn run() {
             {
                 if let Some(win) = app.get_webview_window("main") {
                     let _ = win.set_icon(tray::APP_ICON);
+                    #[cfg(windows)]
+                    round_corners(&win);
                 }
                 // Wayland ignores set_icon: the panel finds the icon through the
                 // desktop entry named like the app id (set in main.rs).
@@ -186,4 +188,23 @@ pub fn run() {
                 }
             }
         });
+}
+
+/// Windows 11 rounds a window's corners by its styles, and a window without the
+/// system title bar may not qualify, so ask for them. Windows 10 doesn't know the
+/// setting and refuses it, which leaves its usual square corners.
+#[cfg(windows)]
+fn round_corners(win: &tauri::WebviewWindow) {
+    use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_ROUND};
+    let Ok(hwnd) = win.hwnd() else { return };
+    let preference = DWMWCP_ROUND;
+    // SAFETY: a live window handle, and a pointer to a value of the size we pass.
+    let _ = unsafe {
+        DwmSetWindowAttribute(
+            hwnd,
+            DWMWA_WINDOW_CORNER_PREFERENCE,
+            std::ptr::from_ref(&preference).cast(),
+            std::mem::size_of_val(&preference) as u32,
+        )
+    };
 }

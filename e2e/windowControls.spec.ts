@@ -58,6 +58,19 @@ for (const [locale, menu, minimize, maximize, close] of [
       expect(await calls(page)).toContain("plugin:window|toggle_maximize");
     });
 
+    test("the window menu opens above an open sheet", async ({ page }) => {
+      await page.locator(".rhythm-card").click();
+      await page.getByRole("button", { name: menu, exact: true }).click();
+      const item = page.getByRole("menuitem", { name: close, exact: true });
+      await expect(item).toBeVisible();
+      const box = (await item.boundingBox())!;
+      const onTop = await page.evaluate(
+        ([x, y]) => document.elementFromPoint(x, y)?.closest("[role='menuitem']")?.textContent ?? null,
+        [box.x + box.width / 2, box.y + box.height / 2],
+      );
+      expect(onTop).toBe(close);
+    });
+
     test("scrolled content stays below the title strip", async ({ page }) => {
       const strip = (await page.locator(".window-drag-strip").boundingBox())!;
       const below = async (sel: string) => {

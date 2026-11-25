@@ -19,7 +19,10 @@ export function WindowControls() {
   const { t } = useTranslation();
   const chrome = windowChrome();
   const markRef = useRef<HTMLButtonElement>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
+  // The menu opens once the window's state is known, so it never shows a guess.
+  const [menu, setMenu] = useState<MenuState | null>(null);
+  const menuOpen = menu !== null;
+  const openMenu = () => void readMenuState().then(setMenu);
 
   useEffect(() => {
     if (chrome !== "linux") return;
@@ -42,7 +45,9 @@ export function WindowControls() {
 
   return (
     <>
-      <div className="window-drag-strip" data-tauri-drag-region aria-hidden="true" />
+      <div className="window-drag-strip" aria-hidden="true">
+        <div className="window-drag-area" data-tauri-drag-region />
+      </div>
       {chrome !== "mac" && (
         <button
           ref={markRef}
@@ -52,26 +57,27 @@ export function WindowControls() {
           title={menuOpen ? undefined : t("window.menu")}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          onClick={() => setMenuOpen((open) => !open)}
+          onClick={() => (menuOpen ? setMenu(null) : openMenu())}
           onContextMenu={(e) => {
             e.preventDefault();
-            setMenuOpen(true);
+            if (!menuOpen) openMenu();
           }}
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown") {
+            if (e.key === "ArrowDown" && !menuOpen) {
               e.preventDefault();
-              setMenuOpen(true);
+              openMenu();
             }
           }}
         >
           <ShrimpMark />
         </button>
       )}
-      {menuOpen && (
+      {menu && (
         <WindowMenu
+          state={menu}
           markRef={markRef}
           onClose={(refocus) => {
-            setMenuOpen(false);
+            setMenu(null);
             if (refocus) markRef.current?.focus();
           }}
         />
@@ -109,35 +115,37 @@ export function WindowControls() {
  * on GTK holds a pointer grab, and when something else takes the screen (a screenshot
  * tool) the grab can outlive the menu and leave the window deaf to clicks.
  */
+/** What the menu shows: Restore or Maximize, and the on-top check (null: not offered). */
+interface MenuState {
+  maximized: boolean;
+  onTop: boolean | null;
+}
+
+async function readMenuState(): Promise<MenuState> {
+  const win = getCurrentWindow();
+  const [maximized, canStay, onTop] = await Promise.all([
+    win.isMaximized().catch(() => false),
+    invoke<boolean>("window_can_stay_on_top").catch(() => false),
+    win.isAlwaysOnTop().catch(() => false),
+  ]);
+  return { maximized: maximized === true, onTop: canStay === true ? onTop === true : null };
+}
+
 function WindowMenu({
+  state,
   markRef,
   onClose,
 }: {
+  state: MenuState;
   markRef: React.RefObject<HTMLButtonElement | null>;
   onClose: (refocus: boolean) => void;
 }) {
   const { t } = useTranslation();
   const ref = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<{ maximized: boolean; onTop: boolean | null } | null>(null);
-
-  useEffect(() => {
-    const win = getCurrentWindow();
-    let live = true;
-    void Promise.all([
-      win.isMaximized().catch(() => false),
-      invoke<boolean>("window_can_stay_on_top").catch(() => false),
-      win.isAlwaysOnTop().catch(() => false),
-    ]).then(([maximized, canStay, onTop]) => {
-      if (live) setState({ maximized: maximized === true, onTop: canStay ? onTop === true : null });
-    });
-    return () => {
-      live = false;
-    };
-  }, []);
 
   useLayoutEffect(() => {
-    if (state) ref.current?.querySelector<HTMLElement>("[role^='menuitem']")?.focus();
-  }, [state]);
+    ref.current?.querySelector<HTMLElement>("[role^='menuitem']")?.focus();
+  }, []);
 
   useEffect(() => {
     function onPointer(e: PointerEvent) {
@@ -177,7 +185,6 @@ function WindowMenu({
     }
   }
 
-  if (!state) return null;
   const win = getCurrentWindow();
   const run = (action: () => Promise<unknown>) => () => {
     onClose(false);

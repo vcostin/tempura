@@ -254,8 +254,23 @@ button {
   inset: 0 0 auto;
   height: var(--chrome-strip);
   z-index: 70;
+  pointer-events: none;
   /* A hairline where the title strip ends and the scrolling content begins. */
   border-bottom: 1px solid color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+/* The part that drags. app-region lets WebView2 (Windows) treat it as a caption,
+   so touch and pen drag it too; elsewhere Tauri's own drag handler does. */
+.window-drag-area {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  app-region: drag;
+}
+
+/* macOS: leave the traffic lights' corner to the system buttons. */
+:root[data-chrome="mac"] .window-drag-area {
+  left: 78px;
 }
 
 /* The mark and the buttons share one inset from the top and the sides, and one
@@ -286,7 +301,9 @@ button {
   outline-offset: 1px;
 }
 
-.window-menu {
+/* Two classes, to win over .chip-menu's absolute position and lower layer: the
+   menu has to open above panels, sheets and toasts. */
+.chip-menu.window-menu {
   position: fixed;
   top: 34px;
   inset-inline-start: 6px;
