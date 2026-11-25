@@ -124,6 +124,9 @@ pub struct AppSettings {
     pub global_hotkeys: GlobalHotkeys,
     /// macOS: the time left shows next to the menu bar icon. Default on.
     pub menu_bar_countdown: bool,
+    /// Windows portable copy: "Update & restart" replaces its own exe. Default off:
+    /// it only says a new version is out.
+    pub portable_self_update: bool,
 }
 
 /// Recorded system-wide shortcuts, like "Control+Alt+KeyP"; empty means not set.
@@ -153,6 +156,7 @@ impl Default for AppSettings {
             auto_continue: true,
             global_hotkeys: GlobalHotkeys::default(),
             menu_bar_countdown: true,
+            portable_self_update: false,
         }
     }
 }
@@ -492,6 +496,8 @@ pub struct AppInfo {
     pub debug: bool,
     /// Which desktop notification backend is active (Debug page).
     pub notification_backend: String,
+    /// The Windows portable exe (built with the `portable` feature).
+    pub portable: bool,
 }
 
 #[cfg(test)]

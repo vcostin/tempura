@@ -7,6 +7,8 @@ interface Props {
   status: UpdateUiStatus;
   onCheck: () => void;
   onInstall: () => void;
+  /** The Windows portable exe: whether "Update & restart" may replace its own file. */
+  portable?: { selfUpdate: boolean; onToggleSelfUpdate: () => void };
 }
 
 export function UpdatesSection(props: Props) {
@@ -36,6 +38,23 @@ export function UpdatesSection(props: Props) {
       <p className="hint" style={{ margin: "0 0 0.85rem" }}>
         {t("updates.autoCheckHint")}
       </p>
+      {props.portable && (
+        <>
+          <label className="toggle-row">
+            <span>{t("updates.portableSelfUpdate")}</span>
+            <button
+              type="button"
+              className="toggle"
+              role="switch"
+              aria-checked={props.portable.selfUpdate}
+              onClick={props.portable.onToggleSelfUpdate}
+            />
+          </label>
+          <p className="hint" style={{ margin: "0 0 0.85rem" }}>
+            {t("updates.portableSelfUpdateHint")}
+          </p>
+        </>
+      )}
       <div className="update-actions">
         <button
           type="button"
@@ -52,7 +71,7 @@ export function UpdatesSection(props: Props) {
             disabled={busy}
             onClick={props.onInstall}
           >
-            {t("updates.updateAndRestart")}
+            {props.portable && !props.portable.selfUpdate ? t("updates.download") : t("updates.updateAndRestart")}
           </button>
         )}
       </div>

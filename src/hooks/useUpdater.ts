@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Update } from "@tauri-apps/plugin-updater";
 import { isDesktopShell, isTauri } from "../lib/platform";
@@ -14,10 +15,20 @@ interface Options {
   autoCheck: boolean;
   /** Packaged release builds may offer an overlay; `tauri:dev` stays silent. */
   allowAutoOffer: boolean;
+  /**
+   * The Windows portable exe. It checks its own entry in `latest.json`, and never
+   * runs an installer: "Update & restart" swaps its exe only when `selfUpdate` is
+   * on; otherwise the action opens the download page.
+   */
+  portable: boolean;
+  selfUpdate: boolean;
 }
 
+/** The portable exe's entry in `latest.json` (see src-tauri/src/portable.rs). */
+const PORTABLE_TARGET = "windows-x86_64-portable";
+
 export function useUpdater(options: Options) {
-  const { ready, autoCheck, allowAutoOffer } = options;
+  const { ready, autoCheck, allowAutoOffer, portable, selfUpdate } = options;
   const available = isTauri() && isDesktopShell();
   const [status, setStatus] = useState<UpdateUiStatus>({ kind: "idle" });
   const [skipped, setSkipped] = useState(false);
@@ -34,7 +45,7 @@ export function useUpdater(options: Options) {
     setStatus({ kind: "checking" });
     try {
       const { check: checkUpdate } = await import("@tauri-apps/plugin-updater");
-      const update = await checkUpdate({ timeout: 15_000 });
+      const update = await checkUpdate({ timeout: 15_000, ...(portable ? { target: PORTABLE_TARGET } : {}) });
       if (!update) {
         pendingRef.current = null;
         setStatus({ kind: "upToDate" });
@@ -55,13 +66,34 @@ export function useUpdater(options: Options) {
     } finally {
       busyRef.current = false;
     }
-  }, [available]);
+  }, [available, portable]);
 
   const install = useCallback(async () => {
     const pending = pendingRef.current;
     if (!pending || busyRef.current) return;
+    if (portable && !selfUpdate) {
+      await invoke("open_download_page").catch(() => {});
+      return;
+    }
     busyRef.current = true;
     const version = pending.version;
+    if (portable) {
+      setStatus({ kind: "downloading", version, percent: null });
+      try {
+        // Downloads, checks the signature, swaps the exe and restarts.
+        await invoke("install_portable_update");
+      } catch (err) {
+        setStatus({
+          kind: "error",
+          source: "install",
+          soft: isSoftUpdateError(err),
+          detail: formatUpdateErrorDetail(err) || undefined,
+        });
+      } finally {
+        busyRef.current = false;
+      }
+      return;
+    }
     let downloaded = 0;
     let total: number | null = null;
     setStatus({ kind: "downloading", version, percent: null });
@@ -99,7 +131,7 @@ export function useUpdater(options: Options) {
     } finally {
       busyRef.current = false;
     }
-  }, []);
+  }, [portable, selfUpdate]);
 
   const skip = useCallback(() => {
     setSkipped(true);

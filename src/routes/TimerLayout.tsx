@@ -82,6 +82,8 @@ export function TimerLayout() {
     ready: settingsApi.info != null,
     autoCheck: settingsApi.settings.checkUpdatesOnLaunch,
     allowAutoOffer: settingsApi.info != null && !settingsApi.info.debug,
+    portable: settingsApi.info?.portable === true,
+    selfUpdate: settingsApi.settings.portableSelfUpdate,
   });
   const [windowHidden, setWindowHidden] = useState(false);
   const [workingOn, setWorkingOn] = useState("");

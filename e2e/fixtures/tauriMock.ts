@@ -8,7 +8,7 @@ import type { Page } from "@playwright/test";
  */
 export async function installTauriMock(
   page: Page,
-  options: { settings?: Record<string, unknown> } = {},
+  options: { settings?: Record<string, unknown>; portable?: boolean } = {},
 ) {
   await page.addInitScript((options) => {
     const now = "2026-01-01T00:00:00Z";
@@ -58,6 +58,7 @@ export async function installTauriMock(
       autoContinue: true,
       menuBarCountdown: true,
       globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
+      portableSelfUpdate: false,
       ...options.settings,
     };
     let snapshot = {
@@ -169,6 +170,7 @@ export async function installTauriMock(
         privacy: "",
         debug: false,
         notificationBackend: "mock",
+        portable: options.portable ?? false,
       }),
       create_technique: (a) => {
         const tech = {

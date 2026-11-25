@@ -263,6 +263,7 @@ pub fn get_app_info() -> AppInfo {
         privacy: String::new(),
         debug: cfg!(debug_assertions),
         notification_backend: crate::notify::backend_label().into(),
+        portable: cfg!(feature = "portable"),
     }
 }
 
@@ -287,6 +288,42 @@ pub fn debug_test_notification(
 #[tauri::command]
 pub fn open_feedback_url() -> Result<(), String> {
     crate::open_url::open_feedback_url()
+}
+
+/// Open the latest release's page, where a portable copy's update is downloaded.
+#[tauri::command]
+pub fn open_download_page() -> Result<(), String> {
+    crate::open_url::open_download_page()
+}
+
+/// Portable copy only, and only when the user allowed it: download the new portable
+/// exe (the updater checks its signature against the app's key), put it in place of
+/// this one and restart. Windows lets a running exe be renamed, so the old one moves
+/// aside as `tempura.exe.old` and is removed on the next start.
+#[tauri::command]
+pub async fn install_portable_update(
+    app: AppHandle,
+    engine: State<'_, EngineHandle>,
+) -> Result<(), String> {
+    if !cfg!(feature = "portable") {
+        return Err("not the portable copy".into());
+    }
+    if !engine.settings().portable_self_update {
+        return Err("updating this copy in place is off".into());
+    }
+    use tauri_plugin_updater::UpdaterExt;
+    let update = app
+        .updater_builder()
+        .target(crate::portable::UPDATER_TARGET)
+        .build()
+        .map_err(|e| e.to_string())?
+        .check()
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or("no newer version")?;
+    let bytes = update.download(|_, _| {}, || {}).await.map_err(|e| e.to_string())?;
+    crate::portable::replace_exe(&bytes)?;
+    app.restart();
 }
 
 /// Whether "Always on top" can work. Wayland gives apps no way to keep a window above

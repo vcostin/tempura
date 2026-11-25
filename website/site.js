@@ -110,6 +110,7 @@ function classify(name) {
   if (n.endsWith(".deb")) return { os: "linux", kind: ".deb", arch: archOf(n) };
   if (n.endsWith(".rpm")) return { os: "linux", kind: ".rpm", arch: archOf(n) };
   if (n.endsWith(".msi")) return { os: "windows", kind: "MSI", arch: archOf(n), primary: true };
+  if (n.endsWith("-portable.exe")) return { os: "windows", kind: "Portable", arch: archOf(n) };
   if (n.endsWith(".exe")) return { os: "windows", kind: "Installer", arch: archOf(n) };
   if (n.endsWith(".dmg")) return { os: "macos", kind: "DMG", arch: archOf(n), primary: true };
   return null;

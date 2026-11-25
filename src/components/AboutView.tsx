@@ -23,6 +23,7 @@ interface Props {
     status: UpdateUiStatus;
     onCheck: () => void;
     onInstall: () => void;
+    portable?: { selfUpdate: boolean; onToggleSelfUpdate: () => void };
   };
 }
 
@@ -161,6 +162,7 @@ export function AboutView(props: Props) {
           status={props.updater.status}
           onCheck={props.updater.onCheck}
           onInstall={props.updater.onInstall}
+          portable={props.updater.portable}
         />
       )}
     </ScrollPanel>

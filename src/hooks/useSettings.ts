@@ -26,6 +26,7 @@ const defaultSettings: AppSettings = {
   autoContinue: true,
   menuBarCountdown: true,
   globalHotkeys: { toggle: "", skip: "", show: "", portal: false },
+  portableSelfUpdate: false,
 };
 
 async function systemLocale(): Promise<string> {
