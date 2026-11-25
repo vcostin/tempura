@@ -22,7 +22,37 @@ export function WindowControls() {
   // The menu opens once the window's state is known, so it never shows a guess.
   const [menu, setMenu] = useState<MenuState | null>(null);
   const menuOpen = menu !== null;
-  const openMenu = () => void readMenuState().then(setMenu);
+  // The open waiting on that state, if any. A click elsewhere, Escape, leaving the
+  // window or a second click on the mark cancels it, as they would close the menu.
+  const pending = useRef(0);
+  const opens = useRef(0);
+  const openMenu = () => {
+    const id = ++opens.current;
+    pending.current = id;
+    void readMenuState().then((state) => {
+      if (pending.current !== id) return;
+      pending.current = 0;
+      setMenu(state);
+    });
+  };
+
+  useEffect(() => {
+    const cancel = () => (pending.current = 0);
+    const onPointer = (e: PointerEvent) => {
+      if (!markRef.current?.contains(e.target as Node)) cancel();
+    };
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === "Escape") cancel();
+    };
+    window.addEventListener("pointerdown", onPointer);
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("blur", cancel);
+    return () => {
+      window.removeEventListener("pointerdown", onPointer);
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("blur", cancel);
+    };
+  }, []);
 
   useEffect(() => {
     if (chrome !== "linux") return;
@@ -57,13 +87,17 @@ export function WindowControls() {
           title={menuOpen ? undefined : t("window.menu")}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          onClick={() => (menuOpen ? setMenu(null) : openMenu())}
+          onClick={() => {
+            if (menuOpen) setMenu(null);
+            else if (pending.current) pending.current = 0;
+            else openMenu();
+          }}
           onContextMenu={(e) => {
             e.preventDefault();
-            if (!menuOpen) openMenu();
+            if (!menuOpen && !pending.current) openMenu();
           }}
           onKeyDown={(e) => {
-            if (e.key === "ArrowDown" && !menuOpen) {
+            if (e.key === "ArrowDown" && !menuOpen && !pending.current) {
               e.preventDefault();
               openMenu();
             }

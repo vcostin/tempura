@@ -103,6 +103,28 @@ test.describe("rounded window (Linux)", () => {
   });
 });
 
+test("a click elsewhere cancels a menu still opening", async ({ page }) => {
+  await installTauriMock(page);
+  // Hold the window's answer back, as a slow backend would.
+  await page.addInitScript(() => {
+    const internals = (window as any).__TAURI_INTERNALS__;
+    const invoke = internals.invoke;
+    (window as any).__release = [] as (() => void)[];
+    internals.invoke = (cmd: string, args: unknown) =>
+      cmd === "plugin:window|is_maximized"
+        ? new Promise((done) => (window as any).__release.push(() => done(false)))
+        : invoke(cmd, args);
+  });
+  await page.goto("/");
+  await page.waitForSelector(".brand-header");
+  await page.getByRole("button", { name: "Window menu" }).click();
+  await page.mouse.click(200, 400);
+  await page.evaluate(() => (window as any).__release.forEach((f: () => void) => f()));
+  await page.waitForTimeout(100);
+  await expect(page.getByRole("menu", { name: "Window menu" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Window menu" })).toHaveAttribute("aria-expanded", "false");
+});
+
 test("Always on top shows where the desktop allows it", async ({ page }) => {
   await installTauriMock(page);
   await page.addInitScript(() => {
